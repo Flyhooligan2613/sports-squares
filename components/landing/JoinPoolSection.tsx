@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound } from "lucide-react";
+import { KeyRound, Sparkles } from "lucide-react";
+import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import LandingSection from "@/components/landing/LandingSection";
+import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import { Button, SectionHeader } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
-import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { listInviteSessions } from "@/lib/invites/session";
 import { normalizePoolCode, parseJoinInput } from "@/lib/landing/join";
@@ -74,62 +76,66 @@ export default function JoinPoolSection() {
   }
 
   return (
-    <section id="join" className="scroll-mt-20 sb-section bg-sb-surface/20">
-      <div className="max-w-xl mx-auto w-full px-4 sm:px-6">
-        <ScrollReveal>
-          <SectionHeader
-            title="Already have an invite?"
-            subtitle="Enter your Pool Code or paste your personal invite link."
-          />
-        </ScrollReveal>
+    <LandingSection id="join" variant="glow" scrollMargin>
+      <ScrollReveal>
+        <LandingSectionHeader
+          eyebrow="Pool Access"
+          title="Already have an invite?"
+          subtitle="Enter your pool code or paste your personal invite link to jump straight to your board."
+        />
+      </ScrollReveal>
 
-        {activeInvite && (
-          <ScrollReveal delay={80}>
-            <Card
-              variant="glass"
-              className="mb-6 border-sb-purple/25 px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-            >
+      {activeInvite && (
+        <ScrollReveal delay={80}>
+          <LandingGlassCard
+            glow
+            className="mb-6 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-sb-purple/25"
+          >
+            <div className="flex items-center gap-3">
+              <span className="landing-icon-badge !w-10 !h-10 !mb-0">
+                <Sparkles className="w-4 h-4" />
+              </span>
               <p className="text-sb-secondary text-sm">
                 Welcome back — your invite session is ready.
               </p>
-              <Button href={activeInvite.path} variant="primary" size="sm">
-                Continue to My Squares
-              </Button>
-            </Card>
-          </ScrollReveal>
-        )}
-
-        <ScrollReveal delay={120}>
-          <Card variant="elevated" glow className="p-5 sm:p-7">
-            <div className="flex items-center gap-2 text-sb-muted text-xs uppercase tracking-wider font-semibold mb-4">
-              <KeyRound className="w-4 h-4 text-sb-glow" />
-              Pool access
             </div>
-            <form onSubmit={handleJoin} className="space-y-4">
-              <Input
-                id="pool-code"
-                value={code}
-                onChange={(e) => {
-                  setCode(e.target.value);
-                  setError("");
-                }}
-                placeholder="Pool code or invite link"
-                autoComplete="off"
-                aria-label="Pool code or invite link"
-              />
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? "Finding pool..." : "Join Pool"}
-              </Button>
-              {error && <Alert variant="error">{error}</Alert>}
-            </form>
-          </Card>
+            <Button href={activeInvite.path} variant="primary" size="sm">
+              Continue to My Squares
+            </Button>
+          </LandingGlassCard>
         </ScrollReveal>
-      </div>
-    </section>
+      )}
+
+      <ScrollReveal delay={120}>
+        <div className="landing-join-form-card">
+          <div className="flex items-center gap-2 text-sb-muted text-xs uppercase tracking-wider font-semibold mb-5">
+            <KeyRound className="w-4 h-4 text-sb-glow" />
+            Enter pool code
+          </div>
+          <form onSubmit={handleJoin} className="space-y-4">
+            <Input
+              id="pool-code"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setError("");
+              }}
+              placeholder="Pool code or invite link"
+              autoComplete="off"
+              aria-label="Pool code or invite link"
+            />
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full hero-btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Finding pool..." : "Join Pool"}
+            </Button>
+            {error && <Alert variant="error">{error}</Alert>}
+          </form>
+        </div>
+      </ScrollReveal>
+    </LandingSection>
   );
 }

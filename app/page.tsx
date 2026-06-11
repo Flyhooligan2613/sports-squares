@@ -8,14 +8,19 @@ import {
   Smartphone,
   Sparkles,
   CircleDot,
+  ChevronRight,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Footer from "@/components/Footer";
 import FeaturedPools from "@/components/landing/FeaturedPools";
 import HeroSection from "@/components/landing/HeroSection";
 import JoinPoolSection from "@/components/landing/JoinPoolSection";
+import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import LandingSection from "@/components/landing/LandingSection";
+import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import { SectionHeader, Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 
 const PLAYER_STEPS = [
   {
@@ -40,7 +45,7 @@ const PLAYER_STEPS = [
   },
 ];
 
-const SPORTS = [
+const SPORTS: { name: string; icon: LucideIcon; description: string }[] = [
   {
     name: "NFL",
     icon: ShieldHalf,
@@ -63,7 +68,7 @@ const SPORTS = [
   },
 ];
 
-const WHY_PLAY = [
+const WHY_PLAY: { title: string; description: string; icon: LucideIcon }[] = [
   {
     title: "Secure Payments",
     description: "Checkout powered by Stripe — fast, safe, and familiar.",
@@ -99,95 +104,95 @@ const WHY_PLAY = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col overflow-x-hidden">
+    <div className="landing-page min-h-[calc(100vh-3.5rem)] flex flex-col overflow-x-hidden">
       <main className="flex-1">
         <HeroSection />
         <SocialProof />
         <JoinPoolSection />
         <FeaturedPools />
 
-        <section className="sb-section max-w-6xl mx-auto w-full px-4 sm:px-6">
+        <LandingSection>
           <ScrollReveal>
-            <SectionHeader
-              title="How It Works"
-              subtitle="From invite to winning square in four simple steps."
+            <LandingSectionHeader
+              eyebrow="How It Works"
+              title="From invite to winning square"
+              subtitle="Four simple steps to play sports squares online."
             />
           </ScrollReveal>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {PLAYER_STEPS.map((step, index) => (
               <ScrollReveal key={step.title} delay={index * 70}>
-                <div className="sb-card-hover p-6 sm:p-7 h-full">
-                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-sb-purple/20 border border-sb-purple/30 text-sb-glow text-sm font-bold mb-5">
-                    {index + 1}
-                  </span>
+                <LandingGlassCard className="p-6 sm:p-7 h-full">
+                  <span className="landing-step-number">{index + 1}</span>
                   <h3 className="text-white font-semibold text-lg mb-2">
                     {step.title}
                   </h3>
                   <p className="text-sb-muted text-sm leading-relaxed">
                     {step.description}
                   </p>
-                </div>
+                </LandingGlassCard>
               </ScrollReveal>
             ))}
           </div>
-        </section>
+        </LandingSection>
 
-        <section className="sb-section bg-sb-surface/30 border-y border-white/[0.06]">
-          <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
-            <ScrollReveal>
-              <SectionHeader title="Supported Sports" />
-            </ScrollReveal>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-              {SPORTS.map((sport, index) => (
-                <ScrollReveal key={sport.name} delay={index * 60}>
-                  <div className="sb-card-hover p-7 sm:p-8 text-center sm:text-left h-full">
-                    <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-sb-purple/10 border border-sb-purple/20 text-sb-glow mb-5">
-                      <sport.icon className="w-6 h-6" strokeWidth={1.75} />
-                    </span>
-                    <h3 className="text-white font-semibold text-lg mb-2">
-                      {sport.name}
-                    </h3>
-                    <p className="text-sb-muted text-sm leading-relaxed">
-                      {sport.description}
-                    </p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="sb-section max-w-6xl mx-auto w-full px-4 sm:px-6">
+        <LandingSection variant="alt">
           <ScrollReveal>
-            <SectionHeader
-              title="Why Play With Us"
-              subtitle="A premium squares experience built for players."
+            <LandingSectionHeader
+              eyebrow="Sports"
+              title="Supported leagues"
+              subtitle="Run squares pools for the biggest games in sports."
             />
           </ScrollReveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {SPORTS.map((sport, index) => (
+              <ScrollReveal key={sport.name} delay={index * 60}>
+                <LandingGlassCard className="p-7 sm:p-8 text-center sm:text-left h-full">
+                  <span className="landing-icon-badge mx-auto sm:mx-0">
+                    <sport.icon className="w-6 h-6" strokeWidth={1.75} />
+                  </span>
+                  <h3 className="text-white font-semibold text-lg mb-2">
+                    {sport.name}
+                  </h3>
+                  <p className="text-sb-muted text-sm leading-relaxed">
+                    {sport.description}
+                  </p>
+                </LandingGlassCard>
+              </ScrollReveal>
+            ))}
+          </div>
+        </LandingSection>
+
+        <LandingSection variant="glow">
+          <ScrollReveal>
+            <LandingSectionHeader
+              eyebrow="Why SquareBoards"
+              title="Built for players who expect more"
+              subtitle="A premium squares experience with secure checkout, live scores, and zero spreadsheets."
+            />
+          </ScrollReveal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {WHY_PLAY.map((item, index) => (
               <ScrollReveal key={item.title} delay={index * 50}>
-                <div className="sb-card-hover p-6 sm:p-7 h-full">
-                  <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-sb-purple/10 border border-sb-purple/20 text-sb-glow mb-4">
+                <LandingGlassCard className="p-6 sm:p-7 h-full">
+                  <span className="landing-icon-badge">
                     <item.icon className="w-5 h-5" strokeWidth={1.75} />
                   </span>
-                  <h3 className="text-white font-semibold mb-2">
-                    {item.title}
-                  </h3>
+                  <h3 className="text-white font-semibold mb-2">{item.title}</h3>
                   <p className="text-sb-muted text-sm leading-relaxed">
                     {item.description}
                   </p>
-                </div>
+                </LandingGlassCard>
               </ScrollReveal>
             ))}
           </div>
-        </section>
+        </LandingSection>
 
-        <section className="sb-section max-w-6xl mx-auto w-full px-4 sm:px-6 pb-8">
+        <LandingSection>
           <ScrollReveal>
-            <div className="relative overflow-hidden rounded-3xl border border-sb-purple/20 bg-gradient-to-br from-sb-purple/10 via-sb-surface to-sb-bg p-8 sm:p-12 text-center shadow-sb-glow">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(91,76,247,0.15),transparent_60%)] pointer-events-none" />
-              <div className="relative">
+            <div className="landing-cta-banner">
+              <div className="relative z-10">
+                <p className="landing-section-eyebrow mb-4">For Hosts</p>
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight">
                   Ready to Host Your Own Pool?
                 </h2>
@@ -196,15 +201,20 @@ export default function HomePage() {
                   SquareBoards to run paid pools with live scoring and zero
                   spreadsheets.
                 </p>
-                <Button href="/admin/login" variant="primary" className="min-w-[200px]">
+                <Button
+                  href="/admin/login"
+                  variant="primary"
+                  className="hero-btn-primary min-w-[220px] group"
+                >
                   Become a Host
+                  <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </div>
             </div>
           </ScrollReveal>
-        </section>
+        </LandingSection>
       </main>
-      <Footer />
+      <Footer landing />
     </div>
   );
 }

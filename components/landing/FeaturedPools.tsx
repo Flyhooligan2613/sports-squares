@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Calendar,
+  ChevronRight,
   Clock,
   DollarSign,
   Grid3X3,
+  Trophy,
   Users,
 } from "lucide-react";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
+import LandingSection from "@/components/landing/LandingSection";
+import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import { SectionHeader } from "@/components/ui/Button";
 import {
   getSportLabel,
   parsePoolDisplayMeta,
 } from "@/lib/landing/poolDisplay";
-import { listInviteSessions } from "@/lib/invites/session";
-import { normalizePoolCode, parseJoinInput } from "@/lib/landing/join";
 import { poolStore } from "@/lib/poolStore";
 import type { Pool } from "@/lib/types";
 
@@ -59,125 +59,121 @@ export default function FeaturedPools() {
   }, []);
 
   return (
-    <section id="pools" className="scroll-mt-20 sb-section">
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
+    <LandingSection id="pools" scrollMargin>
+      <ScrollReveal>
+        <LandingSectionHeader
+          eyebrow="Featured Games"
+          title="Live matchups open now"
+          subtitle="Pick your game, buy your squares, and compete for every quarter."
+        />
+      </ScrollReveal>
+
+      {loading ? (
+        <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-72 landing-skeleton" />
+          ))}
+        </div>
+      ) : pools.length === 0 ? (
         <ScrollReveal>
-          <SectionHeader
-            title="Featured Games"
-            subtitle="Live matchups open for square purchases — pick your game and join the board."
-          />
+          <div className="landing-glass-card text-center py-16 px-6 border-dashed border-white/10">
+            <Trophy className="w-10 h-10 text-sb-glow mx-auto mb-4 opacity-60" />
+            <p className="text-white font-semibold text-lg mb-2">
+              No public pools yet
+            </p>
+            <p className="text-sb-muted text-sm max-w-sm mx-auto leading-relaxed">
+              Have a pool code or invite link? Enter it above to join your game.
+            </p>
+          </div>
         </ScrollReveal>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+          {pools.map((pool, index) => {
+            const remaining = squaresRemaining(pool);
+            const open = isOpenForPlayers(pool);
+            const meta = parsePoolDisplayMeta(pool.name);
+            const sport = getSportLabel(pool.espnSport);
 
-        {loading ? (
-          <div className="grid sm:grid-cols-2 gap-5">
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-56 rounded-2xl sb-card animate-pulse"
-              />
-            ))}
-          </div>
-        ) : pools.length === 0 ? (
-          <ScrollReveal>
-            <div className="text-center py-14 px-4 rounded-2xl border border-dashed border-white/10 bg-sb-surface/30">
-              <p className="text-white font-medium mb-2">
-                No public pools yet
-              </p>
-              <p className="text-sb-muted text-sm max-w-sm mx-auto">
-                Have a pool code or invite link? Enter it above to join your
-                game.
-              </p>
-            </div>
-          </ScrollReveal>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
-            {pools.map((pool, index) => {
-              const remaining = squaresRemaining(pool);
-              const open = isOpenForPlayers(pool);
-              const meta = parsePoolDisplayMeta(pool.name);
-              const sport = getSportLabel(pool.espnSport);
-
-              return (
-                <ScrollReveal key={pool.id} delay={index * 80}>
-                  <article className="sb-card-hover group flex flex-col h-full overflow-hidden">
-                    <div className="px-5 pt-5 pb-4 border-b border-white/[0.06] bg-gradient-to-r from-sb-surface/80 to-transparent">
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-sb-purple/15 border border-sb-purple/25 text-sb-glow text-[11px] font-bold uppercase tracking-wider">
-                          {sport}
-                        </span>
-                        <PoolStatusBadge status={pool.status} />
-                      </div>
-                      <h3 className="font-bold text-white text-lg leading-snug mb-1 group-hover:text-sb-glow transition-colors">
-                        {pool.awayTeam}{" "}
-                        <span className="text-sb-muted font-normal text-sm">
-                          vs
-                        </span>{" "}
-                        {pool.homeTeam}
-                      </h3>
-                      <p className="text-sb-muted text-xs truncate">
-                        {pool.name}
-                      </p>
-                      <div className="flex flex-wrap gap-3 mt-3 text-xs text-sb-muted">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {meta.gameDate}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5" />
-                          {meta.kickoffTime}
-                        </span>
-                      </div>
+            return (
+              <ScrollReveal key={pool.id} delay={index * 80}>
+                <article className="landing-pool-card group">
+                  <div className="landing-pool-card-header">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-sb-purple/15 border border-sb-purple/25 text-sb-glow text-[11px] font-bold uppercase tracking-wider">
+                        {sport}
+                      </span>
+                      <PoolStatusBadge status={pool.status} />
                     </div>
-
-                    <div className="p-5 flex-1 grid grid-cols-2 gap-4">
-                      <Stat
-                        icon={DollarSign}
-                        label="Per square"
-                        value={formatPrice(pool)}
-                        accent
-                      />
-                      <Stat
-                        icon={Grid3X3}
-                        label="Squares left"
-                        value={String(remaining)}
-                      />
-                      <Stat
-                        icon={Users}
-                        label="Players joined"
-                        value={String(pool.participants.length)}
-                      />
-                      <Stat
-                        icon={Clock}
-                        label="Status"
-                        value={open ? "Open" : "Closed"}
-                      />
+                    <h3 className="font-bold text-white text-xl leading-snug mb-1 group-hover:text-sb-glow transition-colors">
+                      {pool.awayTeam}{" "}
+                      <span className="text-sb-muted font-normal text-sm">
+                        vs
+                      </span>{" "}
+                      {pool.homeTeam}
+                    </h3>
+                    <p className="text-sb-muted text-xs truncate">{pool.name}</p>
+                    <div className="flex flex-wrap gap-3 mt-3 text-xs text-sb-muted">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-sb-glow/70" />
+                        {meta.gameDate}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-sb-glow/70" />
+                        {meta.kickoffTime}
+                      </span>
                     </div>
+                  </div>
 
-                    <div className="px-5 pb-5 pt-0">
-                      <Link
-                        href={`/pool/${pool.id}`}
-                        className={[
-                          "sb-btn-primary flex items-center justify-center w-full min-h-[50px] rounded-xl font-semibold text-sm transition-all duration-300 active:scale-[0.98]",
-                          open
-                            ? ""
-                            : "opacity-60 !shadow-none !translate-y-0 pointer-events-auto bg-white/5 hover:bg-white/5",
-                        ].join(" ")}
-                      >
-                        Join Pool
-                      </Link>
-                    </div>
-                  </article>
-                </ScrollReveal>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </section>
+                  <div className="p-5 flex-1 grid grid-cols-2 gap-3">
+                    <PoolStat
+                      icon={DollarSign}
+                      label="Per square"
+                      value={formatPrice(pool)}
+                      accent
+                    />
+                    <PoolStat
+                      icon={Grid3X3}
+                      label="Squares left"
+                      value={String(remaining)}
+                    />
+                    <PoolStat
+                      icon={Users}
+                      label="Players joined"
+                      value={String(pool.participants.length)}
+                    />
+                    <PoolStat
+                      icon={Clock}
+                      label="Status"
+                      value={open ? "Open" : "Closed"}
+                      accent={open}
+                    />
+                  </div>
+
+                  <div className="px-5 pb-5 pt-0">
+                    <Link
+                      href={`/pool/${pool.id}`}
+                      className={[
+                        "sb-btn-primary hero-btn-primary flex items-center justify-center gap-1 w-full min-h-[52px] rounded-xl font-semibold text-sm transition-all duration-300 active:scale-[0.98] group/btn",
+                        open
+                          ? ""
+                          : "opacity-60 !shadow-none pointer-events-auto !translate-y-0",
+                      ].join(" ")}
+                    >
+                      Join Pool
+                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
+                    </Link>
+                  </div>
+                </article>
+              </ScrollReveal>
+            );
+          })}
+        </div>
+      )}
+    </LandingSection>
   );
 }
 
-function Stat({
+function PoolStat({
   icon: Icon,
   label,
   value,
@@ -189,9 +185,9 @@ function Stat({
   accent?: boolean;
 }) {
   return (
-    <div>
-      <div className="flex items-center gap-1.5 text-sb-muted text-[11px] uppercase tracking-wider font-medium mb-1">
-        <Icon className="w-3.5 h-3.5" />
+    <div className="landing-pool-stat">
+      <div className="flex items-center gap-1.5 text-sb-muted text-[10px] uppercase tracking-wider font-semibold mb-1">
+        <Icon className="w-3 h-3 text-sb-glow/80" />
         {label}
       </div>
       <p

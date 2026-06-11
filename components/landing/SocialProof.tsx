@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import LandingSection from "@/components/landing/LandingSection";
+import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 const STATS = [
@@ -46,13 +48,9 @@ function AnimatedStat({
     suffix;
 
   return (
-    <div className="text-center px-4">
-      <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-mono tabular-nums">
-        {formatted}
-      </p>
-      <p className="text-sb-muted text-xs sm:text-sm mt-2 uppercase tracking-wider font-medium">
-        {label}
-      </p>
+    <div className="landing-stat-block">
+      <p className="landing-stat-value font-mono">{formatted}</p>
+      <p className="landing-stat-label">{label}</p>
     </div>
   );
 }
@@ -80,22 +78,24 @@ export default function SocialProof() {
   }, []);
 
   return (
-    <section className="py-12 sm:py-16 border-y border-white/[0.06] bg-sb-surface/30">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <ScrollReveal>
-          <p className="text-center text-sb-secondary text-sm sm:text-base mb-8 sm:mb-10 tracking-wide">
-            Trusted by sports fans nationwide.
-          </p>
-        </ScrollReveal>
-        <div
-          ref={ref}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6"
-        >
-          {STATS.map((stat) => (
-            <AnimatedStat key={stat.label} {...stat} active={active} />
-          ))}
-        </div>
+    <LandingSection variant="alt">
+      <ScrollReveal>
+        <LandingSectionHeader
+          eyebrow="Social Proof"
+          title="Trusted by sports fans nationwide"
+          subtitle="Join thousands of players buying squares, tracking live scores, and winning every quarter."
+        />
+      </ScrollReveal>
+      <div
+        ref={ref}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
+      >
+        {STATS.map((stat, index) => (
+          <ScrollReveal key={stat.label} delay={index * 80}>
+            <AnimatedStat {...stat} active={active} />
+          </ScrollReveal>
+        ))}
       </div>
-    </section>
+    </LandingSection>
   );
 }
