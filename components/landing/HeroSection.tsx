@@ -4,7 +4,7 @@ import { ChevronRight, Radio } from "lucide-react";
 import Logo from "@/components/Logo";
 import HeroBackground from "@/components/landing/hero/HeroBackground";
 import HeroFeatureCards from "@/components/landing/hero/HeroFeatureCards";
-import HeroScene from "@/components/landing/hero/HeroScene";
+import HeroProductShowcase from "@/components/landing/hero/HeroProductShowcase";
 import { Button } from "@/components/ui/Button";
 import { useHeroFeaturedPool } from "@/lib/landing/useHeroFeaturedPool";
 
@@ -17,63 +17,67 @@ export default function HeroSection() {
 
   return (
     <section
-      className="hero-section relative overflow-hidden min-h-[calc(100dvh-3.5rem)]"
+      className="hero-section hero-v2 relative overflow-hidden min-h-[calc(100dvh-3.5rem)]"
       aria-label="SquareBoards hero"
     >
       <HeroBackground />
 
-      <div className="relative max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
-        <div className="hero-layout">
-          {/* Copy + CTAs */}
-          <div className="hero-col-copy landing-fade-up">
-            <div className="hero-logo-wrap mb-5 sm:mb-6">
-              <Logo href="/" className="text-lg sm:text-xl scale-110 origin-left" />
+      <div className="relative max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-14 lg:py-16">
+        <div className="hero-v2-composition">
+          {/* ── Copy block ── */}
+          <div className="hero-v2-copy landing-fade-up">
+            <div className="hero-logo-glow flex justify-center mb-6 sm:mb-8">
+              <Logo href="/" className="text-xl sm:text-2xl hero-logo-breathe" />
             </div>
 
-            <div className="hero-live-pill mb-5 sm:mb-6">
-              <Radio className="w-3.5 h-3.5 text-sb-success" strokeWidth={2.5} />
-              <span>Live Sports Squares</span>
-              <span className="hero-live-pill-dot" aria-hidden />
+            <div className="flex justify-center mb-5 sm:mb-6">
+              <div className="hero-live-pill">
+                <Radio className="w-3.5 h-3.5 text-sb-success" strokeWidth={2.5} />
+                <span>Live Sports Squares</span>
+                <span className="hero-live-pill-dot" aria-hidden />
+              </div>
             </div>
 
-            <h1 className="hero-headline">
+            <h1 className="hero-headline hero-headline-v2 text-center">
               <span className="block">Pick Your Squares.</span>
               <span className="block hero-headline-accent">Watch the Game.</span>
               <span className="block">Win Big.</span>
             </h1>
 
-            <p className="hero-subhead">
+            <p className="hero-subhead hero-subhead-v2 text-center mx-auto">
               Buy your lucky squares, follow live scores, and compete for every
               quarter using secure online payments.
             </p>
 
-            <div className="hero-ctas">
+            <div className="hero-ctas hero-ctas-v2 justify-center">
               <Button
                 variant="primary"
-                className="hero-btn-primary w-full sm:w-auto min-w-[180px] group"
+                className="hero-btn-premium w-full sm:w-auto min-w-[200px] group"
                 onClick={() => scrollTo("pools")}
               >
                 Play Now
-                <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" />
+                <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
               </Button>
               <Button
                 variant="secondary"
-                className="w-full sm:w-auto min-w-[180px]"
+                className="hero-btn-secondary-v2 w-full sm:w-auto min-w-[200px]"
                 onClick={() => scrollTo("join")}
               >
                 Enter Pool Code
               </Button>
             </div>
 
-            <HeroFeatureCards className="mt-8 sm:mt-10 hidden lg:grid" />
+            <HeroFeatureCards className="mt-8 sm:mt-10" />
           </div>
 
-          {/* Stadium scene */}
-          <div className="hero-col-scene landing-fade-up landing-delay-1">
-            <HeroScene pool={pool} liveGame={liveGame} loading={loading} />
+          {/* ── Product showcase ── */}
+          <div className="hero-v2-showcase landing-fade-up landing-delay-1">
+            <HeroProductShowcase
+              pool={pool}
+              liveGame={liveGame}
+              loading={loading}
+            />
           </div>
-
-          <HeroFeatureCards className="hero-features-mobile lg:hidden landing-fade-up landing-delay-1" />
         </div>
       </div>
     </section>

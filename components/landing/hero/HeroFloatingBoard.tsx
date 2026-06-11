@@ -29,12 +29,14 @@ export default function HeroFloatingBoard({ pool }: HeroFloatingBoardProps) {
 
   return (
     <div className="hero-board-stage">
-      <div className="hero-board-glow" aria-hidden />
-      <div className="hero-board-reflection" aria-hidden />
+      <div className="hero-board-glow hero-board-glow-v2" aria-hidden />
+      <div className="hero-board-glow-floor" aria-hidden />
+      <div className="hero-board-reflection hero-board-reflection-v2" aria-hidden />
 
-      <div className="hero-board-wrap">
-        <div className="hero-board-3d">
-          <div className="hero-board-frame">
+      <div className="hero-board-wrap hero-board-wrap-v2">
+        <div className="hero-board-3d hero-board-3d-v2">
+          <div className="hero-board-frame hero-board-frame-v2">
+            <div className="hero-board-shimmer" aria-hidden />
             <div className="hero-board-corner" aria-hidden />
 
             {topNumbers.map((n, i) => (
@@ -75,7 +77,7 @@ export default function HeroFloatingBoard({ pool }: HeroFloatingBoardProps) {
               );
             })}
           </div>
-          <div className="hero-board-edge" aria-hidden />
+          <div className="hero-board-edge hero-board-edge-v2" aria-hidden />
         </div>
       </div>
     </div>
