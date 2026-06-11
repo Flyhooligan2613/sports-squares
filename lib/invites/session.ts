@@ -45,6 +45,10 @@ export function getInviteSession(poolId: string): InviteSession | null {
   return session ?? null;
 }
 
+export function listInviteSessions(): InviteSession[] {
+  return Object.values(readSessions());
+}
+
 export function clearInviteSession(poolId: string): void {
   const sessions = readSessions();
   delete sessions[poolId];

@@ -137,3 +137,23 @@ body {
 .admin-toast-enter {
   animation: admin-toast-enter 0.3s ease-out forwards;
 }
+
+@keyframes landing-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-fade-up {
+  animation: landing-fade-up 0.55s ease-out forwards;
+}
+
+.landing-delay-1 {
+  animation-delay: 0.12s;
+  opacity: 0;
+}

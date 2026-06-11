@@ -7,7 +7,7 @@ import PwaRegister from "@/components/PwaRegister";
 export const metadata: Metadata = {
   title: "Sports Squares",
   description:
-    "Create and join NFL, NCAA, and NBA sports squares pools online.",
+    "Buy NFL, college football, NBA, and March Madness sports squares online.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

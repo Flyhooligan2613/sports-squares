@@ -9,8 +9,8 @@ export default function Footer() {
           <div>
             <Logo href="/" className="mb-3" />
             <p className="text-slate-500 text-sm max-w-xs">
-              Run sports squares pools online with payments, invites, and live
-              scoring.
+              Buy sports squares online — secure checkout, live scoring, and
+              instant access to your board.
             </p>
           </div>
           <nav className="flex flex-wrap gap-x-8 gap-y-3 text-sm">
