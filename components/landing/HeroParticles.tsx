@@ -1,12 +1,12 @@
 "use client";
 
 export default function HeroParticles() {
-  const particles = Array.from({ length: 24 }, (_, i) => ({
+  const particles = Array.from({ length: 14 }, (_, i) => ({
     id: i,
-    left: `${(i * 13 + 9) % 100}%`,
-    delay: `${(i % 8) * 1.5}s`,
-    duration: `${10 + (i % 5) * 3}s`,
-    size: i % 4 === 0 ? 3 : 2,
+    left: `${(i * 15 + 11) % 100}%`,
+    delay: `${(i % 5) * 2}s`,
+    duration: `${14 + (i % 4) * 4}s`,
+    size: i % 3 === 0 ? 2 : 1,
   }));
 
   return (
@@ -17,10 +17,10 @@ export default function HeroParticles() {
       {particles.map((p) => (
         <span
           key={p.id}
-          className="hero-particle hero-particle-slow absolute rounded-full bg-sb-glow/25"
+          className="hero-particle absolute rounded-full bg-sb-glow/20"
           style={{
             left: p.left,
-            bottom: "-10%",
+            bottom: "-8%",
             width: p.size,
             height: p.size,
             animationDelay: p.delay,

@@ -55,7 +55,7 @@ export default function HeroSection() {
               quarter using secure online payments.
             </p>
 
-            <div className="hero-ctas hero-ctas-v2 justify-center">
+            <div className="hero-ctas hero-ctas-v2 justify-center mb-0">
               <Button
                 variant="primary"
                 className="hero-btn-premium w-full sm:w-auto min-w-[200px] group"

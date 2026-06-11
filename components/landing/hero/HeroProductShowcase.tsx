@@ -20,11 +20,14 @@ export default function HeroProductShowcase({
     <div className="hero-product-showcase">
       <div className="hero-board-bloom" aria-hidden />
 
-      <div className="hero-showcase-product-col">
+      <div className="hero-product-unit">
         <HeroScoreboard pool={pool} liveGame={liveGame} />
 
-        <div className="hero-board-stage-wrap hero-board-interactive">
-          <HeroFloatingBoard pool={pool} />
+        <div className="hero-product-pedestal">
+          <div className="hero-product-ring" aria-hidden />
+          <div className="hero-board-stage-wrap hero-board-interactive">
+            <HeroFloatingBoard pool={pool} />
+          </div>
         </div>
 
         <HeroStatCards pool={pool} loading={loading} />
