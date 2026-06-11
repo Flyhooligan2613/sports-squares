@@ -31,7 +31,7 @@ export function Input({
       )}
       <input
         id={inputId}
-        className={["sb-input", error ? "border-red-500/50" : "", className]
+        className={["sb-input sb-input-glow", error ? "border-red-500/50" : "", className]
           .filter(Boolean)
           .join(" ")}
         {...props}

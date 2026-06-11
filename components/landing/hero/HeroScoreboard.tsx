@@ -44,7 +44,8 @@ export default function HeroScoreboard({ pool, liveGame }: HeroScoreboardProps) 
   const showKickoff = !isLive && !liveGame?.gameCompleted && meta;
 
   return (
-    <div className="hero-scoreboard-v2 hero-scoreboard-enter">
+    <div className="hero-scoreboard-v2 hero-scoreboard-enter sb-glow-scoreboard">
+      <span className="hero-scoreboard-v2-shimmer" aria-hidden />
       <div className="hero-scoreboard-v2-header">
         <div className="flex items-center gap-2 flex-wrap">
           {isLive && (
@@ -79,10 +80,21 @@ export default function HeroScoreboard({ pool, liveGame }: HeroScoreboardProps) 
         </div>
 
         <div className="hero-scoreboard-v2-center">
-          <div className="hero-scoreboard-v2-scores">
-            <span className="hero-scoreboard-score">{awayScore}</span>
+          <div
+            className={[
+              "hero-scoreboard-v2-scores",
+              isLive ? "hero-scoreboard-v2-scores-live" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <span className="hero-scoreboard-score" key={`away-${awayScore}`}>
+              {awayScore}
+            </span>
             <span className="hero-scoreboard-divider" />
-            <span className="hero-scoreboard-score">{homeScore}</span>
+            <span className="hero-scoreboard-score" key={`home-${homeScore}`}>
+              {homeScore}
+            </span>
           </div>
         </div>
 
@@ -96,7 +108,7 @@ export default function HeroScoreboard({ pool, liveGame }: HeroScoreboardProps) 
       </div>
 
       {showKickoff && meta && (
-        <div className="hero-kickoff-bar">
+        <div className="hero-kickoff-bar hero-kickoff-bar-live">
           <Clock className="w-3.5 h-3.5 text-sb-glow shrink-0" strokeWidth={2} />
           <span>
             Kickoff {meta.kickoffTime}

@@ -153,7 +153,7 @@ export default function FeaturedPools() {
                     <Link
                       href={`/pool/${pool.id}`}
                       className={[
-                        "sb-btn-primary hero-btn-primary flex items-center justify-center gap-1 w-full min-h-[52px] rounded-xl font-semibold text-sm transition-all duration-300 active:scale-[0.98] group/btn",
+                        "sb-btn-primary sb-btn-motion landing-pool-join-btn flex items-center justify-center gap-1 w-full min-h-[52px] rounded-xl font-semibold text-sm group/btn",
                         open
                           ? ""
                           : "opacity-60 !shadow-none pointer-events-auto !translate-y-0",

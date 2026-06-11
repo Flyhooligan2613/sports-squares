@@ -15,7 +15,7 @@ export default function Logo({
   const content = (
     <>
       <span
-        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sb-gradient-purple shrink-0 shadow-sb-glow"
+        className="sb-logo-mark inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sb-gradient-purple shrink-0 shadow-sb-glow sb-glow-breathe"
         aria-hidden
       >
         <svg

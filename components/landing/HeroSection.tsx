@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, type CSSProperties } from "react";
 import { ChevronRight, Radio } from "lucide-react";
 import Logo from "@/components/Logo";
 import HeroBackground from "@/components/landing/hero/HeroBackground";
@@ -7,9 +8,12 @@ import HeroFeatureCards from "@/components/landing/hero/HeroFeatureCards";
 import HeroProductShowcase from "@/components/landing/hero/HeroProductShowcase";
 import { Button } from "@/components/ui/Button";
 import { useHeroFeaturedPool } from "@/lib/landing/useHeroFeaturedPool";
+import { useHeroParallax } from "@/lib/motion/useHeroParallax";
 
 export default function HeroSection() {
   const { pool, liveGame, loading } = useHeroFeaturedPool();
+  const sectionRef = useRef<HTMLElement>(null);
+  useHeroParallax(sectionRef);
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -17,8 +21,10 @@ export default function HeroSection() {
 
   return (
     <section
+      ref={sectionRef}
       className="hero-section hero-v2 relative overflow-hidden min-h-[calc(100dvh-3.5rem)]"
       aria-label="SquareBoards hero"
+      style={{ "--hero-parallax": "0" } as CSSProperties}
     >
       <HeroBackground />
 

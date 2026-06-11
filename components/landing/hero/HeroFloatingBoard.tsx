@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { Pool } from "@/lib/types";
 
 interface HeroFloatingBoardProps {
@@ -9,6 +10,8 @@ interface HeroFloatingBoardProps {
 const PLACEHOLDER_NUMBERS = [3, 7, 0, 4, 9, 1, 6, 2, 8, 5];
 
 export default function HeroFloatingBoard({ pool }: HeroFloatingBoardProps) {
+  const [glowCell, setGlowCell] = useState<number | null>(null);
+
   const topNumbers =
     pool?.topNumbers?.length === 10 ? pool.topNumbers : PLACEHOLDER_NUMBERS;
   const sideNumbers =
@@ -27,8 +30,32 @@ export default function HeroFloatingBoard({ pool }: HeroFloatingBoardProps) {
     }
   }
 
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const scheduleGlow = () => {
+      const delay = 2800 + Math.random() * 2200;
+      timeout = setTimeout(() => {
+        setGlowCell(Math.floor(Math.random() * 100));
+        scheduleGlow();
+      }, delay);
+    };
+
+    scheduleGlow();
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    if (glowCell === null) return;
+    const timer = setTimeout(() => setGlowCell(null), 2200);
+    return () => clearTimeout(timer);
+  }, [glowCell]);
+
   return (
-    <div className="hero-board-stage">
+    <div className="hero-board-stage sb-glow-board">
       <div className="hero-board-glow hero-board-glow-v2" aria-hidden />
       <div className="hero-board-glow-floor" aria-hidden />
       <div className="hero-board-reflection hero-board-reflection-v2" aria-hidden />
@@ -69,6 +96,7 @@ export default function HeroFloatingBoard({ pool }: HeroFloatingBoardProps) {
                     "hero-board-cell",
                     cell.claimed ? "hero-board-cell-claimed" : "",
                     cell.highlight ? "hero-board-cell-highlight" : "",
+                    glowCell === idx ? "hero-board-cell-random-glow" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
