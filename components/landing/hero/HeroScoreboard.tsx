@@ -44,8 +44,7 @@ export default function HeroScoreboard({ pool, liveGame }: HeroScoreboardProps) 
   const showKickoff = !isLive && !liveGame?.gameCompleted && meta;
 
   return (
-    <div className="hero-scoreboard-v2 hero-scoreboard-enter sb-glow-scoreboard">
-      <span className="hero-scoreboard-v2-shimmer" aria-hidden />
+    <div className="hero-scoreboard-v2 hero-scoreboard-enter">
       <div className="hero-scoreboard-v2-header">
         <div className="flex items-center gap-2 flex-wrap">
           {isLive && (

@@ -28,15 +28,15 @@ export default function HeroSection() {
     >
       <HeroBackground />
 
-      <div className="relative max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-14 lg:py-16">
+      <div className="relative max-w-6xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-14 lg:py-16">
         <div className="hero-v2-composition">
-          {/* ── Copy block ── */}
+          {/* Headline → CTA */}
           <div className="hero-v2-copy landing-fade-up">
-            <div className="hero-logo-glow flex justify-center mb-6 sm:mb-8">
+            <div className="hero-logo-glow flex justify-center mb-5 sm:mb-6">
               <Logo href="/" className="text-xl sm:text-2xl hero-logo-breathe" />
             </div>
 
-            <div className="flex justify-center mb-5 sm:mb-6">
+            <div className="flex justify-center mb-4 sm:mb-5">
               <div className="hero-live-pill">
                 <Radio className="w-3.5 h-3.5 text-sb-success" strokeWidth={2.5} />
                 <span>Live Sports Squares</span>
@@ -72,11 +72,9 @@ export default function HeroSection() {
                 Enter Pool Code
               </Button>
             </div>
-
-            <HeroFeatureCards className="mt-8 sm:mt-10" />
           </div>
 
-          {/* ── Product showcase ── */}
+          {/* Live Game Card → Board → Stats */}
           <div className="hero-v2-showcase landing-fade-up landing-delay-1">
             <HeroProductShowcase
               pool={pool}
@@ -84,6 +82,8 @@ export default function HeroSection() {
               loading={loading}
             />
           </div>
+
+          <HeroFeatureCards className="hero-trust-demoted" />
         </div>
       </div>
     </section>
