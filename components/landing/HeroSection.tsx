@@ -28,7 +28,7 @@ export default function HeroSection() {
     >
       <HeroBackground />
 
-      <div className="relative z-10 max-w-6xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-14 lg:py-16">
+      <div className="relative z-10 w-full px-4 sm:px-6 py-10 sm:py-12 lg:py-14">
         <div className="hero-v2-composition">
           {/* Headline → CTA */}
           <div className="hero-v2-copy landing-fade-up">
@@ -74,7 +74,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Live Game Card → Board → Stats */}
+          {/* Live Scoreboard → Board → Stats */}
           <div className="hero-v2-showcase landing-fade-up landing-delay-1">
             <HeroProductShowcase
               pool={pool}

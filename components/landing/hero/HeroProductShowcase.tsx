@@ -18,14 +18,15 @@ export default function HeroProductShowcase({
 }: HeroProductShowcaseProps) {
   return (
     <div className="hero-product-showcase">
-      <div className="hero-board-bloom" aria-hidden />
-
       <div className="hero-product-unit">
+        <div className="hero-product-unit-light" aria-hidden />
+        <div className="hero-product-unit-glow" aria-hidden />
+
         <HeroScoreboard pool={pool} liveGame={liveGame} />
 
-        <div className="hero-product-pedestal">
+        <div className="hero-product-board-section hero-board-interactive">
           <div className="hero-product-ring" aria-hidden />
-          <div className="hero-board-stage-wrap hero-board-interactive">
+          <div className="hero-board-stage-wrap">
             <HeroFloatingBoard pool={pool} />
           </div>
         </div>
