@@ -104,7 +104,11 @@ for (const key of productionKeys) {
 }
 
 console.log("\nDeploying to production...");
-runVercel(["deploy", "--prod", "--yes", "--token", token]);
+const deployArgs = ["deploy", "--prod", "--yes", "--token", token];
+if (process.env.VERCEL_PROJECT_ID) {
+  deployArgs.push("--project", process.env.VERCEL_PROJECT_ID);
+}
+runVercel(deployArgs);
 
 console.log("\nDone. Update NEXT_PUBLIC_APP_URL to your production URL and re-run if needed.");
 console.log("Configure Stripe webhook: https://<your-domain>/api/webhooks/stripe");
