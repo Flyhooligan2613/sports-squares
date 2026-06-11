@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   if (missing.length > 0) {
     return NextResponse.json(
       {
-        error: `Checkout is not configured. Add to .env.local: ${missing.join(", ")}`,
+        error: `Checkout is not configured. Missing: ${missing.join(", ")}`,
       },
       { status: 503 }
     );

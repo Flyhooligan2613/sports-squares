@@ -27,7 +27,7 @@ export default function Board({
     topNumbers?.length === 10 && sideNumbers?.length === 10;
 
   return (
-    <div className="w-full max-w-2xl">
+    <div className="w-full max-w-2xl overflow-x-auto -mx-1 px-1">
       {showNumbers && (
         <p className="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold text-center mb-1.5 pl-8">
           {homeTeam}

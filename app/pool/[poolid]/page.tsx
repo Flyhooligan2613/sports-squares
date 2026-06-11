@@ -292,7 +292,7 @@ export default function PoolPage() {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 overflow-x-hidden">
       <NumberDrawModal
         isOpen={showDrawModal}
         homeTeam={pool.homeTeam}
@@ -312,7 +312,9 @@ export default function PoolPage() {
             &larr; Back to pools
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-slate-100">{pool.name}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 break-words">
+              {pool.name}
+            </h1>
             <PoolStatusBadge status={pool.status} />
           </div>
           <p className="text-slate-500 text-sm mt-0.5">
@@ -322,7 +324,7 @@ export default function PoolPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 w-full sm:w-auto">
           <span className="text-xs text-slate-500">
             Invite:{" "}
             <span className="text-slate-300 font-mono">{pool.inviteCode}</span>

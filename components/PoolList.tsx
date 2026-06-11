@@ -23,16 +23,20 @@ export default function PoolList() {
   if (pools.length === 0) return null;
 
   return (
-    <section className="max-w-4xl mx-auto w-full px-4 sm:px-6 pb-16">
-      <h2 className="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-4">
-        Active Pools
+    <section className="max-w-6xl mx-auto w-full px-4 sm:px-6 pb-16">
+      <h2 className="text-slate-200 text-lg sm:text-xl font-bold mb-1">
+        Join a Pool
       </h2>
+      <p className="text-slate-500 text-sm mb-5">
+        Browse open pools and join with your invite link or purchase squares
+        directly.
+      </p>
       <div className="grid sm:grid-cols-2 gap-3">
         {pools.map((pool) => (
           <Link
             key={pool.id}
             href={`/pool/${pool.id}`}
-            className="flex items-center justify-between bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl px-5 py-4 transition-colors group"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl px-4 sm:px-5 py-4 transition-colors group"
           >
             <div>
               <div className="flex items-center gap-2 flex-wrap">

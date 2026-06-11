@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import Logo from "@/components/Logo";
 
 type PurchaseStatus =
   | { state: "loading" }
@@ -74,7 +75,7 @@ export default function PurchaseSuccessContent() {
       setStatus({
         state: "error",
         message:
-          "Payment received. Your invite is still processing — check your email shortly.",
+          "Payment received. Your access link is still processing — refresh this page shortly.",
       });
     }
 
@@ -84,9 +85,13 @@ export default function PurchaseSuccessContent() {
     };
   }, [sessionId]);
 
+  const emailFailed =
+    status.state === "fulfilled" &&
+    status.inviteDeliveryStatus === "failed";
+
   return (
     <main className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-8 text-center">
+      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-6 sm:p-8 text-center">
         {status.state === "loading" || status.state === "pending" ? (
           <>
             <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -94,32 +99,49 @@ export default function PurchaseSuccessContent() {
               Processing your purchase
             </h1>
             <p className="text-slate-500 text-sm">
-              Creating your player account and sending your invite...
+              Setting up your player account and access link...
             </p>
           </>
         ) : null}
 
         {status.state === "fulfilled" ? (
           <>
-            <h1 className="text-xl font-bold text-slate-100 mb-2">
-              Purchase complete
+            <div className="flex justify-center mb-4">
+              <Logo variant="icon" href={undefined} />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 mb-3">
+              Purchase Complete
             </h1>
-            <p className="text-slate-500 text-sm mb-6">
-              {status.inviteDeliveryStatus === "sent"
-                ? "Your invite has been emailed. You can also open it below."
-                : status.inviteDeliveryStatus === "failed"
-                  ? "Payment succeeded, but email delivery failed. Use your invite link below."
-                  : "Your squares are ready. Use your invite link below."}
+            <p className="text-slate-300 text-sm mb-2">
+              Your squares have been reserved successfully.
             </p>
+            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+              Your personal access link has been created. Use the button below
+              to access and manage your squares.
+            </p>
+
+            {emailFailed && (
+              <p className="text-amber-300/90 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2.5 mb-4 text-left">
+                Email delivery is still being configured. Your access link is
+                available below.
+              </p>
+            )}
+
+            {status.inviteDeliveryStatus === "sent" && (
+              <p className="text-emerald-400/90 text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2.5 mb-4">
+                A confirmation email has been sent to your inbox.
+              </p>
+            )}
+
             <Link
               href={status.invitePath}
               className="inline-block w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors mb-3"
             >
-              Open My Invite
+              Open My Squares
             </Link>
             <a
               href={status.inviteUrl}
-              className="text-xs text-slate-500 hover:text-slate-300 break-all"
+              className="text-xs text-slate-500 hover:text-slate-300 break-all block"
             >
               {status.inviteUrl}
             </a>

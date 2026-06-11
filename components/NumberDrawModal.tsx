@@ -108,7 +108,7 @@ export default function NumberDrawModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md number-draw-backdrop" />
 
-      <div className="relative w-full max-w-2xl number-draw-modal">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto number-draw-modal">
         <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-60 blur-sm number-draw-glow" />
         <div className="relative bg-slate-900 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 number-draw-scanline" />
@@ -141,7 +141,7 @@ export default function NumberDrawModal({
               <p className="text-xs uppercase tracking-widest text-indigo-400 font-semibold mb-3 text-center">
                 {homeTeam} &mdash; Top
               </p>
-              <div className="flex justify-center gap-1.5 sm:gap-2">
+              <div className="flex justify-center gap-1 sm:gap-1.5 overflow-x-auto pb-1">
                 {displayTop.map((digit, i) => (
                   <DigitCell
                     key={`top-${i}`}
@@ -158,7 +158,7 @@ export default function NumberDrawModal({
               <p className="text-xs uppercase tracking-widest text-purple-400 font-semibold mb-3 text-center">
                 {awayTeam} &mdash; Side
               </p>
-              <div className="flex justify-center gap-1.5 sm:gap-2">
+              <div className="flex justify-center gap-1 sm:gap-1.5 overflow-x-auto pb-1">
                 {displaySide.map((digit, i) => (
                   <DigitCell
                     key={`side-${i}`}
@@ -197,7 +197,7 @@ function DigitCell({
   return (
     <div
       className={[
-        "w-8 h-10 sm:w-10 sm:h-12 rounded-lg flex items-center justify-center font-mono text-lg sm:text-xl font-bold border transition-all duration-300",
+        "w-7 h-9 sm:w-10 sm:h-12 rounded-lg flex items-center justify-center font-mono text-base sm:text-xl font-bold border transition-all duration-300",
         spinning
           ? "bg-slate-800 border-slate-600 text-slate-300 digit-spin"
           : revealed

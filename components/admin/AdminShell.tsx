@@ -8,6 +8,7 @@ import { signOutAdmin } from "@/lib/auth/adminAuthClient";
 const NAV = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/pools", label: "Pools", exact: false },
+  { href: "/admin/launch", label: "Launch", exact: false },
   { href: "/admin/database-status", label: "Database", exact: false },
 ];
 
@@ -29,7 +30,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-3 px-2">
           Admin
         </p>
-        <nav className="flex lg:flex-col gap-1">
+        <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-1 lg:pb-0 -mx-1 px-1">
           {NAV.map((item) => {
             const active = item.exact
               ? pathname === item.href

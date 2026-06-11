@@ -61,7 +61,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
         setError(
           payload.error ||
             (response.status === 503
-              ? "Checkout is not configured on the server. Add Stripe and Supabase keys to .env.local, then restart the dev server."
+              ? "Checkout is not available yet. Please contact the pool organizer."
               : `Could not start checkout (HTTP ${response.status}).`)
         );
         setLoading(false);
@@ -124,7 +124,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 min-w-0">
             Total:{" "}
             <span className="text-emerald-300 font-mono font-semibold">
               ${total.toFixed(2)}
@@ -136,7 +136,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white text-sm font-semibold transition-colors"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white text-sm font-semibold transition-colors"
           >
             {loading ? "Redirecting..." : "Continue to Checkout"}
           </button>
