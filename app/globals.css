@@ -322,8 +322,31 @@ body {
 }
 
 .hero-artwork-image {
-  object-position: center 18%;
+  /* Crop mockup nav/header — keep board + NE vs SEA scoreboard in frame */
+  object-position: 52% 34%;
   z-index: 0;
+}
+
+@media (min-width: 640px) {
+  .hero-artwork-image {
+    object-position: 52% 36%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-artwork-image {
+    object-position: 54% 38%;
+  }
+}
+
+.hero-artwork-top-crop {
+  z-index: 2;
+  background: linear-gradient(
+    180deg,
+    var(--sb-bg) 0%,
+    rgba(3, 7, 18, 0.92) 35%,
+    transparent 100%
+  );
 }
 
 .hero-artwork-overlay {
@@ -331,15 +354,16 @@ body {
   background:
     linear-gradient(
       180deg,
-      rgba(3, 7, 18, 0.25) 0%,
-      rgba(3, 7, 18, 0.5) 38%,
-      rgba(3, 7, 18, 0.72) 68%,
+      rgba(3, 7, 18, 0.55) 0%,
+      rgba(3, 7, 18, 0.35) 22%,
+      rgba(3, 7, 18, 0.45) 50%,
+      rgba(3, 7, 18, 0.72) 72%,
       rgba(3, 7, 18, 0.88) 100%
     ),
     radial-gradient(
-      ellipse 90% 60% at 50% 35%,
-      rgba(3, 7, 18, 0.15) 0%,
-      rgba(3, 7, 18, 0.45) 100%
+      ellipse 85% 55% at 52% 42%,
+      rgba(3, 7, 18, 0.08) 0%,
+      rgba(3, 7, 18, 0.35) 100%
     );
 }
 

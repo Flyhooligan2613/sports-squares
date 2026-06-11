@@ -19,6 +19,9 @@ export default function HeroBackground() {
       {/* Readability overlay — image stays visible, UI stays legible */}
       <div className="hero-artwork-overlay absolute inset-0" />
 
+      {/* Hide mockup header strip at top of artwork */}
+      <div className="hero-artwork-top-crop absolute inset-x-0 top-0 h-24 sm:h-28" />
+
       {/* Fade into page below hero */}
       <div className="hero-artwork-fade absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-sb-bg via-sb-bg/95 to-transparent" />
     </div>
