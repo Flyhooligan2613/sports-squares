@@ -317,6 +317,36 @@ body {
 
 /* ─── Hero artwork recreation ─── */
 
+.hero-bg {
+  isolation: isolate;
+}
+
+.hero-artwork-image {
+  object-position: center 18%;
+  z-index: 0;
+}
+
+.hero-artwork-overlay {
+  z-index: 1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 7, 18, 0.25) 0%,
+      rgba(3, 7, 18, 0.5) 38%,
+      rgba(3, 7, 18, 0.72) 68%,
+      rgba(3, 7, 18, 0.88) 100%
+    ),
+    radial-gradient(
+      ellipse 90% 60% at 50% 35%,
+      rgba(3, 7, 18, 0.15) 0%,
+      rgba(3, 7, 18, 0.45) 100%
+    );
+}
+
+.hero-artwork-fade {
+  z-index: 2;
+}
+
 .hero-section {
   isolation: isolate;
 }
