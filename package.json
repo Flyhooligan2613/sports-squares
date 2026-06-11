@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "deploy": "node scripts/deploy-vercel.mjs",
-    "icons": "node scripts/generate-pwa-icons.mjs"
+    "icons": "node scripts/generate-pwa-icons.mjs",
+    "hero:crop": "node scripts/crop-hero.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

@@ -325,6 +325,73 @@ body {
   isolation: isolate;
 }
 
+/* Hero — cropped showcase art (scoreboard + board + stadium only) */
+.hero-showcase-only {
+  min-height: min(92vh, 820px);
+  min-height: min(92dvh, 820px);
+}
+
+@media (min-width: 640px) {
+  .hero-showcase-only {
+    min-height: min(88vh, 900px);
+    min-height: min(88dvh, 900px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-showcase-only {
+    min-height: min(86vh, 960px);
+    min-height: min(86dvh, 960px);
+  }
+}
+
+.hero-showcase-image {
+  object-position: 58% 44%;
+  z-index: 0;
+}
+
+@media (min-width: 640px) {
+  .hero-showcase-image {
+    object-position: 56% 44%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-showcase-image {
+    object-position: 54% 46%;
+  }
+}
+
+.hero-showcase-left-fade {
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    var(--sb-bg) 0%,
+    rgba(3, 7, 18, 0.85) 8%,
+    transparent 22%
+  );
+}
+
+.hero-showcase-top-fade {
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    var(--sb-bg) 0%,
+    rgba(3, 7, 18, 0.75) 45%,
+    transparent 100%
+  );
+}
+
+.hero-showcase-bottom-fade {
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(3, 7, 18, 0.55) 35%,
+    var(--sb-bg) 100%
+  );
+}
+
 .hero-layout {
   display: flex;
   flex-direction: column;
