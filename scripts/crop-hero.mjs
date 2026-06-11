@@ -11,10 +11,10 @@ const { width, height } = await sharp(src).metadata();
 
 // Crop to scoreboard + squares board + stadium crowd only.
 // Excludes mockup nav, left headline/CTAs, right stats card, bottom info bar.
-const left = Math.round(width * 0.24);
-const top = Math.round(height * 0.1);
-const cropWidth = Math.round(width * 0.52);
-const cropHeight = Math.round(height * 0.72);
+const left = Math.round(width * 0.3);
+const top = Math.round(height * 0.085);
+const cropWidth = Math.round(width * 0.58);
+const cropHeight = Math.round(height * 0.645);
 
 await sharp(src)
   .extract({ left, top, width: cropWidth, height: cropHeight })
