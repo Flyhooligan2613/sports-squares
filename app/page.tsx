@@ -117,13 +117,13 @@ export default function HomePage() {
             {PLAYER_STEPS.map((step, index) => (
               <ScrollReveal key={step.title} delay={index * 70}>
                 <div className="sb-card-hover p-6 sm:p-7 h-full">
-                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-sm font-bold mb-5">
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-sb-purple/20 border border-sb-purple/30 text-sb-glow text-sm font-bold mb-5">
                     {index + 1}
                   </span>
-                  <h3 className="text-slate-50 font-semibold text-lg mb-2">
+                  <h3 className="text-white font-semibold text-lg mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">
+                  <p className="text-sb-muted text-sm leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -132,7 +132,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="sb-section bg-slate-900/25 border-y border-slate-800/60">
+        <section className="sb-section bg-sb-surface/30 border-y border-white/[0.06]">
           <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
             <ScrollReveal>
               <SectionHeader title="Supported Sports" />
@@ -141,13 +141,13 @@ export default function HomePage() {
               {SPORTS.map((sport, index) => (
                 <ScrollReveal key={sport.name} delay={index * 60}>
                   <div className="sb-card-hover p-7 sm:p-8 text-center sm:text-left h-full">
-                    <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-5">
+                    <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-sb-purple/10 border border-sb-purple/20 text-sb-glow mb-5">
                       <sport.icon className="w-6 h-6" strokeWidth={1.75} />
                     </span>
-                    <h3 className="text-slate-50 font-semibold text-lg mb-2">
+                    <h3 className="text-white font-semibold text-lg mb-2">
                       {sport.name}
                     </h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">
+                    <p className="text-sb-muted text-sm leading-relaxed">
                       {sport.description}
                     </p>
                   </div>
@@ -168,13 +168,13 @@ export default function HomePage() {
             {WHY_PLAY.map((item, index) => (
               <ScrollReveal key={item.title} delay={index * 50}>
                 <div className="sb-card-hover p-6 sm:p-7 h-full">
-                  <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-300 mb-4">
+                  <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-sb-purple/10 border border-sb-purple/20 text-sb-glow mb-4">
                     <item.icon className="w-5 h-5" strokeWidth={1.75} />
                   </span>
-                  <h3 className="text-slate-50 font-semibold mb-2">
+                  <h3 className="text-white font-semibold mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">
+                  <p className="text-sb-muted text-sm leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -185,13 +185,13 @@ export default function HomePage() {
 
         <section className="sb-section max-w-6xl mx-auto w-full px-4 sm:px-6 pb-8">
           <ScrollReveal>
-            <div className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/50 via-slate-900 to-slate-950 p-8 sm:p-12 text-center shadow-2xl shadow-indigo-500/5">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.15),transparent_60%)] pointer-events-none" />
+            <div className="relative overflow-hidden rounded-3xl border border-sb-purple/20 bg-gradient-to-br from-sb-purple/10 via-sb-surface to-sb-bg p-8 sm:p-12 text-center shadow-sb-glow">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(91,76,247,0.15),transparent_60%)] pointer-events-none" />
               <div className="relative">
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-50 mb-4 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight">
                   Ready to Host Your Own Pool?
                 </h2>
-                <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+                <p className="text-sb-muted text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
                   Bars, fundraisers, fantasy leagues, and friend groups use
                   SquareBoards to run paid pools with live scoring and zero
                   spreadsheets.

@@ -85,25 +85,25 @@ export default function InstallPrompt() {
   if (installed || !visible || !deferred) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 sb-card border-indigo-500/30 p-4 shadow-2xl shadow-black/50 landing-fade-up">
-      <p className="text-slate-100 text-sm font-semibold mb-1">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 sb-card border-sb-purple/30 p-4 shadow-2xl shadow-black/50 landing-fade-up">
+      <p className="text-white text-sm font-semibold mb-1">
         Install {BRAND_NAME}
       </p>
-      <p className="text-slate-500 text-xs mb-3 leading-relaxed">
+      <p className="text-sb-muted text-xs mb-3 leading-relaxed">
         Add to your home screen for one-tap access to your pools.
       </p>
       <div className="flex gap-2">
         <button
           type="button"
           onClick={handleInstall}
-          className="sb-btn-primary flex-1 min-h-[44px] py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"
+          className="sb-btn-primary flex-1 min-h-[44px] py-2 rounded-xl text-sm font-semibold"
         >
           Install
         </button>
         <button
           type="button"
           onClick={handleDismiss}
-          className="px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-sm transition-colors min-h-[44px]"
+          className="px-3 py-2 rounded-xl text-sb-muted hover:text-white text-sm transition-colors min-h-[44px]"
         >
           Not now
         </button>

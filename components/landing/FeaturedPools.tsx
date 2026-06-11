@@ -73,17 +73,17 @@ export default function FeaturedPools() {
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-56 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse"
+                className="h-56 rounded-2xl sb-card animate-pulse"
               />
             ))}
           </div>
         ) : pools.length === 0 ? (
           <ScrollReveal>
-            <div className="text-center py-14 px-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/30">
-              <p className="text-slate-300 font-medium mb-2">
+            <div className="text-center py-14 px-4 rounded-2xl border border-dashed border-white/10 bg-sb-surface/30">
+              <p className="text-white font-medium mb-2">
                 No public pools yet
               </p>
-              <p className="text-slate-500 text-sm max-w-sm mx-auto">
+              <p className="text-sb-muted text-sm max-w-sm mx-auto">
                 Have a pool code or invite link? Enter it above to join your
                 game.
               </p>
@@ -100,30 +100,30 @@ export default function FeaturedPools() {
               return (
                 <ScrollReveal key={pool.id} delay={index * 80}>
                   <article className="sb-card-hover group flex flex-col h-full overflow-hidden">
-                    <div className="px-5 pt-5 pb-4 border-b border-slate-800/80 bg-gradient-to-r from-slate-900 to-slate-900/50">
+                    <div className="px-5 pt-5 pb-4 border-b border-white/[0.06] bg-gradient-to-r from-sb-surface/80 to-transparent">
                       <div className="flex items-start justify-between gap-3 mb-3">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 text-[11px] font-bold uppercase tracking-wider">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-sb-purple/15 border border-sb-purple/25 text-sb-glow text-[11px] font-bold uppercase tracking-wider">
                           {sport}
                         </span>
                         <PoolStatusBadge status={pool.status} />
                       </div>
-                      <h3 className="font-bold text-slate-50 text-lg leading-snug mb-1 group-hover:text-indigo-200 transition-colors">
+                      <h3 className="font-bold text-white text-lg leading-snug mb-1 group-hover:text-sb-glow transition-colors">
                         {pool.awayTeam}{" "}
-                        <span className="text-slate-600 font-normal text-sm">
+                        <span className="text-sb-muted font-normal text-sm">
                           vs
                         </span>{" "}
                         {pool.homeTeam}
                       </h3>
-                      <p className="text-slate-500 text-xs truncate">
+                      <p className="text-sb-muted text-xs truncate">
                         {pool.name}
                       </p>
-                      <div className="flex flex-wrap gap-3 mt-3 text-xs text-slate-400">
+                      <div className="flex flex-wrap gap-3 mt-3 text-xs text-sb-muted">
                         <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                          <Calendar className="w-3.5 h-3.5" />
                           {meta.gameDate}
                         </span>
                         <span className="inline-flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                          <Clock className="w-3.5 h-3.5" />
                           {meta.kickoffTime}
                         </span>
                       </div>
@@ -159,8 +159,8 @@ export default function FeaturedPools() {
                         className={[
                           "sb-btn-primary flex items-center justify-center w-full min-h-[50px] rounded-xl font-semibold text-sm transition-all duration-300 active:scale-[0.98]",
                           open
-                            ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 hover:-translate-y-0.5 hover:shadow-indigo-500/35"
-                            : "bg-slate-800 text-slate-400 border border-slate-700 pointer-events-auto",
+                            ? ""
+                            : "opacity-60 !shadow-none !translate-y-0 pointer-events-auto bg-white/5 hover:bg-white/5",
                         ].join(" ")}
                       >
                         Join Pool
@@ -190,14 +190,14 @@ function Stat({
 }) {
   return (
     <div>
-      <div className="flex items-center gap-1.5 text-slate-500 text-[11px] uppercase tracking-wider font-medium mb-1">
+      <div className="flex items-center gap-1.5 text-sb-muted text-[11px] uppercase tracking-wider font-medium mb-1">
         <Icon className="w-3.5 h-3.5" />
         {label}
       </div>
       <p
         className={[
-          "text-base font-bold font-mono",
-          accent ? "text-emerald-400" : "text-slate-100",
+          "text-base font-bold font-mono tabular-nums",
+          accent ? "text-sb-success" : "text-white",
         ].join(" ")}
       >
         {value}

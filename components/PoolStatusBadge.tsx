@@ -6,23 +6,23 @@ const STATUS_CONFIG: Record<
 > = {
   open: {
     label: "Open",
-    className: "bg-green-500/15 text-green-400 border-green-500/30",
+    className: "bg-sb-success/15 text-sb-success border-sb-success/30",
   },
   locked: {
     label: "Locked",
-    className: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    className: "bg-sb-gold/15 text-sb-gold border-sb-gold/30",
   },
   "numbers-drawn": {
     label: "Numbers Drawn",
-    className: "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+    className: "bg-sb-purple/15 text-sb-glow border-sb-purple/30",
   },
   completed: {
     label: "Completed",
-    className: "bg-slate-500/15 text-slate-400 border-slate-500/30",
+    className: "bg-white/5 text-sb-muted border-white/10",
   },
   archived: {
     label: "Archived",
-    className: "bg-slate-600/15 text-slate-500 border-slate-600/30",
+    className: "bg-white/5 text-sb-muted/70 border-white/5",
   },
 };
 

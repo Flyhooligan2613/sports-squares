@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { CreditCard, ShieldCheck } from "lucide-react";
+import Alert from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
 import type { Pool } from "@/lib/types";
 
 interface PoolPurchaseFormProps {
@@ -76,42 +81,37 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
   }
 
   return (
-    <section className="bg-slate-900 border border-emerald-500/20 rounded-xl p-5">
-      <div className="mb-4">
-        <h2 className="text-slate-200 font-semibold text-sm">
-          Purchase Squares
-        </h2>
-        <p className="text-slate-500 text-xs mt-1">
-          Pay securely with Stripe. Your invite link will be emailed after
-          payment.
-        </p>
-      </div>
+    <Card variant="elevated" glow className="p-5 sm:p-6 border-sb-success/20">
+      <CardHeader
+        title="Purchase Squares"
+        subtitle="Pay securely with Stripe. Your invite link will be emailed after payment."
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="grid sm:grid-cols-2 gap-3">
-          <input
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
             required
-            className="bg-slate-800 border border-slate-700 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
+            aria-label="Your name"
           />
-          <input
+          <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="bg-slate-800 border border-slate-700 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
+            aria-label="Email"
           />
-          <input
+          <Input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Phone (optional)"
-            className="bg-slate-800 border border-slate-700 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
+            aria-label="Phone"
           />
-          <input
+          <Input
             type="number"
             min={1}
             max={100}
@@ -119,35 +119,44 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
             onChange={(e) => setSquaresCount(e.target.value)}
             placeholder="Number of squares"
             required
-            className="bg-slate-800 border border-slate-700 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
+            aria-label="Number of squares"
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-slate-500 min-w-0">
-            Total:{" "}
-            <span className="text-emerald-300 font-mono font-semibold">
+        <div className="sb-card-glass rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sb-muted text-xs uppercase tracking-wider font-medium mb-1">
+              Total
+            </p>
+            <p className="text-2xl font-bold text-sb-success tabular-nums">
               ${total.toFixed(2)}
-            </span>
-            <span className="text-slate-600 ml-2">
-              (${costPerSquare.toFixed(2)} per square)
-            </span>
-          </p>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white text-sm font-semibold transition-colors"
-          >
-            {loading ? "Redirecting..." : "Continue to Checkout"}
-          </button>
+            </p>
+            <p className="text-sb-muted text-xs mt-0.5">
+              ${costPerSquare.toFixed(2)} per square
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sb-muted text-xs">
+            <ShieldCheck className="w-4 h-4 text-sb-success" />
+            Secured by Stripe
+          </div>
         </div>
+
+        <Button
+          type="submit"
+          variant="primary"
+          className="w-full sm:w-auto sm:min-w-[220px]"
+          disabled={loading}
+        >
+          <CreditCard className="w-4 h-4 mr-2" />
+          {loading ? "Redirecting..." : "Continue to Checkout"}
+        </Button>
       </form>
 
       {error && (
-        <p className="text-red-400 text-xs mt-3 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+        <Alert variant="error" className="mt-4">
           {error}
-        </p>
+        </Alert>
       )}
-    </section>
+    </Card>
   );
 }

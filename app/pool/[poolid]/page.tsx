@@ -12,6 +12,7 @@ import StatsPanel from "@/components/StatsPanel";
 import PoolPurchaseForm from "@/components/PoolPurchaseForm";
 import PoolSummaryPanel from "@/components/PoolSummaryPanel";
 import LiveScoreBanner from "@/components/LiveScoreBanner";
+import Spinner from "@/components/ui/Spinner";
 import { useEspnScoreSync } from "@/hooks/useEspnScoreSync";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { getInviteSession } from "@/lib/invites/session";
@@ -285,8 +286,8 @@ export default function PoolPage() {
 
   if (!pool) {
     return (
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        <p className="text-slate-500">Loading pool...</p>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12 flex justify-center">
+        <Spinner label="Loading pool..." />
       </main>
     );
   }
@@ -307,19 +308,19 @@ export default function PoolPage() {
         <div>
           <Link
             href="/"
-            className="text-slate-500 hover:text-slate-300 text-xs mb-2 inline-block"
+            className="text-sb-muted hover:text-white text-xs mb-2 inline-block transition-colors"
           >
             &larr; Back to pools
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 break-words">
+            <h1 className="text-xl sm:text-2xl font-bold text-white break-words">
               {pool.name}
             </h1>
             <PoolStatusBadge status={pool.status} />
           </div>
-          <p className="text-slate-500 text-sm mt-0.5">
+          <p className="text-sb-muted text-sm mt-0.5">
             {pool.awayTeam}{" "}
-            <span className="text-slate-600">vs</span>{" "}
+            <span className="text-sb-muted/60">vs</span>{" "}
             {pool.homeTeam}
           </p>
         </div>
@@ -360,9 +361,9 @@ export default function PoolPage() {
 
         {isOpen && activePlayer && (
           <div className="flex justify-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-              <span className="text-slate-400 text-xs">Credits Remaining</span>
-              <span className="text-indigo-300 font-bold font-mono text-lg">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sb-purple/10 border border-sb-purple/25">
+              <span className="text-sb-muted text-xs">Credits Remaining</span>
+              <span className="text-sb-glow font-bold font-mono text-lg tabular-nums">
                 {creditsRemaining}
               </span>
               <span className="text-slate-500 text-xs">

@@ -1,9 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import InstallPrompt from "@/components/InstallPrompt";
 import PwaRegister from "@/components/PwaRegister";
 import { BRAND_NAME } from "@/lib/brand";
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: BRAND_NAME,
@@ -22,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#4f46e5",
+  themeColor: "#030712",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -34,8 +41,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="font-sans bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col">
+    <html lang="en" className={`scroll-smooth ${jakarta.variable}`}>
+      <body className="font-sans bg-sb-bg text-white antialiased min-h-screen flex flex-col sb-app-bg">
         <Navbar />
         <div className="flex-1 flex flex-col">{children}</div>
         <InstallPrompt />

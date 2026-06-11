@@ -1,4 +1,5 @@
-import Link from "next/link";
+import PageShell from "@/components/ui/PageShell";
+import { Card } from "@/components/ui/Card";
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = {
@@ -26,21 +27,15 @@ const FAQ = [
 
 export default function FaqPage() {
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-12 sm:py-16">
-        <Link href="/" className="text-slate-500 hover:text-slate-300 text-sm mb-8 inline-block">
-          &larr; Back to home
-        </Link>
-        <h1 className="text-3xl font-bold text-slate-50 mb-8">FAQ</h1>
-        <div className="space-y-4">
-          {FAQ.map((item) => (
-            <div key={item.q} className="sb-card p-5 sm:p-6">
-              <h2 className="text-slate-100 font-semibold mb-2">{item.q}</h2>
-              <p className="text-slate-400 text-sm leading-relaxed">{item.a}</p>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
+    <PageShell title="FAQ" showLogo={false}>
+      <div className="space-y-4 not-prose">
+        {FAQ.map((item) => (
+          <Card key={item.q} variant="glass" className="p-5 sm:p-6">
+            <h2 className="text-white font-semibold mb-2">{item.q}</h2>
+            <p className="text-sb-muted text-sm leading-relaxed">{item.a}</p>
+          </Card>
+        ))}
+      </div>
+    </PageShell>
   );
 }

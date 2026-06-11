@@ -50,16 +50,16 @@ const STATUS_CONFIG: Record<
   { label: string; className: string }
 > = {
   "needs-allocation": {
-    label: "⚠ Needs Allocation",
-    className: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    label: "Needs Allocation",
+    className: "bg-sb-gold/15 text-sb-gold border-sb-gold/30",
   },
   active: {
-    label: "✅ Active",
-    className: "bg-green-500/15 text-green-400 border-green-500/30",
+    label: "Active",
+    className: "bg-sb-success/15 text-sb-success border-sb-success/30",
   },
   full: {
-    label: "✅ Full",
-    className: "bg-slate-500/15 text-slate-400 border-slate-500/30",
+    label: "Full",
+    className: "bg-white/5 text-sb-muted border-white/10",
   },
 };
 

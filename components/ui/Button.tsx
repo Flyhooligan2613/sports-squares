@@ -2,32 +2,39 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "ghost";
+type Size = "default" | "sm";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
+  size?: Size;
   href?: string;
   children: ReactNode;
   className?: string;
 }
 
 const VARIANTS: Record<Variant, string> = {
-  primary:
-    "sb-btn-primary bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 hover:shadow-indigo-500/40 hover:-translate-y-0.5",
-  secondary:
-    "sb-btn-secondary bg-slate-900/80 hover:bg-slate-800 text-slate-100 border border-slate-600/60 hover:border-slate-500 hover:-translate-y-0.5 shadow-md shadow-black/20",
-  ghost:
-    "sb-btn-ghost text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent",
+  primary: "sb-btn-primary",
+  secondary: "sb-btn-secondary",
+  ghost: "sb-btn-ghost",
+};
+
+const SIZES: Record<Size, string> = {
+  default:
+    "min-h-[52px] px-6 py-3 rounded-xl text-base",
+  sm: "sb-btn-sm",
 };
 
 export function Button({
   variant = "primary",
+  size = "default",
   href,
   children,
   className = "",
   ...props
 }: ButtonProps) {
   const classes = [
-    "inline-flex items-center justify-center min-h-[52px] px-6 py-3 rounded-xl font-semibold text-base transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none",
+    "inline-flex items-center justify-center font-semibold transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:transform-none",
+    SIZES[size],
     VARIANTS[variant],
     className,
   ].join(" ");
@@ -58,11 +65,11 @@ export function SectionHeader({
 }) {
   return (
     <div className={`text-center mb-10 sm:mb-14 max-w-2xl mx-auto ${className}`}>
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-50 tracking-tight mb-3">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">
         {title}
       </h2>
       {subtitle && (
-        <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+        <p className="text-sb-muted text-sm sm:text-base leading-relaxed">
           {subtitle}
         </p>
       )}

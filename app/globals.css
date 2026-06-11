@@ -158,13 +158,51 @@ body {
   opacity: 0;
 }
 
-/* SquareBoards design system */
+/* SquareBoards premium design system */
+:root {
+  --sb-bg: #030712;
+  --sb-surface: #081228;
+  --sb-purple: #5b4cf7;
+  --sb-glow: #7b61ff;
+  --sb-success: #22e584;
+  --sb-gold: #f6c453;
+  --sb-muted: #94a3b8;
+  --sb-secondary: #d4d7e5;
+  --sb-border: rgba(255, 255, 255, 0.06);
+}
+
+.sb-page-enter {
+  animation: landing-fade-up 0.45s ease-out forwards;
+}
+
 .sb-section {
   @apply py-16 sm:py-24 lg:py-28;
 }
 
 .sb-card {
-  @apply bg-slate-900/70 border border-slate-800/90 rounded-2xl backdrop-blur-sm;
+  @apply rounded-2xl border border-white/[0.06] bg-sb-gradient-card backdrop-blur-xl shadow-sb-card;
+}
+
+.sb-card-glass {
+  @apply rounded-2xl border border-white/[0.08] bg-sb-surface/60 backdrop-blur-2xl shadow-sb-card;
+}
+
+.sb-card-elevated {
+  @apply sb-card shadow-sb-glow;
+}
+
+.sb-card-glow {
+  @apply relative;
+}
+
+.sb-card-glow::before {
+  content: "";
+  @apply absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 pointer-events-none;
+  background: linear-gradient(135deg, rgba(91, 76, 247, 0.2), transparent 60%);
+}
+
+.sb-card-glow:hover::before {
+  @apply opacity-100;
 }
 
 .sb-card-hover {
@@ -172,11 +210,67 @@ body {
 }
 
 .sb-card-hover:hover {
-  @apply border-indigo-500/30 -translate-y-1 shadow-xl shadow-indigo-500/10;
+  @apply border-sb-glow/30 -translate-y-1 shadow-sb-card-hover;
+}
+
+.sb-kpi-card {
+  @apply sb-card px-5 py-5 sm:px-6 sm:py-6;
+}
+
+.sb-activity-card {
+  @apply sb-card-hover flex flex-col sm:flex-row sm:items-center gap-4 p-5 sm:p-6;
 }
 
 .sb-input {
-  @apply w-full min-h-[52px] bg-slate-950/80 border border-slate-700/80 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl px-4 text-base text-slate-100 placeholder-slate-500 outline-none transition-all duration-200;
+  @apply w-full min-h-[52px] bg-sb-bg/80 border border-white/10 focus:border-sb-purple focus:ring-2 focus:ring-sb-purple/20 rounded-xl px-4 text-base text-white placeholder-sb-muted outline-none transition-all duration-200;
+}
+
+.sb-empty-state {
+  @apply sb-card text-center py-12 px-6 sm:py-16;
+}
+
+.sb-empty-icon {
+  @apply inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-sb-purple/10 border border-sb-purple/20 text-sb-glow mb-5;
+}
+
+.sb-skeleton {
+  @apply rounded-lg bg-gradient-to-r from-white/5 via-white/10 to-white/5 bg-[length:200%_100%] animate-shimmer;
+}
+
+.sb-prose {
+  @apply space-y-4 text-sb-muted text-sm sm:text-base leading-relaxed;
+}
+
+.sb-prose p {
+  @apply leading-relaxed;
+}
+
+.sb-btn-primary {
+  @apply bg-sb-gradient-purple text-white shadow-sb-glow hover:shadow-sb-glow-lg hover:-translate-y-0.5 hover:brightness-110;
+}
+
+.sb-btn-secondary {
+  @apply bg-sb-surface/80 hover:bg-sb-surface text-white border border-white/10 hover:border-sb-glow/30 hover:-translate-y-0.5 shadow-md shadow-black/30 backdrop-blur-sm;
+}
+
+.sb-btn-ghost {
+  @apply text-sb-secondary hover:text-white hover:bg-white/5 border border-transparent;
+}
+
+.sb-btn-sm {
+  @apply min-h-[36px] px-3.5 py-1.5 text-xs rounded-lg;
+}
+
+.sb-nav-link {
+  @apply px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium transition-all duration-200;
+}
+
+.sb-nav-link-active {
+  @apply bg-sb-purple/15 text-sb-glow border border-sb-purple/25;
+}
+
+.sb-nav-link-inactive {
+  @apply text-sb-muted hover:text-white hover:bg-white/5;
 }
 
 @keyframes hero-glow-pulse {
@@ -209,7 +303,14 @@ body {
   animation: hero-particle-float linear infinite;
 }
 
+.sb-app-bg {
+  background-color: var(--sb-bg);
+  background-image:
+    radial-gradient(ellipse 100% 80% at 50% -30%, rgba(91, 76, 247, 0.08), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(123, 97, 255, 0.05), transparent 40%);
+}
+
 .sb-btn-primary:focus-visible,
 .sb-btn-secondary:focus-visible {
-  @apply outline-none ring-2 ring-indigo-400/50 ring-offset-2 ring-offset-slate-950;
+  @apply outline-none ring-2 ring-sb-glow/50 ring-offset-2 ring-offset-sb-bg;
 }

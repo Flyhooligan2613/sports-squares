@@ -2,8 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  ArrowRight,
+  Layers,
+  Trophy,
+  Users,
+} from "lucide-react";
 import AdminStatCard from "@/components/admin/AdminStatCard";
+import ActivityCard, {
+  ActivityCardButton,
+} from "@/components/ui/ActivityCard";
+import EmptyState from "@/components/ui/EmptyState";
+import PageHeader from "@/components/ui/PageHeader";
+import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
+import { Button } from "@/components/ui/Button";
 import { poolStore } from "@/lib/poolStore";
 import type { AdminStats, Pool } from "@/lib/types";
 
@@ -17,75 +30,94 @@ export default function AdminDashboardPage() {
   }, []);
 
   return (
-    <div className="max-w-5xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-100">Admin Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Overview of all pools and players.
-        </p>
-      </div>
+    <div className="max-w-5xl space-y-10">
+      <PageHeader
+        title="Admin Dashboard"
+        subtitle="Overview of all pools and players."
+        action={
+          <Button href="/create" variant="primary" size="sm">
+            Create Pool
+          </Button>
+        }
+      />
 
-      {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <AdminStatCard label="Total Pools" value={stats.totalPools} />
+      {!stats ? (
+        <SkeletonKpiGrid />
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <AdminStatCard
+            label="Total Pools"
+            value={stats.totalPools}
+            icon={Layers}
+            delay={0}
+          />
           <AdminStatCard
             label="Active Pools"
             value={stats.activePools}
-            accent="green"
+            accent="success"
+            icon={Trophy}
+            delay={60}
           />
           <AdminStatCard
-            label="Completed Pools"
+            label="Completed"
             value={stats.completedPools}
-            accent="amber"
+            accent="gold"
+            delay={120}
           />
           <AdminStatCard
             label="Total Players"
             value={stats.totalPlayers}
             accent="purple"
+            icon={Users}
+            delay={180}
           />
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-slate-300 font-semibold text-sm">Recent Pools</h2>
-        <Link
-          href="/admin/pools"
-          className="text-xs text-indigo-400 hover:text-indigo-300 font-medium"
-        >
-          View all &rarr;
-        </Link>
-      </div>
+      <div>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-white font-semibold text-lg">Recent Pools</h2>
+          <Link
+            href="/admin/pools"
+            className="inline-flex items-center gap-1 text-sm text-sb-glow hover:text-white font-medium transition-colors"
+          >
+            View all
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
         {recentPools.length === 0 ? (
-          <p className="p-6 text-slate-500 text-sm">No pools yet.</p>
+          <EmptyState
+            icon={Trophy}
+            title="No pools yet"
+            description="Create your first pool to start collecting players and selling squares."
+            actionLabel="Create Pool"
+            actionHref="/create"
+          />
         ) : (
-          <ul className="divide-y divide-slate-800">
+          <div className="space-y-4">
             {recentPools.map((pool) => (
-              <li
+              <ActivityCard
                 key={pool.id}
-                className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-slate-800/40 transition-colors"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-medium text-slate-200 truncate">
-                      {pool.name}
-                    </p>
-                    <PoolStatusBadge status={pool.status} />
-                  </div>
-                  <p className="text-slate-500 text-xs mt-0.5">
-                    {pool.participants.length} players
+                title={pool.name}
+                subtitle={`${pool.awayTeam} vs ${pool.homeTeam}`}
+                badge={<PoolStatusBadge status={pool.status} />}
+                meta={
+                  <p className="text-sb-muted text-xs">
+                    {pool.participants.length} players joined
                   </p>
-                </div>
-                <Link
-                  href={`/admin/pool/${pool.id}`}
-                  className="shrink-0 text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
-                >
-                  Manage
-                </Link>
-              </li>
+                }
+                actions={
+                  <ActivityCardButton
+                    href={`/admin/pool/${pool.id}`}
+                    variant="primary"
+                  >
+                    Manage
+                  </ActivityCardButton>
+                }
+              />
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

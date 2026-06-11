@@ -47,10 +47,10 @@ function AnimatedStat({
 
   return (
     <div className="text-center px-4">
-      <p className="text-3xl sm:text-4xl font-extrabold text-slate-50 tracking-tight font-mono">
+      <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-mono tabular-nums">
         {formatted}
       </p>
-      <p className="text-slate-500 text-xs sm:text-sm mt-2 uppercase tracking-wider font-medium">
+      <p className="text-sb-muted text-xs sm:text-sm mt-2 uppercase tracking-wider font-medium">
         {label}
       </p>
     </div>
@@ -80,10 +80,10 @@ export default function SocialProof() {
   }, []);
 
   return (
-    <section className="py-12 sm:py-16 border-y border-slate-800/60 bg-slate-950/50">
+    <section className="py-12 sm:py-16 border-y border-white/[0.06] bg-sb-surface/30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <ScrollReveal>
-          <p className="text-center text-slate-400 text-sm sm:text-base mb-8 sm:mb-10 tracking-wide">
+          <p className="text-center text-sb-secondary text-sm sm:text-base mb-8 sm:mb-10 tracking-wide">
             Trusted by sports fans nationwide.
           </p>
         </ScrollReveal>

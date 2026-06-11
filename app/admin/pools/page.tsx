@@ -1,9 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Copy, ExternalLink, Pencil, Trophy } from "lucide-react";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
+import ActivityCard, {
+  ActivityCardButton,
+} from "@/components/ui/ActivityCard";
+import EmptyState from "@/components/ui/EmptyState";
+import PageHeader from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { poolStore } from "@/lib/poolStore";
 import { BRAND_NAME } from "@/lib/brand";
 import type { Pool } from "@/lib/types";
@@ -35,93 +41,73 @@ export default function AdminPoolsPage() {
   }
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-100">Pools</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Manage all {BRAND_NAME} pools.
-          </p>
-        </div>
-        <Link
-          href="/create"
-          className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          Create Pool
-        </Link>
-      </div>
+    <div className="max-w-5xl space-y-8">
+      <PageHeader
+        title="Pools"
+        subtitle={`Manage all ${BRAND_NAME} pools.`}
+        action={
+          <Button href="/create" variant="primary" size="sm">
+            Create Pool
+          </Button>
+        }
+      />
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        {pools.length === 0 ? (
-          <p className="p-6 text-slate-500 text-sm">No pools found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-800 text-left">
-                  <th className="px-5 py-3 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    Pool
-                  </th>
-                  <th className="px-5 py-3 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    Status
-                  </th>
-                  <th className="px-5 py-3 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    Players
-                  </th>
-                  <th className="px-5 py-3 text-xs uppercase tracking-wider text-slate-500 font-semibold text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {pools.map((pool) => (
-                  <tr
-                    key={pool.id}
-                    className="hover:bg-slate-800/30 transition-colors"
+      {pools.length === 0 ? (
+        <EmptyState
+          icon={Trophy}
+          title="No pools found"
+          description="Create a pool to start selling squares and managing players."
+          actionLabel="Create Pool"
+          actionHref="/create"
+        />
+      ) : (
+        <div className="space-y-4">
+          {pools.map((pool) => (
+            <ActivityCard
+              key={pool.id}
+              title={pool.name}
+              subtitle={`${pool.awayTeam} vs ${pool.homeTeam}`}
+              badge={<PoolStatusBadge status={pool.status} />}
+              meta={
+                <p className="text-sb-muted text-xs">
+                  {pool.participants.length} players · Code{" "}
+                  <span className="font-mono text-sb-secondary">
+                    {pool.inviteCode}
+                  </span>
+                </p>
+              }
+              actions={
+                <>
+                  <ActivityCardButton href={`/pool/${pool.id}`}>
+                    <span className="inline-flex items-center gap-1">
+                      <ExternalLink className="w-3 h-3" />
+                      View
+                    </span>
+                  </ActivityCardButton>
+                  <ActivityCardButton
+                    href={`/admin/pool/${pool.id}`}
+                    variant="primary"
                   >
-                    <td className="px-5 py-4">
-                      <p className="font-medium text-slate-200">{pool.name}</p>
-                      <p className="text-slate-500 text-xs mt-0.5">
-                        {pool.awayTeam} vs {pool.homeTeam}
-                      </p>
-                    </td>
-                    <td className="px-5 py-4">
-                      <PoolStatusBadge status={pool.status} />
-                    </td>
-                    <td className="px-5 py-4 text-slate-300">
-                      {pool.participants.length}
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/pool/${pool.id}`}
-                          className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          View
-                        </Link>
-                        <Link
-                          href={`/admin/pool/${pool.id}`}
-                          className="text-xs bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleDuplicate(pool.id)}
-                          disabled={duplicatingId === pool.id}
-                          className="text-xs bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          {duplicatingId === pool.id ? "Copying..." : "Duplicate"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                    <span className="inline-flex items-center gap-1">
+                      <Pencil className="w-3 h-3" />
+                      Edit
+                    </span>
+                  </ActivityCardButton>
+                  <ActivityCardButton
+                    onClick={() => handleDuplicate(pool.id)}
+                    disabled={duplicatingId === pool.id}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      <Copy className="w-3 h-3" />
+                      {duplicatingId === pool.id ? "Copying..." : "Duplicate"}
+                    </span>
+                  </ActivityCardButton>
+                </>
+              }
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

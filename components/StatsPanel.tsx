@@ -1,3 +1,5 @@
+import KpiCard from "@/components/ui/KpiCard";
+
 interface StatsPanelProps {
   claimed: number;
   available: number;
@@ -10,19 +12,10 @@ export default function StatsPanel({
   selected,
 }: StatsPanelProps) {
   return (
-    <div className="grid grid-cols-3 gap-3">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-slate-100">{claimed}</p>
-        <p className="text-slate-500 text-xs mt-0.5">Claimed</p>
-      </div>
-      <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-green-400">{available}</p>
-        <p className="text-slate-500 text-xs mt-0.5">Available</p>
-      </div>
-      <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-center">
-        <p className="text-2xl font-bold text-indigo-400">{selected}</p>
-        <p className="text-slate-500 text-xs mt-0.5">Selected</p>
-      </div>
+    <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      <KpiCard label="Claimed" value={claimed} accent="muted" delay={0} />
+      <KpiCard label="Available" value={available} accent="success" delay={60} />
+      <KpiCard label="Selected" value={selected} accent="purple" delay={120} />
     </div>
   );
 }

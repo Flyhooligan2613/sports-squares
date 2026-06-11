@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import Logo from "@/components/Logo";
+import Alert from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import Spinner from "@/components/ui/Spinner";
 
 type PurchaseStatus =
   | { state: "loading" }
@@ -90,15 +95,15 @@ export default function PurchaseSuccessContent() {
     status.inviteDeliveryStatus === "failed";
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-6 sm:p-8 text-center">
+    <main className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12 sb-page-enter">
+      <Card variant="elevated" glow className="w-full max-w-md p-6 sm:p-8 text-center">
         {status.state === "loading" || status.state === "pending" ? (
           <>
-            <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <h1 className="text-xl font-bold text-slate-100 mb-2">
+            <Spinner className="mx-auto mb-4" />
+            <h1 className="text-xl font-bold text-white mb-2">
               Processing your purchase
             </h1>
-            <p className="text-slate-500 text-sm">
+            <p className="text-sb-muted text-sm">
               Setting up your player account and access link...
             </p>
           </>
@@ -106,42 +111,44 @@ export default function PurchaseSuccessContent() {
 
         {status.state === "fulfilled" ? (
           <>
+            <div className="flex justify-center mb-5">
+              <span className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sb-success/10 border border-sb-success/25">
+                <CheckCircle2 className="w-8 h-8 text-sb-success" />
+              </span>
+            </div>
             <div className="flex justify-center mb-4">
               <Logo variant="icon" href={undefined} />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-100 mb-3">
+            <h1 className="text-xl sm:text-2xl font-bold text-white mb-3">
               Purchase Complete
             </h1>
-            <p className="text-slate-300 text-sm mb-2">
+            <p className="text-sb-secondary text-sm mb-2">
               Your squares have been reserved successfully.
             </p>
-            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+            <p className="text-sb-muted text-sm mb-6 leading-relaxed">
               Your personal access link has been created. Use the button below
               to access and manage your squares.
             </p>
 
             {emailFailed && (
-              <p className="text-amber-300/90 text-xs bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2.5 mb-4 text-left">
+              <Alert variant="warning" className="mb-4 text-left">
                 Email delivery is still being configured. Your access link is
                 available below.
-              </p>
+              </Alert>
             )}
 
             {status.inviteDeliveryStatus === "sent" && (
-              <p className="text-emerald-400/90 text-xs bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2.5 mb-4">
+              <Alert variant="success" className="mb-4">
                 A confirmation email has been sent to your inbox.
-              </p>
+              </Alert>
             )}
 
-            <Link
-              href={status.invitePath}
-              className="inline-block w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors mb-3"
-            >
+            <Button href={status.invitePath} variant="primary" className="w-full mb-4">
               Open My Squares
-            </Link>
+            </Button>
             <a
               href={status.inviteUrl}
-              className="text-xs text-slate-500 hover:text-slate-300 break-all block"
+              className="text-xs text-sb-muted hover:text-sb-glow break-all block transition-colors"
             >
               {status.inviteUrl}
             </a>
@@ -150,19 +157,16 @@ export default function PurchaseSuccessContent() {
 
         {status.state === "error" ? (
           <>
-            <h1 className="text-xl font-bold text-slate-100 mb-2">
+            <h1 className="text-xl font-bold text-white mb-2">
               Purchase status
             </h1>
-            <p className="text-slate-500 text-sm mb-6">{status.message}</p>
-            <Link
-              href="/"
-              className="inline-block text-sm bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-5 py-2.5 rounded-lg transition-colors"
-            >
+            <p className="text-sb-muted text-sm mb-6">{status.message}</p>
+            <Button href="/" variant="secondary">
               Back to Home
-            </Link>
+            </Button>
           </>
         ) : null}
-      </div>
+      </Card>
     </main>
   );
 }

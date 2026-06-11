@@ -17,7 +17,7 @@ export default function HeroParticles() {
       {particles.map((p) => (
         <span
           key={p.id}
-          className="hero-particle absolute rounded-full bg-indigo-300/30"
+          className="hero-particle absolute rounded-full bg-sb-glow/30"
           style={{
             left: p.left,
             bottom: "-10%",

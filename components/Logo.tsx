@@ -15,7 +15,7 @@ export default function Logo({
   const content = (
     <>
       <span
-        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 shrink-0 shadow-lg shadow-indigo-500/25"
+        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sb-gradient-purple shrink-0 shadow-sb-glow"
         aria-hidden
       >
         <svg
@@ -32,25 +32,25 @@ export default function Logo({
         </svg>
       </span>
       {variant === "full" && (
-        <span className="font-bold text-slate-50 tracking-tight">
-          {BRAND_NAME}
+        <span className="font-bold tracking-tight flex items-baseline gap-0">
+          <span className="text-white">SQUARE</span>
+          <span className="bg-gradient-to-r from-sb-glow to-sb-purple bg-clip-text text-transparent">
+            BOARDS
+          </span>
         </span>
       )}
     </>
   );
 
-  const classes = [
-    "inline-flex items-center gap-2.5 hover:opacity-90 transition-opacity duration-200",
-    className,
-  ].join(" ");
+  const classes = `inline-flex items-center gap-2.5 ${className}`;
 
-  if (href !== false) {
-    return (
-      <Link href={href} className={classes} aria-label={`${BRAND_NAME} home`}>
-        {content}
-      </Link>
-    );
+  if (href === false) {
+    return <span className={classes}>{content}</span>;
   }
 
-  return <div className={classes}>{content}</div>;
+  return (
+    <Link href={href} className={`${classes} group`}>
+      {content}
+    </Link>
+  );
 }
