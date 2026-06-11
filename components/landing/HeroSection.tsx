@@ -1,84 +1,80 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { ChevronRight, Radio } from "lucide-react";
 import Logo from "@/components/Logo";
-import HeroParticles from "@/components/landing/HeroParticles";
+import HeroBackground from "@/components/landing/hero/HeroBackground";
+import HeroFeatureCards from "@/components/landing/hero/HeroFeatureCards";
+import HeroScene from "@/components/landing/hero/HeroScene";
 import { Button } from "@/components/ui/Button";
-
-const HERO_FEATURES = [
-  "Secure Stripe Payments",
-  "Instant Square Selection",
-  "Live Game Scoring",
-  "Automatic Winner Tracking",
-];
+import { useHeroFeaturedPool } from "@/lib/landing/useHeroFeaturedPool";
 
 export default function HeroSection() {
+  const { pool, liveGame, loading } = useHeroFeaturedPool();
+
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
-    <section className="relative overflow-hidden min-h-[calc(100dvh-3.5rem)] sm:min-h-[85vh] flex flex-col justify-center">
-      <div className="absolute inset-0 bg-gradient-to-b from-sb-purple/10 via-sb-bg to-sb-bg pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(91,76,247,0.35),transparent_60%)] pointer-events-none hero-glow-pulse" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_20%,rgba(123,97,255,0.12),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_30%_at_10%_30%,rgba(91,76,247,0.1),transparent_45%)] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-sb-bg to-transparent pointer-events-none" />
+    <section
+      className="hero-section relative overflow-hidden min-h-[calc(100dvh-3.5rem)]"
+      aria-label="SquareBoards hero"
+    >
+      <HeroBackground />
 
-      <HeroParticles />
+      <div className="relative max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
+        <div className="hero-layout">
+          {/* Copy + CTAs */}
+          <div className="hero-col-copy landing-fade-up">
+            <div className="hero-logo-wrap mb-5 sm:mb-6">
+              <Logo href="/" className="text-lg sm:text-xl scale-110 origin-left" />
+            </div>
 
-      <div className="relative max-w-6xl mx-auto w-full px-4 sm:px-6 pt-8 sm:pt-20 pb-12 sm:pb-24 text-center landing-fade-up">
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <Logo href="/" className="text-base sm:text-lg" />
+            <div className="hero-live-pill mb-5 sm:mb-6">
+              <Radio className="w-3.5 h-3.5 text-sb-success" strokeWidth={2.5} />
+              <span>Live Sports Squares</span>
+              <span className="hero-live-pill-dot" aria-hidden />
+            </div>
+
+            <h1 className="hero-headline">
+              <span className="block">Pick Your Squares.</span>
+              <span className="block hero-headline-accent">Watch the Game.</span>
+              <span className="block">Win Big.</span>
+            </h1>
+
+            <p className="hero-subhead">
+              Buy your lucky squares, follow live scores, and compete for every
+              quarter using secure online payments.
+            </p>
+
+            <div className="hero-ctas">
+              <Button
+                variant="primary"
+                className="hero-btn-primary w-full sm:w-auto min-w-[180px] group"
+                onClick={() => scrollTo("pools")}
+              >
+                Play Now
+                <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" />
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full sm:w-auto min-w-[180px]"
+                onClick={() => scrollTo("join")}
+              >
+                Enter Pool Code
+              </Button>
+            </div>
+
+            <HeroFeatureCards className="mt-8 sm:mt-10 hidden lg:grid" />
+          </div>
+
+          {/* Stadium scene */}
+          <div className="hero-col-scene landing-fade-up landing-delay-1">
+            <HeroScene pool={pool} liveGame={liveGame} loading={loading} />
+          </div>
+
+          <HeroFeatureCards className="hero-features-mobile lg:hidden landing-fade-up landing-delay-1" />
         </div>
-
-        <h1 className="text-[1.85rem] leading-[1.15] sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white mb-5 sm:mb-6 max-w-3xl mx-auto tracking-tight">
-          <span className="block">Pick Your Squares.</span>
-          <span className="block bg-gradient-to-r from-sb-glow via-white to-sb-glow bg-clip-text text-transparent">
-            Watch the Game.
-          </span>
-          <span className="block">Win Big.</span>
-        </h1>
-
-        <p className="text-sb-muted text-base sm:text-lg max-w-lg mx-auto mb-9 sm:mb-11 leading-relaxed px-1">
-          Buy your lucky squares, follow live scores, and compete for every
-          quarter using secure online payments.
-        </p>
-
-        <div className="flex flex-col gap-3 max-w-sm mx-auto sm:max-w-md">
-          <Button
-            variant="primary"
-            className="w-full"
-            onClick={() => scrollTo("pools")}
-          >
-            Play Now
-          </Button>
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={() => scrollTo("join")}
-          >
-            Enter Pool Code
-          </Button>
-        </div>
-
-        <ul className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto mt-14 text-left landing-fade-up landing-delay-1">
-          {HERO_FEATURES.map((feature) => (
-            <li
-              key={feature}
-              className="flex items-center gap-2.5 sb-card px-3.5 py-3"
-            >
-              <Check
-                className="w-4 h-4 text-sb-success shrink-0"
-                strokeWidth={2.5}
-                aria-hidden
-              />
-              <span className="text-sb-secondary text-xs sm:text-sm font-medium">
-                {feature}
-              </span>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );
