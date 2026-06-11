@@ -1,0 +1,27 @@
+import Link from "next/link";
+
+export default function Navbar() {
+  return (
+    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <Link href="/" className="font-bold text-slate-100 hover:text-indigo-400 transition-colors">
+          Sports Squares
+        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin"
+            className="text-sm text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            Admin
+          </Link>
+          <Link
+            href="/admin"
+            className="text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg font-medium transition-colors"
+          >
+            Create Pool
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
