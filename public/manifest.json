@@ -1,7 +1,7 @@
 {
-  "name": "Sports Squares",
-  "short_name": "Squares",
-  "description": "Create and join sports squares pools online.",
+  "name": "SquareBoards",
+  "short_name": "SquareBoards",
+  "description": "Buy sports squares online with secure checkout and live scoring.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",

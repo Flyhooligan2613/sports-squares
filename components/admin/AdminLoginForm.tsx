@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signInAdmin } from "@/lib/auth/adminAuthClient";
+import { BRAND_NAME } from "@/lib/brand";
 
 export default function AdminLoginForm() {
   const searchParams = useSearchParams();
@@ -40,7 +41,7 @@ export default function AdminLoginForm() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-slate-100">Admin Login</h1>
           <p className="text-slate-500 text-sm mt-2">
-            Sign in to manage Sports Squares pools
+            Sign in to manage {BRAND_NAME} pools
           </p>
         </div>
 

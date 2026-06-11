@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = {
-  title: "Offline | Sports Squares",
+  title: `Offline | ${BRAND_NAME}`,
 };
 
 export default function OfflinePage() {
@@ -12,7 +13,7 @@ export default function OfflinePage() {
         <Logo href="/" variant="icon" className="justify-center mb-6" />
         <h1 className="text-xl font-bold text-slate-100 mb-2">You&apos;re offline</h1>
         <p className="text-slate-500 text-sm mb-6">
-          Sports Squares needs a connection for live scores and checkout. Reconnect
+          {BRAND_NAME} needs a connection for live scores and checkout. Reconnect
           and try again.
         </p>
         <Link

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
 import { poolStore } from "@/lib/poolStore";
+import { BRAND_NAME } from "@/lib/brand";
 import type { Pool } from "@/lib/types";
 
 export default function AdminPoolsPage() {
@@ -39,7 +40,7 @@ export default function AdminPoolsPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Pools</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Manage all sports squares pools.
+            Manage all {BRAND_NAME} pools.
           </p>
         </div>
         <Link

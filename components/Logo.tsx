@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND_NAME } from "@/lib/brand";
 
 interface LogoProps {
   variant?: "full" | "icon";
@@ -14,7 +15,7 @@ export default function Logo({
   const content = (
     <>
       <span
-        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 shrink-0 shadow-lg shadow-indigo-500/20"
+        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 shrink-0 shadow-lg shadow-indigo-500/25"
         aria-hidden
       >
         <svg
@@ -31,21 +32,21 @@ export default function Logo({
         </svg>
       </span>
       {variant === "full" && (
-        <span className="font-bold text-slate-100 tracking-tight">
-          Sports Squares
+        <span className="font-bold text-slate-50 tracking-tight">
+          {BRAND_NAME}
         </span>
       )}
     </>
   );
 
   const classes = [
-    "inline-flex items-center gap-2.5 hover:opacity-90 transition-opacity",
+    "inline-flex items-center gap-2.5 hover:opacity-90 transition-opacity duration-200",
     className,
   ].join(" ");
 
   if (href !== false) {
     return (
-      <Link href={href} className={classes} aria-label="Sports Squares home">
+      <Link href={href} className={classes} aria-label={`${BRAND_NAME} home`}>
         {content}
       </Link>
     );

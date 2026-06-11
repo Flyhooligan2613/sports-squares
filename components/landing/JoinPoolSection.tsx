@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { KeyRound } from "lucide-react";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+import { SectionHeader } from "@/components/ui/Button";
 import { listInviteSessions } from "@/lib/invites/session";
 import { normalizePoolCode, parseJoinInput } from "@/lib/landing/join";
 import { poolStore } from "@/lib/poolStore";
@@ -54,7 +57,9 @@ export default function JoinPoolSection() {
       );
 
       if (!match) {
-        setError("Pool not found. Check your code or use your personal invite link.");
+        setError(
+          "Pool not found. Check your code or use your personal invite link."
+        );
         return;
       }
 
@@ -67,63 +72,66 @@ export default function JoinPoolSection() {
   }
 
   return (
-    <section
-      id="join"
-      className="scroll-mt-20 bg-slate-900/40 border-y border-slate-800/80 py-10 sm:py-14 landing-fade-up"
-    >
+    <section id="join" className="scroll-mt-20 sb-section bg-slate-900/20">
       <div className="max-w-xl mx-auto w-full px-4 sm:px-6">
-        <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-100 mb-2">
-            Already have an invite?
-          </h2>
-          <p className="text-slate-500 text-sm sm:text-base">
-            Enter your Pool Code or use your personal invite link.
-          </p>
-        </div>
+        <ScrollReveal>
+          <SectionHeader
+            title="Already have an invite?"
+            subtitle="Enter your Pool Code or paste your personal invite link."
+          />
+        </ScrollReveal>
 
         {activeInvite && (
-          <div className="mb-5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-indigo-200 text-sm">
-              You have an active invite session.
-            </p>
-            <Link
-              href={activeInvite.path}
-              className="inline-flex justify-center min-h-[44px] items-center px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors"
-            >
-              Continue to My Squares
-            </Link>
-          </div>
+          <ScrollReveal delay={80}>
+            <div className="mb-6 sb-card border-indigo-500/25 bg-indigo-500/5 px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-indigo-200 text-sm">
+                Welcome back — your invite session is ready.
+              </p>
+              <Link
+                href={activeInvite.path}
+                className="sb-btn-primary inline-flex justify-center min-h-[48px] items-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all"
+              >
+                Continue to My Squares
+              </Link>
+            </div>
+          </ScrollReveal>
         )}
 
-        <form
-          onSubmit={handleJoin}
-          className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl shadow-black/20"
-        >
-          <label htmlFor="pool-code" className="sr-only">
-            Pool code or invite link
-          </label>
-          <input
-            id="pool-code"
-            value={code}
-            onChange={(e) => {
-              setCode(e.target.value);
-              setError("");
-            }}
-            placeholder="Pool code or invite link"
-            autoComplete="off"
-            className="w-full min-h-[52px] bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl px-4 text-base text-slate-100 placeholder-slate-500 outline-none transition-all mb-3"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full min-h-[52px] rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-semibold text-base transition-all active:scale-[0.98]"
+        <ScrollReveal delay={120}>
+          <form
+            onSubmit={handleJoin}
+            className="sb-card p-5 sm:p-7 shadow-2xl shadow-black/30"
           >
-            {loading ? "Finding pool..." : "Join Pool"}
-          </button>
-          {error && (
-            <p className="text-red-400 text-sm mt-3 text-center">{error}</p>
-          )}
-        </form>
+            <div className="flex items-center gap-2 text-slate-400 text-xs uppercase tracking-wider font-semibold mb-4">
+              <KeyRound className="w-4 h-4 text-indigo-400" />
+              Pool access
+            </div>
+            <label htmlFor="pool-code" className="sr-only">
+              Pool code or invite link
+            </label>
+            <input
+              id="pool-code"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setError("");
+              }}
+              placeholder="Pool code or invite link"
+              autoComplete="off"
+              className="sb-input mb-4"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="sb-btn-primary w-full min-h-[52px] rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-semibold text-base transition-all duration-300 hover:-translate-y-0.5 shadow-lg shadow-indigo-600/25 active:scale-[0.98]"
+            >
+              {loading ? "Finding pool..." : "Join Pool"}
+            </button>
+            {error && (
+              <p className="text-red-400 text-sm mt-3 text-center">{error}</p>
+            )}
+          </form>
+        </ScrollReveal>
       </div>
     </section>
   );

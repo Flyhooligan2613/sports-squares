@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = {
-  title: "Terms of Service | Sports Squares",
+  title: `Terms of Service | ${BRAND_NAME}`,
 };
 
 export default function TermsPage() {
@@ -20,13 +21,13 @@ export default function TermsPage() {
         </h1>
         <div className="prose prose-invert prose-sm max-w-none space-y-4 text-slate-400 leading-relaxed">
           <p>
-            Sports Squares provides online tools to create and manage sports
+            {BRAND_NAME} provides online tools to create and manage sports
             squares pools. By using this service, you agree to use it in
             compliance with applicable laws and regulations in your jurisdiction.
           </p>
           <p>
             Pool organizers are responsible for pool rules, payouts, and
-            participant communications. Sports Squares facilitates pool
+            participant communications. {BRAND_NAME} facilitates pool
             management and payment processing but does not guarantee game
             outcomes or financial settlements between participants.
           </p>

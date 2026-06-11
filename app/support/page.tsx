@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = {
-  title: "Support | Sports Squares",
+  title: `Support | ${BRAND_NAME}`,
 };
 
 export default function SupportPage() {

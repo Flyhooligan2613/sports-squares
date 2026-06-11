@@ -1,43 +1,100 @@
 import Link from "next/link";
+import { Share2, MessageCircle, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
+import { BRAND_NAME } from "@/lib/brand";
+
+const LINKS = {
+  product: [
+    { href: "/#pools", label: "Featured Games" },
+    { href: "/#join", label: "Join a Pool" },
+    { href: "/support", label: "Support" },
+    { href: "/faq", label: "FAQ" },
+  ],
+  company: [
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
+    { href: "/responsible-gaming", label: "Responsible Gaming" },
+  ],
+  legal: [
+    { href: "/privacy", label: "Privacy" },
+    { href: "/terms", label: "Terms" },
+  ],
+  host: [{ href: "/admin/login", label: "Become a Host" }],
+};
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-800 bg-slate-950/80 mt-auto">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-8">
-          <div>
-            <Logo href="/" className="mb-3" />
-            <p className="text-slate-500 text-sm max-w-xs">
-              Buy sports squares online — secure checkout, live scoring, and
-              instant access to your board.
+    <footer className="border-t border-slate-800/80 bg-slate-950 mt-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
+          <div className="col-span-2 md:col-span-1">
+            <Logo href="/" className="mb-4" />
+            <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
+              The modern way to play sports squares — secure checkout, live
+              scores, and instant access to your board.
             </p>
+            <div className="flex gap-3 mt-5">
+              <a
+                href="mailto:support@squareboards.pro"
+                className="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-indigo-300 hover:border-indigo-500/30 transition-colors"
+                aria-label="Email"
+              >
+                <Mail className="w-4 h-4" />
+              </a>
+              <span
+                className="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600 cursor-default"
+                aria-hidden
+              >
+                <Share2 className="w-4 h-4" />
+              </span>
+              <span
+                className="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600 cursor-default"
+                aria-hidden
+              >
+                <MessageCircle className="w-4 h-4" />
+              </span>
+            </div>
           </div>
-          <nav className="flex flex-wrap gap-x-8 gap-y-3 text-sm">
-            <Link
-              href="/terms"
-              className="text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              Terms of Service
-            </Link>
-            <Link
-              href="/privacy"
-              className="text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/support"
-              className="text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              Support
-            </Link>
-          </nav>
+
+          <FooterColumn title="Play" links={LINKS.product} />
+          <FooterColumn title="Company" links={LINKS.company} />
+          <FooterColumn title="Legal" links={LINKS.legal} />
+          <FooterColumn title="Hosts" links={LINKS.host} />
         </div>
-        <p className="text-slate-600 text-xs mt-8 pt-6 border-t border-slate-800/80">
-          &copy; {new Date().getFullYear()} Sports Squares. All rights reserved.
-        </p>
+
+        <div className="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-600">
+          <p>&copy; {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.</p>
+          <p>Play responsibly. Must comply with local laws.</p>
+        </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { href: string; label: string }[];
+}) {
+  return (
+    <div>
+      <p className="text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">
+        {title}
+      </p>
+      <ul className="space-y-2.5">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className="text-slate-500 hover:text-slate-200 text-sm transition-colors"
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

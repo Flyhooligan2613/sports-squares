@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = {
-  title: "Privacy Policy | Sports Squares",
+  title: `Privacy Policy | ${BRAND_NAME}`,
 };
 
 export default function PrivacyPage() {
@@ -20,7 +21,7 @@ export default function PrivacyPage() {
         </h1>
         <div className="space-y-4 text-slate-400 text-sm leading-relaxed">
           <p>
-            Sports Squares collects information you provide when creating pools,
+            {BRAND_NAME} collects information you provide when creating pools,
             purchasing squares, or contacting support — including name, email,
             and phone number when supplied.
           </p>

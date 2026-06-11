@@ -157,3 +157,59 @@ body {
   animation-delay: 0.12s;
   opacity: 0;
 }
+
+/* SquareBoards design system */
+.sb-section {
+  @apply py-16 sm:py-24 lg:py-28;
+}
+
+.sb-card {
+  @apply bg-slate-900/70 border border-slate-800/90 rounded-2xl backdrop-blur-sm;
+}
+
+.sb-card-hover {
+  @apply sb-card transition-all duration-300 ease-out;
+}
+
+.sb-card-hover:hover {
+  @apply border-indigo-500/30 -translate-y-1 shadow-xl shadow-indigo-500/10;
+}
+
+.sb-input {
+  @apply w-full min-h-[52px] bg-slate-950/80 border border-slate-700/80 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl px-4 text-base text-slate-100 placeholder-slate-500 outline-none transition-all duration-200;
+}
+
+@keyframes hero-glow-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+.hero-glow-pulse {
+  animation: hero-glow-pulse 8s ease-in-out infinite;
+}
+
+@keyframes hero-particle-float {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-110vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+.hero-particle {
+  animation: hero-particle-float linear infinite;
+}
+
+.sb-btn-primary:focus-visible,
+.sb-btn-secondary:focus-visible {
+  @apply outline-none ring-2 ring-indigo-400/50 ring-offset-2 ring-offset-slate-950;
+}
