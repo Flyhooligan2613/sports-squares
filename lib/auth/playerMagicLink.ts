@@ -7,8 +7,22 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function getMagicLinkRedirectUrl(): string {
-  return `${getAppUrl()}/auth/callback?next=${encodeURIComponent("/my-games")}`;
+function buildPlayerSignInUrl(email: string, token: string): string {
+  const params = new URLSearchParams({
+    token,
+    email: normalizeEmail(email),
+    next: "/my-games",
+  });
+  return `${getAppUrl()}/auth/verify?${params.toString()}`;
+}
+
+function tokenFromActionLink(actionLink: string | null | undefined): string | null {
+  if (!actionLink) return null;
+  try {
+    return new URL(actionLink).searchParams.get("token");
+  } catch {
+    return null;
+  }
 }
 
 /** One-time magic link for immediate post-purchase access. */
@@ -16,7 +30,7 @@ export async function createPlayerMagicLink(
   email: string
 ): Promise<string | null> {
   const supabase = getSupabaseAdmin();
-  const redirectTo = getMagicLinkRedirectUrl();
+  const redirectTo = `${getAppUrl()}/auth/callback?next=${encodeURIComponent("/my-games")}`;
 
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "magiclink",
@@ -29,7 +43,17 @@ export async function createPlayerMagicLink(
     return null;
   }
 
-  return data.properties?.action_link ?? null;
+  const token =
+    tokenFromActionLink(data.properties?.action_link) ??
+    data.properties?.hashed_token ??
+    null;
+
+  if (!token) {
+    console.error("[createPlayerMagicLink] missing token in generateLink response");
+    return null;
+  }
+
+  return buildPlayerSignInUrl(email, token);
 }
 
 export async function playerEmailHasPurchases(email: string): Promise<boolean> {
