@@ -29,9 +29,25 @@ Self-contained demo at **`/connect-sample`** showing onboarding, products, store
    STRIPE_CONNECT_SAMPLE_APP_FEE_CENTS=123
    ```
 
-3. **Run migration** `019_connect_sample_accounts.sql` in Supabase (stores demo user → account mapping).
+3. **Run migration** `019_connect_sample_accounts.sql` in Supabase (stores demo user → account mapping):
 
-4. **Enable Accounts v2** in [Stripe Dashboard](https://dashboard.stripe.com/settings/connect).
+   ```bash
+   npm run supabase:migrate:connect-sample
+   ```
+
+   Paste into the SQL Editor and click **Run**.
+
+4. **Enable Accounts v2** (required — the sample will not work without this):
+
+   - Open [Stripe Connect settings (Test mode)](https://dashboard.stripe.com/test/settings/connect)
+   - Enable **Accounts v2**
+   - Docs: https://docs.stripe.com/accounts-v2/use-accounts-as-customers
+
+5. **Verify setup**:
+
+   ```bash
+   npm run connect-sample:verify
+   ```
 
 ## Routes
 
