@@ -1,7 +1,12 @@
 export interface EspnCompetitorRaw {
   homeAway?: string;
   score?: string;
-  team?: { displayName?: string; abbreviation?: string };
+  team?: {
+    displayName?: string;
+    abbreviation?: string;
+    logo?: string;
+  };
+  records?: { summary?: string }[];
   linescores?: { value?: number }[];
 }
 
@@ -32,4 +37,6 @@ export interface EspnScoreboardEventRaw {
 
 export interface EspnScoreboardResponse {
   events?: EspnScoreboardEventRaw[];
+  week?: { number?: number };
+  season?: { year?: number; type?: number };
 }

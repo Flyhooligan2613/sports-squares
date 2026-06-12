@@ -15,11 +15,17 @@ export default function NavGamesSection() {
 
   return (
     <div className="nav-drawer-section">
-      <p className="nav-drawer-section-title">Games</p>
+      <p className="nav-drawer-section-title">Play</p>
       <ul className="space-y-2">
         {PLATFORM_GAMES.map((game) => {
           const active = isPlatformGameNavActive(game, pathname);
           const isAvailable = game.status === "available" && game.href;
+
+          const statusLabel = game.navBadge === "new"
+            ? "NEW"
+            : isAvailable
+              ? "Available Now"
+              : "Coming Soon";
 
           const content = (
             <>
@@ -32,11 +38,12 @@ export default function NavGamesSection() {
                   className={[
                     "nav-game-card-status",
                     isAvailable ? "nav-game-card-status-live" : "",
+                    game.navBadge === "new" ? "nav-game-card-status-new" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                 >
-                  {isAvailable ? "Available Now" : "Coming Soon"}
+                  {statusLabel}
                 </span>
               </span>
             </>

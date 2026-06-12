@@ -14,6 +14,8 @@ export type PlatformGameId =
 
 export type PlatformGameStatus = "available" | "coming_soon";
 
+export type PlatformNavBadge = "new" | "coming_soon";
+
 export interface PlatformGameDefinition {
   id: PlatformGameId;
   name: string;
@@ -26,6 +28,8 @@ export interface PlatformGameDefinition {
   accent: string;
   /** Stat keys this game contributes to on player profiles */
   statKeys: string[];
+  /** Optional nav badge override */
+  navBadge?: PlatformNavBadge;
 }
 
 export const PLATFORM_GAMES: PlatformGameDefinition[] = [
@@ -42,14 +46,15 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   },
   {
     id: "pickem",
-    name: "Pick'em Challenge",
+    name: "Pick'em",
     description:
-      "Pick winners every week. Climb the leaderboard and prove you know the game.",
+      "Predict every NFL winner each week. Build streaks, climb leaderboards, and compete worldwide — no spreads, no odds, just winners.",
     icon: "🏈",
-    status: "coming_soon",
-    href: null,
+    status: "available",
+    href: "/pickem",
     accent: "#22c55e",
-    statKeys: ["pickemWins"],
+    navBadge: "new",
+    statKeys: ["pickemWins", "pickAccuracyPct", "currentStreak", "longestStreak"],
   },
   {
     id: "survivor",
@@ -107,6 +112,10 @@ export function isPlatformGameAvailable(id: PlatformGameId): boolean {
   return getPlatformGame(id).status === "available";
 }
 
+export function isPickemRoute(pathname: string): boolean {
+  return pathname === "/pickem" || pathname.startsWith("/pickem/");
+}
+
 export function isSquareBoardsRoute(pathname: string): boolean {
   return (
     pathname === "/" ||
@@ -124,5 +133,6 @@ export function isPlatformGameNavActive(
 ): boolean {
   if (game.status !== "available" || !game.href) return false;
   if (game.id === "squareboards") return isSquareBoardsRoute(pathname);
+  if (game.id === "pickem") return isPickemRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);
 }

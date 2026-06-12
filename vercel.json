@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/payout-worker",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/pickem-sync",
+      "schedule": "0 * * * *"
     }
   ]
 }
