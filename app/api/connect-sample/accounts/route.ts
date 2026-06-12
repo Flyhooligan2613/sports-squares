@@ -32,11 +32,16 @@ export async function POST(request: Request) {
       contactEmail,
     });
 
-    await saveConnectSampleAccountMapping({
-      demoUserEmail: contactEmail,
-      stripeAccountId: account.id,
-      displayName: displayNameFromV2Account(account),
-    });
+    try {
+      await saveConnectSampleAccountMapping({
+        demoUserEmail: contactEmail,
+        stripeAccountId: account.id,
+        displayName: displayNameFromV2Account(account),
+      });
+    } catch (dbErr) {
+      // Stripe account was created — don't fail if Supabase schema cache is still refreshing.
+      console.warn("[connect-sample/accounts POST] mapping not saved", dbErr);
+    }
 
     const status = parseConnectSampleAccountStatus(account);
 
@@ -49,10 +54,13 @@ export async function POST(request: Request) {
       return jsonError(err.message, 503);
     }
     console.error("[connect-sample/accounts POST]", err);
-    return jsonError(
-      err instanceof Error ? err.message : "Failed to create connected account.",
-      500
-    );
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Failed to create connected account.";
+    return jsonError(message, 500);
   }
 }
 

@@ -33,6 +33,11 @@ export default function ConnectSampleDashboard({
   const [productName, setProductName] = useState("SquareBoards Tee");
   const [productDescription, setProductDescription] = useState("Sample merch item");
   const [productPrice, setProductPrice] = useState("2500");
+  const [isLocalDev, setIsLocalDev] = useState(true);
+
+  useEffect(() => {
+    setIsLocalDev(window.location.hostname === "localhost");
+  }, []);
 
   const storefrontHref = useMemo(
     () => (accountId ? `/connect-sample/storefront/${accountId}` : null),
@@ -196,9 +201,32 @@ export default function ConnectSampleDashboard({
         </p>
       </header>
 
+      {!isLocalDev && (
+        <LandingGlassCard className="p-4 border border-yellow-500/40">
+          <p className="text-yellow-200 text-sm">
+            You are on production. This demo uses your local Stripe test key — open{" "}
+            <a href="http://localhost:3000/connect-sample" className="underline text-emerald-300">
+              http://localhost:3000/connect-sample
+            </a>{" "}
+            while developing, or update <code>STRIPE_SECRET_KEY</code> on Vercel to match your new
+            test key.
+          </p>
+        </LandingGlassCard>
+      )}
+
       {error && (
         <LandingGlassCard className="p-4 border border-red-500/40">
           <p className="text-red-400 text-sm">{error}</p>
+          {error.includes("Permission denied") && (
+            <p className="text-sb-muted text-xs mt-2">
+              If you finished Stripe onboarding, you were likely sent back to production. Open{" "}
+              <a href="http://localhost:3000/connect-sample" className="text-emerald-300 underline">
+                localhost:3000/connect-sample
+              </a>
+              , click <strong>Onboard to collect payments</strong> again, then complete onboarding
+              once more so the return URL stays on localhost.
+            </p>
+          )}
         </LandingGlassCard>
       )}
       {message && (

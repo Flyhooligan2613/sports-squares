@@ -42,6 +42,20 @@ export function getConnectSampleBaseUrl(): string {
   return `${getAppUrl()}/connect-sample`;
 }
 
+/** Prefer the browser origin so Stripe onboarding returns to localhost during dev. */
+export function getConnectSampleBaseUrlFromRequest(request: Request): string {
+  const origin = request.headers.get("origin")?.replace(/\/$/, "");
+  if (origin) return `${origin}/connect-sample`;
+
+  const host = request.headers.get("host");
+  if (host) {
+    const proto = request.headers.get("x-forwarded-proto") ?? "http";
+    return `${proto}://${host}/connect-sample`;
+  }
+
+  return getConnectSampleBaseUrl();
+}
+
 export function getStorefrontUrl(accountId: string): string {
   // In production, use your own slug or merchant identifier instead of raw account IDs.
   return `${getAppUrl()}/connect-sample/storefront/${accountId}`;

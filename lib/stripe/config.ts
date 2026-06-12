@@ -23,6 +23,12 @@ export function getStripeWebhookSecret(): string | undefined {
 
 export function getAppUrl(): string {
   const configured = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+
+  // Local dev should always stay on localhost when configured.
+  if (process.env.NODE_ENV === "development" && configured?.includes("localhost")) {
+    return configured;
+  }
+
   if (configured && !configured.includes("localhost")) return configured;
 
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {

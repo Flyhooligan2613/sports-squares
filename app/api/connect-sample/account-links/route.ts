@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/errors";
 import { createConnectSampleAccountLink } from "@/lib/stripe/connectSample/v2Accounts";
-import { getConnectSampleBaseUrl } from "@/lib/stripe/connectSample/config";
+import { getConnectSampleBaseUrlFromRequest } from "@/lib/stripe/connectSample/config";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return jsonError("accountId is required.");
     }
 
-    const base = getConnectSampleBaseUrl();
+    const base = getConnectSampleBaseUrlFromRequest(request);
     const url = await createConnectSampleAccountLink({
       accountId,
       refreshUrl: `${base}?accountId=${accountId}&connect=refresh`,

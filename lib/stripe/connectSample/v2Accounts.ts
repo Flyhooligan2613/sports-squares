@@ -1,26 +1,12 @@
+import type Stripe from "stripe";
 import { getStripeClient } from "@/lib/stripe/connectSample/client";
 import type { ConnectSampleV2Account } from "@/lib/stripe/connectSample/types";
 
-type StripeV2Core = {
-  accounts: {
-    create: (params: Record<string, unknown>) => Promise<ConnectSampleV2Account>;
-    retrieve: (
-      id: string,
-      params?: { include?: string[] }
-    ) => Promise<ConnectSampleV2Account>;
-  };
-  accountLinks: {
-    create: (params: Record<string, unknown>) => Promise<{ url: string }>;
-  };
-  events: {
-    retrieve: (id: string) => Promise<{ id: string; type: string; data?: unknown }>;
-  };
-};
+type V2Core = NonNullable<Stripe["v2"]>["core"];
 
-function v2Core(): StripeV2Core {
+function v2Core(): V2Core {
   const stripeClient = getStripeClient();
-  const core = (stripeClient as unknown as { v2?: { core?: StripeV2Core } }).v2
-    ?.core;
+  const core = stripeClient.v2?.core;
 
   if (!core?.accounts?.create) {
     throw new Error(
@@ -31,6 +17,11 @@ function v2Core(): StripeV2Core {
   return core;
 }
 
+/** V2 connected-account calls may require Stripe-Context on some platform keys. */
+function accountContext(accountId: string): Stripe.RequestOptions {
+  return { stripeContext: accountId };
+}
+
 /**
  * Step 1 — Create a connected account using the Accounts v2 API.
  * Never pass top-level `type: 'express' | 'standard' | 'custom'`.
@@ -39,7 +30,7 @@ export async function createConnectSampleV2Account(input: {
   displayName: string;
   contactEmail: string;
 }): Promise<ConnectSampleV2Account> {
-  return v2Core().accounts.create({
+  const account = await v2Core().accounts.create({
     display_name: input.displayName,
     contact_email: input.contactEmail,
     identity: {
@@ -63,6 +54,8 @@ export async function createConnectSampleV2Account(input: {
       },
     },
   });
+
+  return account as unknown as ConnectSampleV2Account;
 }
 
 /**
@@ -71,9 +64,13 @@ export async function createConnectSampleV2Account(input: {
 export async function retrieveConnectSampleV2Account(
   accountId: string
 ): Promise<ConnectSampleV2Account> {
-  return v2Core().accounts.retrieve(accountId, {
-    include: ["configuration.merchant", "requirements"],
-  });
+  const account = await v2Core().accounts.retrieve(
+    accountId,
+    { include: ["configuration.merchant", "requirements"] },
+    accountContext(accountId)
+  );
+
+  return account as unknown as ConnectSampleV2Account;
 }
 
 /**
@@ -84,17 +81,20 @@ export async function createConnectSampleAccountLink(input: {
   refreshUrl: string;
   returnUrl: string;
 }): Promise<string> {
-  const accountLink = await v2Core().accountLinks.create({
-    account: input.accountId,
-    use_case: {
-      type: "account_onboarding",
-      account_onboarding: {
-        configurations: ["merchant", "customer"],
-        refresh_url: input.refreshUrl,
-        return_url: input.returnUrl,
+  const accountLink = await v2Core().accountLinks.create(
+    {
+      account: input.accountId,
+      use_case: {
+        type: "account_onboarding",
+        account_onboarding: {
+          configurations: ["merchant", "customer"],
+          refresh_url: input.refreshUrl,
+          return_url: input.returnUrl,
+        },
       },
     },
-  });
+    accountContext(input.accountId)
+  );
 
   if (!accountLink.url) {
     throw new Error("Stripe did not return an account link URL.");
