@@ -1,8 +1,10 @@
 "use client";
 
+import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
+import NavGamesSection from "@/components/platform/NavGamesSection";
 import { isNavItemActive, NAV_SECTIONS, type NavItem } from "@/lib/navigation";
 import { useNavDrawer } from "./NavDrawerProvider";
 
@@ -78,50 +80,53 @@ export default function NavDrawer() {
 
         <nav className="nav-drawer-scroll flex-1 overflow-y-auto">
           {NAV_SECTIONS.map((section) => (
-            <div key={section.id} className="nav-drawer-section">
-              <p className="nav-drawer-section-title">{section.title}</p>
-              <ul className="space-y-1">
-                {section.items.map((item) => {
-                  if (item.requiresAuth && !userEmail) return null;
-                  const active = isNavItemActive(pathname, item.href);
-                  const badge = badgeForItem(
-                    item,
-                    unreadMessages,
-                    activeBoards,
-                    unreadNotifications
-                  );
+            <Fragment key={section.id}>
+              <div className="nav-drawer-section">
+                <p className="nav-drawer-section-title">{section.title}</p>
+                <ul className="space-y-1">
+                  {section.items.map((item) => {
+                    if (item.requiresAuth && !userEmail) return null;
+                    const active = isNavItemActive(pathname, item.href);
+                    const badge = badgeForItem(
+                      item,
+                      unreadMessages,
+                      activeBoards,
+                      unreadNotifications
+                    );
 
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={close}
-                        className={[
-                          "nav-drawer-link",
-                          active ? "nav-drawer-link-active" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      >
-                        <span className="nav-drawer-link-icon" aria-hidden>
-                          {item.icon}
-                        </span>
-                        <span className="flex-1 min-w-0">{item.label}</span>
-                        {badge != null ? (
-                          <span className="nav-drawer-badge">{badge}</span>
-                        ) : null}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={close}
+                          className={[
+                            "nav-drawer-link",
+                            active ? "nav-drawer-link-active" : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                        >
+                          <span className="nav-drawer-link-icon" aria-hidden>
+                            {item.icon}
+                          </span>
+                          <span className="flex-1 min-w-0">{item.label}</span>
+                          {badge != null ? (
+                            <span className="nav-drawer-badge">{badge}</span>
+                          ) : null}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              {section.id === "main" ? <NavGamesSection /> : null}
+            </Fragment>
           ))}
         </nav>
 
         <div className="nav-drawer-footer">
           <p className="text-[10px] uppercase tracking-[0.2em] text-sb-muted text-center">
-            SquareBoards · Premium Sports Gaming
+            SquareBoards · Premium Multi-Game Platform
           </p>
         </div>
       </aside>

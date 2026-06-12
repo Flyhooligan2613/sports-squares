@@ -21,6 +21,7 @@ import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
 import HomeLiveActivityFeed from "@/components/landing/HomeLiveActivityFeed";
 import { LandingLiveProvider } from "@/components/landing/LandingLiveProvider";
+import MoreWaysToPlaySection from "@/components/platform/MoreWaysToPlaySection";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 const PLAYER_STEPS = [
@@ -125,6 +126,7 @@ export default function HomePage() {
         </LandingSection>
 
         <MarketplaceSports />
+        <MoreWaysToPlaySection />
         <FeaturedPools />
         <JoinPoolSection />
 

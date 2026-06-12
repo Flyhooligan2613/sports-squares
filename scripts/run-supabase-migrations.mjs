@@ -25,6 +25,7 @@ const DEFAULT_MIGRATIONS = [
   "017_stripe_connect.sql",
   "018_player_profiles_service_role.sql",
   "019_connect_sample_accounts.sql",
+  "020_platform_game_stats.sql",
 ];
 
 function loadEnvLocal() {
