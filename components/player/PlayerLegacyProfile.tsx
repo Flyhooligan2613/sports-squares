@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
@@ -82,7 +83,9 @@ export default function PlayerLegacyProfile() {
   }, []);
 
   async function handleShare() {
-    const url = window.location.href.split("#")[0];
+    const url = legacy?.publicPath
+      ? `${window.location.origin}${legacy.publicPath}`
+      : window.location.href.split("#")[0];
     try {
       if (navigator.share) {
         await navigator.share({
@@ -148,6 +151,11 @@ export default function PlayerLegacyProfile() {
               <p className="text-sb-muted mt-2">{legacy.headline}</p>
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
+              {legacy.publicPath && (
+                <Button href={legacy.publicPath} variant="ghost" size="sm">
+                  Public Page
+                </Button>
+              )}
               <Button href="/leaderboards" variant="ghost" size="sm">
                 View Rankings
               </Button>
@@ -175,6 +183,14 @@ export default function PlayerLegacyProfile() {
               <Trophy className="w-3.5 h-3.5" />
               {unlocked.length} achievements
             </span>
+            {legacy.publicPath && (
+              <Link
+                href={legacy.publicPath}
+                className="inline-flex items-center gap-1.5 bg-sb-purple/15 border border-sb-purple/30 text-sb-glow rounded-full px-3 py-1 hover:bg-sb-purple/25 transition-colors"
+              >
+                squareboards.pro{legacy.publicPath}
+              </Link>
+            )}
           </div>
         </div>
       </section>

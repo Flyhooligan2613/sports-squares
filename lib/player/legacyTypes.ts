@@ -25,4 +25,6 @@ export interface PlayerLegacyData {
   stats: PlayerLegacyStats;
   achievements: PlayerAchievement[];
   headline: string;
+  publicSlug: string | null;
+  publicPath: string | null;
 }

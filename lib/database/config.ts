@@ -15,4 +15,5 @@ export const TABLES = {
   games: "games",
   supportThreads: "support_threads",
   supportMessages: "support_messages",
+  playerProfiles: "player_profiles",
 } as const;

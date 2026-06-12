@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getPlayerLegacy } from "@/lib/database/services/playerLegacy";
+import { ensurePlayerProfile } from "@/lib/database/services/playerProfiles";
+import { publicProfilePath } from "@/lib/player/slug";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export async function GET() {
@@ -26,7 +28,14 @@ export async function GET() {
     if (!legacy) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    return NextResponse.json(legacy);
+
+    const publicSlug = await ensurePlayerProfile(user.email, legacy.displayName);
+
+    return NextResponse.json({
+      ...legacy,
+      publicSlug,
+      publicPath: publicSlug ? publicProfilePath(publicSlug) : null,
+    });
   } catch (err) {
     console.error("[player/legacy]", err);
     return NextResponse.json(

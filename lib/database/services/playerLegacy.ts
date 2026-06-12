@@ -50,6 +50,8 @@ export async function getPlayerLegacy(
       stats,
       achievements: buildAchievements(stats),
       headline: legacyHeadline(stats),
+      publicSlug: null,
+      publicPath: null,
     };
   }
 
@@ -142,5 +144,7 @@ export async function getPlayerLegacy(
     stats,
     achievements: buildAchievements(stats),
     headline: legacyHeadline(stats),
+    publicSlug: null,
+    publicPath: null,
   };
 }
