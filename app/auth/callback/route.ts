@@ -1,20 +1,46 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/my-games";
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) {
-      const loginUrl = new URL("/my-games/login", origin);
-      loginUrl.searchParams.set("error", "sign_in_failed");
-      return NextResponse.redirect(loginUrl);
-    }
+  const loginUrl = new URL("/my-games/login", request.url);
+  loginUrl.searchParams.set("error", "sign_in_failed");
+
+  if (!code) {
+    return NextResponse.redirect(new URL(next, request.url));
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  const cookieStore = await cookies();
+  let response = NextResponse.redirect(new URL(next, request.url));
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
+    console.error("[auth/callback]", error.message);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return response;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { signInPlayerWithMagicLink } from "@/lib/auth/playerAuthClient";
@@ -9,6 +9,7 @@ import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import Logo from "@/components/Logo";
 
 export default function PlayerLoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
   const [loading, setLoading] = useState(false);
@@ -19,6 +20,7 @@ export default function PlayerLoginForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    router.replace("/my-games/login");
 
     const result = await signInPlayerWithMagicLink(email);
     setLoading(false);

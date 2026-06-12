@@ -7,10 +7,10 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function buildPlayerSignInUrl(email: string, token: string): string {
+function buildPlayerSignInUrl(tokenHash: string): string {
   const params = new URLSearchParams({
-    token,
-    email: normalizeEmail(email),
+    token_hash: tokenHash,
+    type: "email",
     next: "/my-games",
   });
   return `${getAppUrl()}/auth/verify?${params.toString()}`;
@@ -53,7 +53,7 @@ export async function createPlayerMagicLink(
     return null;
   }
 
-  return buildPlayerSignInUrl(email, token);
+  return buildPlayerSignInUrl(token);
 }
 
 export async function playerEmailHasPurchases(email: string): Promise<boolean> {
