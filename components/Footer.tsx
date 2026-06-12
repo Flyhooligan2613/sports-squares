@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Share2, MessageCircle, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
+import StaffPortalLink from "@/components/StaffPortalLink";
 import { BRAND_NAME } from "@/lib/brand";
 
 const LINKS = {
@@ -69,7 +70,10 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
 
         <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-sb-muted">
           <p>&copy; {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.</p>
-          <p>Play responsibly. Must comply with local laws.</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:justify-end">
+            <p>Play responsibly. Must comply with local laws.</p>
+            <StaffPortalLink />
+          </div>
         </div>
       </div>
     </footer>

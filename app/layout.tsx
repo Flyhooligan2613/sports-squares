@@ -4,6 +4,7 @@ import "./globals.css";
 import NavbarGate from "@/components/NavbarGate";
 import NavShell from "@/components/nav/NavShell";
 import InstallPrompt from "@/components/InstallPrompt";
+import GlobalStaffPortalHint from "@/components/GlobalStaffPortalHint";
 import { AnnouncementProvider } from "@/components/announcements/AnnouncementProvider";
 import PwaRegister from "@/components/PwaRegister";
 import { BRAND_NAME } from "@/lib/brand";
@@ -53,6 +54,7 @@ export default function RootLayout({
           </AnnouncementProvider>
         </NavShell>
         <InstallPrompt />
+        <GlobalStaffPortalHint />
         <PwaRegister />
       </body>
     </html>

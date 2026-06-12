@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { signInAdmin } from "@/lib/auth/adminAuthClient";
-import { BRAND_NAME } from "@/lib/brand";
 
 export default function AdminLoginForm() {
   const searchParams = useSearchParams();
@@ -48,10 +47,10 @@ export default function AdminLoginForm() {
             <Logo href="/" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            Admin Login
+            Staff Portal
           </h1>
           <p className="text-sb-muted text-sm mt-2">
-            Sign in to manage {BRAND_NAME} pools
+            Authorized SquareBoards personnel only
           </p>
         </div>
 
@@ -68,7 +67,7 @@ export default function AdminLoginForm() {
               }}
               required
               autoComplete="email"
-              placeholder="admin@example.com"
+              placeholder="Email address"
             />
 
             <Input
@@ -88,7 +87,7 @@ export default function AdminLoginForm() {
             {error && <Alert variant="error">{error}</Alert>}
 
             <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Signing in..." : "Staff sign in"}
             </Button>
           </form>
         </Card>
