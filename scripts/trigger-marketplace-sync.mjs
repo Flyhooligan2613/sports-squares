@@ -6,7 +6,7 @@
  *
  * Requires in .env.local:
  *   CRON_SECRET=your-secret
- *   NEXT_PUBLIC_APP_URL=https://www.squareboards.pro
+ *   PRODUCTION_APP_URL=https://www.squareboards.pro
  */
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -39,8 +39,8 @@ function loadEnvLocal() {
 const env = loadEnvLocal();
 const secret = env.CRON_SECRET?.trim() || process.env.CRON_SECRET?.trim();
 const appUrl = (
-  env.NEXT_PUBLIC_APP_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
+  env.PRODUCTION_APP_URL ||
+  process.env.PRODUCTION_APP_URL ||
   "https://www.squareboards.pro"
 ).replace(/\/$/, "");
 
