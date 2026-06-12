@@ -1,7 +1,6 @@
 /**
- * Copy pending migrations to clipboard and open Supabase SQL Editor.
- *
- * Usage: npm run supabase:migrate:open
+ * Copy migration 019 to clipboard and open Supabase SQL Editor.
+ * Usage: node scripts/open-connect-sample-migration.mjs
  */
 import { readFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -10,17 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const envPath = join(root, ".env.local");
-const migrationsDir = join(root, "supabase", "migrations");
-
-const FILES = [
-  "013_support_messages.sql",
-  "014_payment_hardening.sql",
-  "015_payout_jobs.sql",
-  "016_player_profiles.sql",
-  "017_stripe_connect.sql",
-  "018_player_profiles_service_role.sql",
-  "019_connect_sample_accounts.sql",
-];
+const sqlPath = join(root, "supabase", "migrations", "019_connect_sample_accounts.sql");
 
 function loadEnvLocal() {
   if (!existsSync(envPath)) return {};
@@ -44,32 +33,19 @@ function projectRefFromUrl(url) {
 }
 
 const env = loadEnvLocal();
-const supabaseUrl =
-  env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
-  process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 if (!supabaseUrl) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL in .env.local");
   process.exit(1);
 }
 
 const projectRef = projectRefFromUrl(supabaseUrl);
-if (!projectRef) {
-  console.error("Could not parse Supabase project ref.");
+if (!projectRef || !existsSync(sqlPath)) {
+  console.error("Could not resolve project ref or migration file.");
   process.exit(1);
 }
 
-const parts = FILES.map((name) => {
-  const path = join(migrationsDir, name);
-  if (!existsSync(path)) {
-    console.error(`Missing ${path}`);
-    process.exit(1);
-  }
-  return `-- ===== ${name} =====\n${readFileSync(path, "utf8").trim()}`;
-});
-
-const sql = `${parts.join("\n\n")}\n`;
-
+const sql = readFileSync(sqlPath, "utf8").trim();
 const clip = spawnSync(
   "powershell",
   ["-NoProfile", "-Command", "Set-Clipboard -Value $input"],
@@ -81,10 +57,9 @@ if (clip.status !== 0) {
   process.exit(clip.status ?? 1);
 }
 
-const editorUrl = `https://supabase.com/dashboard/project/${projectRef}/sql/new`;
-spawnSync("cmd", ["/c", "start", "", editorUrl], { stdio: "ignore" });
+const url = `https://supabase.com/dashboard/project/${projectRef}/sql/new`;
+spawnSync("cmd", ["/c", "start", "", url], { stdio: "ignore" });
 
-console.log("Pending migrations copied to your clipboard.");
-console.log(`Opened SQL Editor: ${editorUrl}`);
-console.log("");
-console.log("In Supabase: paste (Ctrl+V) and click Run.");
+console.log("Migration 019 copied to clipboard.");
+console.log("Paste into Supabase SQL Editor and click Run:");
+console.log(url);

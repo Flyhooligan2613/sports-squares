@@ -23,6 +23,8 @@ const DEFAULT_MIGRATIONS = [
   "015_payout_jobs.sql",
   "016_player_profiles.sql",
   "017_stripe_connect.sql",
+  "018_player_profiles_service_role.sql",
+  "019_connect_sample_accounts.sql",
 ];
 
 function loadEnvLocal() {
@@ -105,8 +107,8 @@ async function main() {
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const accessToken =
     readArg("--token") ??
-    env.SUPABASE_ACCESS_TOKEN?.trim() ||
-    process.env.SUPABASE_ACCESS_TOKEN?.trim();
+    (env.SUPABASE_ACCESS_TOKEN?.trim() ||
+      process.env.SUPABASE_ACCESS_TOKEN?.trim());
 
   if (!supabaseUrl) {
     console.error("Missing NEXT_PUBLIC_SUPABASE_URL in .env.local");

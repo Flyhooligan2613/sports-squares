@@ -16,4 +16,5 @@ export const TABLES = {
   supportThreads: "support_threads",
   supportMessages: "support_messages",
   playerProfiles: "player_profiles",
+  connectSampleAccounts: "connect_sample_accounts",
 } as const;

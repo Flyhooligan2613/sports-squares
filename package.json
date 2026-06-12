@@ -14,6 +14,7 @@
     "supabase:configure-auth": "node scripts/configure-supabase-auth.mjs",
     "supabase:migrate": "node scripts/run-supabase-migrations.mjs",
     "supabase:migrate:open": "node scripts/open-supabase-sql-editor.mjs",
+    "supabase:migrate:connect-sample": "node scripts/open-connect-sample-migration.mjs",
     "stripe:enable-vercel": "node scripts/enable-stripe-connect-vercel.mjs",
     "resend:sync-vercel": "node scripts/sync-resend-key-to-vercel.mjs",
     "resend:setup-domain": "node scripts/setup-resend-domain.mjs"
@@ -25,7 +26,10 @@
     "next": "14.2.33",
     "react": "^18",
     "react-dom": "^18",
-    "stripe": "^17.7.0"
+    "stripe": "^22.2.0"
+  },
+  "overrides": {
+    "stripe": "^22.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
