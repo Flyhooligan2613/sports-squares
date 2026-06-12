@@ -62,10 +62,13 @@ export interface PlayerNotification {
     | "pickem_payout"
     | "pickem_streak"
     | "pickem_rank_up"
-    | "pickem_achievement";
+    | "pickem_achievement"
+    | "platform_announcement";
   title: string;
   detail: string;
   at: string;
+  href?: string;
+  announcementId?: string;
 }
 
 export interface PlayerDashboardData {

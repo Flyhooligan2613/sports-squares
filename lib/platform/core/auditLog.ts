@@ -21,7 +21,10 @@ export type PlatformAuditEventType =
   | "support.ticket_submitted"
   | "stripe.webhook"
   | "automation.cron"
-  | "player.suspended";
+  | "player.suspended"
+  | "announcement.published"
+  | "announcement.updated"
+  | "announcement.deleted";
 
 export interface PlatformAuditInput {
   eventType: PlatformAuditEventType;

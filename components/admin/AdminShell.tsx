@@ -13,6 +13,7 @@ import {
   Trophy,
   Wallet,
   MessageSquare,
+  Megaphone,
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import { signOutAdmin } from "@/lib/auth/adminAuthClient";
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/admin/pools", label: "Pools", exact: false, icon: Trophy },
   { href: "/admin/financial", label: "Financial", exact: false, icon: Wallet },
   { href: "/admin/support", label: "Support", exact: false, icon: MessageSquare },
+  { href: "/admin/announcements", label: "Announcements", exact: false, icon: Megaphone },
   { href: "/admin/audit-log", label: "Audit Log", exact: false, icon: ScrollText },
   { href: "/admin/launch", label: "Launch", exact: false, icon: Rocket },
   {

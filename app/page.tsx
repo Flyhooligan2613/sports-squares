@@ -10,6 +10,7 @@ import {
   CircleDot,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import AnnouncementHomeHeroSlot from "@/components/announcements/AnnouncementHomeHeroSlot";
 import Footer from "@/components/Footer";
 import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import FeaturedPools from "@/components/landing/FeaturedPools";
@@ -111,6 +112,7 @@ export default function HomePage() {
     <div className="landing-page min-h-[calc(100vh-3.5rem)] flex flex-col overflow-x-hidden">
       <main className="flex-1">
         <HeroSection />
+        <AnnouncementHomeHeroSlot />
         <SocialProof />
 
         <LandingSection variant="glow">

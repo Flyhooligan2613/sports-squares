@@ -4,6 +4,7 @@ import "./globals.css";
 import NavbarGate from "@/components/NavbarGate";
 import NavShell from "@/components/nav/NavShell";
 import InstallPrompt from "@/components/InstallPrompt";
+import { AnnouncementProvider } from "@/components/announcements/AnnouncementProvider";
 import PwaRegister from "@/components/PwaRegister";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -45,9 +46,11 @@ export default function RootLayout({
     <html lang="en" className={`scroll-smooth ${jakarta.variable}`}>
       <body className="font-sans bg-sb-bg text-white antialiased min-h-screen flex flex-col sb-app-bg">
         <NavShell>
-          <NavbarGate>
-            <div className="flex-1 flex flex-col">{children}</div>
-          </NavbarGate>
+          <AnnouncementProvider>
+            <NavbarGate>
+              <div className="flex-1 flex flex-col">{children}</div>
+            </NavbarGate>
+          </AnnouncementProvider>
         </NavShell>
         <InstallPrompt />
         <PwaRegister />

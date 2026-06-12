@@ -31,6 +31,7 @@ const ICONS: Record<PlayerNotification["type"], string> = {
   pickem_streak: "🔥",
   pickem_rank_up: "📈",
   pickem_achievement: "⭐",
+  platform_announcement: "📣",
 };
 
 function timeAgo(iso: string): string {
