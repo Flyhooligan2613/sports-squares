@@ -202,14 +202,13 @@ export default function ConnectSampleDashboard({
       </header>
 
       {!isLocalDev && (
-        <LandingGlassCard className="p-4 border border-yellow-500/40">
-          <p className="text-yellow-200 text-sm">
-            You are on production. This demo uses your local Stripe test key — open{" "}
-            <a href="http://localhost:3000/connect-sample" className="underline text-emerald-300">
-              http://localhost:3000/connect-sample
-            </a>{" "}
-            while developing, or update <code>STRIPE_SECRET_KEY</code> on Vercel to match your new
-            test key.
+        <LandingGlassCard className="p-4 border border-emerald-500/30">
+          <p className="text-emerald-200 text-sm">
+            Sandbox marketplace demo. Real winner payouts use{" "}
+            <Link href="/my-games/winnings" className="underline text-emerald-300">
+              My Games → Winnings
+            </Link>
+            .
           </p>
         </LandingGlassCard>
       )}

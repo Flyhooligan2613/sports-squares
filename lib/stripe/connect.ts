@@ -6,6 +6,14 @@ export function isStripeConnectEnabled(): boolean {
   return process.env.STRIPE_CONNECT_ENABLED === "true";
 }
 
+/** Use Accounts v2 recipient onboarding for winner payouts (requires stripe@latest). */
+export function isStripeConnectV2PayoutsEnabled(): boolean {
+  return (
+    isStripeConnectEnabled() &&
+    process.env.STRIPE_CONNECT_V2_PAYOUTS === "true"
+  );
+}
+
 export async function createExpressConnectAccount(
   email: string
 ): Promise<Stripe.Account> {

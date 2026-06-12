@@ -5,15 +5,21 @@ import {
   ensureConnectAccountId,
   getPlayerConnectStatus,
   refreshPlayerConnectStatus,
+  syncConnectAccountFromStripeV2,
 } from "@/lib/database/services/stripeConnect";
 import {
   createConnectAccountLink,
   createExpressConnectAccount,
   isStripeConnectEnabled,
+  isStripeConnectV2PayoutsEnabled,
 } from "@/lib/stripe/connect";
+import {
+  createWinnerConnectV2Account,
+  createWinnerConnectV2AccountLink,
+} from "@/lib/stripe/connectV2Payouts";
 import { isStripeConfigured } from "@/lib/stripe/config";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { normalizeEmail } from "@/lib/player/statsCore";
+import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
 
 export const dynamic = "force-dynamic";
 
@@ -46,11 +52,22 @@ export async function POST() {
     const email = normalizeEmail(user.email);
     let status = await getPlayerConnectStatus(email);
     let accountId = status.accountId;
+    const useV2 = isStripeConnectV2PayoutsEnabled();
 
     if (!accountId) {
-      const account = await createExpressConnectAccount(email);
-      accountId = account.id;
-      await ensureConnectAccountId(email, accountId);
+      if (useV2) {
+        const account = await createWinnerConnectV2Account({
+          email,
+          displayName: displayNameFromEmail(email),
+        });
+        accountId = account.id;
+        await ensureConnectAccountId(email, accountId);
+        await syncConnectAccountFromStripeV2(email, account);
+      } else {
+        const account = await createExpressConnectAccount(email);
+        accountId = account.id;
+        await ensureConnectAccountId(email, accountId);
+      }
       status = await getPlayerConnectStatus(email);
     } else {
       status = await refreshPlayerConnectStatus(email);
@@ -59,6 +76,11 @@ export async function POST() {
 
     if (!accountId) {
       throw new Error("Could not save Stripe Connect account for this player.");
+    }
+
+    if (useV2) {
+      const url = await createWinnerConnectV2AccountLink({ accountId });
+      return NextResponse.json({ url });
     }
 
     const linkType = status.payoutsEnabled ? "account_update" : "account_onboarding";

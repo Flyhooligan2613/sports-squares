@@ -4,7 +4,13 @@ import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admi
 import {
   readConnectFlags,
   retrieveConnectAccount,
+  isStripeConnectV2PayoutsEnabled,
 } from "@/lib/stripe/connect";
+import {
+  readWinnerV2ConnectFlags,
+  retrieveWinnerConnectV2Account,
+  type WinnerConnectV2Account,
+} from "@/lib/stripe/connectV2Payouts";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
 import { buildPlayerSlug } from "@/lib/player/slug";
 import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
@@ -88,24 +94,32 @@ export async function ensureConnectAccountId(
   if (insertError) throw insertError;
 }
 
-export async function syncConnectAccountFromStripe(
+export async function syncConnectAccountFromStripeV2(
   email: string,
-  account: Stripe.Account
+  account: WinnerConnectV2Account
+): Promise<PlayerConnectStatus> {
+  const flags = readWinnerV2ConnectFlags(account);
+  return syncConnectFlags(email, account.id, flags);
+}
+
+async function syncConnectFlags(
+  email: string,
+  accountId: string,
+  flags: { detailsSubmitted: boolean; payoutsEnabled: boolean }
 ): Promise<PlayerConnectStatus> {
   if (!isSupabaseAdminConfigured()) {
     return {
-      accountId: account.id,
-      detailsSubmitted: account.details_submitted ?? false,
-      payoutsEnabled: account.payouts_enabled ?? false,
-      ready: account.payouts_enabled ?? false,
+      accountId,
+      detailsSubmitted: flags.detailsSubmitted,
+      payoutsEnabled: flags.payoutsEnabled,
+      ready: flags.payoutsEnabled,
     };
   }
 
   const normalized = normalizeEmail(email);
-  const flags = readConnectFlags(account);
   const supabase = getSupabaseAdmin();
 
-  await ensureConnectAccountId(normalized, account.id);
+  await ensureConnectAccountId(normalized, accountId);
 
   const { error } = await supabase
     .from(TABLES.playerProfiles)
@@ -122,11 +136,19 @@ export async function syncConnectAccountFromStripe(
   if (error) throw error;
 
   return {
-    accountId: account.id,
+    accountId,
     detailsSubmitted: flags.detailsSubmitted,
     payoutsEnabled: flags.payoutsEnabled,
     ready: flags.payoutsEnabled,
   };
+}
+
+export async function syncConnectAccountFromStripe(
+  email: string,
+  account: Stripe.Account
+): Promise<PlayerConnectStatus> {
+  const flags = readConnectFlags(account);
+  return syncConnectFlags(email, account.id, flags);
 }
 
 export async function refreshPlayerConnectStatus(
@@ -137,10 +159,24 @@ export async function refreshPlayerConnectStatus(
     return getPlayerConnectStatus(email);
   }
 
-  const account = await retrieveConnectAccount(profile.stripe_connect_account_id);
+  const accountId = profile.stripe_connect_account_id;
+  const normalizedEmail = normalizeEmail(email);
+
+  if (isStripeConnectV2PayoutsEnabled()) {
+    try {
+      const account = await retrieveWinnerConnectV2Account(accountId);
+      const accountEmail =
+        account.contact_email?.trim().toLowerCase() ?? normalizedEmail;
+      return syncConnectAccountFromStripeV2(accountEmail, account);
+    } catch (v2Err) {
+      console.warn("[stripeConnect] V2 refresh failed, trying Express:", v2Err);
+    }
+  }
+
+  const account = await retrieveConnectAccount(accountId);
   const accountEmail =
     (account.metadata?.email as string | undefined)?.trim().toLowerCase() ??
-    normalizeEmail(email);
+    normalizedEmail;
 
   return syncConnectAccountFromStripe(accountEmail, account);
 }
@@ -176,6 +212,9 @@ function connectErrorMessage(err: unknown): string {
     const message = String((err as { message?: string }).message ?? "");
     if (message.includes("signed up for Connect")) {
       return "Stripe Connect is not enabled on your Stripe account yet. Enable it in Stripe Dashboard → Connect.";
+    }
+    if (message.includes("Accounts v2")) {
+      return "Stripe Accounts v2 is not enabled on this API key. Enable it in Stripe Dashboard or set STRIPE_CONNECT_V2_PAYOUTS=false to use Express.";
     }
     if (message) return message;
   }
