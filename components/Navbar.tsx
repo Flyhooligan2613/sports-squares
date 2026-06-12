@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [hasSession, setHasSession] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -16,12 +14,6 @@ export default function Navbar() {
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => {
-      setHasSession(Boolean(data.session));
-    });
-
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -36,14 +28,12 @@ export default function Navbar() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
         <Logo href="/" className="sb-logo-nav" />
-        {hasSession && (
-          <Link
-            href="/my-games"
-            className="text-sm font-semibold text-sb-glow hover:text-white transition-colors"
-          >
-            My Games
-          </Link>
-        )}
+        <Link
+          href="/my-games"
+          className="text-sm font-semibold text-sb-glow hover:text-white transition-colors"
+        >
+          My Games
+        </Link>
       </div>
     </header>
   );
