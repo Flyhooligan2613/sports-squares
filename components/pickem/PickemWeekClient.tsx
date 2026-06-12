@@ -141,9 +141,7 @@ export default function PickemWeekClient() {
       const weeksData = weeks.length ? { currentContestId: selectedContestId, weeks } : await loadWeeks();
       const contestId =
         contestIdParam ??
-        selectedContestId ||
-        weeksData?.currentContestId ||
-        "";
+        (selectedContestId || weeksData?.currentContestId || "");
 
       if (contestId && contestId !== selectedContestId) {
         setSelectedContestId(contestId);
