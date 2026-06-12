@@ -11,6 +11,7 @@ const ACTIVITY_ICONS: Record<LiveActivityType, string> = {
   final_winner: "🏁",
   payout_sent: "💰",
   game_opened: "⚡",
+  streak_milestone: "🔥",
 };
 
 const ACTIVITY_ACCENTS: Partial<
@@ -25,6 +26,7 @@ const ACTIVITY_ACCENTS: Partial<
   final_winner: "gold",
   payout_sent: "green",
   game_opened: "blue",
+  streak_milestone: "gold",
 };
 
 export function getActivityIcon(type: LiveActivityType): string {

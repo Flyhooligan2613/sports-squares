@@ -54,7 +54,8 @@ export type LiveActivityType =
   | "quarter_winner"
   | "final_winner"
   | "payout_sent"
-  | "game_opened";
+  | "game_opened"
+  | "streak_milestone";
 
 export interface LiveActivityItem {
   id: string;

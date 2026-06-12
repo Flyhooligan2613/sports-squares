@@ -9,6 +9,8 @@ import type { LiveActivityItem } from "@/lib/liveWinners/types";
 
 interface LiveActivityFeedProps {
   activity: LiveActivityItem[];
+  showHeader?: boolean;
+  title?: string;
 }
 
 function accentClass(
@@ -23,7 +25,11 @@ function accentClass(
   return "";
 }
 
-export default function LiveActivityFeed({ activity }: LiveActivityFeedProps) {
+export default function LiveActivityFeed({
+  activity,
+  showHeader = true,
+  title = "Live Activity",
+}: LiveActivityFeedProps) {
   const listRef = useRef<HTMLUListElement>(null);
   const prevTopIdRef = useRef<string | null>(null);
 
@@ -40,10 +46,12 @@ export default function LiveActivityFeed({ activity }: LiveActivityFeedProps) {
 
   return (
     <section className="lwc-activity-section">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h2 className="text-lg sm:text-xl font-bold text-white">Live Activity</h2>
-        <span className="lwc-activity-live-dot" aria-hidden />
-      </div>
+      {showHeader && (
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-white">{title}</h2>
+          <span className="lwc-activity-live-dot" aria-hidden />
+        </div>
+      )}
 
       {activity.length === 0 ? (
         <LandingGlassCard className="p-6">

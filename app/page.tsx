@@ -19,6 +19,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
+import HomeLiveActivityFeed from "@/components/landing/HomeLiveActivityFeed";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 const PLAYER_STEPS = [
@@ -107,6 +108,20 @@ export default function HomePage() {
       <main className="flex-1">
         <HeroSection />
         <SocialProof />
+
+        <LandingSection variant="glow">
+          <ScrollReveal>
+            <LandingSectionHeader
+              eyebrow="Live"
+              title="Happening right now"
+              subtitle="Real purchases, quarter winners, payouts, and streak milestones — updated every few seconds."
+            />
+          </ScrollReveal>
+          <ScrollReveal delay={80}>
+            <HomeLiveActivityFeed />
+          </ScrollReveal>
+        </LandingSection>
+
         <MarketplaceSports />
         <FeaturedPools />
         <JoinPoolSection />

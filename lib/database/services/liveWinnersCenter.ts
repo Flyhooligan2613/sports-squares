@@ -16,6 +16,8 @@ import {
   periodBadgeLabel,
   periodShortLabel,
 } from "@/lib/liveWinners/display";
+import { buildStreakMilestoneActivity } from "@/lib/liveWinners/streakActivity";
+import { WIN_STREAK_WINDOW_DAYS } from "@/lib/player/statsCore";
 import { parseEspnSummary } from "@/lib/espn/parser";
 import { getEspnSportConfig } from "@/lib/espn/sports";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -213,15 +215,22 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
   const weekStart = daysAgo(7);
   const monthStart = daysAgo(30);
   const activitySince = daysAgo(2);
+  const streakSince = daysAgo(WIN_STREAK_WINDOW_DAYS);
   const recentSince = hoursAgo(3);
 
-  const [winnersRes, poolsRes, playersRes, gamesRes] = await Promise.all([
+  const [winnersRes, streakWinnersRes, poolsRes, playersRes, gamesRes] = await Promise.all([
     supabase
       .from(TABLES.winners)
       .select("*")
       .gte("created_at", activitySince)
       .order("created_at", { ascending: false })
       .limit(80),
+    supabase
+      .from(TABLES.winners)
+      .select("*")
+      .gte("created_at", streakSince)
+      .order("created_at", { ascending: false })
+      .limit(300),
     supabase.from(TABLES.pools).select("*").order("created_at", { ascending: false }).limit(150),
     supabase
       .from(TABLES.players)
@@ -233,11 +242,13 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
   ]);
 
   if (winnersRes.error) throw winnersRes.error;
+  if (streakWinnersRes.error) throw streakWinnersRes.error;
   if (poolsRes.error) throw poolsRes.error;
   if (playersRes.error) throw playersRes.error;
   if (gamesRes.error) throw gamesRes.error;
 
   const winnerRows = (winnersRes.data ?? []) as WinnerRow[];
+  const streakWinnerRows = (streakWinnersRes.data ?? []) as WinnerRow[];
   const poolRows = (poolsRes.data ?? []) as PoolRow[];
   const playerRows = (playersRes.data ?? []) as PlayerRow[];
   const gameRows = (gamesRes.data ?? []) as GameRow[];
@@ -453,6 +464,8 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
       accent: "purple",
     });
   }
+
+  activity.push(...buildStreakMilestoneActivity(streakWinnerRows, activitySince));
 
   activity.sort(
     (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
