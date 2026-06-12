@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PlayerLoginForm from "@/components/player/PlayerLoginForm";
+import PlayerLoginPageClient from "./PlayerLoginPageClient";
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function MyGamesLoginPage() {
-  return <PlayerLoginForm />;
+  return <PlayerLoginPageClient />;
 }

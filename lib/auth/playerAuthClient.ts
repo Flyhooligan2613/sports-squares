@@ -1,14 +1,14 @@
 import { createClient } from "@/lib/supabase/client";
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAuthCallbackUrl } from "@/lib/auth/getAuthCallbackUrl";
 
 export async function signInPlayerWithMagicLink(email: string) {
   const supabase = createClient();
-  const appUrl = getAppUrl();
+  const emailRedirectTo = getAuthCallbackUrl();
 
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim().toLowerCase(),
     options: {
-      emailRedirectTo: `${appUrl}/auth/callback?next=/my-games`,
+      emailRedirectTo,
     },
   });
 

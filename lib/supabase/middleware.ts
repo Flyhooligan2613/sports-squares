@@ -44,6 +44,15 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  const authCode = request.nextUrl.searchParams.get("code");
+  if (authCode && pathname !== "/auth/callback") {
+    const callback = new URL("/auth/callback", request.url);
+    callback.searchParams.set("code", authCode);
+    const next = request.nextUrl.searchParams.get("next") ?? "/my-games";
+    callback.searchParams.set("next", next);
+    return NextResponse.redirect(callback);
+  }
+
   if (!url || !key) {
     if (requiresAdminSession(pathname)) {
       return redirectToLogin(request);
