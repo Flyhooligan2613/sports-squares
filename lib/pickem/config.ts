@@ -89,9 +89,62 @@ export function pickemScoreboardUrl(
   return qs ? `${base}?${qs}` : base;
 }
 
-export function formatPickemWeekLabel(weekNumber: number): string {
+/** ESPN season type: 2 = regular season, 3 = playoffs. */
+export const PICKEM_SEASON_TYPE_REGULAR = 2;
+export const PICKEM_SEASON_TYPE_PLAYOFFS = 3;
+
+/** NFL regular season weeks (18 since 2021). */
+export const NFL_REGULAR_WEEKS = 18;
+
+/** NFL playoff round labels in ESPN week order. */
+export const NFL_PLAYOFF_LABELS = [
+  "Wild Card",
+  "Divisional",
+  "Conference Championships",
+  "Super Bowl",
+] as const;
+
+export function formatPickemWeekLabel(
+  weekNumber: number,
+  seasonType: number = PICKEM_SEASON_TYPE_REGULAR
+): string {
+  if (seasonType === PICKEM_SEASON_TYPE_PLAYOFFS) {
+    return NFL_PLAYOFF_LABELS[weekNumber - 1] ?? `Playoff Week ${weekNumber}`;
+  }
   return `Week ${weekNumber}`;
 }
 
+/** Max players per league shard before auto-creating the next league. */
+export const PICKEM_LEAGUE_MAX_PLAYERS = 5000;
+
 /** Default weekly prize pool display (cents) until real pool funding is wired. */
 export const PICKEM_DEFAULT_PRIZE_POOL_CENTS = 500_000;
+
+/** Payout split for weekly winners (top 3) as fractions of league prize pool. */
+export const PICKEM_WEEKLY_PAYOUT_SPLITS = [0.5, 0.3, 0.2] as const;
+
+export interface PickemSeasonWeekSpec {
+  seasonType: number;
+  weekNumber: number;
+  label: string;
+}
+
+/** Full NFL calendar — regular season + playoffs. */
+export function nflSeasonWeekSpecs(): PickemSeasonWeekSpec[] {
+  const weeks: PickemSeasonWeekSpec[] = [];
+  for (let w = 1; w <= NFL_REGULAR_WEEKS; w += 1) {
+    weeks.push({
+      seasonType: PICKEM_SEASON_TYPE_REGULAR,
+      weekNumber: w,
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_REGULAR),
+    });
+  }
+  for (let w = 1; w <= NFL_PLAYOFF_LABELS.length; w += 1) {
+    weeks.push({
+      seasonType: PICKEM_SEASON_TYPE_PLAYOFFS,
+      weekNumber: w,
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_PLAYOFFS),
+    });
+  }
+  return weeks;
+}

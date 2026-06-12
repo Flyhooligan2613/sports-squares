@@ -3,19 +3,36 @@ import { fetchPickemScoreboard } from "@/lib/pickem/espnSchedule";
 import {
   getCurrentPickemContest,
   getPickemContestForWeek,
+  listActivePickemContests,
   refreshPickemContestPlayerCount,
   updatePickemContestStatus,
   upsertPickemContest,
 } from "@/lib/pickem/db/contests";
 import {
   lockPickemGamesPastKickoff,
-  listPickemGames,
   upsertPickemGames,
 } from "@/lib/pickem/db/games";
-import { gradePicksForGame, lockPicksForGame } from "@/lib/pickem/db/picks";
-import { recomputeWeeklyStatsForPlayer } from "@/lib/pickem/db/stats";
+import {
+  gradePicksForGame,
+  listDistinctPlayersForContest,
+  lockPicksForGame,
+} from "@/lib/pickem/db/picks";
+import {
+  listPickemLeaguesForContest,
+  refreshPickemLeaguePlayerCount,
+} from "@/lib/pickem/db/leagues";
+import {
+  recomputeLiveWeeklyStatsForPlayer,
+  recomputeWeeklyStatsForPlayer,
+  refreshContestWeeklySnapshots,
+} from "@/lib/pickem/db/stats";
+import { seedPickemSeason } from "@/lib/pickem/engine/seedSeason";
+import {
+  processPickemWeeklyPayouts,
+  syncPickemProfileStats,
+} from "@/lib/pickem/payouts";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import type { PickemSport } from "@/lib/pickem/types";
+import type { PickemContest, PickemSport } from "@/lib/pickem/types";
 
 export interface PickemSyncResult {
   sport: PickemSport;
@@ -25,32 +42,53 @@ export interface PickemSyncResult {
   gamesLocked: number;
   picksGraded: number;
   contestStatus: string;
+  seasonSeeded: boolean;
+  contestsSynced: number;
   errors: string[];
 }
 
-export async function syncPickemContest(
-  sport: PickemSport = DEFAULT_PICKEM_SPORT
+export interface PickemFullSyncResult {
+  sport: PickemSport;
+  current: PickemSyncResult;
+  seasonSeed: Awaited<ReturnType<typeof seedPickemSeason>>;
+  additional: PickemSyncResult[];
+}
+
+async function syncSinglePickemContest(
+  sport: PickemSport,
+  contest: PickemContest,
+  metaOverride?: {
+    seasonYear: number;
+    seasonType: number;
+    weekNumber: number;
+  }
 ): Promise<PickemSyncResult> {
   const errors: string[] = [];
-  const { meta, games } = await fetchPickemScoreboard({ sport });
+
+  const { games } = await fetchPickemScoreboard({
+    sport,
+    week: contest.weekNumber,
+    seasonType: contest.seasonType,
+  });
 
   const existing = await getPickemContestForWeek({
     sport,
-    seasonYear: meta.seasonYear,
-    seasonType: meta.seasonType,
-    weekNumber: meta.weekNumber,
+    seasonYear: contest.seasonYear,
+    seasonType: contest.seasonType,
+    weekNumber: contest.weekNumber,
   });
 
-  const contest = await upsertPickemContest({
+  const activeContest = await upsertPickemContest({
     sport,
-    seasonYear: meta.seasonYear,
-    seasonType: meta.seasonType,
-    weekNumber: meta.weekNumber,
-    status: games.some((g) => g.status === "live") ? "active" : "open",
+    seasonYear: metaOverride?.seasonYear ?? contest.seasonYear,
+    seasonType: metaOverride?.seasonType ?? contest.seasonType,
+    weekNumber: metaOverride?.weekNumber ?? contest.weekNumber,
+    label: contest.label,
+    status: games.some((g) => g.status === "live") ? "active" : contest.status,
   });
 
-  const imported = await upsertPickemGames(contest.id, games);
-  const gamesLocked = await lockPickemGamesPastKickoff(contest.id);
+  const imported = await upsertPickemGames(activeContest.id, games);
+  const gamesLocked = await lockPickemGamesPastKickoff(activeContest.id);
 
   let picksGraded = 0;
   for (const game of imported) {
@@ -69,51 +107,129 @@ export async function syncPickemContest(
     }
   }
 
+  if (picksGraded > 0 || gamesLocked > 0) {
+    await refreshLiveContestStats(activeContest.id, sport, activeContest.seasonYear);
+  }
+
   const allFinal =
     imported.length > 0 && imported.every((g) => g.status === "final");
   const anyLive = imported.some((g) => g.status === "live");
 
   if (allFinal) {
     if (existing?.status !== "complete") {
-      await finalizePickemContestStats(contest.id, sport, meta.seasonYear);
+      await finalizePickemContestStats(
+        activeContest.id,
+        sport,
+        activeContest.seasonYear
+      );
+      try {
+        await processPickemWeeklyPayouts(activeContest.id);
+      } catch (err) {
+        errors.push(
+          err instanceof Error ? err.message : "Weekly payout processing failed."
+        );
+      }
     }
-    await updatePickemContestStatus(contest.id, "complete");
+    await updatePickemContestStatus(activeContest.id, "complete");
   } else if (anyLive) {
-    await updatePickemContestStatus(contest.id, "active");
+    await updatePickemContestStatus(activeContest.id, "active");
   }
 
-  await refreshPickemContestPlayerCount(contest.id);
+  await refreshPickemContestPlayerCount(activeContest.id);
+  const leagues = await listPickemLeaguesForContest(activeContest.id);
+  for (const league of leagues) {
+    await refreshPickemLeaguePlayerCount(league.id);
+  }
 
   const refreshed = await getCurrentPickemContest(sport);
 
   return {
     sport,
-    contestId: contest.id,
-    weekNumber: meta.weekNumber,
+    contestId: activeContest.id,
+    weekNumber: activeContest.weekNumber,
     gamesImported: imported.length,
     gamesLocked,
     picksGraded,
-    contestStatus: refreshed?.status ?? contest.status,
+    contestStatus: refreshed?.id === activeContest.id
+      ? refreshed.status
+      : activeContest.status,
+    seasonSeeded: false,
+    contestsSynced: 1,
     errors,
   };
 }
 
-async function finalizePickemContestStats(
+export async function syncPickemContest(
+  sport: PickemSport = DEFAULT_PICKEM_SPORT
+): Promise<PickemSyncResult> {
+  const full = await syncAllPickemContests(sport);
+  return full.current;
+}
+
+export async function syncAllPickemContests(
+  sport: PickemSport = DEFAULT_PICKEM_SPORT
+): Promise<PickemFullSyncResult> {
+  const seasonSeed = await seedPickemSeason(sport);
+
+  const { meta, games } = await fetchPickemScoreboard({ sport });
+
+  const currentContest = await upsertPickemContest({
+    sport,
+    seasonYear: meta.seasonYear,
+    seasonType: meta.seasonType,
+    weekNumber: meta.weekNumber,
+    status: games.some((g) => g.status === "live") ? "active" : "open",
+  });
+
+  const current = await syncSinglePickemContest(sport, currentContest, meta);
+
+  const activeContests = await listActivePickemContests(sport);
+  const additional: PickemSyncResult[] = [];
+
+  for (const contest of activeContests) {
+    if (contest.id === current.contestId) continue;
+    try {
+      const result = await syncSinglePickemContest(sport, contest);
+      additional.push(result);
+    } catch (err) {
+      additional.push({
+        sport,
+        contestId: contest.id,
+        weekNumber: contest.weekNumber,
+        gamesImported: 0,
+        gamesLocked: 0,
+        picksGraded: 0,
+        contestStatus: contest.status,
+        seasonSeeded: false,
+        contestsSynced: 0,
+        errors: [err instanceof Error ? err.message : "Sync failed."],
+      });
+    }
+  }
+
+  return {
+    sport,
+    current: { ...current, seasonSeeded: true, contestsSynced: 1 + additional.length },
+    seasonSeed,
+    additional,
+  };
+}
+
+async function refreshLiveContestStats(
   contestId: string,
   sport: PickemSport,
   seasonYear: number
 ): Promise<void> {
-  const supabase = getSupabaseAdmin();
-  const { data: players, error } = await supabase
-    .from("pickem_picks")
-    .select("email")
-    .eq("contest_id", contestId);
+  await refreshContestWeeklySnapshots(contestId);
 
-  if (error) throw error;
+  const leagues = await listPickemLeaguesForContest(contestId);
+  for (const league of leagues) {
+    await refreshContestWeeklySnapshots(contestId, league.id);
+  }
 
-  const emails = Array.from(new Set((players ?? []).map((p) => p.email as string)));
+  const emails = await listDistinctPlayersForContest(contestId);
   for (const email of emails) {
-    await recomputeWeeklyStatsForPlayer({
+    await recomputeLiveWeeklyStatsForPlayer({
       email,
       sport,
       seasonYear,
@@ -122,11 +238,62 @@ async function finalizePickemContestStats(
   }
 }
 
+async function finalizePickemContestStats(
+  contestId: string,
+  sport: PickemSport,
+  seasonYear: number
+): Promise<void> {
+  const emails = await listDistinctPlayersForContest(contestId);
+
+  for (const email of emails) {
+    await recomputeWeeklyStatsForPlayer({
+      email,
+      sport,
+      seasonYear,
+      contestId,
+    });
+    await syncPickemProfileStats(email, sport, seasonYear);
+  }
+
+  await refreshContestWeeklySnapshots(contestId);
+}
+
 export async function ensureCurrentPickemContest(
   sport: PickemSport = DEFAULT_PICKEM_SPORT
 ) {
   let contest = await getCurrentPickemContest(sport);
   if (contest) return contest;
+
+  await seedPickemSeason(sport);
   await syncPickemContest(sport);
   return getCurrentPickemContest(sport);
+}
+
+export async function listPickemWeeksForSeason(input: {
+  sport: PickemSport;
+  seasonYear: number;
+}): Promise<PickemContest[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("pickem_contests")
+    .select("*")
+    .eq("sport", input.sport)
+    .eq("season_year", input.seasonYear)
+    .order("season_type", { ascending: true })
+    .order("week_number", { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    sport: row.sport as PickemSport,
+    seasonYear: row.season_year as number,
+    seasonType: row.season_type as number,
+    weekNumber: row.week_number as number,
+    label: row.label as string,
+    status: row.status as PickemContest["status"],
+    prizePoolCents: row.prize_pool_cents as number,
+    playerCount: row.player_count as number,
+    payoutStatus: (row.payout_status as PickemContest["payoutStatus"]) ?? "none",
+  }));
 }

@@ -1,4 +1,5 @@
 import { listPickemStatsForLeaderboard } from "@/lib/pickem/db/stats";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { maskPlayerLabel } from "@/lib/player/statsCore";
 import type {
   PickemLeaderboardBoard,
@@ -106,16 +107,21 @@ export async function getPickemLeaderboard(input: {
   period?: PickemLeaderboardPeriod;
   sort?: PickemLeaderboardSort;
   viewerEmail?: string | null;
+  contestId?: string | null;
 }): Promise<PickemLeaderboardBoard> {
   const scope = input.scope ?? "worldwide";
   const period = input.period ?? "season";
   const sort = input.sort ?? "accuracy";
 
-  const stats = await listPickemStatsForLeaderboard({
+  let stats = await listPickemStatsForLeaderboard({
     sport: input.sport,
     seasonYear: input.seasonYear,
     limit: LIMIT * 2,
   });
+
+  if (period === "weekly" && input.contestId) {
+    stats = await loadWeeklySnapshotStats(input.contestId, stats);
+  }
 
   // Scope filters (state/friends) reserved for future profile graph data.
   const sorted = sortStats(stats, sort).slice(0, LIMIT);
@@ -156,6 +162,7 @@ export async function getPickemLeaderboardSuite(input: {
   sport: PickemSport;
   seasonYear: number;
   viewerEmail?: string | null;
+  contestId?: string | null;
 }): Promise<PickemLeaderboardBoard[]> {
   const combos: Array<[PickemLeaderboardPeriod, PickemLeaderboardSort]> = [
     ["weekly", "wins"],
@@ -172,7 +179,58 @@ export async function getPickemLeaderboardSuite(input: {
         period,
         sort,
         viewerEmail: input.viewerEmail,
+        contestId: input.contestId,
       })
     )
   );
+}
+
+async function loadWeeklySnapshotStats(
+  contestId: string,
+  fallback: Awaited<ReturnType<typeof listPickemStatsForLeaderboard>>
+): Promise<Awaited<ReturnType<typeof listPickemStatsForLeaderboard>>> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("pickem_weekly_snapshots")
+    .select("email, wins, losses, pending, rank")
+    .eq("contest_id", contestId)
+    .order("rank", { ascending: true })
+    .limit(LIMIT * 2);
+
+  if (error || !data?.length) return fallback;
+
+  const fallbackByEmail = new Map(fallback.map((s) => [s.email.toLowerCase(), s]));
+
+  return data.map((row) => {
+    const base = fallbackByEmail.get((row.email as string).toLowerCase());
+    const wins = row.wins as number;
+    const losses = row.losses as number;
+    const graded = wins + losses;
+    return {
+      ...(base ?? {
+        email: row.email as string,
+        sport: "nfl" as const,
+        seasonYear: new Date().getFullYear(),
+        weeklyPending: 0,
+        seasonWins: 0,
+        seasonLosses: 0,
+        lifetimeWins: 0,
+        lifetimeLosses: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        perfectWeekStreak: 0,
+        weeklyWinStreak: 0,
+        weeksPlayed: 0,
+        perfectWeeks: 0,
+        seasonChampionships: 0,
+        totalPicks: 0,
+        correctPicks: 0,
+        achievements: [],
+      }),
+      weeklyWins: wins,
+      weeklyLosses: losses,
+      weeklyPending: row.pending as number,
+      pickAccuracyPct: graded > 0 ? Math.round((wins / graded) * 1000) / 10 : 0,
+    };
+  });
 }

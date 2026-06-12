@@ -28,6 +28,7 @@ export interface PickemContest {
   status: PickemContestStatus;
   prizePoolCents: number;
   playerCount: number;
+  payoutStatus?: "none" | "pending" | "processing" | "paid" | "skipped";
 }
 
 export interface PickemGame {
@@ -58,6 +59,7 @@ export interface PickemPick {
   pickedSide: PickemSide;
   isCorrect: boolean | null;
   lockedAt: string | null;
+  leagueId?: string | null;
 }
 
 export interface PickemPlayerStats {
@@ -90,6 +92,21 @@ export interface PickemWeekView {
   progress: PickemPickProgress;
   playerStats: PickemPlayerStats | null;
   liveSummary: PickemLiveSummary | null;
+  myPicks: PickemMyPicksSummary | null;
+}
+
+export interface PickemMyPicksSummary {
+  weeklyRecord: string;
+  seasonRecord: string;
+  currentStreak: number;
+  longestStreak: number;
+  projectedWeeklyRank: number | null;
+  projectedSeasonRank: number | null;
+  pickAccuracyPct: number;
+  lifetimeRecord: string;
+  perfectWeeks: number;
+  weeksPlayed: number;
+  leagueLabel: string | null;
 }
 
 export interface PickemGameView extends PickemGame {
@@ -106,9 +123,14 @@ export interface PickemPickProgress {
 
 export interface PickemLiveSummary {
   weeklyRecord: string;
+  seasonRecord: string;
   currentStreak: number;
+  longestStreak: number;
+  pickAccuracyPct: number;
+  lifetimeRecord: string;
   projectedWeeklyRank: number | null;
   projectedSeasonRank: number | null;
+  leagueLabel: string | null;
 }
 
 export interface PickemOverviewStats {

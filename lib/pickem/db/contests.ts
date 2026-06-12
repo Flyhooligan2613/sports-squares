@@ -4,10 +4,7 @@ import type {
   PickemContestStatus,
   PickemSport,
 } from "@/lib/pickem/types";
-import {
-  formatPickemWeekLabel,
-  PICKEM_DEFAULT_PRIZE_POOL_CENTS,
-} from "@/lib/pickem/config";
+import { formatPickemWeekLabel, PICKEM_DEFAULT_PRIZE_POOL_CENTS } from "@/lib/pickem/config";
 
 const TABLE = "pickem_contests";
 
@@ -21,6 +18,7 @@ interface ContestRow {
   status: PickemContestStatus;
   prize_pool_cents: number;
   player_count: number;
+  payout_status?: string;
 }
 
 function mapContest(row: ContestRow): PickemContest {
@@ -34,6 +32,7 @@ function mapContest(row: ContestRow): PickemContest {
     status: row.status,
     prizePoolCents: row.prize_pool_cents,
     playerCount: row.player_count,
+    payoutStatus: (row.payout_status as PickemContest["payoutStatus"]) ?? "none",
   };
 }
 
@@ -106,11 +105,14 @@ export async function upsertPickemContest(input: {
   seasonYear: number;
   seasonType: number;
   weekNumber: number;
+  label?: string;
   status?: PickemContestStatus;
   prizePoolCents?: number;
 }): Promise<PickemContest> {
   const supabase = getSupabaseAdmin();
-  const label = formatPickemWeekLabel(input.weekNumber);
+  const label =
+    input.label ??
+    formatPickemWeekLabel(input.weekNumber, input.seasonType);
 
   const { data, error } = await supabase
     .from(TABLE)
@@ -142,6 +144,22 @@ export async function updatePickemContestStatus(
   const { error } = await supabase
     .from(TABLE)
     .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", contestId);
+
+  if (error) throw error;
+}
+
+export async function updatePickemContestPayoutStatus(
+  contestId: string,
+  payoutStatus: "none" | "pending" | "processing" | "paid" | "skipped"
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from(TABLE)
+    .update({
+      payout_status: payoutStatus,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", contestId);
 
   if (error) throw error;
@@ -179,6 +197,40 @@ export async function refreshPickemContestPlayerCount(
   if (updateError) throw updateError;
   void count;
   return playerCount;
+}
+
+export async function listPickemContestsForSeason(input: {
+  sport: PickemSport;
+  seasonYear: number;
+}): Promise<PickemContest[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*")
+    .eq("sport", input.sport)
+    .eq("season_year", input.seasonYear)
+    .order("season_type", { ascending: true })
+    .order("week_number", { ascending: true });
+
+  if (error) throw error;
+  return (data as ContestRow[]).map(mapContest);
+}
+
+export async function listActivePickemContests(
+  sport: PickemSport
+): Promise<PickemContest[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*")
+    .eq("sport", sport)
+    .in("status", ["open", "active"])
+    .order("season_year", { ascending: false })
+    .order("season_type", { ascending: true })
+    .order("week_number", { ascending: true });
+
+  if (error) throw error;
+  return (data as ContestRow[]).map(mapContest);
 }
 
 export async function getLongestActivePickemStreak(

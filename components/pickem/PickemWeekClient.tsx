@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import PickemGameCard from "@/components/pickem/PickemGameCard";
-import type { PickemSide, PickemWeekView } from "@/lib/pickem/types";
+import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -18,17 +19,138 @@ function formatMoney(cents: number): string {
   }).format(cents / 100);
 }
 
+interface PickemWeekOption {
+  id: string;
+  label: string;
+  weekNumber: number;
+  seasonType: number;
+  status: string;
+  playerCount: number;
+  isCurrent: boolean;
+}
+
+function WeekSelector({
+  weeks,
+  selectedId,
+  onChange,
+}: {
+  weeks: PickemWeekOption[];
+  selectedId: string;
+  onChange: (contestId: string) => void;
+}) {
+  return (
+    <LandingGlassCard className="p-4 mb-6">
+      <label htmlFor="pickem-week-select" className="block text-xs uppercase tracking-wider text-sb-muted mb-2">
+        Select NFL Week
+      </label>
+      <select
+        id="pickem-week-select"
+        value={selectedId}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl bg-white/5 border border-white/10 text-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+      >
+        {weeks.map((w) => (
+          <option key={w.id} value={w.id} className="bg-sb-bg text-white">
+            {w.label}
+            {w.isCurrent ? " · Current" : ""}
+            {w.status === "complete" ? " · Final" : w.status === "active" ? " · Live" : ""}
+          </option>
+        ))}
+      </select>
+    </LandingGlassCard>
+  );
+}
+
+function MyPicksPanel({ summary }: { summary: PickemMyPicksSummary }) {
+  const stats = [
+    { label: "Weekly Record", value: summary.weeklyRecord },
+    { label: "Season Record", value: summary.seasonRecord },
+    { label: "Current Streak", value: summary.currentStreak, accent: true },
+    { label: "Longest Streak", value: summary.longestStreak },
+    {
+      label: "Weekly Rank",
+      value: summary.projectedWeeklyRank != null ? `#${summary.projectedWeeklyRank}` : "—",
+    },
+    {
+      label: "Season Rank",
+      value: summary.projectedSeasonRank != null ? `#${summary.projectedSeasonRank}` : "—",
+    },
+    { label: "Pick Accuracy", value: `${summary.pickAccuracyPct}%` },
+    { label: "Lifetime Record", value: summary.lifetimeRecord },
+    { label: "Perfect Weeks", value: summary.perfectWeeks },
+    { label: "Weeks Played", value: summary.weeksPlayed },
+  ];
+
+  return (
+    <LandingGlassCard className="p-5 mb-6 pickem-live-summary">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-sb-muted">
+          My Picks
+        </h2>
+        {summary.leagueLabel ? (
+          <span className="text-xs font-medium text-emerald-400/90 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+            {summary.leagueLabel}
+          </span>
+        ) : null}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+        {stats.map((stat) => (
+          <div key={stat.label}>
+            <p className="text-xs uppercase tracking-wider text-sb-muted">{stat.label}</p>
+            <p
+              className={`text-xl sm:text-2xl font-bold ${
+                stat.accent ? "text-emerald-400" : "text-white"
+              }`}
+            >
+              {stat.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </LandingGlassCard>
+  );
+}
+
 export default function PickemWeekClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const contestIdParam = searchParams.get("contestId");
+
   const [week, setWeek] = useState<PickemWeekView | null>(null);
+  const [weeks, setWeeks] = useState<PickemWeekOption[]>([]);
+  const [selectedContestId, setSelectedContestId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [savingGameId, setSavingGameId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [authRequired, setAuthRequired] = useState(false);
 
+  const loadWeeks = useCallback(async () => {
+    const res = await fetch("/api/pickem/weeks", { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = (await res.json()) as {
+      weeks: PickemWeekOption[];
+      currentContestId: string;
+    };
+    setWeeks(json.weeks);
+    return json;
+  }, []);
+
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch("/api/pickem/week", { cache: "no-store" });
+      const weeksData = weeks.length ? { currentContestId: selectedContestId, weeks } : await loadWeeks();
+      const contestId =
+        contestIdParam ??
+        selectedContestId ||
+        weeksData?.currentContestId ||
+        "";
+
+      if (contestId && contestId !== selectedContestId) {
+        setSelectedContestId(contestId);
+      }
+
+      const query = contestId ? `?contestId=${encodeURIComponent(contestId)}` : "";
+      const res = await fetch(`/api/pickem/week${query}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to load picks.");
       setWeek((await res.json()) as PickemWeekView);
     } catch (err) {
@@ -36,13 +158,19 @@ export default function PickemWeekClient() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [contestIdParam, loadWeeks, selectedContestId, weeks]);
 
   useEffect(() => {
     void load();
     const timer = setInterval(() => void load(), 60_000);
     return () => clearInterval(timer);
   }, [load]);
+
+  function handleWeekChange(contestId: string) {
+    setSelectedContestId(contestId);
+    setLoading(true);
+    router.push(`/pickem/week?contestId=${encodeURIComponent(contestId)}`);
+  }
 
   async function handlePick(gameId: string, pickedSide: PickemSide) {
     if (!week) return;
@@ -108,6 +236,14 @@ export default function PickemWeekClient() {
 
         {week ? (
           <>
+            {weeks.length > 1 ? (
+              <WeekSelector
+                weeks={weeks}
+                selectedId={week.contest.id}
+                onChange={handleWeekChange}
+              />
+            ) : null}
+
             <ExperienceHero
               badgeLabel={week.contest.label}
               badgeVariant={liveMode ? "live" : "open"}
@@ -133,34 +269,7 @@ export default function PickemWeekClient() {
               ]}
             />
 
-            {week.liveSummary ? (
-              <LandingGlassCard className="p-5 mb-6 pickem-live-summary">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-sb-muted">Weekly Record</p>
-                    <p className="text-2xl font-bold text-white">{week.liveSummary.weeklyRecord}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-sb-muted">Current Streak</p>
-                    <p className="text-2xl font-bold text-emerald-400">
-                      {week.liveSummary.currentStreak}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-sb-muted">Weekly Rank</p>
-                    <p className="text-2xl font-bold text-white">
-                      {week.liveSummary.projectedWeeklyRank ?? "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-sb-muted">Season Rank</p>
-                    <p className="text-2xl font-bold text-white">
-                      {week.liveSummary.projectedSeasonRank ?? "—"}
-                    </p>
-                  </div>
-                </div>
-              </LandingGlassCard>
-            ) : null}
+            {week.myPicks ? <MyPicksPanel summary={week.myPicks} /> : null}
 
             <div className="mb-6">
               <div className="pickem-progress-track">

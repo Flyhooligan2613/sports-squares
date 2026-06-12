@@ -2,15 +2,22 @@ import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
+import { getPickemContestById } from "@/lib/pickem/db/contests";
 import { ensureCurrentPickemContest } from "@/lib/pickem/engine/syncContest";
 import { buildPickemWeekView } from "@/lib/pickem/weekView";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   noStore();
+  const { searchParams } = new URL(request.url);
+  const contestId = searchParams.get("contestId");
+
   try {
-    const contest = await ensureCurrentPickemContest(DEFAULT_PICKEM_SPORT);
+    const contest = contestId
+      ? await getPickemContestById(contestId)
+      : await ensureCurrentPickemContest(DEFAULT_PICKEM_SPORT);
+
     if (!contest) {
       return NextResponse.json({ error: "No contest found." }, { status: 404 });
     }

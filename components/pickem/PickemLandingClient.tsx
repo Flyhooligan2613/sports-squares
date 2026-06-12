@@ -92,8 +92,11 @@ export default function PickemLandingClient() {
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
             <Button href="/pickem/week">Play This Week</Button>
+            <Button href="/pickem/week" variant="secondary">
+              My Picks
+            </Button>
             <Button href="/pickem/leaderboards" variant="secondary">
-              View Leaderboards
+              Leaderboards
             </Button>
           </div>
 

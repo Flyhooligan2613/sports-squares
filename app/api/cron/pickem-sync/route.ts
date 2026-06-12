@@ -1,7 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { verifyCronSecret } from "@/lib/cron/auth";
-import { syncPickemContest } from "@/lib/pickem/engine/syncContest";
+import { syncAllPickemContests } from "@/lib/pickem/engine/syncContest";
 import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ async function runPickemSync(request: Request) {
   if (authError) return authError;
 
   try {
-    const result = await syncPickemContest(DEFAULT_PICKEM_SPORT);
+    const result = await syncAllPickemContests(DEFAULT_PICKEM_SPORT);
     return NextResponse.json({ ok: true, result });
   } catch (err) {
     return NextResponse.json(

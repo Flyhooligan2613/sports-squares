@@ -3,6 +3,11 @@ import { ensurePlayerProfile } from "@/lib/database/services/playerProfiles";
 import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
 import type { PickemPick, PickemSide } from "@/lib/pickem/types";
 import { getPickemGameById } from "@/lib/pickem/db/gamesLookup";
+import { getPickemContestById } from "@/lib/pickem/db/contests";
+import {
+  assignPlayerToPickemLeague,
+  refreshPickemLeaguePlayerCount,
+} from "@/lib/pickem/db/leagues";
 
 const TABLE = "pickem_picks";
 
@@ -14,6 +19,7 @@ interface PickRow {
   picked_side: PickemSide;
   is_correct: boolean | null;
   locked_at: string | null;
+  league_id: string | null;
 }
 
 function mapPick(row: PickRow): PickemPick {
@@ -25,6 +31,7 @@ function mapPick(row: PickRow): PickemPick {
     pickedSide: row.picked_side,
     isCorrect: row.is_correct,
     lockedAt: row.locked_at,
+    leagueId: row.league_id,
   };
 }
 
@@ -60,6 +67,11 @@ export async function savePickemPick(input: {
     throw new Error("Picks are locked for this game.");
   }
 
+  const contest = await getPickemContestById(input.contestId);
+  if (!contest) throw new Error("Contest not found.");
+
+  const league = await assignPlayerToPickemLeague(contest, email);
+
   await ensurePlayerProfile(email, displayNameFromEmail(email));
 
   const supabase = getSupabaseAdmin();
@@ -71,6 +83,7 @@ export async function savePickemPick(input: {
         game_id: input.gameId,
         email,
         picked_side: input.pickedSide,
+        league_id: league.id,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "email,game_id" }
@@ -79,6 +92,8 @@ export async function savePickemPick(input: {
     .single();
 
   if (error) throw error;
+
+  await refreshPickemLeaguePlayerCount(league.id);
   return mapPick(data as PickRow);
 }
 
@@ -132,4 +147,17 @@ export async function gradePicksForGame(input: {
   }
 
   return graded;
+}
+
+export async function listDistinctPlayersForContest(
+  contestId: string
+): Promise<string[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("email")
+    .eq("contest_id", contestId);
+
+  if (error) throw error;
+  return Array.from(new Set((data ?? []).map((r) => r.email as string)));
 }

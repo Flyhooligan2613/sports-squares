@@ -37,6 +37,7 @@ export async function GET(request: Request) {
         sport: DEFAULT_PICKEM_SPORT,
         seasonYear: contest.seasonYear,
         viewerEmail: user?.email ?? null,
+        contestId: contest.id,
       });
       return NextResponse.json({ boards, seasonYear: contest.seasonYear });
     }
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
       period,
       sort,
       viewerEmail: user?.email ?? null,
+      contestId: contest.id,
     });
 
     return NextResponse.json({ board, seasonYear: contest.seasonYear });

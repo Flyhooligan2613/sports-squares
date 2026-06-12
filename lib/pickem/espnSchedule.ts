@@ -49,9 +49,10 @@ function resolveWinnerSide(
 }
 
 export function parsePickemScoreboardMeta(
-  data: EspnScoreboardResponse
+  data: EspnScoreboardResponse,
+  sport: PickemSport = DEFAULT_PICKEM_SPORT
 ): PickemScoreboardMeta {
-  const config = getPickemSportConfig(DEFAULT_PICKEM_SPORT);
+  const config = getPickemSportConfig(sport);
   return {
     weekNumber: data.week?.number ?? 1,
     seasonYear: data.season?.year ?? new Date().getFullYear(),
@@ -136,7 +137,7 @@ export async function fetchPickemScoreboard(input?: {
 
   const data = (await response.json()) as EspnScoreboardResponse;
   return {
-    meta: parsePickemScoreboardMeta(data),
+    meta: parsePickemScoreboardMeta(data, sport),
     games: parsePickemScheduleGames(data),
   };
 }

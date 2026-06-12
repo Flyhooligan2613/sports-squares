@@ -3,7 +3,16 @@ import {
   listPickemGames,
 } from "@/lib/pickem/db/games";
 import { listUserPicksForContest } from "@/lib/pickem/db/picks";
-import { getPickemPlayerStats } from "@/lib/pickem/db/stats";
+import {
+  getPickemPlayerStats,
+  getSeasonRankForPlayer,
+  getWeeklyRankForPlayer,
+  recomputeLiveWeeklyStatsForPlayer,
+} from "@/lib/pickem/db/stats";
+import {
+  formatLeagueLabel,
+  getPlayerPickemLeague,
+} from "@/lib/pickem/db/leagues";
 import {
   getLongestActivePickemStreak,
   getPickemContestById,
@@ -12,13 +21,14 @@ import type {
   PickemContest,
   PickemGameView,
   PickemLiveSummary,
+  PickemMyPicksSummary,
   PickemOverviewStats,
   PickemPickProgress,
   PickemSide,
   PickemSport,
   PickemWeekView,
 } from "@/lib/pickem/types";
-import type { PickemGame, PickemPick } from "@/lib/pickem/types";
+import type { PickemGame, PickemPick, PickemPlayerStats } from "@/lib/pickem/types";
 
 function buildProgress(total: number, picks: PickemPick[]): PickemPickProgress {
   const completed = picks.length;
@@ -47,21 +57,69 @@ function resultStateForGame(
   return userPick === game.winnerSide ? "correct" : "incorrect";
 }
 
-function buildLiveSummary(
-  picks: PickemPick[],
-  playerStats: PickemWeekView["playerStats"]
-): PickemLiveSummary | null {
-  const graded = picks.filter((p) => p.isCorrect != null);
-  if (!graded.length && !picks.some((p) => p.lockedAt)) return null;
+async function buildLiveSummary(input: {
+  contest: PickemContest;
+  picks: PickemPick[];
+  playerStats: PickemPlayerStats | null;
+  email: string;
+}): Promise<PickemLiveSummary | null> {
+  const { picks, playerStats, email, contest } = input;
+
+  if (!picks.length && !playerStats) return null;
 
   const wins = picks.filter((p) => p.isCorrect === true).length;
   const losses = picks.filter((p) => p.isCorrect === false).length;
 
+  const league = await getPlayerPickemLeague(contest.id, email);
+  const leagueId = league?.id ?? picks[0]?.leagueId ?? null;
+
+  const [weeklyRank, seasonRank] = await Promise.all([
+    getWeeklyRankForPlayer({
+      contestId: contest.id,
+      email,
+      leagueId,
+    }),
+    getSeasonRankForPlayer({
+      sport: contest.sport,
+      seasonYear: contest.seasonYear,
+      email,
+    }),
+  ]);
+
+  const stats = playerStats;
+
   return {
     weeklyRecord: `${wins}-${losses}`,
-    currentStreak: playerStats?.currentStreak ?? 0,
-    projectedWeeklyRank: null,
-    projectedSeasonRank: null,
+    seasonRecord: `${stats?.seasonWins ?? 0}-${stats?.seasonLosses ?? 0}`,
+    currentStreak: stats?.currentStreak ?? 0,
+    longestStreak: stats?.longestStreak ?? 0,
+    pickAccuracyPct: stats?.pickAccuracyPct ?? 0,
+    lifetimeRecord: `${stats?.lifetimeWins ?? 0}-${stats?.lifetimeLosses ?? 0}`,
+    projectedWeeklyRank: weeklyRank,
+    projectedSeasonRank: seasonRank,
+    leagueLabel: league ? formatLeagueLabel(league.leagueNumber) : null,
+  };
+}
+
+function buildMyPicksSummary(
+  playerStats: PickemPlayerStats | null,
+  liveSummary: PickemLiveSummary | null
+): PickemMyPicksSummary | null {
+  if (!playerStats && !liveSummary) return null;
+
+  const stats = playerStats;
+  return {
+    weeklyRecord: liveSummary?.weeklyRecord ?? `${stats?.weeklyWins ?? 0}-${stats?.weeklyLosses ?? 0}`,
+    seasonRecord: liveSummary?.seasonRecord ?? `${stats?.seasonWins ?? 0}-${stats?.seasonLosses ?? 0}`,
+    currentStreak: liveSummary?.currentStreak ?? stats?.currentStreak ?? 0,
+    longestStreak: liveSummary?.longestStreak ?? stats?.longestStreak ?? 0,
+    projectedWeeklyRank: liveSummary?.projectedWeeklyRank ?? null,
+    projectedSeasonRank: liveSummary?.projectedSeasonRank ?? null,
+    pickAccuracyPct: liveSummary?.pickAccuracyPct ?? stats?.pickAccuracyPct ?? 0,
+    lifetimeRecord: liveSummary?.lifetimeRecord ?? `${stats?.lifetimeWins ?? 0}-${stats?.lifetimeLosses ?? 0}`,
+    perfectWeeks: stats?.perfectWeeks ?? 0,
+    weeksPlayed: stats?.weeksPlayed ?? 0,
+    leagueLabel: liveSummary?.leagueLabel ?? null,
   };
 }
 
@@ -85,7 +143,7 @@ export async function buildPickemWeekView(input: {
     };
   });
 
-  const playerStats = input.email
+  let playerStats = input.email
     ? await getPickemPlayerStats(
         input.email,
         input.contest.sport,
@@ -93,12 +151,31 @@ export async function buildPickemWeekView(input: {
       )
     : null;
 
+  if (input.email && picks.length > 0) {
+    playerStats = await recomputeLiveWeeklyStatsForPlayer({
+      email: input.email,
+      sport: input.contest.sport,
+      seasonYear: input.contest.seasonYear,
+      contestId: input.contest.id,
+    });
+  }
+
+  const liveSummary = input.email
+    ? await buildLiveSummary({
+        contest: input.contest,
+        picks,
+        playerStats,
+        email: input.email,
+      })
+    : null;
+
   return {
     contest: input.contest,
     games: gameViews,
     progress: buildProgress(games.length, picks),
     playerStats,
-    liveSummary: buildLiveSummary(picks, playerStats),
+    liveSummary,
+    myPicks: buildMyPicksSummary(playerStats, liveSummary),
   };
 }
 
