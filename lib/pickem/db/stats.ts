@@ -30,6 +30,11 @@ interface StatsRow {
   total_picks: number;
   correct_picks: number;
   achievements: PickemPlayerStats["achievements"] | null;
+  monday_tiebreaker_wins: number;
+  lifetime_earnings_cents: number;
+  best_finish: number | null;
+  lifetime_pickem_wins: number;
+  best_weekly_record: string | null;
 }
 
 function mapStats(row: StatsRow): PickemPlayerStats {
@@ -54,6 +59,11 @@ function mapStats(row: StatsRow): PickemPlayerStats {
     totalPicks: row.total_picks,
     correctPicks: row.correct_picks,
     pickAccuracyPct: pickAccuracyPct(row.correct_picks, row.total_picks),
+    mondayTiebreakerWins: row.monday_tiebreaker_wins ?? 0,
+    lifetimeEarningsCents: row.lifetime_earnings_cents ?? 0,
+    bestFinish: row.best_finish ?? null,
+    lifetimePickemWins: row.lifetime_pickem_wins ?? 0,
+    bestWeeklyRecord: row.best_weekly_record ?? null,
     achievements: row.achievements ?? [],
   };
 
@@ -108,6 +118,11 @@ export async function upsertPickemPlayerStats(
       total_picks: stats.totalPicks,
       correct_picks: stats.correctPicks,
       achievements,
+      monday_tiebreaker_wins: stats.mondayTiebreakerWins,
+      lifetime_earnings_cents: stats.lifetimeEarningsCents,
+      best_finish: stats.bestFinish,
+      lifetime_pickem_wins: stats.lifetimePickemWins,
+      best_weekly_record: stats.bestWeeklyRecord,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "email,sport,season_year" }
@@ -249,6 +264,75 @@ export async function getContestWeeklyStandings(input: {
   const byEmail = new Map<string, PickemWeeklyStanding>();
 
   for (const row of data ?? []) {
+    const email = row.email as string;
+    const entry = byEmail.get(email) ?? {
+      email,
+      wins: 0,
+      losses: 0,
+      pending: 0,
+      accuracyPct: 0,
+    };
+
+    if (row.is_correct === true) entry.wins += 1;
+    else if (row.is_correct === false) entry.losses += 1;
+    else entry.pending += 1;
+
+    byEmail.set(email, entry);
+  }
+
+  const standings = Array.from(byEmail.values()).map((s) => {
+    const graded = s.wins + s.losses;
+    return {
+      ...s,
+      accuracyPct: graded > 0 ? Math.round((s.wins / graded) * 1000) / 10 : 0,
+    };
+  });
+
+  return standings.sort((a, b) => {
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    if (b.accuracyPct !== a.accuracyPct) return b.accuracyPct - a.accuracyPct;
+    return a.losses - b.losses;
+  });
+}
+
+/** Standings using Sunday slate only — excludes Monday Night Football picks. */
+export async function getSundayStandings(input: {
+  contestId: string;
+  leagueId?: string | null;
+}): Promise<PickemWeeklyStanding[]> {
+  const supabase = getSupabaseAdmin();
+
+  const { data: games, error: gamesError } = await supabase
+    .from("pickem_games")
+    .select("id, is_monday_night")
+    .eq("contest_id", input.contestId);
+
+  if (gamesError) throw gamesError;
+
+  const sundayGameIds = new Set(
+    (games ?? [])
+      .filter((g) => !(g.is_monday_night as boolean))
+      .map((g) => g.id as string)
+  );
+
+  let query = supabase
+    .from("pickem_picks")
+    .select("email, is_correct, game_id, league_id")
+    .eq("contest_id", input.contestId);
+
+  if (input.leagueId) {
+    query = query.eq("league_id", input.leagueId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const byEmail = new Map<string, PickemWeeklyStanding>();
+
+  for (const row of data ?? []) {
+    const gameId = row.game_id as string;
+    if (!sundayGameIds.has(gameId)) continue;
+
     const email = row.email as string;
     const entry = byEmail.get(email) ?? {
       email,

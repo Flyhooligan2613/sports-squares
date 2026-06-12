@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { identifyMondayNightEspnGameId } from "@/lib/pickem/mondayNight";
 import type { PickemGame, PickemGameStatus, PickemScheduleGame } from "@/lib/pickem/types";
 
 const TABLE = "pickem_games";
@@ -21,6 +22,7 @@ interface GameRow {
   away_score: number | null;
   home_score: number | null;
   picks_locked: boolean;
+  is_monday_night?: boolean;
 }
 
 export function mapPickemGame(row: GameRow): PickemGame {
@@ -42,6 +44,7 @@ export function mapPickemGame(row: GameRow): PickemGame {
     awayScore: row.away_score,
     homeScore: row.home_score,
     picksLocked: row.picks_locked,
+    isMondayNight: row.is_monday_night ?? false,
   };
 }
 
@@ -62,6 +65,7 @@ export async function upsertPickemGames(
   games: PickemScheduleGame[]
 ): Promise<PickemGame[]> {
   const supabase = getSupabaseAdmin();
+  const mondayEspnId = identifyMondayNightEspnGameId(games);
   const rows = games.map((game) => ({
     contest_id: contestId,
     espn_game_id: game.espnGameId,
@@ -78,6 +82,7 @@ export async function upsertPickemGames(
     winner_side: game.winnerSide,
     away_score: game.awayScore,
     home_score: game.homeScore,
+    is_monday_night: game.espnGameId === mondayEspnId,
     updated_at: new Date().toISOString(),
   }));
 

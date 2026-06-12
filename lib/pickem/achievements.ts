@@ -118,6 +118,11 @@ export function emptyPickemPlayerStats(
     totalPicks: 0,
     correctPicks: 0,
     pickAccuracyPct: 0,
+    mondayTiebreakerWins: 0,
+    lifetimeEarningsCents: 0,
+    bestFinish: null,
+    lifetimePickemWins: 0,
+    bestWeeklyRecord: null,
     achievements: [],
   };
 }

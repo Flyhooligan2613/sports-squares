@@ -7,17 +7,14 @@ import {
   isStripeConnectEnabled,
 } from "@/lib/stripe/connect";
 import {
-  PICKEM_WEEKLY_PAYOUT_SPLITS,
-} from "@/lib/pickem/config";
-import {
   getPickemContestById,
   updatePickemContestPayoutStatus,
 } from "@/lib/pickem/db/contests";
+import { getPickemLeagueById } from "@/lib/pickem/db/leagues";
 import {
-  listPickemLeaguesForContest,
-  refreshPickemLeaguePlayerCount,
-} from "@/lib/pickem/db/leagues";
-import { getContestWeeklyStandings } from "@/lib/pickem/db/stats";
+  getPickemPlayerStats,
+  upsertPickemPlayerStats,
+} from "@/lib/pickem/db/stats";
 import type { PickemContest, PickemSport } from "@/lib/pickem/types";
 
 export interface PickemPayoutResult {
@@ -44,26 +41,95 @@ function formatPayoutError(err: unknown, fallback: string): string {
 function payoutIdempotencyKey(
   contestId: string,
   leagueId: string,
-  email: string,
-  place: number
+  email: string
 ): string {
-  return `pickem:${contestId}:${leagueId}:${normalizeEmail(email)}:${place}`;
+  return `pickem:${contestId}:${leagueId}:${normalizeEmail(email)}:winner`;
 }
 
 /**
- * Rank weekly winners per league and queue payouts when a contest completes.
+ * Split prize pool equally among declared winner(s) and trigger Stripe payouts.
  */
+export async function processLeagueWinnerPayouts(input: {
+  contestId: string;
+  leagueId: string;
+  winnerEmails: string[];
+  amountCentsEach: number;
+  splitEqually: boolean;
+}): Promise<PickemPayoutResult> {
+  const errors: string[] = [];
+  const contest = await getPickemContestById(input.contestId);
+  if (!contest) {
+    return {
+      contestId: input.contestId,
+      payoutsCreated: 0,
+      payoutsPaid: 0,
+      skipped: true,
+      errors: ["Contest not found"],
+    };
+  }
+
+  if (input.winnerEmails.length === 0 || input.amountCentsEach <= 0) {
+    return {
+      contestId: input.contestId,
+      payoutsCreated: 0,
+      payoutsPaid: 0,
+      skipped: true,
+      errors: [],
+    };
+  }
+
+  let payoutsCreated = 0;
+  let payoutsPaid = 0;
+
+  for (const email of input.winnerEmails) {
+    const key = payoutIdempotencyKey(input.contestId, input.leagueId, email);
+
+    const created = await enqueuePickemPayout({
+      contestId: input.contestId,
+      leagueId: input.leagueId,
+      email,
+      place: 1,
+      amountCents: input.amountCentsEach,
+      idempotencyKey: key,
+    });
+
+    if (created) payoutsCreated += 1;
+
+    const paid = await attemptPickemStripePayout({
+      contest,
+      email,
+      amountCents: input.amountCentsEach,
+      idempotencyKey: key,
+    });
+
+    if (paid) payoutsPaid += 1;
+    else if (paid === false) {
+      errors.push(`Payout queued for ${email}`);
+    }
+  }
+
+  return {
+    contestId: input.contestId,
+    payoutsCreated,
+    payoutsPaid,
+    skipped: false,
+    errors,
+  };
+}
+
+/** @deprecated Use processContestResolution — kept for sync compatibility. */
 export async function processPickemWeeklyPayouts(
   contestId: string
 ): Promise<PickemPayoutResult> {
-  const errors: string[] = [];
   const contest = await getPickemContestById(contestId);
   if (!contest) {
-    return { contestId, payoutsCreated: 0, payoutsPaid: 0, skipped: true, errors: ["Contest not found"] };
-  }
-
-  if (contest.playerCount <= 0) {
-    return { contestId, payoutsCreated: 0, payoutsPaid: 0, skipped: true, errors: [] };
+    return {
+      contestId,
+      payoutsCreated: 0,
+      payoutsPaid: 0,
+      skipped: true,
+      errors: ["Contest not found"],
+    };
   }
 
   if (contest.payoutStatus === "paid" || contest.payoutStatus === "processing") {
@@ -82,77 +148,56 @@ export async function processPickemWeeklyPayouts(
     };
   }
 
-  let payoutsCreated = 0;
-  let payoutsPaid = 0;
-
-  const leagues = await listPickemLeaguesForContest(contestId);
-  const targets = leagues.length
-    ? leagues
-    : [{ id: "global", prizePoolCents: contest.prizePoolCents, leagueNumber: 1 } as const];
-
-  for (const league of targets) {
-    const leagueId = typeof league.id === "string" ? league.id : null;
-    const prizePool =
-      "prizePoolCents" in league ? league.prizePoolCents : contest.prizePoolCents;
-
-    const standings = await getContestWeeklyStandings({
-      contestId,
-      leagueId: leagueId ?? undefined,
-    });
-
-    if (!standings.length) continue;
-
-    const winners = standings.slice(0, PICKEM_WEEKLY_PAYOUT_SPLITS.length);
-
-    for (let i = 0; i < winners.length; i += 1) {
-      const place = i + 1;
-      const split = PICKEM_WEEKLY_PAYOUT_SPLITS[i] ?? 0;
-      const amountCents = Math.round(prizePool * split);
-      if (amountCents <= 0) continue;
-
-      const email = winners[i].email;
-      const key = payoutIdempotencyKey(
-        contestId,
-        leagueId ?? "global",
-        email,
-        place
-      );
-
-      const created = await enqueuePickemPayout({
-        contestId,
-        leagueId,
-        email,
-        place,
-        amountCents,
-        idempotencyKey: key,
-      });
-
-      if (created) payoutsCreated += 1;
-
-      const paid = await attemptPickemStripePayout({
-        contest,
-        email,
-        amountCents,
-        idempotencyKey: key,
-      });
-
-      if (paid) payoutsPaid += 1;
-      else if (paid === false) {
-        errors.push(`Payout queued for ${email} (place ${place})`);
-      }
-    }
-
-    if (leagueId) {
-      await refreshPickemLeaguePlayerCount(leagueId);
-    }
-  }
-
-  await updatePickemContestPayoutStatus(
-    contestId,
-    payoutsPaid > 0 || !isStripeConnectEnabled() ? "paid" : "pending"
+  const { processContestResolution } = await import(
+    "@/lib/pickem/engine/resolution"
   );
+  const result = await processContestResolution(contestId);
 
-  return { contestId, payoutsCreated, payoutsPaid, skipped: false, errors };
+  return {
+    contestId,
+    payoutsCreated: result.winnersDeclared + result.splitsDeclared,
+    payoutsPaid: result.winnersDeclared,
+    skipped: false,
+    errors: result.errors,
+  };
+}
+
+export async function recordPickemWinStats(input: {
+  email: string;
+  sport: PickemSport;
+  seasonYear: number;
+  earningsCents: number;
+  tiebreakerWin: boolean;
+  weeklyRecord: string;
+}): Promise<void> {
+  const email = normalizeEmail(input.email);
+  const stats = await getPickemPlayerStats(email, input.sport, input.seasonYear);
+
+  const [winsStr] = input.weeklyRecord.split("-");
+  const weeklyWins = parseInt(winsStr ?? "0", 10) || 0;
+  const isBetterRecord =
+    !stats.bestWeeklyRecord ||
+    compareRecords(input.weeklyRecord, stats.bestWeeklyRecord) > 0;
+
+  const updated = {
+    ...stats,
+    lifetimePickemWins: stats.lifetimePickemWins + 1,
+    lifetimeEarningsCents: stats.lifetimeEarningsCents + input.earningsCents,
+    mondayTiebreakerWins: stats.mondayTiebreakerWins + (input.tiebreakerWin ? 1 : 0),
+    bestFinish:
+      stats.bestFinish == null ? 1 : Math.min(stats.bestFinish, 1),
+    bestWeeklyRecord: isBetterRecord ? input.weeklyRecord : stats.bestWeeklyRecord,
+    seasonChampionships: stats.seasonChampionships + 1,
+  };
+
+  await upsertPickemPlayerStats(updated);
+}
+
+function compareRecords(a: string, b: string): number {
+  const [aW, aL] = a.split("-").map((n) => parseInt(n, 10) || 0);
+  const [bW, bL] = b.split("-").map((n) => parseInt(n, 10) || 0);
+  if (aW !== bW) return aW - bW;
+  return bL - aL;
 }
 
 async function enqueuePickemPayout(input: {
@@ -241,7 +286,6 @@ export async function syncPickemWinningsToPlatformStats(
   email: string,
   additionalCents: number
 ): Promise<void> {
-  const { getPickemPlayerStats } = await import("@/lib/pickem/db/stats");
   const stats = await getPickemPlayerStats(
     email,
     "nfl",
@@ -260,10 +304,12 @@ export async function syncPickemWinningsToPlatformStats(
     currentStreak: stats.currentStreak,
     longestStreak: stats.longestStreak,
     extra: {
-      pickemWins: stats.seasonWins,
+      pickemWins: stats.lifetimePickemWins,
       pickAccuracyPct: Math.round(stats.pickAccuracyPct * 10),
       perfectWeeks: stats.perfectWeeks,
       seasonChampionships: stats.seasonChampionships,
+      mondayTiebreakerWins: stats.mondayTiebreakerWins,
+      lifetimeEarningsCents: stats.lifetimeEarningsCents,
     },
   });
 }
@@ -273,7 +319,6 @@ export async function syncPickemProfileStats(
   sport: PickemSport,
   seasonYear: number
 ): Promise<void> {
-  const { getPickemPlayerStats } = await import("@/lib/pickem/db/stats");
   const stats = await getPickemPlayerStats(email, sport, seasonYear);
   const existing = await import("@/lib/database/services/playerGameStats").then(
     (m) => m.getPlayerGameStats(email, "pickem")
@@ -287,10 +332,17 @@ export async function syncPickemProfileStats(
     currentStreak: stats.currentStreak,
     longestStreak: stats.longestStreak,
     extra: {
-      pickemWins: stats.seasonWins,
+      pickemWins: stats.lifetimePickemWins,
       pickAccuracyPct: Math.round(stats.pickAccuracyPct * 10),
       perfectWeeks: stats.perfectWeeks,
       seasonChampionships: stats.seasonChampionships,
+      mondayTiebreakerWins: stats.mondayTiebreakerWins,
+      lifetimeEarningsCents: stats.lifetimeEarningsCents,
     },
   });
+}
+
+export async function getLeaguePrizePoolCents(leagueId: string): Promise<number> {
+  const league = await getPickemLeagueById(leagueId);
+  return league?.prizePoolCents ?? 0;
 }

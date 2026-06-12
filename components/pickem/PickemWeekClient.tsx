@@ -10,6 +10,8 @@ import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import PickemGameCard from "@/components/pickem/PickemGameCard";
 import PickemEntryPanel from "@/components/pickem/PickemEntryPanel";
+import PickemPoolList from "@/components/pickem/PickemPoolList";
+import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
@@ -357,6 +359,33 @@ export default function PickemWeekClient() {
               onCheckout={handleEntryCheckout}
             />
 
+            <PickemPoolList
+              pools={week.pools}
+              entryTierCents={entryTierCents}
+              myPoolNumber={week.playerStatus?.poolNumber}
+            />
+
+            {week.playerStatus ? (
+              <PickemPlayerStatusBadge status={week.playerStatus} />
+            ) : null}
+
+            {week.tiebreaker?.active ? (
+              <LandingGlassCard className="p-4 mb-6 border border-amber-500/30 bg-amber-500/5">
+                <p className="text-amber-300 text-sm font-semibold mb-2">
+                  TIEBREAKER ACTIVE
+                </p>
+                <p className="text-sb-muted text-sm mb-3">
+                  {week.tiebreaker.playersRemaining} players remain. Submit your Monday Night
+                  combined score prediction before kickoff.
+                </p>
+                <Button
+                  href={`/pickem/tiebreaker?contestId=${encodeURIComponent(week.contest.id)}&tier=${entryTierCents}`}
+                >
+                  Go to Tiebreaker
+                </Button>
+              </LandingGlassCard>
+            ) : null}
+
             <ExperienceHero
               badgeLabel={week.contest.label}
               badgeVariant={liveMode ? "live" : "open"}
@@ -412,6 +441,9 @@ export default function PickemWeekClient() {
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button href="/pickem/leaderboards" variant="secondary">
                 View Leaderboards
+              </Button>
+              <Button href="/pickem/history" variant="secondary">
+                My History
               </Button>
               <Link href="/pickem" className="text-sm text-sb-muted hover:text-white">
                 ← Pick&apos;em Home

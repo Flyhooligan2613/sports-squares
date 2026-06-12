@@ -29,8 +29,9 @@ import {
   refreshContestWeeklySnapshots,
 } from "@/lib/pickem/db/stats";
 import { seedPickemSeason } from "@/lib/pickem/engine/seedSeason";
+import { processContestResolution } from "@/lib/pickem/engine/resolution";
+import { allSundaySlateGamesFinal, getMondayNightGame } from "@/lib/pickem/mondayNight";
 import {
-  processPickemWeeklyPayouts,
   syncPickemProfileStats,
 } from "@/lib/pickem/payouts";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -130,6 +131,26 @@ async function syncSinglePickemContest(
   const allFinal =
     imported.length > 0 && imported.every((g) => g.status === "final");
   const anyLive = imported.some((g) => g.status === "live");
+  const sundayComplete = allSundaySlateGamesFinal(imported);
+  const mondayGame = getMondayNightGame(imported);
+  const mondayFinal = mondayGame?.status === "final";
+
+  if (sundayComplete || mondayFinal) {
+    const playerCount = existing?.playerCount ?? 0;
+    const wasActive = existing?.status === "active" || anyLive;
+    const shouldProcess = playerCount > 0 || wasActive;
+
+    if (shouldProcess) {
+      try {
+        const resolution = await processContestResolution(activeContest.id);
+        for (const msg of resolution.errors) {
+          errors.push(msg);
+        }
+      } catch (err) {
+        errors.push(formatPickemSyncError(err, "Contest resolution failed."));
+      }
+    }
+  }
 
   if (allFinal && imported.length > 0) {
     const playerCount = existing?.playerCount ?? 0;
@@ -142,21 +163,6 @@ async function syncSinglePickemContest(
         sport,
         activeContest.seasonYear
       );
-
-      if (playerCount > 0) {
-        try {
-          const payoutResult = await processPickemWeeklyPayouts(activeContest.id);
-          for (const msg of payoutResult.errors) {
-            errors.push(msg);
-          }
-        } catch (err) {
-          errors.push(formatPickemSyncError(err, "Weekly payout processing failed."));
-        }
-      }
-    }
-
-    if (shouldFinalize) {
-      await updatePickemContestStatus(activeContest.id, "complete");
     }
   } else if (anyLive) {
     await updatePickemContestStatus(activeContest.id, "active");

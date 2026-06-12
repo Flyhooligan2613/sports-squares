@@ -20,6 +20,7 @@ interface GameRow {
   away_score: number | null;
   home_score: number | null;
   picks_locked: boolean;
+  is_monday_night?: boolean;
 }
 
 export async function getPickemGameById(gameId: string): Promise<PickemGame | null> {

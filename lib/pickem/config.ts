@@ -114,14 +114,14 @@ export function formatPickemWeekLabel(
   return `Week ${weekNumber}`;
 }
 
-/** Max players per league shard before auto-creating the next league. */
-export const PICKEM_LEAGUE_MAX_PLAYERS = 5000;
+/** Max players per pool before auto-creating the next pool for the same week + tier. */
+export const PICKEM_LEAGUE_MAX_PLAYERS = 1000;
 
 /** Default weekly prize pool display (cents) until real pool funding is wired. */
 export const PICKEM_DEFAULT_PRIZE_POOL_CENTS = 500_000;
 
-/** Payout split for weekly winners (top 3) as fractions of league prize pool. */
-export const PICKEM_WEEKLY_PAYOUT_SPLITS = [0.5, 0.3, 0.2] as const;
+/** US Eastern timezone for Monday Night Football detection. */
+export const PICKEM_EASTERN_TZ = "America/New_York";
 
 export interface PickemSeasonWeekSpec {
   seasonType: number;

@@ -22,6 +22,7 @@ export interface PickemLeague {
   prizePoolCents: number;
   entryTierCents: number;
   status: "open" | "full" | "complete";
+  resolutionStatus: "open" | "sunday_complete" | "tiebreaker_active" | "complete" | "payout_pending";
 }
 
 interface LeagueRow {
@@ -33,6 +34,7 @@ interface LeagueRow {
   prize_pool_cents: number;
   entry_tier_cents: number;
   status: PickemLeague["status"];
+  resolution_status: PickemLeague["resolutionStatus"];
 }
 
 function mapLeague(row: LeagueRow): PickemLeague {
@@ -45,6 +47,7 @@ function mapLeague(row: LeagueRow): PickemLeague {
     prizePoolCents: row.prize_pool_cents,
     entryTierCents: normalizeEntryTierCents(row.entry_tier_cents),
     status: row.status,
+    resolutionStatus: row.resolution_status ?? "open",
   };
 }
 
@@ -149,6 +152,28 @@ export async function getPlayerPickemLeague(
   const supabase = getSupabaseAdmin();
   const normalized = normalizeEmail(email);
 
+  let entryQuery = supabase
+    .from("pickem_entry_purchases")
+    .select("league_id")
+    .eq("contest_id", contestId)
+    .eq("email", normalized)
+    .eq("status", "paid")
+    .not("league_id", "is", null);
+
+  if (entryTierCents != null) {
+    entryQuery = entryQuery.eq("entry_tier_cents", entryTierCents);
+  }
+
+  const { data: entryRow, error: entryError } = await entryQuery
+    .limit(1)
+    .maybeSingle();
+
+  if (entryError) throw entryError;
+
+  if (entryRow?.league_id) {
+    return getPickemLeagueById(entryRow.league_id as string);
+  }
+
   const { data, error } = await supabase
     .from("pickem_picks")
     .select("league_id")
@@ -203,15 +228,29 @@ export async function refreshPickemLeaguePlayerCount(
   leagueId: string
 ): Promise<number> {
   const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
+
+  const { data: entries, error: entryError } = await supabase
+    .from("pickem_entry_purchases")
+    .select("email")
+    .eq("league_id", leagueId)
+    .eq("status", "paid");
+
+  if (entryError) throw entryError;
+
+  const fromEntries = new Set((entries ?? []).map((r) => r.email as string));
+
+  const { data: picks, error } = await supabase
     .from("pickem_picks")
     .select("email")
     .eq("league_id", leagueId);
 
   if (error) throw error;
 
-  const unique = new Set((data ?? []).map((r) => r.email as string));
-  const playerCount = unique.size;
+  for (const row of picks ?? []) {
+    fromEntries.add(row.email as string);
+  }
+
+  const playerCount = fromEntries.size;
 
   const league = await getPickemLeagueById(leagueId);
   if (!league) return 0;
@@ -236,6 +275,22 @@ export async function refreshPickemLeaguePlayerCount(
   return playerCount;
 }
 
+export async function updatePickemLeagueResolutionStatus(
+  leagueId: string,
+  resolutionStatus: PickemLeague["resolutionStatus"]
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from(TABLE)
+    .update({
+      resolution_status: resolutionStatus,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", leagueId);
+
+  if (error) throw error;
+}
+
 export function formatLeagueLabel(
   leagueNumber: number,
   entryTierCents?: number
@@ -244,5 +299,9 @@ export function formatLeagueLabel(
     entryTierCents != null
       ? `${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(entryTierCents / 100)} · `
       : "";
-  return `${tierPart}${leagueNumber === 1 ? "League #1" : `League #${leagueNumber}`}`;
+  return `${tierPart}Pool #${leagueNumber}`;
+}
+
+export function formatPoolLabel(leagueNumber: number): string {
+  return `Pool #${leagueNumber}`;
 }

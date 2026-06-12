@@ -15,8 +15,17 @@ import {
 } from "@/lib/pickem/entryPurchase";
 import {
   formatLeagueLabel,
+  formatPoolLabel,
   getPlayerPickemLeague,
+  listPickemLeaguesForContest,
 } from "@/lib/pickem/db/leagues";
+import { getPlayerWeekResult, countTiebreakerPlayers } from "@/lib/pickem/db/playerWeekResults";
+import {
+  getTiebreakerEntryForPlayer,
+  getTiebreakerForLeague,
+} from "@/lib/pickem/db/tiebreakers";
+import { getMondayNightGame } from "@/lib/pickem/mondayNight";
+import { PICKEM_LEAGUE_MAX_PLAYERS } from "@/lib/pickem/config";
 import {
   getLongestActivePickemStreak,
   getPickemContestById,
@@ -29,8 +38,11 @@ import type {
   PickemMyPicksSummary,
   PickemOverviewStats,
   PickemPickProgress,
+  PickemPlayerPoolStatus,
+  PickemPoolSummary,
   PickemSide,
   PickemSport,
+  PickemTiebreakerView,
   PickemWeekView,
 } from "@/lib/pickem/types";
 import type { PickemGame, PickemPick, PickemPlayerStats } from "@/lib/pickem/types";
@@ -188,9 +200,30 @@ export async function buildPickemWeekView(input: {
         picks,
         playerStats,
         email: input.email,
-        entryTierCents: input.entryTierCents,
+        entryTierCents,
       })
     : null;
+
+  const pools = await buildPoolSummaries(input.contest.id, entryTierCents);
+
+  const playerLeague = input.email
+    ? await getPlayerPickemLeague(input.contest.id, input.email, entryTierCents)
+    : null;
+
+  const playerStatus = input.email
+    ? await buildPlayerPoolStatus({
+        contestId: input.contest.id,
+        email: input.email,
+        league: playerLeague,
+      })
+    : null;
+
+  const tiebreaker = await buildTiebreakerView({
+    contestId: input.contest.id,
+    league: playerLeague,
+    email: input.email ?? null,
+    games,
+  });
 
   return {
     contest: input.contest,
@@ -205,6 +238,101 @@ export async function buildPickemWeekView(input: {
       paid: entryPaid,
       requiresAuth: !input.email,
     },
+    pools,
+    playerStatus,
+    tiebreaker,
+  };
+}
+
+async function buildPoolSummaries(
+  contestId: string,
+  entryTierCents: number
+): Promise<PickemPoolSummary[]> {
+  const leagues = await listPickemLeaguesForContest(contestId, entryTierCents);
+  return leagues.map((league) => ({
+    id: league.id,
+    poolNumber: league.leagueNumber,
+    playerCount: league.playerCount,
+    maxPlayers: league.maxPlayers || PICKEM_LEAGUE_MAX_PLAYERS,
+    prizePoolCents: league.prizePoolCents,
+    entryTierCents: league.entryTierCents,
+    status: league.status,
+    resolutionStatus: league.resolutionStatus,
+    label: formatPoolLabel(league.leagueNumber),
+  }));
+}
+
+async function buildPlayerPoolStatus(input: {
+  contestId: string;
+  email: string;
+  league: Awaited<ReturnType<typeof getPlayerPickemLeague>>;
+}): Promise<PickemPlayerPoolStatus | null> {
+  if (!input.league) return null;
+
+  const result = await getPlayerWeekResult({
+    contestId: input.contestId,
+    leagueId: input.league.id,
+    email: input.email,
+  });
+
+  return {
+    status: result?.status ?? "active",
+    sundayRecord: result?.sundayRecord ?? null,
+    poolNumber: input.league.leagueNumber,
+    poolLabel: formatPoolLabel(input.league.leagueNumber),
+    finishPlace: result?.finishPlace ?? null,
+    payoutCents: result?.payoutCents ?? null,
+  };
+}
+
+async function buildTiebreakerView(input: {
+  contestId: string;
+  league: Awaited<ReturnType<typeof getPlayerPickemLeague>>;
+  email: string | null;
+  games: Awaited<ReturnType<typeof listPickemGames>>;
+}): Promise<PickemTiebreakerView | null> {
+  if (!input.league) return null;
+
+  const tb = await getTiebreakerForLeague(input.league.id);
+  if (!tb || tb.status === "pending") {
+    return {
+      active: false,
+      tiebreakerId: null,
+      status: null,
+      mondayGame: getMondayNightGame(input.games),
+      playersRemaining: 0,
+      prizePoolCents: input.league.prizePoolCents,
+      predictedTotal: null,
+      locked: false,
+      kickoffAt: getMondayNightGame(input.games)?.kickoffAt ?? null,
+      actualTotal: null,
+    };
+  }
+
+  const mondayGame = getMondayNightGame(input.games);
+  const playersRemaining = await countTiebreakerPlayers(input.league.id);
+  const locked = tb.status === "locked" || tb.status === "complete" || tb.status === "split";
+
+  let predictedTotal: number | null = null;
+  if (input.email && tb.id) {
+    const entry = await getTiebreakerEntryForPlayer({
+      tiebreakerId: tb.id,
+      email: input.email,
+    });
+    predictedTotal = entry?.predictedTotal ?? null;
+  }
+
+  return {
+    active: tb.status === "active" || tb.status === "locked",
+    tiebreakerId: tb.id,
+    status: tb.status,
+    mondayGame,
+    playersRemaining,
+    prizePoolCents: input.league.prizePoolCents,
+    predictedTotal,
+    locked,
+    kickoffAt: mondayGame?.kickoffAt ?? null,
+    actualTotal: tb.actualTotalPoints,
   };
 }
 

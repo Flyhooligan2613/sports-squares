@@ -16,6 +16,26 @@ export type PickemGameStatus =
   | "cancelled"
   | "postponed";
 export type PickemSide = "away" | "home";
+export type PickemPlayerWeekStatus =
+  | "active"
+  | "eliminated"
+  | "tiebreaker"
+  | "winner"
+  | "prize_split";
+
+export type PickemTiebreakerStatus =
+  | "pending"
+  | "active"
+  | "locked"
+  | "complete"
+  | "split";
+
+export type PickemLeagueResolutionStatus =
+  | "open"
+  | "sunday_complete"
+  | "tiebreaker_active"
+  | "complete"
+  | "payout_pending";
 export type PickemWinnerSide = PickemSide | "tie";
 
 export interface PickemContest {
@@ -49,6 +69,7 @@ export interface PickemGame {
   awayScore: number | null;
   homeScore: number | null;
   picksLocked: boolean;
+  isMondayNight: boolean;
 }
 
 export interface PickemPick {
@@ -83,6 +104,11 @@ export interface PickemPlayerStats {
   totalPicks: number;
   correctPicks: number;
   pickAccuracyPct: number;
+  mondayTiebreakerWins: number;
+  lifetimeEarningsCents: number;
+  bestFinish: number | null;
+  lifetimePickemWins: number;
+  bestWeeklyRecord: string | null;
   achievements: PickemAchievement[];
 }
 
@@ -94,6 +120,9 @@ export interface PickemWeekView {
   liveSummary: PickemLiveSummary | null;
   myPicks: PickemMyPicksSummary | null;
   entry: PickemEntryStatus;
+  pools: PickemPoolSummary[];
+  playerStatus: PickemPlayerPoolStatus | null;
+  tiebreaker: PickemTiebreakerView | null;
 }
 
 export interface PickemEntryStatus {
@@ -101,6 +130,40 @@ export interface PickemEntryStatus {
   amountCents: number;
   paid: boolean;
   requiresAuth: boolean;
+}
+
+export interface PickemPoolSummary {
+  id: string;
+  poolNumber: number;
+  playerCount: number;
+  maxPlayers: number;
+  prizePoolCents: number;
+  entryTierCents: number;
+  status: "open" | "full" | "complete";
+  resolutionStatus: PickemLeagueResolutionStatus;
+  label: string;
+}
+
+export interface PickemPlayerPoolStatus {
+  status: PickemPlayerWeekStatus | null;
+  sundayRecord: string | null;
+  poolNumber: number | null;
+  poolLabel: string | null;
+  finishPlace: number | null;
+  payoutCents: number | null;
+}
+
+export interface PickemTiebreakerView {
+  active: boolean;
+  tiebreakerId: string | null;
+  status: PickemTiebreakerStatus | null;
+  mondayGame: PickemGame | null;
+  playersRemaining: number;
+  prizePoolCents: number;
+  predictedTotal: number | null;
+  locked: boolean;
+  kickoffAt: string | null;
+  actualTotal: number | null;
 }
 
 export interface PickemMyPicksSummary {
@@ -208,6 +271,24 @@ export interface PickemScheduleGame {
   awayScore: number | null;
   homeScore: number | null;
   completed: boolean;
+}
+
+export interface PickemWeekHistoryEntry {
+  id: string;
+  email: string;
+  contestId: string;
+  leagueId: string | null;
+  sport: PickemSport;
+  seasonYear: number;
+  weekLabel: string;
+  entryTierCents: number;
+  poolNumber: number;
+  weeklyRecord: string;
+  finishPlace: number | null;
+  status: PickemPlayerWeekStatus;
+  earningsCents: number;
+  tiebreakerUsed: boolean;
+  createdAt: string;
 }
 
 export interface PickemScoreboardMeta {
