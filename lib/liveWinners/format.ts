@@ -19,3 +19,9 @@ export function formatCurrency(amount: number): string {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+
+export function teamAbbrev(name: string): string {
+  const cleaned = name.replace(/[^a-zA-Z]/g, "");
+  if (cleaned.length <= 3) return cleaned.toUpperCase();
+  return cleaned.slice(0, 3).toUpperCase();
+}

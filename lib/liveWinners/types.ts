@@ -1,5 +1,16 @@
 import type { EspnSport, PayoutStatus, ScoringPeriod } from "@/lib/types";
 
+export interface LivePlatformStatus {
+  platformOnline: boolean;
+  activeGames: number;
+  activeBoards: number;
+  playersOnline: number;
+  squaresPurchasedToday: number;
+  automaticPayoutsToday: number;
+  prizeMoneyPaidToday: number;
+  gamesCurrentlyLive: number;
+}
+
 export interface LiveWinnersStats {
   todaysWinners: number;
   todaysPayouts: number;
@@ -8,6 +19,8 @@ export interface LiveWinnersStats {
   prizeMoneyToday: number;
 }
 
+export type LiveGameStatus = "live" | "upcoming" | "final";
+
 export interface LiveWinnerFeedItem {
   id: string;
   sport: string;
@@ -15,10 +28,21 @@ export interface LiveWinnerFeedItem {
   awayTeam: string;
   homeTeam: string;
   boardIndex: number;
+  quarter: ScoringPeriod;
   periodLabel: string;
+  periodShort: string;
   amount: number;
+  maskedWinner: string;
   payoutStatus: PayoutStatus;
   wonAt: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  winningSquare: number | null;
+  gameStatus: LiveGameStatus | null;
+  livePeriod: number | null;
+  liveClock: string | null;
+  liveHomeScore: number | null;
+  liveAwayScore: number | null;
 }
 
 export type LiveActivityType =
@@ -28,7 +52,9 @@ export type LiveActivityType =
   | "squares_purchased"
   | "kickoff_started"
   | "quarter_winner"
-  | "payout_sent";
+  | "final_winner"
+  | "payout_sent"
+  | "game_opened";
 
 export interface LiveActivityItem {
   id: string;
@@ -36,6 +62,7 @@ export interface LiveActivityItem {
   title: string;
   detail: string;
   at: string;
+  accent?: "green" | "blue" | "purple" | "gold" | "yellow" | "red";
 }
 
 export interface ChampionEntry {
@@ -43,8 +70,26 @@ export interface ChampionEntry {
   totalWon: number;
 }
 
+export interface BigWinToday {
+  id: string;
+  amount: number;
+  awayTeam: string;
+  homeTeam: string;
+  boardIndex: number;
+  paidAt: string;
+  maskedWinner: string;
+}
+
+export interface TickerPayout {
+  id: string;
+  amount: number;
+}
+
 export interface LiveWinnersCenterData {
+  platform: LivePlatformStatus;
   stats: LiveWinnersStats;
+  bigWin: BigWinToday | null;
+  ticker: TickerPayout[];
   winners: LiveWinnerFeedItem[];
   activity: LiveActivityItem[];
   champions: {
