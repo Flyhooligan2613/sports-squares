@@ -38,5 +38,15 @@ CREATE INDEX IF NOT EXISTS pools_game_id_idx ON pools (game_id);
 CREATE INDEX IF NOT EXISTS pools_marketplace_idx ON pools (marketplace_visible, status);
 
 ALTER TABLE games ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "games_public_read" ON games FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "games_service_write" ON games FOR ALL USING (true) WITH CHECK (true);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'games'
+      AND policyname = 'games_public_read'
+  ) THEN
+    CREATE POLICY games_public_read ON games FOR SELECT USING (true);
+  END IF;
+END $$;
