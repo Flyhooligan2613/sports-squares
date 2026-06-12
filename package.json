@@ -11,7 +11,9 @@
     "icons": "node scripts/generate-pwa-icons.mjs",
     "hero:crop": "node scripts/crop-hero.mjs",
     "marketplace:sync": "node scripts/trigger-marketplace-sync.mjs",
-    "supabase:configure-auth": "node scripts/configure-supabase-auth.mjs"
+    "supabase:configure-auth": "node scripts/configure-supabase-auth.mjs",
+    "resend:sync-vercel": "node scripts/sync-resend-key-to-vercel.mjs",
+    "resend:setup-domain": "node scripts/setup-resend-domain.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
