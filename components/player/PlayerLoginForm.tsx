@@ -4,6 +4,7 @@ import { useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { signInPlayerWithMagicLink } from "@/lib/auth/playerAuthClient";
+import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import Logo from "@/components/Logo";
 
 export default function PlayerLoginForm() {
@@ -21,7 +22,7 @@ export default function PlayerLoginForm() {
     setLoading(false);
 
     if (!result.ok) {
-      setError(result.error);
+      setError(formatPlayerAuthError(result.error));
       return;
     }
 
