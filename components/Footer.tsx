@@ -9,6 +9,7 @@ const LINKS = {
     { href: "/#pools", label: "Open Boards" },
     { href: "/#join", label: "Invite Link" },
     { href: "/support", label: "Support" },
+    { href: "/transparency", label: "Transparency" },
     { href: "/faq", label: "FAQ" },
   ],
   company: [

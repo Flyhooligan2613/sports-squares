@@ -7,7 +7,16 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
-const CATEGORIES: SupportCategory[] = ["general", "payment", "game", "technical"];
+const CATEGORIES: SupportCategory[] = [
+  "technical",
+  "payment",
+  "gameplay",
+  "bug",
+  "feedback",
+  "feature",
+  "general",
+  "game",
+];
 
 export async function GET() {
   const supabase = await createClient();

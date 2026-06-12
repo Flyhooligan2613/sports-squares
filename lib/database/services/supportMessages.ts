@@ -5,7 +5,11 @@ export type SupportCategory =
   | "general"
   | "payment"
   | "game"
-  | "technical";
+  | "technical"
+  | "gameplay"
+  | "bug"
+  | "feedback"
+  | "feature";
 
 export interface SupportThread {
   id: string;
@@ -143,7 +147,91 @@ export async function createSupportThread(input: {
   });
 
   if (messageError) throw messageError;
+
+  const { logPlatformAudit } = await import("@/lib/platform/core/auditLog");
+  await logPlatformAudit({
+    eventType: "support.ticket_submitted",
+    summary: `Support ticket: ${input.subject}`,
+    actorEmail: email,
+    actorRole: "player",
+    entityType: "support_thread",
+    entityId: threadId,
+    metadata: { category: input.category },
+  });
+
   return { threadId };
+}
+
+export async function listAllSupportThreads(limit = 50): Promise<SupportThread[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLES.supportThreads)
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    userEmail: row.user_email as string,
+    subject: row.subject as string,
+    category: row.category as SupportCategory,
+    status: row.status as string,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  }));
+}
+
+export async function staffReplyToSupportThread(input: {
+  threadId: string;
+  body: string;
+}): Promise<void> {
+  const supabase = getSupabaseAdmin();
+
+  const { error: messageError } = await supabase.from(TABLES.supportMessages).insert({
+    thread_id: input.threadId,
+    sender_type: "staff",
+    body: input.body.trim(),
+    read_by_player: false,
+    read_by_staff: true,
+  });
+
+  if (messageError) throw messageError;
+
+  await supabase
+    .from(TABLES.supportThreads)
+    .update({ updated_at: new Date().toISOString(), status: "open" })
+    .eq("id", input.threadId);
+}
+
+export async function listSupportMessagesForStaff(
+  threadId: string
+): Promise<SupportMessage[]> {
+  const supabase = getSupabaseAdmin();
+
+  await supabase
+    .from(TABLES.supportMessages)
+    .update({ read_by_staff: true })
+    .eq("thread_id", threadId)
+    .eq("sender_type", "player");
+
+  const { data, error } = await supabase
+    .from(TABLES.supportMessages)
+    .select("*")
+    .eq("thread_id", threadId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    threadId: row.thread_id as string,
+    senderType: row.sender_type as "player" | "staff",
+    body: row.body as string,
+    readByPlayer: row.read_by_player as boolean,
+    createdAt: row.created_at as string,
+  }));
 }
 
 export async function replyToSupportThread(input: {

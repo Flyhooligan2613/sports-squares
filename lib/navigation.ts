@@ -37,6 +37,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Learn",
     items: [
       { href: "/learn/how-to-play", label: "How To Play", icon: "📖" },
+      { href: "/transparency", label: "Transparency Center", icon: "🔍" },
       { href: "/faq", label: "FAQ", icon: "❓" },
     ],
   },

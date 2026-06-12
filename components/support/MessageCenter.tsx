@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
+import { SUPPORT_CATEGORIES } from "@/lib/platform/core/supportCategories";
 import type { SupportMessage, SupportThread } from "@/lib/database/services/supportMessages";
 
-const CATEGORIES = [
-  { value: "general", label: "General question" },
-  { value: "payment", label: "Payment issue" },
-  { value: "game", label: "Game / board question" },
-  { value: "technical", label: "Technical problem" },
-] as const;
+const LEGACY_CATEGORY_MAP: Record<string, string> = {
+  general: "feedback",
+  game: "gameplay",
+};
 
 export default function MessageCenter() {
   const [threads, setThreads] = useState<SupportThread[]>([]);
@@ -21,7 +20,7 @@ export default function MessageCenter() {
   const [needsAuth, setNeedsAuth] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
   const [subject, setSubject] = useState("");
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]["value"]>("general");
+  const [category, setCategory] = useState<string>(SUPPORT_CATEGORIES[0].id);
   const [body, setBody] = useState("");
   const [reply, setReply] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -149,7 +148,9 @@ export default function MessageCenter() {
                   ].join(" ")}
                 >
                   <p className="text-sm font-semibold text-white truncate">{thread.subject}</p>
-                  <p className="text-xs text-sb-muted capitalize mt-0.5">{thread.category}</p>
+                  <p className="text-xs text-sb-muted capitalize mt-0.5">
+                    {SUPPORT_CATEGORIES.find((c) => c.id === (LEGACY_CATEGORY_MAP[thread.category] ?? thread.category))?.label ?? thread.category}
+                  </p>
                 </button>
               </li>
             ))}
@@ -170,11 +171,11 @@ export default function MessageCenter() {
             />
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value as typeof category)}
+              onChange={(e) => setCategory(e.target.value)}
               className="player-input w-full"
             >
-              {CATEGORIES.map((item) => (
-                <option key={item.value} value={item.value}>
+              {SUPPORT_CATEGORIES.map((item) => (
+                <option key={item.id} value={item.id}>
                   {item.label}
                 </option>
               ))}
@@ -231,7 +232,7 @@ export default function MessageCenter() {
             <p className="text-3xl mb-3">📨</p>
             <p className="text-white font-semibold mb-1">Message Center</p>
             <p className="text-sb-muted text-sm mb-4">
-              Report payment issues, ask game questions, and get replies from our team.
+              Report payment issues, ask game questions, and get replies from the platform administrator.
             </p>
             <Button onClick={() => setComposeOpen(true)}>Start a Conversation</Button>
           </div>

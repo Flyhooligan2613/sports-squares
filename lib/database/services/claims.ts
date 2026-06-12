@@ -86,6 +86,10 @@ export async function dbClaimSquaresWithInvite(
 
   try {
     await maybeAdvanceBoardAfterClaim(poolId);
+    const { maybeCompleteGuaranteedBoard } = await import(
+      "@/lib/platform/core/guaranteedPlayEngine"
+    );
+    await maybeCompleteGuaranteedBoard(poolId);
   } catch {
     // Board advance is best-effort; cron will catch up.
   }

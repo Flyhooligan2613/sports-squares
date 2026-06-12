@@ -23,7 +23,6 @@ import {
 } from "@/lib/espn/sports";
 import type {
   BoardSquare,
-  PayoutStatus,
   Pool,
   ScoringPeriod,
   WinnerHistory,
@@ -278,18 +277,6 @@ export default function AdminPoolControlPage() {
       [result.quarter]: withPayout,
     }));
     flash(`${result.quarter} winner: ${result.ownerName}`);
-  }
-
-  async function handleMarkPayoutStatus(
-    quarter: ScoringPeriod,
-    status: PayoutStatus
-  ) {
-    await poolStore.updateWinnerPayoutStatus(poolId, quarter, status);
-    setWinnerHistory((prev) => {
-      const existing = prev[quarter];
-      if (!existing) return prev;
-      return { ...prev, [quarter]: { ...existing, payoutStatus: status } };
-    });
   }
 
   if (!pool) {
@@ -562,7 +549,6 @@ export default function AdminPoolControlPage() {
             onSelectQuarter={setActiveQuarter}
             financialsEnabled={poolHasFinancials(pool)}
             adminMode
-            onMarkPayoutStatus={handleMarkPayoutStatus}
           />
         </>
       )}

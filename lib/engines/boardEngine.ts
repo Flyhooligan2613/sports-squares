@@ -6,6 +6,7 @@ import {
   dbListBoardsForGame,
   dbLockAndDrawBoard,
 } from "@/lib/database/services/boards";
+import { maybeCompleteGuaranteedBoard } from "@/lib/platform/core/guaranteedPlayEngine";
 import { dbListGames } from "@/lib/database/services/games";
 import { TABLES } from "@/lib/database/config";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -35,6 +36,8 @@ export async function processFullOpenBoards(): Promise<number> {
 
     const openBoard = await dbGetOpenBoardForGame(game.id);
     if (!openBoard) continue;
+
+    await maybeCompleteGuaranteedBoard(openBoard.id);
 
     const claimed = await dbCountClaimedSquares(openBoard.id);
     if (claimed < 100) continue;
@@ -107,7 +110,10 @@ export async function maybeAdvanceBoardAfterClaim(poolId: string): Promise<boole
   }
 
   const claimed = await dbCountClaimedSquares(poolId);
-  if (claimed < 100) return false;
+  await maybeCompleteGuaranteedBoard(poolId);
+
+  const refreshedClaimed = await dbCountClaimedSquares(poolId);
+  if (refreshedClaimed < 100) return false;
 
   const { dbGetGame } = await import("@/lib/database/services/games");
   const game = await dbGetGame(poolRow.game_id);

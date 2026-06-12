@@ -88,6 +88,7 @@ export type ClaimResult =
 export interface Square {
   id: number;
   claimed: boolean;
+  platformOwned?: boolean;
   owner?: Participant;
 }
 

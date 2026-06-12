@@ -91,6 +91,22 @@ export function squareRowToSquare(
   row: SquareRow,
   participantsById: Map<string, Participant>
 ): Square {
+  if (row.platform_owned) {
+    return {
+      id: row.square_number,
+      claimed: true,
+      platformOwned: true,
+      owner: {
+        id: "platform",
+        name: "SquareBoards",
+        initials: "SB",
+        creditsPurchased: 0,
+        creditsUsed: 0,
+        creditsRemaining: 0,
+      },
+    };
+  }
+
   const owner = row.player_id
     ? participantsById.get(row.player_id)
     : undefined;

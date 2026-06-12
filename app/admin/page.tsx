@@ -33,13 +33,34 @@ export default function AdminDashboardPage() {
     <div className="max-w-5xl space-y-10">
       <PageHeader
         title="Admin Dashboard"
-        subtitle="Overview of all pools and players."
+        subtitle="Monitor-only console — game outcomes and payouts are fully automated."
         action={
-          <Button href="/create" variant="primary" size="sm">
-            Create Pool
+          <Button href="/admin/financial" variant="primary" size="sm">
+            Financial Status
           </Button>
         }
       />
+
+      <div className="grid sm:grid-cols-3 gap-3 not-prose">
+        <Link
+          href="/admin/financial"
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white hover:border-sb-purple/30 transition-colors"
+        >
+          Financial Status →
+        </Link>
+        <Link
+          href="/admin/audit-log"
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white hover:border-sb-purple/30 transition-colors"
+        >
+          Audit Log →
+        </Link>
+        <Link
+          href="/admin/support"
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white hover:border-sb-purple/30 transition-colors"
+        >
+          Support Inbox →
+        </Link>
+      </div>
 
       {!stats ? (
         <SkeletonKpiGrid />

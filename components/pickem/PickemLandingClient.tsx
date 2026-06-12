@@ -9,6 +9,8 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
+import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemOverviewStats, PickemWeekView } from "@/lib/pickem/types";
 
 function formatMoney(cents: number): string {
@@ -107,6 +109,23 @@ export default function PickemLandingClient() {
           ) : loading ? (
             <p className="text-center text-sm text-sb-muted mt-6">Loading live stats…</p>
           ) : null}
+
+          <PlatformTrustStrip className="mt-8 px-4" />
+        </LandingSection>
+
+        <LandingSection>
+          <ScrollReveal>
+            <LandingSectionHeader
+              eyebrow="Entry levels"
+              title="Pick your buy-in"
+              subtitle="Every tier runs the same game — choose Beginner, Casual, or Premium."
+            />
+          </ScrollReveal>
+          <ScrollReveal delay={60}>
+            <LandingGlassCard className="p-6 sm:p-8">
+              <EntryTierSelector hrefBuilder={(tier) => `/pickem/week?tier=${tier.cents}`} />
+            </LandingGlassCard>
+          </ScrollReveal>
         </LandingSection>
 
         <LandingSection>

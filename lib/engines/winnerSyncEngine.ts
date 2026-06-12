@@ -111,11 +111,44 @@ export async function syncAllPoolWinners(): Promise<WinnerSyncResult> {
         let stamped: WinnerResult = withRecordedAt(winner);
         stamped = attachPayoutToWinner(stamped, pool, scoringPeriods);
         const winnerId = await dbUpsertWinner(poolRow.id, stamped);
-        await enqueuePayoutJob({
-          poolId: poolRow.id,
-          winnerId,
-          result: stamped,
-        });
+
+        const { isPlatformOwnedWinningSquare, routePlatformWinToGrowthFund } =
+          await import("@/lib/platform/core/guaranteedPlayEngine");
+        const { logPlatformAudit } = await import("@/lib/platform/core/auditLog");
+
+        const platformWin = await isPlatformOwnedWinningSquare(
+          poolRow.id,
+          stamped.squareId
+        );
+
+        if (platformWin && stamped.payoutAmount) {
+          await routePlatformWinToGrowthFund({
+            poolId: poolRow.id,
+            squareNumber: stamped.squareId,
+            amountCents: Math.round(stamped.payoutAmount * 100),
+            quarter: stamped.quarter,
+          });
+          await logPlatformAudit({
+            eventType: "board.quarter_winner",
+            summary: `Platform-owned square won ${stamped.quarter} — routed to Growth Fund`,
+            gameType: "squareboards",
+            entityType: "pool",
+            entityId: poolRow.id,
+          });
+        } else {
+          await enqueuePayoutJob({
+            poolId: poolRow.id,
+            winnerId,
+            result: stamped,
+          });
+          await logPlatformAudit({
+            eventType: "payout.queued",
+            summary: `Payout queued for ${stamped.ownerName} (${stamped.quarter})`,
+            gameType: "squareboards",
+            entityType: "pool",
+            entityId: poolRow.id,
+          });
+        }
         result.winnersRecorded += 1;
       }
 

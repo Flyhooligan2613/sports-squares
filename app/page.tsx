@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Footer from "@/components/Footer";
+import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import FeaturedPools from "@/components/landing/FeaturedPools";
 import HeroSection from "@/components/landing/HeroSection";
 import JoinPoolSection from "@/components/landing/JoinPoolSection";
@@ -206,6 +207,10 @@ export default function HomePage() {
             ))}
           </div>
         </LandingSection>
+
+        <div className="max-w-4xl mx-auto px-4 pb-8">
+          <PlatformTrustStrip />
+        </div>
       </main>
       <Footer landing />
     </div>

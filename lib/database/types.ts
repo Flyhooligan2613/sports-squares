@@ -78,6 +78,7 @@ export interface SquareRow {
   claimed: boolean;
   row_digit: number | null;
   column_digit: number | null;
+  platform_owned?: boolean;
 }
 
 export interface WinnerRow {
