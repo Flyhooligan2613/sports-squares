@@ -3499,6 +3499,14 @@ body {
   .ac-countdown-pulse {
     animation: none !important;
   }
+
+  .livetv-hero-shimmer,
+  .livetv-stream-track,
+  .livetv-countdown-glow,
+  .livetv-square-recent,
+  .livetv-square-winner {
+    animation: none !important;
+  }
 }
 
 /* ── Live Winners Center ─────────────────────────────────────────────── */
@@ -4239,4 +4247,321 @@ body {
   background: rgba(10, 10, 15, 0.92);
   border-top: 1px solid rgba(123, 97, 255, 0.25);
   backdrop-filter: blur(12px);
+}
+
+/* ── SquareBoards LIVE TV ──────────────────────────────────────────────── */
+
+.livetv-page {
+  background: #07070c;
+}
+
+.livetv-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(123, 97, 255, 0.05) 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 60%, rgba(123, 97, 255, 0.04) 0 1px, transparent 1px);
+  background-size: 120px 120px, 180px 180px;
+  opacity: 0.5;
+}
+
+.livetv-header {
+  background: rgba(7, 7, 12, 0.82);
+  border-bottom: 1px solid rgba(123, 97, 255, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.livetv-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 640px) {
+  .livetv-section-title {
+    font-size: 1.125rem;
+  }
+}
+
+.livetv-hero {
+  min-height: 280px;
+  border-color: rgba(123, 97, 255, 0.25) !important;
+}
+
+.livetv-hero-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(123, 97, 255, 0.08) 50%,
+    transparent 65%
+  );
+  animation: livetvHeroShimmer 6s ease-in-out infinite;
+}
+
+@keyframes livetvHeroShimmer {
+  0%, 100% { transform: translateX(-20%); opacity: 0.4; }
+  50% { transform: translateX(20%); opacity: 1; }
+}
+
+.livetv-hero-slide {
+  animation: livetvHeroSlide 0.55s ease-out;
+}
+
+@keyframes livetvHeroSlide {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.livetv-stat-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.livetv-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.livetv-countdown-glow {
+  animation: livetvCountdownGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes livetvCountdownGlow {
+  0%, 100% { text-shadow: 0 0 12px rgba(96, 165, 250, 0.2); }
+  50% { text-shadow: 0 0 24px rgba(96, 165, 250, 0.45); }
+}
+
+.livetv-money-card {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.livetv-score-card {
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.livetv-score-card-live {
+  border-color: rgba(96, 165, 250, 0.35) !important;
+  box-shadow: 0 0 24px rgba(96, 165, 250, 0.1);
+}
+
+.livetv-status-chip {
+  display: inline-flex;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.livetv-status-live {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.12);
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.livetv-status-upcoming {
+  color: #c4b5fd;
+  background: rgba(91, 76, 247, 0.12);
+  border-color: rgba(123, 97, 255, 0.3);
+}
+
+.livetv-status-final {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.livetv-board-panel {
+  border-color: rgba(123, 97, 255, 0.22) !important;
+}
+
+.livetv-axis {
+  background: rgba(91, 76, 247, 0.15);
+  border: 1px solid rgba(123, 97, 255, 0.25);
+  color: #c4b5fd;
+}
+
+.livetv-square {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.livetv-square-claimed {
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.08);
+}
+
+.livetv-square-recent {
+  animation: livetvSquareRecent 1.4s ease-out 2;
+  box-shadow: 0 0 16px rgba(123, 97, 255, 0.45);
+}
+
+@keyframes livetvSquareRecent {
+  0% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.livetv-square-winner {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.45);
+  animation: livetvSquareWinner 1.2s ease-in-out infinite;
+}
+
+@keyframes livetvSquareWinner {
+  0%, 100% { box-shadow: 0 0 16px rgba(251, 191, 36, 0.35); }
+  50% { box-shadow: 0 0 28px rgba(251, 191, 36, 0.6); }
+}
+
+.livetv-square-past-winner {
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.livetv-stream-panel {
+  overflow: hidden;
+}
+
+.livetv-stream-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: livetvStream 35s linear infinite;
+}
+
+.livetv-stream-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  color: #fff;
+}
+
+.livetv-stream-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #60a5fa;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.8);
+}
+
+@keyframes livetvStream {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.livetv-kickoff-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.5rem;
+  border-radius: 0.65rem;
+  transition: background 0.25s ease;
+}
+
+.livetv-kickoff-row:hover {
+  background: rgba(91, 76, 247, 0.06);
+}
+
+.livetv-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.livetv-sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 8rem);
+}
+
+.livetv-sidebar-scroll {
+  overflow-y: auto;
+  max-height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(123, 97, 255, 0.35) transparent;
+}
+
+.livetv-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.45rem;
+  border-radius: 0.6rem;
+  border-left: 2px solid rgba(123, 97, 255, 0.2);
+}
+
+.livetv-sidebar-item-new {
+  animation: lwcActivityPulse 1.2s ease-out 1;
+  border-left-color: rgba(251, 191, 36, 0.6);
+}
+
+.livetv-sidebar-icon {
+  width: 1.75rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.livetv-winner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  animation: livetvOverlayIn 0.35s ease-out;
+}
+
+.livetv-winner-card {
+  max-width: 32rem;
+  width: 100%;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+}
+
+.livetv-board-event-banner {
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  width: min(92vw, 28rem);
+  animation: livetvOverlayIn 0.35s ease-out;
+}
+
+.livetv-board-event-card {
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+@keyframes livetvOverlayIn {
+  0% { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.livetv-bigwinner-card,
+.livetv-trend-card,
+.livetv-payout-card,
+.livetv-sport-map-card {
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.livetv-trend-card:hover,
+.livetv-payout-card:hover,
+.livetv-sport-map-card:hover {
+  transform: translateY(-2px);
 }
