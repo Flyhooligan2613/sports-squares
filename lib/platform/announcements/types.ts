@@ -49,6 +49,8 @@ export interface PlatformAnnouncement {
   endsAt: string | null;
   active: boolean;
   createdBy: string | null;
+  automationKey: string | null;
+  source: "manual" | "automated";
   createdAt: string;
   updatedAt: string;
 }

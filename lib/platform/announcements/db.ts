@@ -26,6 +26,8 @@ function mapRow(row: Record<string, unknown>): PlatformAnnouncement {
     endsAt: (row.ends_at as string | null) ?? null,
     active: row.active as boolean,
     createdBy: (row.created_by as string | null) ?? null,
+    automationKey: (row.automation_key as string | null) ?? null,
+    source: (row.source as PlatformAnnouncement["source"]) ?? "manual",
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };
@@ -181,4 +183,64 @@ export async function dismissAnnouncement(input: {
   );
 
   if (error) throw error;
+}
+
+export async function upsertAutomatedAnnouncement(input: {
+  automationKey: string;
+  payload: AnnouncementUpsertInput;
+}): Promise<PlatformAnnouncement> {
+  const supabase = getSupabaseAdmin();
+  const row = {
+    ...toRow(input.payload, "automation"),
+    automation_key: input.automationKey,
+    source: "automated",
+    created_by: "automation",
+  };
+
+  const { data: existing } = await supabase
+    .from(TABLE)
+    .select("id")
+    .eq("automation_key", input.automationKey)
+    .maybeSingle();
+
+  if (existing?.id) {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update(row)
+      .eq("id", existing.id as string)
+      .select("*")
+      .single();
+    if (error) throw error;
+    return mapRow(data as Record<string, unknown>);
+  }
+
+  const { data, error } = await supabase.from(TABLE).insert(row).select("*").single();
+  if (error) throw error;
+  return mapRow(data as Record<string, unknown>);
+}
+
+export async function deactivateAutomatedAnnouncementsExcept(
+  activeKeys: string[]
+): Promise<number> {
+  const supabase = getSupabaseAdmin();
+  const { data: automated } = await supabase
+    .from(TABLE)
+    .select("id, automation_key")
+    .eq("source", "automated")
+    .eq("active", true);
+
+  const toDeactivate = (automated ?? []).filter(
+    (row) => row.automation_key && !activeKeys.includes(row.automation_key as string)
+  );
+
+  if (!toDeactivate.length) return 0;
+
+  const ids = toDeactivate.map((row) => row.id as string);
+  const { error } = await supabase
+    .from(TABLE)
+    .update({ active: false, updated_at: new Date().toISOString() })
+    .in("id", ids);
+
+  if (error) throw error;
+  return ids.length;
 }

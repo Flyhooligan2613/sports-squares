@@ -82,4 +82,5 @@ console.log("If pickem_entry_purchases shows ✗, run 025_pickem_entry_purchases
 console.log("If leagues/payouts show ✗, run 022_pickem_leagues_payouts.sql in Supabase SQL Editor.");
 console.log("If hall of fame tables show ✗, run 027_pickem_hall_of_fame.sql in Supabase SQL Editor.");
 console.log("If announcement tables show ✗, run 028_platform_announcements.sql in Supabase SQL Editor.");
+console.log("For automation keys, run 029_announcement_automation.sql in Supabase SQL Editor.");
 console.log("");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Megaphone, Plus, Trash2 } from "lucide-react";
+import { Megaphone, Plus, RefreshCw, Trash2, Zap } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import {
@@ -80,6 +80,7 @@ export default function AnnouncementManager() {
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [regionsInput, setRegionsInput] = useState("");
+  const [runningAutomation, setRunningAutomation] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,9 +115,32 @@ export default function AnnouncementManager() {
   }
 
   function handleEdit(item: PlatformAnnouncement) {
+    if (item.source === "automated") {
+      showToast("Automated announcements are managed by the NFL calendar engine.");
+      return;
+    }
     setEditingId(item.id);
     setForm(formFromAnnouncement(item));
     setRegionsInput(item.audienceRegions.join(", "));
+  }
+
+  async function handleRunAutomation() {
+    setRunningAutomation(true);
+    setError(null);
+    const res = await fetch("/api/admin/announcements/automation", { method: "POST" });
+    const data = (await res.json()) as {
+      result?: { slotsDetected: number; published: number; deactivated: number; slotIds: string[] };
+      error?: string;
+    };
+    setRunningAutomation(false);
+    if (!res.ok) {
+      setError(data.error ?? "Automation failed.");
+      return;
+    }
+    showToast(
+      `Automation complete — ${data.result?.published ?? 0} active, ${data.result?.slotsDetected ?? 0} event slots.`
+    );
+    await load();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -191,6 +215,31 @@ export default function AnnouncementManager() {
           <p className="text-red-400 text-sm">{error}</p>
         </LandingGlassCard>
       ) : null}
+
+      <LandingGlassCard className="p-5 border border-emerald-500/20 bg-emerald-500/5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-4 h-4 text-emerald-400" />
+              <p className="text-sm font-semibold text-white">Automated NFL Calendar</p>
+            </div>
+            <p className="text-xs text-sb-muted leading-relaxed max-w-xl">
+              The platform automatically publishes announcements for NFL week opens, Thursday Night
+              Football, Sunday Game Day, Monday Championship Tiebreakers, holidays, and Super Bowl
+              week. Runs every 30 minutes and after each Pick&apos;em sync.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={runningAutomation}
+            onClick={() => void handleRunAutomation()}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${runningAutomation ? "animate-spin" : ""}`} />
+            {runningAutomation ? "Running…" : "Run automation now"}
+          </Button>
+        </div>
+      </LandingGlassCard>
 
       <LandingGlassCard className="p-5 sm:p-6">
         <div className="flex items-center gap-2 mb-5">
@@ -465,6 +514,11 @@ export default function AnnouncementManager() {
                     >
                       {item.active ? "Active" : "Paused"}
                     </span>
+                    {item.source === "automated" ? (
+                      <span className="text-[10px] uppercase px-2 py-0.5 rounded-full border border-sky-500/40 text-sky-300">
+                        Automated
+                      </span>
+                    ) : null}
                   </div>
                   <p className="text-xs text-sb-muted">
                     {DISPLAY_TYPE_LABELS[item.displayType]} · {AUDIENCE_LABELS[item.audience]} ·{" "}
@@ -478,7 +532,8 @@ export default function AnnouncementManager() {
                   <button
                     type="button"
                     onClick={() => handleEdit(item)}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-white hover:bg-white/5"
+                    disabled={item.source === "automated"}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-white hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Edit
                   </button>

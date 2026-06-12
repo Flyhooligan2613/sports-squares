@@ -2,6 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { verifyCronSecret } from "@/lib/cron/auth";
 import { syncAllPickemContests } from "@/lib/pickem/engine/syncContest";
+import { runAnnouncementAutomation } from "@/lib/platform/announcements/automation/engine";
 import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +23,13 @@ async function runPickemSync(request: Request) {
 
   try {
     const result = await syncAllPickemContests(DEFAULT_PICKEM_SPORT);
-    return NextResponse.json({ ok: true, result });
+    let announcements = null;
+    try {
+      announcements = await runAnnouncementAutomation();
+    } catch (announcementErr) {
+      console.error("[pickem-sync] announcement automation", announcementErr);
+    }
+    return NextResponse.json({ ok: true, result, announcements });
   } catch (err) {
     console.error("[pickem-sync]", err);
     const message =

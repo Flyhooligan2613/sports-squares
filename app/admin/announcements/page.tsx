@@ -6,7 +6,7 @@ export default function AdminAnnouncementsPage() {
     <div className="max-w-5xl space-y-6">
       <PageHeader
         title="Announcement Manager"
-        subtitle="Platform communications — welcome popups, banners, tickers, and event notices. Not advertising."
+        subtitle="Manual announcements plus automated NFL calendar communications — popups, banners, tickers, and event notices."
       />
       <AnnouncementManager />
     </div>
