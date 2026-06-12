@@ -1,19 +1,21 @@
 import { createClient } from "@/lib/supabase/client";
-import { getAuthCallbackUrl } from "@/lib/auth/getAuthCallbackUrl";
 
 export async function signInPlayerWithMagicLink(email: string) {
-  const supabase = createClient();
-  const emailRedirectTo = getAuthCallbackUrl();
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email: email.trim().toLowerCase(),
-    options: {
-      emailRedirectTo,
-    },
+  const response = await fetch("/api/auth/magic-link", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
   });
 
-  if (error) {
-    return { ok: false as const, error: error.message };
+  const payload = (await response.json().catch(() => ({}))) as {
+    error?: string;
+  };
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: payload.error ?? "Could not send sign-in link.",
+    };
   }
 
   return { ok: true as const };

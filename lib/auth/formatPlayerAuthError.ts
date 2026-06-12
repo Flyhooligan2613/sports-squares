@@ -10,5 +10,12 @@ export function formatPlayerAuthError(message: string): string {
     return "Sign-in is temporarily unavailable. Please try again later.";
   }
 
+  if (
+    lower.includes("error sending magic link") ||
+    lower.includes("email delivery is not configured")
+  ) {
+    return "We couldn't send your sign-in email. Try again in a few minutes, or open the access link on your purchase confirmation page.";
+  }
+
   return message;
 }
