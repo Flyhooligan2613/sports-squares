@@ -7,7 +7,7 @@ interface RecentWinsTimelineProps {
 }
 
 function payoutLabel(status: PlayerRecentWin["payoutStatus"]): string {
-  if (status === "paid") return "Deposit Complete · Stripe Transfer Successful";
+  if (status === "paid") return "✓ Paid Automatically";
   if (status === "pending") return "Payout processing";
   return "Payout pending setup";
 }

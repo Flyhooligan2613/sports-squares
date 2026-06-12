@@ -3,8 +3,9 @@
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import StatusBadge from "@/components/ui/StatusBadge";
+import AnimatedCurrency from "@/components/ui/AnimatedCurrency";
 import HeroTeamLogo from "@/components/landing/hero/HeroTeamLogo";
-import { formatCurrency, formatTimeAgo } from "@/lib/liveWinners/format";
+import { formatTimeAgo } from "@/lib/liveWinners/format";
 import {
   getGameStatusClass,
   getPayoutDisplayStatus,
@@ -20,9 +21,11 @@ interface LiveWinnersFeedProps {
 function WinnerEventCard({
   winner,
   index,
+  animateStats,
 }: {
   winner: LiveWinnerFeedItem;
   index: number;
+  animateStats: boolean;
 }) {
   const showLiveScore =
     winner.gameStatus === "live" &&
@@ -37,7 +40,7 @@ function WinnerEventCard({
     <LandingGlassCard
       glow={index === 0}
       className={[
-        "lwc-winner-event p-4 sm:p-5",
+        "lwc-winner-event p-4 sm:p-5 sb-stagger-item",
         index === 0 ? "lwc-winner-card-new" : "",
       ]
         .filter(Boolean)
@@ -121,17 +124,25 @@ function WinnerEventCard({
           <p className="text-[10px] uppercase tracking-wider text-sb-muted mb-1">
             Won
           </p>
-          <p className="text-lg font-bold text-sb-gold tabular-nums">
-            {formatCurrency(winner.amount)}
-          </p>
+          <AnimatedCurrency
+            amount={winner.amount}
+            active={animateStats}
+            className="text-lg font-bold text-sb-gold"
+          />
         </div>
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <span
-          className={`lwc-payout-badge ${getPayoutStatusClass(winner.payoutStatus)}`}
+          className={[
+            "lwc-payout-badge",
+            getPayoutStatusClass(winner.payoutStatus),
+            winner.payoutStatus === "paid" ? "sb-payout-paid-pulse" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
-          {winner.payoutStatus === "paid" ? "✅" : "⏳"}{" "}
+          {winner.payoutStatus === "paid" ? "✓" : "⏳"}{" "}
           {getPayoutDisplayStatus(winner.payoutStatus)}
         </span>
         {winner.winningSquare !== null ? (
@@ -167,7 +178,12 @@ export default function LiveWinnersFeed({ winners }: LiveWinnersFeedProps) {
       ) : (
         <div className="space-y-3">
           {winners.map((winner, index) => (
-            <WinnerEventCard key={winner.id} winner={winner} index={index} />
+            <WinnerEventCard
+              key={winner.id}
+              winner={winner}
+              index={index}
+              animateStats
+            />
           ))}
         </div>
       )}

@@ -13,6 +13,13 @@ import type {
 } from "@/lib/types";
 import { generateId, generateInviteToken, getInitials, pickColor } from "@/lib/utils";
 import { getAppUrl } from "@/lib/stripe/config";
+import {
+  findPurchaseBySession,
+  markPurchaseFailed,
+  markPurchaseFulfilled,
+  markPurchaseRefunded,
+  reservePurchaseLedger,
+} from "@/lib/purchases/ledger";
 
 export interface PurchaseFulfillmentInput {
   poolId: string;
@@ -22,6 +29,7 @@ export interface PurchaseFulfillmentInput {
   squaresCount: number;
   stripeCheckoutSessionId: string;
   amountPaidCents: number;
+  stripePaymentIntentId?: string | null;
 }
 
 export interface PurchaseFulfillmentResult {
@@ -316,9 +324,7 @@ async function updateExistingPlayerForPurchase(
     invite_delivery_error: null,
   };
 
-  if (existing.stripe_checkout_session_id !== input.stripeCheckoutSessionId) {
-    patch.stripe_checkout_session_id = input.stripeCheckoutSessionId;
-  }
+  // Keep original checkout session on player row; purchases ledger tracks all sessions.
 
   const { error } = await supabase
     .from(TABLES.players)
@@ -347,15 +353,124 @@ async function updateExistingPlayerForPurchase(
   return { playerId: existing.id, inviteToken, creditsPurchased };
 }
 
+function validatePurchaseInput(input: PurchaseFulfillmentInput): number {
+  const squaresCount = Math.floor(Number(input.squaresCount));
+  if (!Number.isFinite(squaresCount) || squaresCount < 1 || squaresCount > 100) {
+    throw new Error("Invalid squares count for fulfillment.");
+  }
+  return squaresCount;
+}
+
+function validatePoolOpenForPurchase(pool: NonNullable<Awaited<ReturnType<typeof fetchPoolAdmin>>>) {
+  if (pool.status !== "open") {
+    throw new Error("This board is no longer open for purchases.");
+  }
+}
+
+function validatePaymentAmount(
+  pool: NonNullable<Awaited<ReturnType<typeof fetchPoolAdmin>>>,
+  squaresCount: number,
+  amountPaidCents: number
+) {
+  const costPerSquare = pool.costPerSquare ?? 0;
+  const expectedCents = Math.round(costPerSquare * 100 * squaresCount);
+  if (expectedCents <= 0) {
+    throw new Error("Pool pricing is not configured.");
+  }
+  if (amountPaidCents !== expectedCents) {
+    throw new Error("Payment amount does not match board pricing.");
+  }
+}
+
+function validateInventoryCapacity(
+  pool: NonNullable<Awaited<ReturnType<typeof fetchPoolAdmin>>>,
+  squaresCount: number
+) {
+  const unclaimed = pool.squares.filter((s) => !s.claimed).length;
+  const totalCredits = pool.participants.reduce(
+    (sum, player) => sum + (player.creditsPurchased ?? 0),
+    0
+  );
+
+  if (squaresCount > unclaimed) {
+    throw new Error("Not enough squares remain on this board.");
+  }
+
+  if (totalCredits + squaresCount > 100) {
+    throw new Error("This purchase would exceed board capacity.");
+  }
+}
+
+export async function reversePurchaseBySession(
+  sessionId: string
+): Promise<{ reversed: boolean; reason?: string }> {
+  const supabase = getSupabaseAdmin();
+  const purchase = await findPurchaseBySession(sessionId);
+  if (!purchase) return { reversed: false, reason: "Purchase not found." };
+  if (purchase.status === "refunded") return { reversed: true, reason: "Already refunded." };
+
+  if (!purchase.player_id) {
+    await markPurchaseRefunded(sessionId);
+    return { reversed: true };
+  }
+
+  const { data: player, error: playerError } = await supabase
+    .from(TABLES.players)
+    .select("*")
+    .eq("id", purchase.player_id)
+    .maybeSingle();
+
+  if (playerError) throw playerError;
+  if (!player) {
+    await markPurchaseRefunded(sessionId);
+    return { reversed: true };
+  }
+
+  const row = player as PlayerRow;
+  const refundAmount = purchase.amount_cents / 100;
+  const nextCredits = Math.max(0, row.credits_allocated - purchase.squares_count);
+  const nextPaid = Math.max(0, Number(row.amount_paid ?? 0) - refundAmount);
+
+  const { error: updateError } = await supabase
+    .from(TABLES.players)
+    .update({
+      credits_allocated: nextCredits,
+      amount_paid: nextPaid,
+      payment_status: nextCredits > 0 ? row.payment_status : "unpaid",
+    })
+    .eq("id", row.id)
+    .eq("pool_id", row.pool_id);
+
+  if (updateError) throw updateError;
+  await markPurchaseRefunded(sessionId);
+  return { reversed: true };
+}
+
 export async function fulfillPurchase(
   input: PurchaseFulfillmentInput
 ): Promise<PurchaseFulfillmentResult> {
   const supabase = getSupabaseAdmin();
   const email = input.email.trim().toLowerCase();
   const phone = input.phone?.trim() || null;
+  const squaresCount = validatePurchaseInput(input);
   const amountPaid = Math.round(input.amountPaidCents) / 100;
   const paymentStatus: PaymentStatus = "paid";
   const purchaseSource: PurchaseSource = "stripe";
+
+  const ledgerExisting = await findPurchaseBySession(input.stripeCheckoutSessionId);
+  if (ledgerExisting?.status === "fulfilled" && ledgerExisting.player_id) {
+    const { data: playerRow } = await supabase
+      .from(TABLES.players)
+      .select("*")
+      .eq("id", ledgerExisting.player_id)
+      .maybeSingle();
+    if (playerRow) {
+      return resultFromPlayerRow(supabase, playerRow as PlayerRow, true);
+    }
+  }
+  if (ledgerExisting?.status === "refunded") {
+    throw new Error("This purchase was refunded and cannot be fulfilled.");
+  }
 
   const alreadyFulfilled = await returnIfSessionAlreadyFulfilled(
     supabase,
@@ -366,8 +481,18 @@ export async function fulfillPurchase(
   const pool = await fetchPoolAdmin(input.poolId);
   if (!pool) throw new Error("Pool not found.");
 
-  const costPerSquare = pool.costPerSquare ?? 0;
-  if (costPerSquare <= 0) throw new Error("Pool pricing is not configured.");
+  validatePoolOpenForPurchase(pool);
+  validatePaymentAmount(pool, squaresCount, input.amountPaidCents);
+  validateInventoryCapacity(pool, squaresCount);
+
+  await reservePurchaseLedger({
+    sessionId: input.stripeCheckoutSessionId,
+    poolId: input.poolId,
+    email,
+    squaresCount,
+    amountCents: input.amountPaidCents,
+    paymentIntentId: input.stripePaymentIntentId,
+  });
 
   let playerId: string;
   let inviteToken = "";
@@ -397,7 +522,7 @@ export async function fulfillPurchase(
       amountPaid,
       paymentStatus,
       purchaseSource,
-      input.squaresCount
+      squaresCount
     );
     playerId = updated.playerId;
     inviteToken = updated.inviteToken;
@@ -414,7 +539,7 @@ export async function fulfillPurchase(
     playerId = generateId();
     let takenNames = await listPlayerNamesInPool(supabase, input.poolId);
     playerName = uniquePlayerName(input.name.trim(), takenNames);
-    creditsPurchased = input.squaresCount;
+    creditsPurchased = squaresCount;
 
     let inserted = false;
     let lastError: { message?: string; code?: string } | null = null;
@@ -477,6 +602,7 @@ export async function fulfillPurchase(
     }
 
     if (!inserted) {
+      await markPurchaseFailed(input.stripeCheckoutSessionId);
       throw new Error(
         lastError?.message ||
           "Could not create player record after payment. Please refresh this page."
@@ -485,8 +611,11 @@ export async function fulfillPurchase(
   }
 
   if (!inviteToken) {
+    await markPurchaseFailed(input.stripeCheckoutSessionId);
     throw new Error("Could not generate invite link after payment.");
   }
+
+  await markPurchaseFulfilled(input.stripeCheckoutSessionId, playerId);
 
   const inviteUrl = `${getAppUrl()}${buildInvitePath(inviteToken)}`;
 
@@ -515,6 +644,19 @@ export async function getFulfillmentBySessionId(
   sessionId: string
 ): Promise<PurchaseFulfillmentResult | null> {
   const supabase = getSupabaseAdmin();
+
+  const purchase = await findPurchaseBySession(sessionId);
+  if (purchase?.status === "fulfilled" && purchase.player_id) {
+    const { data: playerRow } = await supabase
+      .from(TABLES.players)
+      .select("*")
+      .eq("id", purchase.player_id)
+      .maybeSingle();
+    if (playerRow) {
+      return resultFromPlayerRow(supabase, playerRow as PlayerRow, true);
+    }
+  }
+
   const row = await findPlayerByCheckoutSession(supabase, sessionId);
   if (!row) return null;
 

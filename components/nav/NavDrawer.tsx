@@ -9,16 +9,21 @@ import { useNavDrawer } from "./NavDrawerProvider";
 function badgeForItem(
   item: NavItem,
   unreadMessages: number,
-  activeBoards: number
+  activeBoards: number,
+  unreadNotifications: number
 ): number | null {
   if (item.badgeKey === "messages" && unreadMessages > 0) return unreadMessages;
+  if (item.badgeKey === "notifications" && unreadNotifications > 0) {
+    return unreadNotifications;
+  }
   if (item.badgeKey === "live" && activeBoards > 0) return activeBoards;
   return null;
 }
 
 export default function NavDrawer() {
   const pathname = usePathname();
-  const { isOpen, close, userEmail, activeBoards, unreadMessages } = useNavDrawer();
+  const { isOpen, close, userEmail, activeBoards, unreadMessages, unreadNotifications } =
+    useNavDrawer();
 
   return (
     <div
@@ -79,7 +84,12 @@ export default function NavDrawer() {
                 {section.items.map((item) => {
                   if (item.requiresAuth && !userEmail) return null;
                   const active = isNavItemActive(pathname, item.href);
-                  const badge = badgeForItem(item, unreadMessages, activeBoards);
+                  const badge = badgeForItem(
+                    item,
+                    unreadMessages,
+                    activeBoards,
+                    unreadNotifications
+                  );
 
                   return (
                     <li key={item.href}>

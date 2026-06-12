@@ -142,7 +142,7 @@ function Row({
                 : isPastWinner
                   ? "sb-board-square-past-winner text-white"
                   : square.claimed
-                    ? "cursor-default border-transparent text-white"
+                    ? "cursor-default border-transparent text-white sb-board-square-claimed"
                     : locked
                       ? "sb-board-square-locked"
                       : isSelected

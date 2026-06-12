@@ -111,12 +111,19 @@ export default async function SportGamesPage({
               return (
                 <article
                   key={game.id}
-                  className="landing-glass-card p-5 sm:p-6"
+                  className="landing-glass-card landing-glass-card-hover sb-card-interactive p-5 sm:p-6"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-sb-glow font-semibold mb-1">
-                        {game.status === "live" ? "Live now" : "Upcoming"}
+                      <p className="text-xs uppercase tracking-wider text-sb-glow font-semibold mb-1 inline-flex items-center gap-2">
+                        {game.status === "live" ? (
+                          <>
+                            <span className="sb-live-dot-sm" aria-hidden />
+                            Live now
+                          </>
+                        ) : (
+                          "Upcoming"
+                        )}
                       </p>
                       <h2 className="text-xl sm:text-2xl font-bold text-white">
                         {game.awayTeam}{" "}
@@ -141,7 +148,7 @@ export default async function SportGamesPage({
                       return (
                         <div
                           key={board.id}
-                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl bg-sb-bg/50 border border-white/[0.06]"
+                          className="marketplace-board-row flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl bg-sb-bg/50 border border-white/[0.06]"
                         >
                           <div>
                             <div className="flex items-center gap-2 mb-1">

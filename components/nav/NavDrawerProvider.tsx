@@ -11,6 +11,8 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { getPlayerSessionUser } from "@/lib/auth/playerAuthClient";
+import { loadReadNotificationIds } from "@/lib/notifications/readState";
+import type { PlayerNotification } from "@/lib/player/dashboardTypes";
 
 interface NavDrawerContextValue {
   isOpen: boolean;
@@ -20,6 +22,7 @@ interface NavDrawerContextValue {
   userEmail: string | null;
   activeBoards: number;
   unreadMessages: number;
+  unreadNotifications: number;
   refreshUserContext: () => Promise<void>;
 }
 
@@ -31,6 +34,7 @@ export function NavDrawerProvider({ children }: { children: ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [activeBoards, setActiveBoards] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const close = useCallback(() => setIsOpen(false), []);
   const open = useCallback(() => setIsOpen(true), []);
@@ -44,12 +48,16 @@ export function NavDrawerProvider({ children }: { children: ReactNode }) {
     if (!email) {
       setActiveBoards(0);
       setUnreadMessages(0);
+      setUnreadNotifications(0);
       return;
     }
 
-    const [dashboardRes, unreadRes] = await Promise.all([
+    const readIds = loadReadNotificationIds(email);
+
+    const [dashboardRes, unreadRes, notificationsRes] = await Promise.all([
       fetch("/api/player/dashboard", { cache: "no-store" }).catch(() => null),
       fetch("/api/support/unread-count", { cache: "no-store" }).catch(() => null),
+      fetch("/api/notifications", { cache: "no-store" }).catch(() => null),
     ]);
 
     if (dashboardRes?.ok) {
@@ -64,6 +72,17 @@ export function NavDrawerProvider({ children }: { children: ReactNode }) {
       setUnreadMessages(data.count ?? 0);
     } else {
       setUnreadMessages(0);
+    }
+
+    if (notificationsRes?.ok) {
+      const data = (await notificationsRes.json()) as {
+        notifications?: PlayerNotification[];
+      };
+      const items = data.notifications ?? [];
+      const unread = items.filter((item) => !readIds.includes(item.id)).length;
+      setUnreadNotifications(unread);
+    } else {
+      setUnreadNotifications(0);
     }
   }, []);
 
@@ -106,9 +125,10 @@ export function NavDrawerProvider({ children }: { children: ReactNode }) {
       userEmail,
       activeBoards,
       unreadMessages,
+      unreadNotifications,
       refreshUserContext,
     }),
-    [isOpen, open, close, toggle, userEmail, activeBoards, unreadMessages, refreshUserContext]
+    [isOpen, open, close, toggle, userEmail, activeBoards, unreadMessages, unreadNotifications, refreshUserContext]
   );
 
   return (
