@@ -90,5 +90,7 @@ function parseScoreboardEvent(
       statusType?.name ??
       "Scheduled",
     period: status?.period ?? 0,
+    kickoffAt: event.date,
+    completed: statusType?.completed ?? false,
   };
 }

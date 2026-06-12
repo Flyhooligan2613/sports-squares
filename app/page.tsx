@@ -8,25 +8,24 @@ import {
   Smartphone,
   Sparkles,
   CircleDot,
-  ChevronRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Footer from "@/components/Footer";
 import FeaturedPools from "@/components/landing/FeaturedPools";
 import HeroSection from "@/components/landing/HeroSection";
 import JoinPoolSection from "@/components/landing/JoinPoolSection";
+import MarketplaceSports from "@/components/landing/MarketplaceSports";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import { Button } from "@/components/ui/Button";
 
 const PLAYER_STEPS = [
   {
-    title: "Find Your Game",
+    title: "Choose Your Game",
     description:
-      "Browse featured pools or enter the pool code from your invite.",
+      "Browse NFL, NBA, college, and more — every game has open boards ready to play.",
   },
   {
     title: "Purchase Squares Securely",
@@ -36,12 +35,12 @@ const PLAYER_STEPS = [
   {
     title: "Choose Your Lucky Squares",
     description:
-      "Pick your spots on the board before the numbers are locked.",
+      "Pick your spots on the board before kickoff locks the numbers.",
   },
   {
-    title: "Watch Live Scores and Win",
+    title: "Watch Live and Win",
     description:
-      "Track the game with live scoring and automatic winner updates.",
+      "Track live scores with automatic winner updates every quarter.",
   },
 ];
 
@@ -54,7 +53,7 @@ const SPORTS: { name: string; icon: LucideIcon; description: string }[] = [
   {
     name: "NCAA Football",
     icon: GraduationCap,
-    description: "College football pools made easy.",
+    description: "College football boards, always open.",
   },
   {
     name: "NBA",
@@ -64,7 +63,7 @@ const SPORTS: { name: string; icon: LucideIcon; description: string }[] = [
   {
     name: "NCAA Basketball",
     icon: Trophy,
-    description: "March Madness and regular season pools.",
+    description: "College hoops boards all season long.",
   },
 ];
 
@@ -108,8 +107,9 @@ export default function HomePage() {
       <main className="flex-1">
         <HeroSection />
         <SocialProof />
-        <JoinPoolSection />
+        <MarketplaceSports />
         <FeaturedPools />
+        <JoinPoolSection />
 
         <LandingSection>
           <ScrollReveal>
@@ -141,7 +141,7 @@ export default function HomePage() {
             <LandingSectionHeader
               eyebrow="Sports"
               title="Supported leagues"
-              subtitle="Run squares pools for the biggest games in sports."
+              subtitle="SquareBoards creates boards for every major game automatically."
             />
           </ScrollReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -186,32 +186,6 @@ export default function HomePage() {
               </ScrollReveal>
             ))}
           </div>
-        </LandingSection>
-
-        <LandingSection>
-          <ScrollReveal>
-            <div className="landing-cta-banner">
-              <div className="relative z-10">
-                <p className="landing-section-eyebrow mb-4">For Hosts</p>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight">
-                  Ready to Host Your Own Pool?
-                </h2>
-                <p className="text-sb-muted text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
-                  Bars, fundraisers, fantasy leagues, and friend groups use
-                  SquareBoards to run paid pools with live scoring and zero
-                  spreadsheets.
-                </p>
-                <Button
-                  href="/admin/login"
-                  variant="primary"
-                  className="hero-btn-primary min-w-[220px] group"
-                >
-                  Become a Host
-                  <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-0.5" />
-                </Button>
-              </div>
-            </div>
-          </ScrollReveal>
         </LandingSection>
       </main>
       <Footer landing />

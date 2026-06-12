@@ -66,7 +66,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
         setError(
           payload.error ||
             (response.status === 503
-              ? "Checkout is not available yet. Please contact the pool organizer."
+              ? "Checkout is not available yet. Please contact SquareBoards support."
               : `Could not start checkout (HTTP ${response.status}).`)
         );
         setLoading(false);

@@ -26,6 +26,7 @@ export interface EspnSummaryResponse {
 export interface EspnScoreboardEventRaw {
   id: string;
   name?: string;
+  date?: string;
   competitions?: EspnCompetitionRaw[];
 }
 

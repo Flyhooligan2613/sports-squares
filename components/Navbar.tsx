@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
-import { Button } from "@/components/ui/Button";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,14 +27,6 @@ export default function Navbar() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
         <Logo href="/" className="sb-logo-nav" />
-        <Button
-          href="/admin/login"
-          variant="ghost"
-          size="sm"
-          className="navbar-host-btn min-h-[44px]"
-        >
-          Host Login
-        </Button>
       </div>
     </header>
   );

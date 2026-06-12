@@ -1,5 +1,6 @@
 import type {
   EspnSport,
+  GameStatus,
   InviteDeliveryStatus,
   PaymentStatus,
   PayoutPercentages,
@@ -10,6 +11,18 @@ import type {
   ScoringPeriod,
   SmsDeliveryStatus,
 } from "@/lib/types";
+
+export interface GameRow {
+  id: string;
+  espn_game_id: string;
+  espn_sport: EspnSport;
+  home_team: string;
+  away_team: string;
+  kickoff_at: string;
+  status: GameStatus;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface PoolRow {
   id: string;
@@ -26,6 +39,12 @@ export interface PoolRow {
   service_fee_percent: number;
   payout_template: PayoutTemplate;
   payout_percentages: PayoutPercentages;
+  game_id: string | null;
+  board_index: number;
+  kickoff_at: string | null;
+  auto_created: boolean;
+  locked_at: string | null;
+  marketplace_visible: boolean;
   created_at: string;
 }
 

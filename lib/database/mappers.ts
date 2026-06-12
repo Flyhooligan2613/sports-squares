@@ -143,6 +143,11 @@ export function assemblePool(
             normalizePayoutTemplate(poolRow.payout_template),
             normalizeEspnSport(poolRow.espn_sport)
           ),
+    gameId: poolRow.game_id ?? undefined,
+    boardIndex: poolRow.board_index ?? 1,
+    kickoffAt: poolRow.kickoff_at ?? undefined,
+    autoCreated: poolRow.auto_created ?? false,
+    marketplaceVisible: poolRow.marketplace_visible ?? true,
   };
 
   return normalizePoolParticipants(pool);
@@ -164,6 +169,12 @@ export function poolToPoolRow(pool: Pool): Omit<PoolRow, "created_at"> {
     service_fee_percent: pool.serviceFeePercent ?? 0,
     payout_template: pool.payoutTemplate ?? "standard",
     payout_percentages: pool.payoutPercentages ?? {},
+    game_id: pool.gameId ?? null,
+    board_index: pool.boardIndex ?? 1,
+    kickoff_at: pool.kickoffAt ?? null,
+    auto_created: pool.autoCreated ?? false,
+    locked_at: null,
+    marketplace_visible: pool.marketplaceVisible ?? true,
   };
 }
 

@@ -122,6 +122,12 @@ export async function dbCreatePool(data: {
     service_fee_percent: 0,
     payout_template: "standard",
     payout_percentages: {},
+    game_id: null,
+    board_index: 1,
+    kickoff_at: null,
+    auto_created: false,
+    locked_at: null,
+    marketplace_visible: true,
   };
 
   const { error: poolError } = await supabase.from(TABLES.pools).insert(poolRow);
@@ -155,6 +161,12 @@ export async function dbDuplicatePool(sourcePoolId: string): Promise<Pool | null
     service_fee_percent: source.serviceFeePercent ?? 0,
     payout_template: source.payoutTemplate ?? "standard",
     payout_percentages: resolvePoolPayoutPercentages(source),
+    game_id: null,
+    board_index: 1,
+    kickoff_at: null,
+    auto_created: false,
+    locked_at: null,
+    marketplace_visible: true,
   };
 
   const { error: poolError } = await supabase.from(TABLES.pools).insert(poolRow);
@@ -182,6 +194,12 @@ export async function dbUpdatePoolFields(
       | "service_fee_percent"
       | "payout_template"
       | "payout_percentages"
+      | "game_id"
+      | "board_index"
+      | "kickoff_at"
+      | "auto_created"
+      | "locked_at"
+      | "marketplace_visible"
     >
   >
 ): Promise<Pool | null> {

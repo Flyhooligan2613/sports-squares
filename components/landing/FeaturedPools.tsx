@@ -45,7 +45,11 @@ export default function FeaturedPools() {
       .listPools()
       .then((all) => {
         const visible = all
-          .filter((p) => p.status !== "archived")
+          .filter(
+            (p) =>
+              p.status !== "archived" &&
+              (p.marketplaceVisible !== false)
+          )
           .sort((a, b) => {
             const aOpen = isOpenForPlayers(a) ? 0 : 1;
             const bOpen = isOpenForPlayers(b) ? 0 : 1;
@@ -62,9 +66,9 @@ export default function FeaturedPools() {
     <LandingSection id="pools" scrollMargin>
       <ScrollReveal>
         <LandingSectionHeader
-          eyebrow="Featured Games"
-          title="Live matchups open now"
-          subtitle="Pick your game, buy your squares, and compete for every quarter."
+          eyebrow="Open Boards"
+          title="Jump into a live board"
+          subtitle="Every board is owned and managed by SquareBoards — just pick one and play."
         />
       </ScrollReveal>
 
@@ -82,7 +86,7 @@ export default function FeaturedPools() {
               No public pools yet
             </p>
             <p className="text-sb-muted text-sm max-w-sm mx-auto leading-relaxed">
-              Have a pool code or invite link? Enter it above to join your game.
+              Browse a sport above or use your invite link to access a board.
             </p>
           </div>
         </ScrollReveal>
@@ -159,7 +163,7 @@ export default function FeaturedPools() {
                           : "opacity-60 !shadow-none pointer-events-auto !translate-y-0",
                       ].join(" ")}
                     >
-                      Join Pool
+                      Join Board
                       <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
                     </Link>
                   </div>

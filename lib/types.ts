@@ -112,6 +112,26 @@ export interface WinnerResult {
 
 export type WinnerHistory = Partial<Record<ScoringPeriod, WinnerResult>>;
 
+export type GameStatus = "scheduled" | "live" | "final" | "cancelled";
+
+export interface Game {
+  id: string;
+  espnGameId: string;
+  espnSport: EspnSport;
+  homeTeam: string;
+  awayTeam: string;
+  kickoffAt: string;
+  status: GameStatus;
+}
+
+export interface MarketplaceSportStats {
+  sport: EspnSport;
+  label: string;
+  gameCount: number;
+  openBoardCount: number;
+  squaresAvailable: number;
+}
+
 export interface Pool {
   id: string;
   name: string;
@@ -121,6 +141,11 @@ export interface Pool {
   status: PoolStatus;
   espnGameId?: string;
   espnSport?: EspnSport;
+  gameId?: string;
+  boardIndex?: number;
+  kickoffAt?: string;
+  autoCreated?: boolean;
+  marketplaceVisible?: boolean;
   participants: Participant[];
   squares: Square[];
   topNumbers?: number[];
@@ -140,6 +165,8 @@ export interface EspnScoreboardGame {
   awayScore: number;
   status: string;
   period: number;
+  kickoffAt?: string;
+  completed?: boolean;
 }
 
 export interface EspnLiveGame {

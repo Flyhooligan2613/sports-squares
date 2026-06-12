@@ -5,8 +5,9 @@ import { BRAND_NAME } from "@/lib/brand";
 
 const LINKS = {
   product: [
-    { href: "/#pools", label: "Featured Games" },
-    { href: "/#join", label: "Join a Pool" },
+    { href: "/#marketplace", label: "Browse Games" },
+    { href: "/#pools", label: "Open Boards" },
+    { href: "/#join", label: "Invite Link" },
     { href: "/support", label: "Support" },
     { href: "/faq", label: "FAQ" },
   ],
@@ -19,7 +20,6 @@ const LINKS = {
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
   ],
-  host: [{ href: "/admin/login", label: "Become a Host" }],
 };
 
 export default function Footer({ landing = false }: { landing?: boolean }) {
@@ -31,12 +31,12 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
       ].join(" ")}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
           <div className="col-span-2 md:col-span-1">
             <Logo href="/" className="mb-4" />
             <p className="text-sb-muted text-sm leading-relaxed max-w-xs">
-              The modern way to play sports squares — secure checkout, live
-              scores, and instant access to your board.
+              The automated sports squares marketplace — pick a game, buy
+              squares, and play.
             </p>
             <div className="flex gap-3 mt-5">
               <a
@@ -64,7 +64,6 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
           <FooterColumn title="Play" links={LINKS.product} />
           <FooterColumn title="Company" links={LINKS.company} />
           <FooterColumn title="Legal" links={LINKS.legal} />
-          <FooterColumn title="Hosts" links={LINKS.host} />
         </div>
 
         <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-sb-muted">
@@ -103,4 +102,4 @@ function FooterColumn({
     </div>
   );
 }
-
+

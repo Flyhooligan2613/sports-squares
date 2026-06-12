@@ -43,7 +43,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <div className="mb-6 px-1 hidden lg:block">
           <Logo href="/" className="text-sm" />
           <p className="text-sb-muted text-xs mt-2 font-medium uppercase tracking-wider">
-            Host Console
+            Admin Console
           </p>
         </div>
         <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-1 lg:pb-0 -mx-1 px-1">

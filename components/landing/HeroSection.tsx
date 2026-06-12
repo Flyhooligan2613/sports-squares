@@ -53,9 +53,9 @@ export default function HeroSection() {
             <Button
               variant="primary"
               className="hero-btn-premium w-full sm:w-auto min-w-[200px] group"
-              onClick={() => scrollTo("pools")}
+              onClick={() => scrollTo("marketplace")}
             >
-              Play Now
+              Browse Games
               <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button
@@ -63,7 +63,7 @@ export default function HeroSection() {
               className="hero-btn-secondary-v2 w-full sm:w-auto min-w-[200px]"
               onClick={() => scrollTo("join")}
             >
-              Enter Pool Code
+              Enter Invite Link
             </Button>
           </div>
         </div>

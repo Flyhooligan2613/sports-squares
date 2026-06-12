@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
     if (pool.status !== "open") {
       return NextResponse.json(
-        { error: "This pool is not open for purchases." },
+        { error: "This board is not open for purchases." },
         { status: 400 }
       );
     }
@@ -92,7 +92,44 @@ export async function POST(request: Request) {
     const costPerSquare = Number(pool.cost_per_square ?? 0);
     if (costPerSquare <= 0) {
       return NextResponse.json(
-        { error: "This pool does not have pricing configured yet." },
+        { error: "This board does not have pricing configured yet." },
+        { status: 400 }
+      );
+    }
+
+    const { url, publishableKey } = getSupabaseConfig();
+    const squaresResponse = await fetch(
+      `${url}/rest/v1/squares?select=id&pool_id=eq.${encodeURIComponent(poolId)}&claimed=eq.false`,
+      {
+        headers: {
+          apikey: publishableKey,
+          Authorization: `Bearer ${publishableKey}`,
+          Prefer: "count=exact",
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!squaresResponse.ok) {
+      return NextResponse.json(
+        { error: "Could not verify square availability." },
+        { status: 503 }
+      );
+    }
+
+    const availableHeader = squaresResponse.headers.get("content-range");
+    const availableCount = availableHeader
+      ? Number(availableHeader.split("/")[1] ?? 0)
+      : 0;
+
+    if (availableCount < squaresCount) {
+      return NextResponse.json(
+        {
+          error:
+            availableCount <= 0
+              ? "This board is sold out. Choose another open board for this game."
+              : `Only ${availableCount} square${availableCount === 1 ? "" : "s"} remain on this board.`,
+        },
         { status: 400 }
       );
     }
