@@ -17,6 +17,7 @@ import TrendingGames from "@/components/live-tv/TrendingGames";
 import UpcomingKickoffs from "@/components/live-tv/UpcomingKickoffs";
 import WinnerAnnouncementOverlay from "@/components/live-tv/WinnerAnnouncementOverlay";
 import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
+import NotificationBell from "@/components/nav/NotificationBell";
 import StatusBadge from "@/components/ui/StatusBadge";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
@@ -106,7 +107,8 @@ export default function LiveTvExperience() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell />
             <StatusBadge variant="live" pulse dot>
               On Air
             </StatusBadge>

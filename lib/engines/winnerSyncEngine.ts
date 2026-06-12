@@ -8,6 +8,7 @@ import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admi
 import type { PlayerRow, PoolRow, SquareRow } from "@/lib/database/types";
 import { attachPayoutToWinner } from "@/lib/poolFinance";
 import { getScoringPeriods, normalizeEspnSport } from "@/lib/espn/sports";
+import { enqueuePayoutJob } from "@/lib/payouts/payoutJobs";
 import type { EspnLiveGame, EspnSport, WinnerResult } from "@/lib/types";
 import { withRecordedAt } from "@/lib/winnerHistoryUtils";
 
@@ -109,7 +110,12 @@ export async function syncAllPoolWinners(): Promise<WinnerSyncResult> {
       for (const winner of newWinners) {
         let stamped: WinnerResult = withRecordedAt(winner);
         stamped = attachPayoutToWinner(stamped, pool, scoringPeriods);
-        await dbUpsertWinner(poolRow.id, stamped);
+        const winnerId = await dbUpsertWinner(poolRow.id, stamped);
+        await enqueuePayoutJob({
+          poolId: poolRow.id,
+          winnerId,
+          result: stamped,
+        });
         result.winnersRecorded += 1;
       }
 

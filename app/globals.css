@@ -631,6 +631,49 @@ body {
   box-shadow: 0 8px 28px rgba(91, 76, 247, 0.1);
 }
 
+.notification-bell-badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.3rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #5b4cf7, #7b61ff);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1.1rem;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(123, 97, 255, 0.5);
+  animation: sbBadgePulse 2.4s ease-in-out infinite;
+}
+
+.game-board-fill-track {
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.game-board-fill-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5b4cf7, #7b61ff, #22e584);
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 12px rgba(123, 97, 255, 0.35);
+}
+
+.livetv-score-card {
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.livetv-score-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(91, 76, 247, 0.12);
+}
+
 .sb-prose {
   @apply space-y-4 text-sb-muted text-sm sm:text-base leading-relaxed;
 }

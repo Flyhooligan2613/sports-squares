@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
+import NotificationBell from "@/components/nav/NotificationBell";
 
 export default function AppMenuBar({
   logoHref = "/",
@@ -18,7 +19,10 @@ export default function AppMenuBar({
           <NavDrawerTrigger />
           <Logo href={logoHref} className="sb-logo-nav shrink-0" />
         </div>
-        {rightSlot}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {rightSlot}
+          <NotificationBell />
+        </div>
       </div>
     </header>
   );

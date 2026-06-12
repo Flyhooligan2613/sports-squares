@@ -1,12 +1,17 @@
 import type { PayoutStatus, WinnerHistory, WinnerResult } from "@/lib/types";
 import { generateId } from "@/lib/utils";
 import { getDatabaseClient } from "../client";
+import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { TABLES } from "../config";
 import { winnerResultToRow, winnerRowsToHistory } from "../mappers";
 import type { WinnerRow } from "../types";
 
+function getWinnersClient() {
+  return isSupabaseAdminConfigured() ? getSupabaseAdmin() : getDatabaseClient();
+}
+
 export async function dbLoadWinnerHistory(poolId: string): Promise<WinnerHistory> {
-  const supabase = getDatabaseClient();
+  const supabase = getWinnersClient();
   const { data, error } = await supabase
     .from(TABLES.winners)
     .select("*")
@@ -20,7 +25,7 @@ export async function dbSaveWinnerHistory(
   poolId: string,
   history: WinnerHistory
 ): Promise<void> {
-  const supabase = getDatabaseClient();
+  const supabase = getWinnersClient();
   const entries = Object.values(history).filter(Boolean) as WinnerResult[];
 
   for (const result of entries) {
@@ -34,14 +39,17 @@ export async function dbSaveWinnerHistory(
 
 export async function dbUpsertWinner(
   poolId: string,
-  result: WinnerResult
-): Promise<void> {
-  const supabase = getDatabaseClient();
-  const row = winnerResultToRow(poolId, result, generateId());
+  result: WinnerResult,
+  winnerId?: string
+): Promise<string> {
+  const supabase = getWinnersClient();
+  const id = winnerId ?? generateId();
+  const row = winnerResultToRow(poolId, result, id);
   const { error } = await supabase.from(TABLES.winners).upsert(row, {
     onConflict: "pool_id,quarter",
   });
   if (error) throw error;
+  return id;
 }
 
 export async function dbUpdateWinnerPayoutStatus(
@@ -49,7 +57,7 @@ export async function dbUpdateWinnerPayoutStatus(
   quarter: WinnerResult["quarter"],
   payoutStatus: PayoutStatus
 ): Promise<void> {
-  const supabase = getDatabaseClient();
+  const supabase = getWinnersClient();
   const { error } = await supabase
     .from(TABLES.winners)
     .update({ payout_status: payoutStatus })
@@ -62,7 +70,7 @@ export async function dbRecalculateWinnerPayouts(
   poolId: string,
   history: WinnerHistory
 ): Promise<void> {
-  const supabase = getDatabaseClient();
+  const supabase = getWinnersClient();
   const entries = Object.values(history).filter(Boolean) as WinnerResult[];
 
   for (const result of entries) {

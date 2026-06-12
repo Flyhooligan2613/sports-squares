@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
+import NotificationBell from "@/components/nav/NotificationBell";
 
 export default function Navbar() {
   return (
@@ -12,12 +13,15 @@ export default function Navbar() {
           <NavDrawerTrigger />
           <Logo href="/" className="sb-logo-nav shrink-0" />
         </div>
-        <Link
-          href="/my-games"
-          className="text-sm font-semibold text-sb-glow hover:text-white transition-colors shrink-0"
-        >
-          My Games
-        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <NotificationBell className="hidden sm:inline-flex" />
+          <Link
+            href="/my-games"
+            className="text-sm font-semibold text-sb-glow hover:text-white transition-colors shrink-0 min-h-[44px] inline-flex items-center px-2"
+          >
+            My Games
+          </Link>
+        </div>
       </div>
     </header>
   );

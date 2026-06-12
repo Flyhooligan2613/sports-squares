@@ -7,6 +7,8 @@ import {
   dbLockAndDrawBoard,
 } from "@/lib/database/services/boards";
 import { dbListGames } from "@/lib/database/services/games";
+import { TABLES } from "@/lib/database/config";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Game } from "@/lib/types";
 
 export interface BoardEngineResult {
@@ -86,6 +88,35 @@ export async function ensureOpenBoardsForUpcomingGames(): Promise<number> {
   }
 
   return ensured;
+}
+
+export async function maybeAdvanceBoardAfterClaim(poolId: string): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+  const { data: poolRow, error } = await supabase
+    .from(TABLES.pools)
+    .select("id, game_id, board_index, status, kickoff_at")
+    .eq("id", poolId)
+    .maybeSingle();
+
+  if (error || !poolRow || poolRow.status !== "open" || !poolRow.game_id) {
+    return false;
+  }
+
+  if (poolRow.kickoff_at && new Date(poolRow.kickoff_at).getTime() <= Date.now()) {
+    return false;
+  }
+
+  const claimed = await dbCountClaimedSquares(poolId);
+  if (claimed < 100) return false;
+
+  const { dbGetGame } = await import("@/lib/database/services/games");
+  const game = await dbGetGame(poolRow.game_id);
+  if (!game) return false;
+
+  await dbLockAndDrawBoard(poolId);
+  const nextIndex = (poolRow.board_index ?? 1) + 1;
+  await dbCreateMarketplaceBoard(game, nextIndex);
+  return true;
 }
 
 export async function runBoardEngine(): Promise<BoardEngineResult> {

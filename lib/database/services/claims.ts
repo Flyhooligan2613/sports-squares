@@ -2,6 +2,7 @@ import { syncParticipantCredits } from "@/lib/credits";
 import type { ClaimResult } from "@/lib/types";
 import { validateInviteForClaim } from "@/lib/invites/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { maybeAdvanceBoardAfterClaim } from "@/lib/engines/boardEngine";
 import { TABLES } from "../config";
 import { dbGetPool } from "./pools";
 
@@ -47,13 +48,19 @@ export async function dbClaimSquaresWithInvite(
   const supabase = getSupabaseAdmin();
 
   for (const squareId of squareIds) {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from(TABLES.squares)
       .update({ claimed: true, player_id: participantId })
       .eq("pool_id", poolId)
-      .eq("square_number", squareId);
+      .eq("square_number", squareId)
+      .eq("claimed", false)
+      .select("square_number");
+
     if (error) {
       return { ok: false, error: "Failed to claim squares." };
+    }
+    if (!data?.length) {
+      return { ok: false, error: "One or more squares were just claimed by another player." };
     }
   }
 
@@ -75,6 +82,12 @@ export async function dbClaimSquaresWithInvite(
   const updated = await dbGetPool(poolId);
   if (!updated) {
     return { ok: false, error: "Failed to reload pool." };
+  }
+
+  try {
+    await maybeAdvanceBoardAfterClaim(poolId);
+  } catch {
+    // Board advance is best-effort; cron will catch up.
   }
 
   return { ok: true, pool: updated };

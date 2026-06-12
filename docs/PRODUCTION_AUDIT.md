@@ -1,35 +1,40 @@
 # SquareBoards Production Readiness Audit
 
-**Date:** June 9, 2026  
-**Scope:** Final polish pass, payment/payout hardening, automation, security, performance
+**Last updated:** June 9, 2026  
+**Scope:** Final polish, payment hardening, event-driven payouts, automation
 
 ---
 
 ## Executive Summary
 
-SquareBoards has a working purchase → credit → claim → winner display pipeline. This pass hardened payment idempotency, validation, refunds, and server-side winner sync, built a global notification center, and refined UI polish without redesigning the product.
+SquareBoards is a **fully automated sports entertainment platform** in architecture, with these production layers:
 
-**Critical gap remaining:** Real money disbursement to winners (Stripe Connect transfers) is not implemented. `payout_status = paid` is currently an admin/database flag, not an automated bank transfer.
+| Layer | Status |
+|-------|--------|
+| Purchase → Credits → Claim | ✅ Hardened (ledger, validation, refunds) |
+| Auto board opening | ✅ On claim + cron (every 15 min) |
+| Winner detection | ✅ Server cron (every 5 min) |
+| Payout jobs queue | ✅ Event-driven jobs + worker cron |
+| Stripe Connect transfers | ❌ Not yet enabled |
+| Notification center | ✅ Page + bell + sidebar badge |
 
-**Required migration:** Run `supabase/migrations/014_payment_hardening.sql` in production.
+**Run migrations:** `014_payment_hardening.sql`, `015_payout_jobs.sql`
 
-**Required cron:** Schedule `GET/POST /api/cron/winner-sync` every 1–2 minutes during game windows.
+**Enable crons:** `vercel.json` schedules marketplace-sync, winner-sync, payout-worker
+
+**Enable payouts:** Set `STRIPE_CONNECT_ENABLED=true` when Connect is configured
 
 ---
 
 ## HIGH PRIORITY ISSUES
 
-| Issue | Status | Notes |
-|-------|--------|-------|
-| No Stripe Connect / real payout transfers | Open | No `stripe_transfer_id` audit trail |
-| Credit overselling race at checkout | Mitigated | Fulfillment validates capacity; checkout has no reservation |
-| Repeat-purchase webhook double-credit | Fixed | Purchases ledger; session ID not overwritten on player row |
-| No refund handling | Fixed | `charge.refunded` reverses credits |
-| Client-only winner detection | Mitigated | `/api/cron/winner-sync` added |
-| Webhook idempotency gaps | Fixed | `stripe_webhook_events` + `purchases` ledger |
-| Payment amount not validated | Fixed | Fulfillment rejects amount mismatch |
-| Square claim race condition | Open | `claims.ts` lacks transactional lock |
-| Migration 014 required | Action needed | Deploy payment code after migration |
+| Issue | Status | Action |
+|-------|--------|--------|
+| Stripe Connect not implemented | **Open** | Implement transfers; set env flag |
+| Migration 014 + 015 not deployed | **Action** | Run in Supabase before deploy |
+| Checkout credit oversell race | **Mitigated** | Fulfillment blocks; add reservation (future) |
+| Payout jobs fail without Connect | **Expected** | Jobs retry 5x then mark failed with audit trail |
+| Claim race (partial) | **Mitigated** | Conditional `claimed=false` update |
 
 ---
 
@@ -37,29 +42,70 @@ SquareBoards has a working purchase → credit → claim → winner display pipe
 
 | Issue | Notes |
 |-------|-------|
-| Prize pool from credits not cash | Distorted by manual credits / partial refunds |
-| Notification read state localStorage only | No cross-device sync yet |
-| Unclaimed square can win | Winner engine allows "Unclaimed" |
-| No API rate limiting | Live experience endpoints open |
-| Email not unique per pool | Duplicate email rows possible |
-| Favorites page stub | Linked in nav, not built |
+| Notification read state is localStorage | Cross-device sync needs DB table |
+| Prize pool from credits not cash | Documented; aligns with current model |
+| Unclaimed winning squares | Can win as "Unclaimed" |
+| API rate limiting | Not implemented on public endpoints |
+| Board fill = 100 claimed squares | Credits can sell out before all squares claimed |
 
 ---
 
 ## LOW PRIORITY ISSUES
 
-- Silent DB errors in `winnerStorage.ts`
-- Header inconsistency (LIVE TV vs AppMenuBar)
-- Duplicate marketplace card markup
-- Purchase history nav label mismatch
-- No push notifications
+- Header layout variations across immersive routes
+- Favorites page stub
+- Push notifications not implemented
+- Purchase history nav label vs win history page
+
+---
+
+## Event-Driven Payout Flow (Implemented)
+
+```
+Winner sync cron
+  → Calculate winner + payout amount
+  → Upsert winners table
+  → Enqueue payout_jobs (idempotent key: pool_id + quarter)
+
+Payout worker cron
+  → Pick queued/failed jobs (respecting next_retry_at)
+  → Attempt Stripe Connect transfer (when enabled)
+  → On success: mark job completed, winner payout_status = paid
+  → On failure: retry with backoff, max 5 attempts, permanent audit trail
+```
+
+This survives server restarts, webhook retries, and temporary Stripe outages.
+
+---
+
+## Game Completion Automation (Implemented)
+
+| Step | Mechanism |
+|------|-----------|
+| Verify scores | ESPN via winner-sync cron |
+| Calculate winners | `detectWinnersToSync` |
+| Create payout jobs | `enqueuePayoutJob` |
+| Process payouts | payout-worker cron |
+| Notify winners | Computed notifications API |
+| Update Winners Center | Live polling APIs |
+| Archive board | Pool status → `completed` on FINAL |
+| Open next board | `maybeAdvanceBoardAfterClaim` + board engine cron |
 
 ---
 
 ## Deployment Checklist
 
-- [ ] Run migration `014_payment_hardening.sql`
-- [ ] Configure winner-sync cron
-- [ ] Add `charge.refunded` to Stripe webhook events
-- [ ] Plan Stripe Connect before advertising automatic bank payouts
-- [ ] Smoke test: purchase → fulfill → claim → winner sync → notifications
+- [ ] Run migrations 014 and 015
+- [ ] Verify Vercel crons active (Pro plan for */5 schedules)
+- [ ] Add `charge.refunded` to Stripe webhook
+- [ ] Configure `CRON_SECRET`
+- [ ] Implement Stripe Connect + `STRIPE_CONNECT_ENABLED=true`
+- [ ] Smoke test full player journey
+
+---
+
+## Player Journey Target
+
+Browse Games → Choose Game → Buy Squares → Watch Live → Win Automatically → Receive Payout → Play Again
+
+**Current gap:** Last payout step requires Stripe Connect to move real money. Everything else is automated.
