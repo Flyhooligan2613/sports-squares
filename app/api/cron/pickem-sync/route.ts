@@ -24,11 +24,16 @@ async function runPickemSync(request: Request) {
     const result = await syncAllPickemContests(DEFAULT_PICKEM_SPORT);
     return NextResponse.json({ ok: true, result });
   } catch (err) {
-    return NextResponse.json(
-      {
-        error: err instanceof Error ? err.message : "Pick'em sync failed.",
-      },
-      { status: 500 }
-    );
+    console.error("[pickem-sync]", err);
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" &&
+            err !== null &&
+            "message" in err &&
+            typeof (err as { message: unknown }).message === "string"
+          ? (err as { message: string }).message
+          : "Pick'em sync failed.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

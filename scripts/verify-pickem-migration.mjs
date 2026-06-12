@@ -1,0 +1,68 @@
+/**
+ * Verify Pick'em migration 022 tables exist in Supabase.
+ * Usage: npm run pickem:verify-migration
+ */
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const envPath = join(root, ".env.local");
+
+function loadEnvLocal() {
+  if (!existsSync(envPath)) return {};
+  const out = {};
+  for (const line of readFileSync(envPath, "utf8").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    out[trimmed.slice(0, eq).trim()] = value;
+  }
+  return out;
+}
+
+const env = loadEnvLocal();
+const url = env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const key = env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+if (!url || !key) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
+  process.exit(1);
+}
+
+const tables = ["pickem_leagues", "pickem_payouts", "pickem_weekly_snapshots"];
+
+console.log("");
+console.log("Pick'em migration 022 check");
+console.log("============================");
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+for (const table of tables) {
+  const res = await fetch(`${url}/rest/v1/${table}?select=id&limit=1`, {
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+    },
+  });
+
+  if (res.ok) {
+    console.log(`✓ ${table}`);
+  } else {
+    const text = await res.text();
+    console.log(`✗ ${table} — HTTP ${res.status}`);
+    console.log(`  ${text.slice(0, 200)}`);
+  }
+}
+
+console.log("");
+console.log("If any show ✗, run 022_pickem_leagues_payouts.sql in Supabase SQL Editor.");
+console.log("");

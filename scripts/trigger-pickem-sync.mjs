@@ -92,8 +92,10 @@ try {
     process.exit(1);
   }
   if (!response.ok) {
-    console.error("Sync failed. Run migration 021 in Supabase first:");
-    console.error("  npm run supabase:migrate:pickem");
+    console.error("Sync failed.");
+    console.error("If error mentions a missing column/table, run migration 022 in Supabase:");
+    console.error("  Open: supabase/migrations/022_pickem_leagues_payouts.sql");
+    console.error("  Copy all lines → paste in Supabase SQL Editor → Run");
     process.exit(1);
   }
 

@@ -47,17 +47,25 @@ if (!projectRef || !existsSync(migrationPath)) {
 }
 
 const sql = readFileSync(migrationPath, "utf8");
+const lineCount = sql.split(/\r?\n/).length;
 
-spawnSync(
-  "powershell",
-  ["-NoProfile", "-Command", "Set-Clipboard -Value $input"],
-  { input: sql, encoding: "utf8" }
-);
+// clip.exe is more reliable on Windows than piping to Set-Clipboard
+spawnSync("cmd", ["/c", "clip"], { input: sql, encoding: "utf8" });
+
+// Also open the file in Notepad so you can copy manually if clipboard fails
+spawnSync("cmd", ["/c", "start", "", "notepad", migrationPath], { stdio: "ignore" });
 
 const editorUrl = `https://supabase.com/dashboard/project/${projectRef}/sql/new`;
 spawnSync("cmd", ["/c", "start", "", editorUrl], { stdio: "ignore" });
 
-console.log("Pick'em migration (022_pickem_leagues_payouts.sql) copied to clipboard.");
+console.log(`Pick'em migration copied to clipboard (${lineCount} lines).`);
+console.log(`File opened in Notepad: ${migrationPath}`);
 console.log(`Opened: ${editorUrl}`);
 console.log("");
-console.log("In Supabase: paste (Ctrl+V) → Run → then: npm run pickem:sync");
+console.log("In Supabase:");
+console.log("  1. Ctrl+A → Delete (clear editor)");
+console.log("  2. Ctrl+V (must show ALL lines — scroll to line ~94)");
+console.log("  3. Run");
+console.log("");
+console.log("If paste is still truncated, copy from Notepad instead.");
+console.log("Then: npm run pickem:sync");

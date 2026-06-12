@@ -28,6 +28,19 @@ export interface PickemPayoutResult {
   errors: string[];
 }
 
+function formatPayoutError(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "message" in err &&
+    typeof (err as { message: unknown }).message === "string"
+  ) {
+    return (err as { message: string }).message;
+  }
+  return fallback;
+}
+
 function payoutIdempotencyKey(
   contestId: string,
   leagueId: string,
@@ -49,11 +62,25 @@ export async function processPickemWeeklyPayouts(
     return { contestId, payoutsCreated: 0, payoutsPaid: 0, skipped: true, errors: ["Contest not found"] };
   }
 
+  if (contest.playerCount <= 0) {
+    return { contestId, payoutsCreated: 0, payoutsPaid: 0, skipped: true, errors: [] };
+  }
+
   if (contest.payoutStatus === "paid" || contest.payoutStatus === "processing") {
     return { contestId, payoutsCreated: 0, payoutsPaid: 0, skipped: true, errors: [] };
   }
 
-  await updatePickemContestPayoutStatus(contestId, "processing");
+  try {
+    await updatePickemContestPayoutStatus(contestId, "processing");
+  } catch (err) {
+    return {
+      contestId,
+      payoutsCreated: 0,
+      payoutsPaid: 0,
+      skipped: true,
+      errors: [formatPayoutError(err, "Could not start payout processing.")],
+    };
+  }
 
   let payoutsCreated = 0;
   let payoutsPaid = 0;
