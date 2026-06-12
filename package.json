@@ -10,7 +10,8 @@
     "deploy": "node scripts/deploy-vercel.mjs",
     "icons": "node scripts/generate-pwa-icons.mjs",
     "hero:crop": "node scripts/crop-hero.mjs",
-    "marketplace:sync": "node scripts/trigger-marketplace-sync.mjs"
+    "marketplace:sync": "node scripts/trigger-marketplace-sync.mjs",
+    "supabase:configure-auth": "node scripts/configure-supabase-auth.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
