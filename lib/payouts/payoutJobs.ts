@@ -1,6 +1,12 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { dbUpdateWinnerPayoutStatus } from "@/lib/database/services/winners";
+import {
+  createConnectTransfer,
+  isStripeConnectEnabled,
+} from "@/lib/stripe/connect";
+import { resolvePayoutRecipient } from "@/lib/payouts/recipient";
 import type { ScoringPeriod, WinnerResult } from "@/lib/types";
+import Stripe from "stripe";
 
 const TABLE = "payout_jobs";
 const MAX_ATTEMPTS = 5;
@@ -65,23 +71,86 @@ export async function enqueuePayoutJob(input: {
   return { created: true, jobId: data.id as string };
 }
 
+export async function completePayoutJobManually(
+  poolId: string,
+  quarter: ScoringPeriod
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const key = idempotencyKey(poolId, quarter);
+  const now = new Date().toISOString();
+
+  await supabase
+    .from(TABLE)
+    .update({
+      status: "completed",
+      processed_at: now,
+      updated_at: now,
+      last_error: "Marked paid manually by admin.",
+      next_retry_at: null,
+    })
+    .eq("idempotency_key", key)
+    .in("status", ["queued", "failed", "processing"]);
+}
+
 async function attemptStripeTransfer(
   job: PayoutJobRow
 ): Promise<{ ok: boolean; transferId?: string; error?: string; retryable?: boolean }> {
-  if (!process.env.STRIPE_CONNECT_ENABLED || process.env.STRIPE_CONNECT_ENABLED !== "true") {
+  if (!isStripeConnectEnabled()) {
     return {
       ok: false,
       retryable: true,
-      error: "Stripe Connect payouts not enabled. Job queued for retry.",
+      error: "Stripe Connect payouts not enabled. Set STRIPE_CONNECT_ENABLED=true.",
     };
   }
 
-  // Placeholder for Stripe Connect transfer integration.
-  return {
-    ok: false,
-    retryable: true,
-    error: "Stripe Connect transfer handler pending configuration.",
-  };
+  const recipient = await resolvePayoutRecipient({
+    poolId: job.pool_id,
+    winningSquare: job.winning_square,
+    winningPlayer: job.winning_player,
+  });
+
+  if (!recipient.ok) {
+    return {
+      ok: false,
+      retryable: recipient.reason === "no_connect_account",
+      error: recipient.message,
+    };
+  }
+
+  try {
+    const transfer = await createConnectTransfer({
+      amountCents: job.amount_cents,
+      destinationAccountId: recipient.recipient.connectAccountId,
+      idempotencyKey: job.idempotency_key,
+      metadata: {
+        pool_id: job.pool_id,
+        quarter: job.quarter,
+        payout_job_id: job.id,
+        recipient_email: recipient.recipient.email,
+      },
+    });
+
+    return { ok: true, transferId: transfer.id };
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeError) {
+      const retryable =
+        err.type === "StripeConnectionError" ||
+        err.type === "StripeRateLimitError" ||
+        err.code === "balance_insufficient";
+
+      return {
+        ok: false,
+        retryable,
+        error: err.message,
+      };
+    }
+
+    return {
+      ok: false,
+      retryable: true,
+      error: err instanceof Error ? err.message : "Transfer failed.",
+    };
+  }
 }
 
 export interface PayoutWorkerResult {
@@ -89,6 +158,7 @@ export interface PayoutWorkerResult {
   completed: number;
   failed: number;
   retried: number;
+  cancelled: number;
   errors: string[];
 }
 
@@ -98,6 +168,7 @@ export async function processPayoutJobs(limit = 20): Promise<PayoutWorkerResult>
     completed: 0,
     failed: 0,
     retried: 0,
+    cancelled: 0,
     errors: [],
   };
 
@@ -158,6 +229,23 @@ export async function processPayoutJobs(limit = 20): Promise<PayoutWorkerResult>
       }
 
       const attempts = raw.attempts + 1;
+      const isUnclaimed =
+        transfer.error?.includes("unclaimed") ||
+        transfer.error?.includes("Unclaimed");
+
+      if (isUnclaimed) {
+        await supabase
+          .from(TABLE)
+          .update({
+            status: "cancelled",
+            last_error: transfer.error ?? "Unclaimed square",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", raw.id);
+        result.cancelled += 1;
+        continue;
+      }
+
       const exhausted = attempts >= (raw.max_attempts || MAX_ATTEMPTS);
       const nextRetry = new Date(Date.now() + RETRY_DELAY_MS).toISOString();
 
@@ -166,7 +254,7 @@ export async function processPayoutJobs(limit = 20): Promise<PayoutWorkerResult>
         .update({
           status: exhausted ? "failed" : "queued",
           last_error: transfer.error ?? "Transfer failed",
-          next_retry_at: exhausted ? null : nextRetry,
+          next_retry_at: exhausted || !transfer.retryable ? null : nextRetry,
           updated_at: new Date().toISOString(),
         })
         .eq("id", raw.id);

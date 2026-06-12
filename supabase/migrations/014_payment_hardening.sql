@@ -9,8 +9,8 @@ create table if not exists public.stripe_webhook_events (
 create table if not exists public.purchases (
   id uuid primary key default gen_random_uuid(),
   stripe_checkout_session_id text not null unique,
-  pool_id uuid not null references public.pools(id) on delete restrict,
-  player_id uuid references public.players(id) on delete set null,
+  pool_id text not null references public.pools(id) on delete restrict,
+  player_id text references public.players(id) on delete set null,
   email text not null,
   squares_count integer not null check (squares_count > 0),
   amount_cents integer not null check (amount_cents >= 0),

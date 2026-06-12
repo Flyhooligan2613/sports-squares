@@ -2,8 +2,8 @@
 
 create table if not exists public.payout_jobs (
   id uuid primary key default gen_random_uuid(),
-  pool_id uuid not null references public.pools(id) on delete restrict,
-  winner_id uuid references public.winners(id) on delete set null,
+  pool_id text not null references public.pools(id) on delete restrict,
+  winner_id text references public.winners(id) on delete set null,
   quarter text not null,
   winning_player text not null,
   winning_square integer not null,

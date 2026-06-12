@@ -39,6 +39,7 @@ import {
   dbRecalculateWinnerPayouts,
   dbUpdateWinnerPayoutStatus,
 } from "@/lib/database/services/winners";
+import { completePayoutJobManually } from "@/lib/payouts/payoutJobs";
 import { loadWinnerHistory } from "@/lib/winnerStorage";
 import { mockDB } from "@/lib/mockData";
 
@@ -524,6 +525,9 @@ export const poolStore = {
     if (isDatabaseConfigured()) {
       try {
         await dbUpdateWinnerPayoutStatus(poolId, quarter, status);
+        if (status === "paid") {
+          await completePayoutJobManually(poolId, quarter).catch(() => undefined);
+        }
       } catch {
         // fall through
       }

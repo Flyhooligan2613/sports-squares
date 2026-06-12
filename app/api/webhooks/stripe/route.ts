@@ -4,9 +4,11 @@ import {
   reversePurchaseBySession,
 } from "@/lib/purchases/fulfill";
 import { recordWebhookEvent } from "@/lib/purchases/ledger";
+import { syncConnectAccountFromStripe } from "@/lib/database/services/stripeConnect";
 import { getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { normalizeEmail } from "@/lib/player/statsCore";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +71,12 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
   await reversePurchaseBySession(sessionId);
 }
 
+async function handleAccountUpdated(account: Stripe.Account) {
+  const rawEmail = account.metadata?.email;
+  if (!rawEmail?.trim()) return;
+  await syncConnectAccountFromStripe(normalizeEmail(rawEmail), account);
+}
+
 export async function POST(request: Request) {
   if (!isStripeConfigured() || !isSupabaseAdminConfigured()) {
     return NextResponse.json({ error: "Webhook not configured." }, { status: 503 });
@@ -118,6 +126,8 @@ export async function POST(request: Request) {
       await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
     } else if (event.type === "charge.refunded") {
       await handleChargeRefunded(event.data.object as Stripe.Charge);
+    } else if (event.type === "account.updated") {
+      await handleAccountUpdated(event.data.object as Stripe.Account);
     }
   } catch (err) {
     console.error(`Stripe webhook ${event.type} failed:`, err);

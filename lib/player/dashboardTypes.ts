@@ -1,3 +1,5 @@
+import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
+
 export interface PlayerDashboardStats {
   totalWinnings: number;
   lifetimeWins: number;
@@ -58,6 +60,8 @@ export interface PlayerDashboardData {
   displayName: string;
   email: string;
   stats: PlayerDashboardStats;
+  connectStatus: PlayerConnectStatus;
+  connectEnabled: boolean;
   activeGames: PlayerActiveGame[];
   upcomingGames: PlayerUpcomingGame[];
   recentWins: PlayerRecentWin[];

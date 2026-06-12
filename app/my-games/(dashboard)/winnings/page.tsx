@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import PlayerPayoutSetup from "@/components/player/PlayerPayoutSetup";
 import RecentWinsTimeline from "@/components/player/RecentWinsTimeline";
 import { getPlayerDashboard } from "@/lib/database/services/playerDashboard";
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/purchases/successSummary";
+import { isStripeConnectEnabled } from "@/lib/stripe/connect";
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
@@ -26,6 +28,13 @@ export default async function MyWinningsPage() {
         My Winnings
       </h1>
       <p className="text-sb-muted mb-8">Every quarter win and payout in one place.</p>
+
+      {dashboard && (
+        <PlayerPayoutSetup
+          initialStatus={dashboard.connectStatus}
+          connectEnabled={dashboard.connectEnabled ?? isStripeConnectEnabled()}
+        />
+      )}
 
       {dashboard ? (
         <>

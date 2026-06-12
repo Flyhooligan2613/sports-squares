@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ActiveGameCard from "@/components/player/ActiveGameCard";
 import MyGamesHero from "@/components/player/MyGamesHero";
 import NotificationsPanel from "@/components/player/NotificationsPanel";
+import PlayerPayoutSetup from "@/components/player/PlayerPayoutSetup";
 import QuickActions from "@/components/player/QuickActions";
 import RecentWinsTimeline from "@/components/player/RecentWinsTimeline";
 import UpcomingGameCard from "@/components/player/UpcomingGameCard";
@@ -69,6 +70,11 @@ export default function MyGamesDashboard() {
       <MyGamesHero displayName={data.displayName} stats={data.stats} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
+        <PlayerPayoutSetup
+          initialStatus={data.connectStatus}
+          connectEnabled={data.connectEnabled}
+        />
+
         <section className="mb-12 sm:mb-16">
           <div className="flex items-end justify-between gap-4 mb-6">
             <div>

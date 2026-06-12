@@ -15,6 +15,8 @@ import type {
   PlayerNotification,
   PlayerRecentWin,
 } from "@/lib/player/dashboardTypes";
+import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
+import { isStripeConnectEnabled } from "@/lib/stripe/connect";
 import type { EspnLiveGame, Pool, PoolStatus, ScoringPeriod } from "@/lib/types";
 
 const ACTIVE_STATUSES: PoolStatus[] = ["open", "locked", "numbers-drawn"];
@@ -112,6 +114,7 @@ export async function getPlayerDashboard(
 
   if (playersError) throw playersError;
   if (!playerRows?.length) {
+    const connectStatus = await getPlayerConnectStatus(normalized);
     return {
       displayName: displayNameFromEmail(normalized),
       email: normalized,
@@ -121,6 +124,8 @@ export async function getPlayerDashboard(
         activeBoards: 0,
         upcomingGames: 0,
       },
+      connectStatus,
+      connectEnabled: isStripeConnectEnabled(),
       activeGames: [],
       upcomingGames: [],
       recentWins: [],
@@ -322,6 +327,8 @@ export async function getPlayerDashboard(
       new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime()
   );
 
+  const connectStatus = await getPlayerConnectStatus(normalized);
+
   return {
     displayName,
     email: normalized,
@@ -331,6 +338,8 @@ export async function getPlayerDashboard(
       activeBoards: activeGames.length,
       upcomingGames: upcomingGames.length,
     },
+    connectStatus,
+    connectEnabled: isStripeConnectEnabled(),
     activeGames,
     upcomingGames,
     recentWins: recentWins.slice(0, 8),
