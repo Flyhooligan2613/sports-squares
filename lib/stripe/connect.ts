@@ -12,6 +12,7 @@ export async function createExpressConnectAccount(
   const stripe = getStripe();
   return stripe.accounts.create({
     type: "express",
+    country: "US",
     email,
     capabilities: {
       transfers: { requested: true },

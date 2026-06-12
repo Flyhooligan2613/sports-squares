@@ -56,7 +56,7 @@ export async function ensurePlayerProfile(
     }
   }
 
-  return buildPlayerSlug(displayName, normalized);
+  throw new Error("Could not create player profile.");
 }
 
 export async function getEmailForPlayerSlug(slug: string): Promise<string | null> {

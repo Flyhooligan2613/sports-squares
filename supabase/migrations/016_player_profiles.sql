@@ -13,11 +13,14 @@ create index if not exists player_profiles_slug_idx on public.player_profiles (s
 
 alter table public.player_profiles enable row level security;
 
+drop policy if exists "player_profiles_select" on public.player_profiles;
 create policy "player_profiles_select" on public.player_profiles
   for select using (true);
 
+drop policy if exists "player_profiles_insert" on public.player_profiles;
 create policy "player_profiles_insert" on public.player_profiles
   for insert with check (true);
 
+drop policy if exists "player_profiles_update" on public.player_profiles;
 create policy "player_profiles_update" on public.player_profiles
   for update using (true);

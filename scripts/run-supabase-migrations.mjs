@@ -81,13 +81,21 @@ async function runQuery(projectRef, accessToken, sql) {
 }
 
 function resolveMigrationFiles(args) {
-  if (args.length > 0) {
-    return args.map((name) =>
+  const filtered = args.filter((arg) => !arg.startsWith("--"));
+  if (filtered.length > 0) {
+    return filtered.map((name) =>
       name.endsWith(".sql") ? join(migrationsDir, name) : join(migrationsDir, `${name}.sql`)
     );
   }
 
   return DEFAULT_MIGRATIONS.map((name) => join(migrationsDir, name));
+}
+
+function readArg(flag) {
+  const args = process.argv.slice(2);
+  const index = args.indexOf(flag);
+  if (index === -1) return null;
+  return args[index + 1]?.trim() || null;
 }
 
 async function main() {
@@ -96,6 +104,7 @@ async function main() {
     env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const accessToken =
+    readArg("--token") ??
     env.SUPABASE_ACCESS_TOKEN?.trim() ||
     process.env.SUPABASE_ACCESS_TOKEN?.trim();
 

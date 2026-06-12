@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
+  connectErrorMessage,
   ensureConnectAccountId,
+  getPlayerConnectStatus,
   refreshPlayerConnectStatus,
 } from "@/lib/database/services/stripeConnect";
 import {
@@ -42,22 +44,31 @@ export async function POST() {
 
   try {
     const email = normalizeEmail(user.email);
-    let status = await refreshPlayerConnectStatus(email);
+    let status = await getPlayerConnectStatus(email);
+    let accountId = status.accountId;
 
-    if (!status.accountId) {
+    if (!accountId) {
       const account = await createExpressConnectAccount(email);
-      await ensureConnectAccountId(email, account.id);
+      accountId = account.id;
+      await ensureConnectAccountId(email, accountId);
+      status = await getPlayerConnectStatus(email);
+    } else {
       status = await refreshPlayerConnectStatus(email);
+      accountId = status.accountId ?? accountId;
+    }
+
+    if (!accountId) {
+      throw new Error("Could not save Stripe Connect account for this player.");
     }
 
     const linkType = status.payoutsEnabled ? "account_update" : "account_onboarding";
-    const link = await createConnectAccountLink(status.accountId!, linkType);
+    const link = await createConnectAccountLink(accountId, linkType);
 
     return NextResponse.json({ url: link.url });
   } catch (err) {
     console.error("[connect/onboard]", err);
     return NextResponse.json(
-      { error: "Could not start payout setup." },
+      { error: connectErrorMessage(err) },
       { status: 500 }
     );
   }

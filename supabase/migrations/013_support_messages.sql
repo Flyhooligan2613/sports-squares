@@ -29,11 +29,13 @@ create index if not exists support_messages_thread_id_idx
 alter table public.support_threads enable row level security;
 alter table public.support_messages enable row level security;
 
+drop policy if exists "support_threads_authenticated_own" on public.support_threads;
 create policy "support_threads_authenticated_own" on public.support_threads
   for all to authenticated
   using (lower(user_email) = lower(auth.jwt() ->> 'email'))
   with check (lower(user_email) = lower(auth.jwt() ->> 'email'));
 
+drop policy if exists "support_messages_authenticated_own" on public.support_messages;
 create policy "support_messages_authenticated_own" on public.support_messages
   for all to authenticated
   using (
@@ -54,8 +56,10 @@ create policy "support_messages_authenticated_own" on public.support_messages
 grant all on table public.support_threads to service_role;
 grant all on table public.support_messages to service_role;
 
+drop policy if exists "support_threads_service_role_all" on public.support_threads;
 create policy "support_threads_service_role_all" on public.support_threads
   for all to service_role using (true) with check (true);
 
+drop policy if exists "support_messages_service_role_all" on public.support_messages;
 create policy "support_messages_service_role_all" on public.support_messages
   for all to service_role using (true) with check (true);

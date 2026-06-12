@@ -6,6 +6,7 @@ import {
   retrieveConnectAccount,
 } from "@/lib/stripe/connect";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
+import { buildPlayerSlug } from "@/lib/player/slug";
 import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
 import type Stripe from "stripe";
 
@@ -46,18 +47,45 @@ export async function ensureConnectAccountId(
 
   const normalized = normalizeEmail(email);
   const displayName = displayNameFromEmail(normalized);
-  await ensurePlayerProfile(normalized, displayName);
-
   const supabase = getSupabaseAdmin();
-  const { error } = await supabase
+
+  const { data: updated, error: updateError } = await supabase
     .from(TABLES.playerProfiles)
     .update({
       stripe_connect_account_id: accountId,
       updated_at: new Date().toISOString(),
     })
-    .eq("email", normalized);
+    .eq("email", normalized)
+    .select("email")
+    .maybeSingle();
 
-  if (error) throw error;
+  if (updateError) throw updateError;
+  if (updated?.email) return;
+
+  const slug = (await ensurePlayerProfile(normalized, displayName)) ??
+    buildPlayerSlug(displayName, normalized);
+
+  const { error: insertError } = await supabase.from(TABLES.playerProfiles).insert({
+    email: normalized,
+    slug,
+    display_name: displayName,
+    stripe_connect_account_id: accountId,
+  });
+
+  if (insertError?.code === "23505") {
+    const { error: retryError } = await supabase
+      .from(TABLES.playerProfiles)
+      .update({
+        stripe_connect_account_id: accountId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("email", normalized);
+
+    if (retryError) throw retryError;
+    return;
+  }
+
+  if (insertError) throw insertError;
 }
 
 export async function syncConnectAccountFromStripe(
@@ -77,12 +105,11 @@ export async function syncConnectAccountFromStripe(
   const flags = readConnectFlags(account);
   const supabase = getSupabaseAdmin();
 
-  await ensurePlayerProfile(normalized, displayNameFromEmail(normalized));
+  await ensureConnectAccountId(normalized, account.id);
 
   const { error } = await supabase
     .from(TABLES.playerProfiles)
     .update({
-      stripe_connect_account_id: account.id,
       stripe_connect_details_submitted: flags.detailsSubmitted,
       stripe_connect_payouts_enabled: flags.payoutsEnabled,
       stripe_connect_onboarded_at: flags.payoutsEnabled
@@ -143,3 +170,16 @@ async function loadConnectProfile(
   if (error) throw error;
   return (data as ConnectProfileRow | null) ?? null;
 }
+
+function connectErrorMessage(err: unknown): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const message = String((err as { message?: string }).message ?? "");
+    if (message.includes("signed up for Connect")) {
+      return "Stripe Connect is not enabled on your Stripe account yet. Enable it in Stripe Dashboard → Connect.";
+    }
+    if (message) return message;
+  }
+  return "Could not start payout setup.";
+}
+
+export { connectErrorMessage };
