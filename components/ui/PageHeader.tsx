@@ -17,10 +17,15 @@ export default function PageHeader({
 }: PageHeaderProps) {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-10 ${className}`}
+      className={[
+        "flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 sm:mb-10 sb-xp-hero-enter",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className="min-w-0">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight sb-page-header-title">
           {title}
         </h1>
         {subtitle && (

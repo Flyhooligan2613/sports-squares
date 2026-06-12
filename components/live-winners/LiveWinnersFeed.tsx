@@ -1,6 +1,8 @@
 "use client";
 
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
+import StatusBadge from "@/components/ui/StatusBadge";
 import HeroTeamLogo from "@/components/landing/hero/HeroTeamLogo";
 import { formatCurrency, formatTimeAgo } from "@/lib/liveWinners/format";
 import {
@@ -147,19 +149,20 @@ export default function LiveWinnersFeed({ winners }: LiveWinnersFeedProps) {
     <section>
       <div className="flex items-center justify-between gap-3 mb-4">
         <h2 className="text-lg sm:text-xl font-bold text-white">Live Winners Feed</h2>
-        <span className="lwc-live-pill">
-          <span className="lwc-live-dot" />
+        <StatusBadge variant="live" pulse dot>
           Live
-        </span>
+        </StatusBadge>
       </div>
 
       {winners.length === 0 ? (
-        <LandingGlassCard glow className="p-8 text-center">
-          <p className="text-4xl mb-3">🏆</p>
-          <p className="text-white font-semibold mb-2">Winners incoming</p>
-          <p className="text-sb-muted text-sm">
-            When quarters end, winners and automatic payouts appear here in real time.
-          </p>
+        <LandingGlassCard glow className="p-8">
+          <SectionEmptyState
+            emoji="🏆"
+            title="Winners incoming"
+            description="When quarters end, winners and automatic payouts appear here in real time."
+            actionLabel="Browse Live Boards"
+            actionHref="/action-center"
+          />
         </LandingGlassCard>
       ) : (
         <div className="space-y-3">

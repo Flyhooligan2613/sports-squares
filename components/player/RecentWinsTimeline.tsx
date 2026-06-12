@@ -1,4 +1,5 @@
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import type { PlayerRecentWin } from "@/lib/player/dashboardTypes";
 
 interface RecentWinsTimelineProps {
@@ -14,12 +15,14 @@ function payoutLabel(status: PlayerRecentWin["payoutStatus"]): string {
 export default function RecentWinsTimeline({ wins }: RecentWinsTimelineProps) {
   if (wins.length === 0) {
     return (
-      <LandingGlassCard className="p-6 sm:p-8 text-center">
-        <p className="text-4xl mb-3">🏆</p>
-        <p className="text-white font-semibold mb-1">No wins yet</p>
-        <p className="text-sb-muted text-sm">
-          Your first quarter win will show up here — loud and clear.
-        </p>
+      <LandingGlassCard glow className="p-6 sm:p-8">
+        <SectionEmptyState
+          emoji="🏆"
+          title="No wins yet"
+          description="The next winner could be you. Browse today's live boards."
+          actionLabel="Browse Games"
+          actionHref="/games/nfl"
+        />
       </LandingGlassCard>
     );
   }

@@ -29,3 +29,5 @@ export function SkeletonKpiGrid({ count = 4 }: { count?: number }) {
     </div>
   );
 }
+
+export { default as ExperiencePageSkeleton } from "./ExperiencePageSkeleton";

@@ -13,6 +13,8 @@ import PoolPurchaseForm from "@/components/PoolPurchaseForm";
 import PoolSummaryPanel from "@/components/PoolSummaryPanel";
 import LiveScoreBanner from "@/components/LiveScoreBanner";
 import Spinner from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/Button";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { useEspnScoreSync } from "@/hooks/useEspnScoreSync";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { getInviteSession } from "@/lib/invites/session";
@@ -326,14 +328,14 @@ export default function PoolPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 w-full sm:w-auto">
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-sb-muted">
             Invite:{" "}
-            <span className="text-slate-300 font-mono">{pool.inviteCode}</span>
+            <span className="text-sb-secondary font-mono">{pool.inviteCode}</span>
           </span>
           <button
             type="button"
             onClick={copyLink}
-            className="ml-2 flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
+            className="ml-2 flex items-center gap-1.5 text-xs sb-btn-secondary sb-btn-sm min-h-0 py-1.5 px-3 rounded-lg transition-all duration-300"
           >
             {copied ? (
               <>
@@ -366,7 +368,7 @@ export default function PoolPage() {
               <span className="text-sb-glow font-bold font-mono text-lg tabular-nums">
                 {creditsRemaining}
               </span>
-              <span className="text-slate-500 text-xs">
+              <span className="text-sb-muted text-xs">
                 ({activePlayer.name})
               </span>
             </div>
@@ -392,7 +394,7 @@ export default function PoolPage() {
         )}
 
         {numbersDrawn && (
-          <p className="text-center text-indigo-400 text-sm">
+          <p className="text-center text-sb-glow text-sm">
             Numbers are locked in. Good luck!
           </p>
         )}
@@ -463,9 +465,9 @@ export default function PoolPage() {
         <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-4">
           {numbersDrawn && <PoolSummaryPanel pool={pool} />}
           <div
-            className={`bg-slate-900 border border-slate-800 rounded-xl p-5 ${!isOpen ? "opacity-60" : ""}`}
+            className={`sb-card p-5 ${!isOpen ? "opacity-60" : ""}`}
           >
-            <h2 className="text-slate-200 font-semibold text-sm mb-3">
+            <h2 className="text-white font-semibold text-sm mb-3">
               Claim Squares
               {!isOpen && (
                 <span className="ml-2 text-amber-500/80 text-xs font-normal">
@@ -475,31 +477,31 @@ export default function PoolPage() {
             </h2>
             <div className="flex flex-col gap-3">
               {!inviteToken || !activePlayer ? (
-                <p className="text-slate-500 text-xs">
+                <p className="text-sb-muted text-xs">
                   Open your personal invite link to claim squares for your
                   player account.
                 </p>
               ) : (
                 <>
-                  <p className="text-slate-400 text-xs font-medium">
+                  <p className="text-sb-muted text-xs font-medium">
                     Claiming as
                   </p>
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2">
+                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-sb-surface/80 px-3 py-2">
                     <span
                       className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
                       style={{
-                        backgroundColor: activePlayer.color ?? "#6366f1",
+                        backgroundColor: activePlayer.color ?? "#5B4CF7",
                       }}
                     >
                       {activePlayer.initials}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-slate-200 text-sm font-medium truncate">
+                      <p className="text-white text-sm font-medium truncate">
                         {activePlayer.name}
                       </p>
-                      <p className="text-slate-500 text-xs">
+                      <p className="text-sb-muted text-xs">
                         Credits remaining:{" "}
-                        <span className="text-indigo-400 font-semibold font-mono">
+                        <span className="text-sb-glow font-semibold font-mono">
                           {creditsRemaining}
                         </span>
                       </p>
@@ -510,7 +512,7 @@ export default function PoolPage() {
               {claimError && (
                 <p className="text-red-400 text-xs">{claimError}</p>
               )}
-              <button
+              <Button
                 type="button"
                 onClick={handleClaim}
                 disabled={
@@ -520,26 +522,33 @@ export default function PoolPage() {
                   !inviteToken ||
                   pool.participants.length === 0
                 }
-                className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
+                variant="primary"
+                size="sm"
+                className="w-full min-h-[44px]"
               >
                 {stats.selected > 0
                   ? `Claim ${stats.selected} Square${
                       stats.selected !== 1 ? "s" : ""
                     }`
                   : "No Squares Selected"}
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-            <h2 className="text-slate-200 font-semibold text-sm mb-3">
+          <div className="sb-card p-5">
+            <h2 className="text-white font-semibold text-sm mb-3">
               Players
-              <span className="ml-2 text-slate-600 font-normal">
+              <span className="ml-2 text-sb-muted font-normal">
                 {pool.participants.length}
               </span>
             </h2>
             {pool.participants.length === 0 ? (
-              <p className="text-slate-600 text-xs">No players yet.</p>
+              <SectionEmptyState
+                emoji="👥"
+                title="No players yet"
+                description="Share your invite link to get the board filling up."
+                compact
+              />
             ) : (
               <ul className="flex flex-col gap-2">
                 {pool.participants.map((p) => {
@@ -549,31 +558,31 @@ export default function PoolPage() {
                   return (
                     <li
                       key={p.id}
-                      className="flex flex-col gap-1 py-1 border-b border-slate-800/50 last:border-0"
+                      className="flex flex-col gap-1 py-1 border-b border-white/[0.06] last:border-0"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0">
                           <span
                             className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
-                            style={{ backgroundColor: p.color ?? "#6366f1" }}
+                            style={{ backgroundColor: p.color ?? "#5B4CF7" }}
                           >
                             {p.initials}
                           </span>
-                          <span className="text-slate-300 text-xs truncate max-w-[100px]">
+                          <span className="text-sb-secondary text-xs truncate max-w-[100px]">
                             {p.name}
                           </span>
                         </div>
-                        <span className="text-slate-500 text-xs shrink-0">
+                        <span className="text-sb-muted text-xs shrink-0">
                           {count} sq
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-600 pl-8">
+                      <p className="text-[10px] text-sb-muted pl-8">
                         Credits remaining:{" "}
                         <span
                           className={
                             p.creditsRemaining > 0
-                              ? "text-green-500/80"
-                              : "text-slate-500"
+                              ? "text-sb-success/90"
+                              : "text-sb-muted"
                           }
                         >
                           {p.creditsRemaining}

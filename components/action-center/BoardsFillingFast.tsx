@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { FillingFastBoard } from "@/lib/actionCenter/types";
 
@@ -14,8 +15,15 @@ export default function BoardsFillingFast({ boards }: BoardsFillingFastProps) {
     <section>
       <h2 className="ac-section-title">Boards Filling Fast</h2>
       {boards.length === 0 ? (
-        <LandingGlassCard className="p-6 text-center">
-          <p className="text-sb-muted text-sm">Open boards will appear here as they fill.</p>
+        <LandingGlassCard className="p-6">
+          <SectionEmptyState
+            emoji="📋"
+            title="Boards are opening"
+            description="Open boards appear here as they fill — grab squares before they're gone."
+            actionLabel="Browse Games"
+            actionHref="/games/nfl"
+            compact
+          />
         </LandingGlassCard>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">

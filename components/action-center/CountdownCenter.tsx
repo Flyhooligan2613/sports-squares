@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import type { CountdownGame } from "@/lib/actionCenter/types";
 
@@ -46,7 +47,14 @@ export default function CountdownCenter({ games }: CountdownCenterProps) {
       <h2 className="ac-section-title">Countdown Center</h2>
       <LandingGlassCard className="p-3 sm:p-4">
         {games.length === 0 ? (
-          <p className="text-sb-muted text-sm text-center py-4">No upcoming games.</p>
+          <SectionEmptyState
+            emoji="📅"
+            title="No games on the clock"
+            description="New boards open automatically throughout the day. Check back soon."
+            actionLabel="Browse Games"
+            actionHref="/games/nfl"
+            compact
+          />
         ) : (
           <div className="space-y-1">
             {games.map((game) => (

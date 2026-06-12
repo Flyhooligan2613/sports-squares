@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { getActivityAccent, getActivityIcon } from "@/lib/liveWinners/display";
 import { formatTimeAgo } from "@/lib/liveWinners/format";
 import type { LiveActivityItem } from "@/lib/liveWinners/types";
@@ -45,8 +46,13 @@ export default function LiveActivityFeed({ activity }: LiveActivityFeedProps) {
       </div>
 
       {activity.length === 0 ? (
-        <LandingGlassCard className="p-6 text-center">
-          <p className="text-sb-muted text-sm">Platform activity will stream here.</p>
+        <LandingGlassCard className="p-6">
+          <SectionEmptyState
+            emoji="📡"
+            title="Platform activity warming up"
+            description="Purchases, winners, and payouts stream here in real time."
+            compact
+          />
         </LandingGlassCard>
       ) : (
         <LandingGlassCard className="lwc-activity-panel p-2 sm:p-3">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { formatCurrency } from "@/lib/liveWinners/format";
 import type { NextPayoutItem } from "@/lib/actionCenter/types";
 
@@ -14,8 +15,13 @@ export default function NextPayouts({ payouts }: NextPayoutsProps) {
     <section>
       <h2 className="ac-section-title">Next Payouts</h2>
       {payouts.length === 0 ? (
-        <LandingGlassCard className="p-6 text-center">
-          <p className="text-sb-muted text-sm">Upcoming payout windows will appear here.</p>
+        <LandingGlassCard className="p-6">
+          <SectionEmptyState
+            emoji="💰"
+            title="Payouts on deck"
+            description="Upcoming quarter and final payout windows will appear here as games progress."
+            compact
+          />
         </LandingGlassCard>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

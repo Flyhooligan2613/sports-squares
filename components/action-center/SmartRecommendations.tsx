@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { SmartRecommendation } from "@/lib/actionCenter/types";
 
@@ -16,10 +17,13 @@ export default function SmartRecommendations({
     <section>
       <h2 className="ac-section-title">Smart Recommendations</h2>
       {recommendations.length === 0 ? (
-        <LandingGlassCard className="p-6 text-center">
-          <p className="text-sb-muted text-sm">
-            Personalized picks will appear as games heat up.
-          </p>
+        <LandingGlassCard className="p-6">
+          <SectionEmptyState
+            emoji="✨"
+            title="Smart picks loading"
+            description="Personalized recommendations appear as games heat up and boards fill."
+            compact
+          />
         </LandingGlassCard>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">

@@ -12,6 +12,9 @@ import PlatformHealth from "@/components/action-center/PlatformHealth";
 import SmartRecommendations from "@/components/action-center/SmartRecommendations";
 import TodaysTimeline from "@/components/action-center/TodaysTimeline";
 import UpcomingSports from "@/components/action-center/UpcomingSports";
+import AmbientBackground from "@/components/ui/AmbientBackground";
+import ExperienceHero from "@/components/ui/ExperienceHero";
+import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import type { ActionCenterData } from "@/lib/actionCenter/types";
@@ -104,31 +107,19 @@ export default function ActionCenter() {
       />
 
       <main className="flex-1 relative overflow-hidden pb-20 lg:pb-10">
-        <div className="lwc-glow" aria-hidden />
-        <div className="lwc-glow-secondary" aria-hidden />
+        <AmbientBackground />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          <header className="text-center mb-8 sm:mb-10 lwc-hero-enter">
-            <div className="inline-flex items-center gap-2 lwc-live-pill mb-4">
-              <span className="lwc-live-dot" />
-              <span>⚡ Action Center</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3">
-              The Action Center
-            </h1>
-            <p className="text-sb-muted text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              What&apos;s live, what&apos;s starting soon, and where you should play next —
-              updated automatically.
-            </p>
-          </header>
+          <ExperienceHero
+            badgeLabel="⚡ Action Center"
+            badgeVariant="live"
+            title="The Action Center"
+            subtitle="What's live, what's starting soon, and where you should play next — updated automatically."
+            cta={{ label: "Browse Live Boards", href: "/games/nfl" }}
+          />
 
           {loading ? (
-            <div className="space-y-4">
-              <div className="lwc-skeleton h-48" />
-              <div className="lwc-skeleton h-32" />
-              <div className="lwc-skeleton h-40" />
-              <div className="lwc-skeleton h-56" />
-            </div>
+            <ExperiencePageSkeleton variant="action-center" />
           ) : error && !data ? (
             <div className="text-center py-16">
               <p className="text-sb-muted mb-4">{error}</p>

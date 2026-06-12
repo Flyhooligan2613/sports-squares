@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { formatCurrency } from "@/lib/liveWinners/format";
 import type { ChampionEntry } from "@/lib/liveWinners/types";
 
@@ -49,9 +50,13 @@ export default function HallOfChampions({ champions }: HallOfChampionsProps) {
 
       <LandingGlassCard glow className="p-4 sm:p-5">
         {entries.length === 0 ? (
-          <p className="text-sb-muted text-sm text-center py-6">
-            Champions will appear as prizes are awarded.
-          </p>
+          <SectionEmptyState
+            emoji="👑"
+            title="The next champion could be you"
+            description="Browse today's live boards and lock in your squares before kickoff."
+            actionLabel="Browse Live Boards"
+            actionHref="/games/nfl"
+          />
         ) : (
           <ol className="space-y-3">
             {entries.map((entry, index) => (

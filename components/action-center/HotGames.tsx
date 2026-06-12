@@ -3,6 +3,7 @@
 import Link from "next/link";
 import HeroTeamLogo from "@/components/landing/hero/HeroTeamLogo";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import type { ActionGameCard } from "@/lib/actionCenter/types";
 
 interface HotGamesProps {
@@ -21,8 +22,13 @@ export default function HotGames({ games }: HotGamesProps) {
     <section>
       <h2 className="ac-section-title">Hot Games</h2>
       {games.length === 0 ? (
-        <LandingGlassCard className="p-6 text-center">
-          <p className="text-sb-muted text-sm">Trending games will rank here automatically.</p>
+        <LandingGlassCard className="p-6">
+          <SectionEmptyState
+            emoji="🔥"
+            title="No hot games yet"
+            description="Trending matchups rank here automatically as boards fill and purchases spike."
+            compact
+          />
         </LandingGlassCard>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">

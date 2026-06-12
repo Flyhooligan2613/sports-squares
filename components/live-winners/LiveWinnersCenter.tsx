@@ -10,6 +10,9 @@ import LivePlatformStatusSection from "@/components/live-winners/LivePlatformSta
 import LiveWinnersFeed from "@/components/live-winners/LiveWinnersFeed";
 import LiveWinnersStatsGrid from "@/components/live-winners/LiveWinnersStatsGrid";
 import RecentPayoutsTicker from "@/components/live-winners/RecentPayoutsTicker";
+import AmbientBackground from "@/components/ui/AmbientBackground";
+import ExperienceHero from "@/components/ui/ExperienceHero";
+import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
 import type { LiveWinnersCenterData } from "@/lib/liveWinners/types";
 
@@ -90,32 +93,19 @@ export default function LiveWinnersCenter() {
       <ConfettiCelebration trigger={celebrationKey} tier={celebrationTier} />
 
       <main className="flex-1 relative overflow-hidden">
-        <div className="lwc-glow" aria-hidden />
-        <div className="lwc-glow-secondary" aria-hidden />
+        <AmbientBackground />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          <header className="text-center mb-8 sm:mb-10 lwc-hero-enter">
-            <div className="inline-flex items-center gap-2 lwc-live-pill mb-4">
-              <span className="lwc-live-dot" />
-              <span>Live Command Center</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3">
-              Live Winners Center
-            </h1>
-            <p className="text-sb-muted text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Real-time winners, automatic payouts, and live game activity — all
-              handled automatically.
-            </p>
-          </header>
+          <ExperienceHero
+            badgeLabel="Live Command Center"
+            badgeVariant="live"
+            title="Live Winners Center"
+            subtitle="Real-time winners, automatic payouts, and live game activity — all handled automatically."
+            cta={{ label: "Play Today's Boards", href: "/action-center" }}
+          />
 
           {loading ? (
-            <div className="space-y-4">
-              <div className="lwc-skeleton h-16" />
-              <div className="lwc-skeleton h-24" />
-              <div className="lwc-skeleton h-28" />
-              <div className="lwc-skeleton h-48" />
-              <div className="lwc-skeleton h-64" />
-            </div>
+            <ExperiencePageSkeleton variant="live-winners" />
           ) : error && !data ? (
             <div className="text-center py-16">
               <p className="text-sb-muted mb-4">{error}</p>

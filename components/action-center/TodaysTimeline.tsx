@@ -1,6 +1,7 @@
 "use client";
 
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import type { TimelineEvent } from "@/lib/actionCenter/types";
 
 interface TodaysTimelineProps {
@@ -22,9 +23,12 @@ export default function TodaysTimeline({ events }: TodaysTimelineProps) {
       <h2 className="ac-section-title">Today&apos;s Timeline</h2>
       <LandingGlassCard className="p-4 sm:p-5">
         {events.length === 0 ? (
-          <p className="text-sb-muted text-sm text-center py-4">
-            Today&apos;s schedule will populate as games and payouts happen.
-          </p>
+          <SectionEmptyState
+            emoji="🗓️"
+            title="Today's timeline is warming up"
+            description="Kickoffs, quarter winners, and payouts will appear here as the day unfolds."
+            compact
+          />
         ) : (
           <ol className="ac-timeline">
             {events.map((event, index) => (

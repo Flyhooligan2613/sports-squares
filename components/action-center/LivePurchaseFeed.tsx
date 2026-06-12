@@ -1,6 +1,7 @@
 "use client";
 
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { formatTimeAgo } from "@/lib/liveWinners/format";
 import type { PurchaseFeedItem } from "@/lib/actionCenter/types";
 
@@ -14,9 +15,12 @@ export default function LivePurchaseFeed({ purchases }: LivePurchaseFeedProps) {
       <h2 className="ac-section-title">Live Purchase Feed</h2>
       <LandingGlassCard className="ac-purchase-panel p-3 sm:p-4">
         {purchases.length === 0 ? (
-          <p className="text-sb-muted text-sm text-center py-4">
-            Purchases stream here in real time.
-          </p>
+          <SectionEmptyState
+            emoji="💳"
+            title="Waiting for purchases"
+            description="Squares sell in real time — the feed lights up as players lock in."
+            compact
+          />
         ) : (
           <ul className="space-y-1 max-h-80 overflow-y-auto">
             {purchases.map((item, index) => (

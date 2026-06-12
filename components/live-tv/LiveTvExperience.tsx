@@ -17,6 +17,9 @@ import TrendingGames from "@/components/live-tv/TrendingGames";
 import UpcomingKickoffs from "@/components/live-tv/UpcomingKickoffs";
 import WinnerAnnouncementOverlay from "@/components/live-tv/WinnerAnnouncementOverlay";
 import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
+import StatusBadge from "@/components/ui/StatusBadge";
+import AmbientBackground from "@/components/ui/AmbientBackground";
+import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { useLiveTvSound } from "@/lib/liveTv/useLiveTvSound";
 import type { LiveTvData } from "@/lib/liveTv/types";
@@ -85,9 +88,7 @@ export default function LiveTvExperience() {
 
   return (
     <div className="livetv-page lwc-page min-h-screen flex flex-col">
-      <div className="livetv-particles" aria-hidden />
-      <div className="lwc-glow" aria-hidden />
-      <div className="lwc-glow-secondary" aria-hidden />
+      <AmbientBackground />
 
       <header className="livetv-header sticky top-0 z-30">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
@@ -106,10 +107,9 @@ export default function LiveTvExperience() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="lwc-live-pill py-1 px-2.5 text-[10px]">
-              <span className="lwc-live-dot" />
-              ON AIR
-            </span>
+            <StatusBadge variant="live" pulse dot>
+              On Air
+            </StatusBadge>
             <span className="text-sm font-mono text-sb-muted tabular-nums hidden md:inline">
               {clock}
             </span>
@@ -123,11 +123,7 @@ export default function LiveTvExperience() {
       <main className="flex-1 relative">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {loading ? (
-            <div className="space-y-4">
-              <div className="lwc-skeleton h-56" />
-              <div className="lwc-skeleton h-40" />
-              <div className="lwc-skeleton h-72" />
-            </div>
+            <ExperiencePageSkeleton variant="live-tv" />
           ) : error && !data ? (
             <div className="text-center py-20">
               <p className="text-sb-muted mb-4">{error}</p>

@@ -27,9 +27,16 @@ export default function Board({
     topNumbers?.length === 10 && sideNumbers?.length === 10;
 
   return (
-    <div className="w-full max-w-2xl overflow-x-auto -mx-1 px-1">
+    <div
+      className={[
+        "sb-board-wrap w-full max-w-2xl overflow-x-auto -mx-1 px-1",
+        locked ? "sb-board-wrap--locked" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {showNumbers && (
-        <p className="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold text-center mb-1.5 pl-8">
+        <p className="text-[10px] uppercase tracking-wider sb-board-label-home font-semibold text-center mb-1.5 pl-8">
           {homeTeam}
         </p>
       )}
@@ -44,7 +51,7 @@ export default function Board({
           ? topNumbers!.map((n, i) => (
               <div
                 key={`top-${i}`}
-                className="aspect-square flex items-center justify-center rounded-md bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 font-mono text-xs sm:text-sm font-bold axis-number"
+                className="aspect-square flex items-center justify-center rounded-md sb-board-axis-home font-mono text-xs sm:text-sm font-bold axis-number"
                 style={{ animationDelay: `${i * 0.05}s` }}
               >
                 {n}
@@ -71,7 +78,7 @@ export default function Board({
 
       {showNumbers && (
         <p
-          className="text-[10px] uppercase tracking-wider text-purple-400 font-semibold mt-1.5"
+          className="text-[10px] uppercase tracking-wider sb-board-label-away font-semibold mt-1.5"
           style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
         >
           {awayTeam}
@@ -104,7 +111,7 @@ function Row({
     <>
       {sideNumber !== undefined ? (
         <div
-          className="w-7 sm:w-8 aspect-square flex items-center justify-center rounded-md bg-purple-600/20 border border-purple-500/40 text-purple-300 font-mono text-xs sm:text-sm font-bold axis-number"
+          className="w-7 sm:w-8 aspect-square flex items-center justify-center rounded-md sb-board-axis-away font-mono text-xs sm:text-sm font-bold axis-number"
           style={{ animationDelay: `${row * 0.05}s` }}
           title={awayTeam}
         >
@@ -129,24 +136,24 @@ function Row({
             onClick={() => onSquareClick(square.id)}
             disabled={disabled}
             className={[
-              "relative aspect-square rounded-md text-[10px] font-bold transition-all border",
+              "sb-board-square relative aspect-square rounded-md text-[10px] font-bold border",
               isFeatured
                 ? "winner-square-glow border-amber-400 text-white z-10"
                 : isPastWinner
-                  ? "border-amber-500/40 text-white"
+                  ? "sb-board-square-past-winner text-white"
                   : square.claimed
                     ? "cursor-default border-transparent text-white"
                     : locked
-                      ? "cursor-not-allowed border-slate-700/50 bg-slate-800/50 text-slate-600"
+                      ? "sb-board-square-locked"
                       : isSelected
-                        ? "border-indigo-400 bg-indigo-500/30 text-indigo-200 scale-95"
-                        : "border-slate-700 bg-slate-800 hover:border-indigo-500/50 hover:bg-slate-700 text-slate-500",
+                        ? "sb-board-square-selected"
+                        : "sb-board-square-available",
             ].join(" ")}
             style={
               square.claimed && owner && !isFeatured
-                ? { backgroundColor: owner.color ?? "#6366f1" }
+                ? { backgroundColor: owner.color ?? "#5B4CF7" }
                 : isFeatured && owner
-                  ? { backgroundColor: owner.color ?? "#6366f1" }
+                  ? { backgroundColor: owner.color ?? "#5B4CF7" }
                   : undefined
             }
             title={owner ? owner.name : `Square ${square.id + 1}`}
@@ -154,7 +161,7 @@ function Row({
             {isFeatured && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/50 winner-trophy-bounce">
                 <svg
-                  className="w-2.5 h-2.5 text-slate-900"
+                  className="w-2.5 h-2.5 text-sb-bg"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
