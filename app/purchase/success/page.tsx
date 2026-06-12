@@ -7,8 +7,8 @@ export default function PurchaseSuccessPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
-          <p className="text-slate-500 text-sm">Loading purchase status...</p>
+        <main className="purchase-success-page min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
+          <p className="text-sb-muted text-sm">Confirming your purchase…</p>
         </main>
       }
     >

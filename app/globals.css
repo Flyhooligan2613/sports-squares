@@ -2981,6 +2981,252 @@ body {
   }
 }
 
+/* ── Purchase success ── */
+.purchase-success-page {
+  background: radial-gradient(
+      ellipse 70% 55% at 50% -10%,
+      rgba(91, 76, 247, 0.22),
+      transparent 58%
+    ),
+    var(--sb-bg, #030712);
+}
+
+.purchase-success-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 20%,
+    rgba(123, 97, 255, 0.14),
+    transparent 52%
+  );
+  pointer-events: none;
+}
+
+.purchase-success-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.purchase-success-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(196, 181, 253, 0.55);
+  animation: purchaseConfetti 4.5s ease-in-out infinite;
+}
+
+.purchase-success-particle:nth-child(1) { left: 8%; top: 18%; animation-delay: 0s; }
+.purchase-success-particle:nth-child(2) { left: 18%; top: 8%; animation-delay: 0.4s; }
+.purchase-success-particle:nth-child(3) { left: 28%; top: 22%; animation-delay: 0.8s; }
+.purchase-success-particle:nth-child(4) { left: 72%; top: 14%; animation-delay: 1.1s; }
+.purchase-success-particle:nth-child(5) { left: 82%; top: 24%; animation-delay: 0.2s; }
+.purchase-success-particle:nth-child(6) { left: 90%; top: 10%; animation-delay: 1.5s; }
+.purchase-success-particle:nth-child(7) { left: 12%; top: 42%; animation-delay: 1.8s; }
+.purchase-success-particle:nth-child(8) { left: 88%; top: 38%; animation-delay: 0.6s; }
+.purchase-success-particle:nth-child(9) { left: 22%; top: 62%; animation-delay: 2s; }
+.purchase-success-particle:nth-child(10) { left: 76%; top: 58%; animation-delay: 2.3s; }
+.purchase-success-particle:nth-child(11) { left: 48%; top: 12%; animation-delay: 0.9s; }
+.purchase-success-particle:nth-child(12) { left: 56%; top: 72%; animation-delay: 1.4s; }
+.purchase-success-particle:nth-child(13) { left: 34%; top: 78%; animation-delay: 2.6s; }
+.purchase-success-particle:nth-child(14) { left: 64%; top: 82%; animation-delay: 0.3s; }
+.purchase-success-particle:nth-child(15) { left: 6%; top: 68%; animation-delay: 1.7s; }
+.purchase-success-particle:nth-child(16) { left: 92%; top: 66%; animation-delay: 2.1s; }
+.purchase-success-particle:nth-child(17) { left: 42%; top: 32%; animation-delay: 1.2s; }
+.purchase-success-particle:nth-child(18) { left: 58%; top: 46%; animation-delay: 2.8s; }
+
+@keyframes purchaseConfetti {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-18px) scale(1);
+  }
+  80% {
+    opacity: 0.4;
+  }
+}
+
+.purchase-success-enter {
+  animation: purchaseSuccessEnter 0.75s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.purchase-success-enter-2 { animation-delay: 0.12s; }
+.purchase-success-enter-3 { animation-delay: 0.22s; }
+.purchase-success-enter-4 { animation-delay: 0.32s; }
+
+@keyframes purchaseSuccessEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.purchase-success-card {
+  animation: purchaseCardPop 0.85s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+@keyframes purchaseCardPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.purchase-success-icon-wrap {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.purchase-success-icon-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(91, 76, 247, 0.35), transparent 70%);
+  animation: purchaseGlowPulse 2.8s ease-in-out infinite;
+}
+
+.purchase-success-icon {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.35rem;
+  background: rgba(91, 76, 247, 0.18);
+  border: 1px solid rgba(123, 97, 255, 0.35);
+  animation: purchaseIconScale 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+@keyframes purchaseGlowPulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes purchaseIconScale {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.purchase-success-primary-btn {
+  min-height: 3.25rem;
+  font-size: 1.05rem;
+}
+
+.purchase-success-resend-btn {
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.25s ease;
+}
+
+.purchase-success-resend-btn:hover:not(:disabled) {
+  color: #c4b5fd;
+}
+
+.purchase-success-resend-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.purchase-summary-card:hover {
+  border-color: rgba(123, 97, 255, 0.28);
+}
+
+.purchase-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.purchase-timeline-item {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  min-height: 2.75rem;
+}
+
+.purchase-timeline-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.purchase-timeline-dot {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.purchase-timeline-dot-done {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.purchase-timeline-connector {
+  flex: 1;
+  width: 2px;
+  min-height: 1.25rem;
+  margin: 0.2rem 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.purchase-timeline-connector-done {
+  background: linear-gradient(
+    180deg,
+    rgba(34, 197, 94, 0.5),
+    rgba(123, 97, 255, 0.25)
+  );
+}
+
+.purchase-timeline-label {
+  padding-top: 0.2rem;
+  font-size: 0.9375rem;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .motion-reveal {
@@ -3013,6 +3259,13 @@ body {
   .player-live-dot,
   .player-skeleton-hero,
   .player-skeleton-card {
+    animation: none !important;
+  }
+
+  .purchase-success-particle,
+  .purchase-success-icon-glow,
+  .purchase-success-card,
+  .purchase-success-icon {
     animation: none !important;
   }
 

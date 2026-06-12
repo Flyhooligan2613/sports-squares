@@ -25,7 +25,9 @@ export default function PlayerLoginPageClient() {
       <Suspense fallback={null}>
         <LoginErrorBanner />
       </Suspense>
-      <PlayerLoginForm />
+      <Suspense fallback={null}>
+        <PlayerLoginForm />
+      </Suspense>
     </>
   );
 }

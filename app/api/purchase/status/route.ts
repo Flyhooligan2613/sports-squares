@@ -3,6 +3,7 @@ import {
   fulfillPurchase,
   getFulfillmentBySessionId,
 } from "@/lib/purchases/fulfill";
+import { buildPurchaseStatusPayload } from "@/lib/purchases/statusPayload";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe/client";
 import { isStripeConfigured } from "@/lib/stripe/config";
@@ -47,16 +48,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ status: "pending" });
     }
 
-    return NextResponse.json({
-      status: "fulfilled",
-      inviteUrl: result.inviteUrl,
-      invitePath: `/join/${result.inviteToken}`,
-      inviteToken: result.inviteToken,
-      playerId: result.playerId,
-      inviteDeliveryStatus: result.inviteDeliveryStatus,
-      inviteDeliveryError: result.inviteDeliveryError ?? null,
-      smsDeliveryStatus: result.smsDeliveryStatus,
-    });
+    const payload = await buildPurchaseStatusPayload(sessionId, result);
+    return NextResponse.json(payload);
   } catch (err) {
     return NextResponse.json(
       {
