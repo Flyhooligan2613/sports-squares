@@ -8,6 +8,9 @@ import {
   assignPlayerToPickemLeague,
   refreshPickemLeaguePlayerCount,
 } from "@/lib/pickem/db/leagues";
+import {
+  hasPickemEntryForContest,
+} from "@/lib/pickem/entryPurchase";
 
 const TABLE = "pickem_picks";
 
@@ -71,10 +74,23 @@ export async function savePickemPick(input: {
   const contest = await getPickemContestById(input.contestId);
   if (!contest) throw new Error("Contest not found.");
 
+  const entryTierCents = input.entryTierCents ?? 1000;
+  const hasEntry = await hasPickemEntryForContest({
+    contestId: input.contestId,
+    email,
+    entryTierCents,
+  });
+
+  if (!hasEntry) {
+    throw new Error(
+      "Pay the entry fee for this tier before making picks."
+    );
+  }
+
   const league = await assignPlayerToPickemLeague(
     contest,
     email,
-    input.entryTierCents ?? 1000
+    entryTierCents
   );
 
   await ensurePlayerProfile(email, displayNameFromEmail(email));

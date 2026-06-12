@@ -9,6 +9,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import PickemGameCard from "@/components/pickem/PickemGameCard";
+import PickemEntryPanel from "@/components/pickem/PickemEntryPanel";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
@@ -118,6 +119,7 @@ export default function PickemWeekClient() {
   const searchParams = useSearchParams();
   const contestIdParam = searchParams.get("contestId");
   const entryTierCents = parseEntryTierParam(searchParams.get("tier"));
+  const entrySessionId = searchParams.get("entry_session_id");
 
   const [week, setWeek] = useState<PickemWeekView | null>(null);
   const [weeks, setWeeks] = useState<PickemWeekOption[]>([]);
@@ -126,6 +128,9 @@ export default function PickemWeekClient() {
   const [savingGameId, setSavingGameId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [authRequired, setAuthRequired] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [entryPolling, setEntryPolling] = useState(false);
+  const [entryCheckoutError, setEntryCheckoutError] = useState<string | null>(null);
 
   const loadWeeks = useCallback(async () => {
     const res = await fetch("/api/pickem/weeks", { cache: "no-store" });
@@ -170,6 +175,43 @@ export default function PickemWeekClient() {
     return () => clearInterval(timer);
   }, [load]);
 
+  useEffect(() => {
+    if (!entrySessionId) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    setEntryPolling(true);
+
+    async function pollEntry() {
+      attempts += 1;
+      const res = await fetch(
+        `/api/pickem/entry/status?session_id=${encodeURIComponent(entrySessionId!)}`
+      );
+      const data = (await res.json()) as { status?: string };
+      if (cancelled) return;
+
+      if (data.status === "paid") {
+        setEntryPolling(false);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("entry_session_id");
+        router.replace(`/pickem/week?${params.toString()}`);
+        await load();
+        return;
+      }
+
+      if (attempts < 20) {
+        setTimeout(() => void pollEntry(), 2000);
+      } else {
+        setEntryPolling(false);
+      }
+    }
+
+    void pollEntry();
+    return () => {
+      cancelled = true;
+    };
+  }, [entrySessionId, load, router, searchParams]);
+
   function handleWeekChange(contestId: string) {
     setSelectedContestId(contestId);
     setLoading(true);
@@ -185,8 +227,41 @@ export default function PickemWeekClient() {
     router.push(`/pickem/week?${params.toString()}`);
   }
 
-  async function handlePick(gameId: string, pickedSide: PickemSide) {
+  async function handleEntryCheckout() {
     if (!week) return;
+    setCheckoutLoading(true);
+    setEntryCheckoutError(null);
+
+    try {
+      const res = await fetch("/api/pickem/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contestId: week.contest.id,
+          entryTierCents,
+        }),
+      });
+
+      const data = (await res.json()) as { url?: string; error?: string };
+
+      if (res.status === 401) {
+        setAuthRequired(true);
+        return;
+      }
+
+      if (!res.ok || !data.url) {
+        throw new Error(data.error ?? "Could not start checkout.");
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      setEntryCheckoutError(err instanceof Error ? err.message : "Checkout failed.");
+      setCheckoutLoading(false);
+    }
+  }
+
+  async function handlePick(gameId: string, pickedSide: PickemSide) {
+    if (!week || !week.entry.paid) return;
     setSavingGameId(gameId);
     setAuthRequired(false);
     setError(null);
@@ -268,6 +343,20 @@ export default function PickemWeekClient() {
               />
             </LandingGlassCard>
 
+            {entryPolling ? (
+              <LandingGlassCard className="p-4 mb-6 text-center text-sb-muted text-sm">
+                Confirming your entry payment…
+              </LandingGlassCard>
+            ) : null}
+
+            <PickemEntryPanel
+              contestLabel={week.contest.label}
+              entry={week.entry}
+              loading={checkoutLoading}
+              error={entryCheckoutError}
+              onCheckout={handleEntryCheckout}
+            />
+
             <ExperienceHero
               badgeLabel={week.contest.label}
               badgeVariant={liveMode ? "live" : "open"}
@@ -314,7 +403,8 @@ export default function PickemWeekClient() {
                   key={game.id}
                   game={game}
                   saving={savingGameId === game.id}
-                  onPick={handlePick}
+                  onPick={week.entry.paid ? handlePick : undefined}
+                  disabled={!week.entry.paid}
                 />
               ))}
             </div>

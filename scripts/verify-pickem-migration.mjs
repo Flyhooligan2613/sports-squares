@@ -38,11 +38,16 @@ if (!url || !key) {
   process.exit(1);
 }
 
-const tables = ["pickem_leagues", "pickem_payouts", "pickem_weekly_snapshots"];
+const tables = [
+  "pickem_leagues",
+  "pickem_payouts",
+  "pickem_weekly_snapshots",
+  "pickem_entry_purchases",
+];
 
 console.log("");
-console.log("Pick'em migration 022 check");
-console.log("============================");
+console.log("Pick'em migration check (022 + 025)");
+console.log("==================================");
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -64,5 +69,6 @@ for (const table of tables) {
 }
 
 console.log("");
-console.log("If any show ✗, run 022_pickem_leagues_payouts.sql in Supabase SQL Editor.");
+console.log("If pickem_entry_purchases shows ✗, run 025_pickem_entry_purchases.sql in Supabase SQL Editor.");
+console.log("If leagues/payouts show ✗, run 022_pickem_leagues_payouts.sql in Supabase SQL Editor.");
 console.log("");

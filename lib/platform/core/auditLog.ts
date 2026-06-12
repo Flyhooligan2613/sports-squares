@@ -17,6 +17,7 @@ export type PlatformAuditEventType =
   | "pickem.graded"
   | "pickem.leaderboard_updated"
   | "pickem.week_complete"
+  | "pickem.entry_paid"
   | "support.ticket_submitted"
   | "stripe.webhook"
   | "automation.cron"

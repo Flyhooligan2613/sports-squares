@@ -93,6 +93,14 @@ export interface PickemWeekView {
   playerStats: PickemPlayerStats | null;
   liveSummary: PickemLiveSummary | null;
   myPicks: PickemMyPicksSummary | null;
+  entry: PickemEntryStatus;
+}
+
+export interface PickemEntryStatus {
+  tierCents: number;
+  amountCents: number;
+  paid: boolean;
+  requiresAuth: boolean;
 }
 
 export interface PickemMyPicksSummary {

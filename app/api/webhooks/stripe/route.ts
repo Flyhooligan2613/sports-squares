@@ -3,7 +3,15 @@ import {
   fulfillPurchase,
   reversePurchaseBySession,
 } from "@/lib/purchases/fulfill";
+import {
+  fulfillPickemEntryPurchase,
+  reversePickemEntryBySession,
+} from "@/lib/pickem/entryPurchase";
 import { recordWebhookEvent } from "@/lib/purchases/ledger";
+import {
+  PURCHASE_TYPE_PICKEM_ENTRY,
+  resolvePurchaseType,
+} from "@/lib/platform/core/checkoutMetadata";
 import { syncConnectAccountFromStripe } from "@/lib/database/services/stripeConnect";
 import { getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
@@ -20,7 +28,7 @@ function parseSquaresCount(raw: string | undefined): number | null {
   return value;
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handleSquaresCheckout(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid") {
     throw new Error("Checkout session is not paid.");
   }
@@ -51,6 +59,46 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   });
 }
 
+async function handlePickemEntryCheckout(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== "paid") {
+    throw new Error("Checkout session is not paid.");
+  }
+
+  const metadata = session.metadata ?? {};
+  const contestId = metadata.contestId;
+  const email = metadata.email;
+  const entryTierCents = Math.floor(Number(metadata.entryTierCents));
+
+  if (!contestId || !email || !session.id || !Number.isFinite(entryTierCents)) {
+    throw new Error("Missing or invalid Pick'em entry metadata.");
+  }
+
+  await fulfillPickemEntryPurchase({
+    contestId,
+    email,
+    entryTierCents,
+    stripeCheckoutSessionId: session.id,
+    amountPaidCents: session.amount_total ?? 0,
+    stripePaymentIntentId:
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id ?? null,
+  });
+}
+
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const purchaseType = resolvePurchaseType(
+    (session.metadata ?? {}) as Record<string, string | undefined>
+  );
+
+  if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
+    await handlePickemEntryCheckout(session);
+    return;
+  }
+
+  await handleSquaresCheckout(session);
+}
+
 async function handleChargeRefunded(charge: Stripe.Charge) {
   const paymentIntentId =
     typeof charge.payment_intent === "string"
@@ -67,6 +115,16 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
 
   const sessionId = sessions.data[0]?.id;
   if (!sessionId) return;
+
+  const session = sessions.data[0];
+  const purchaseType = resolvePurchaseType(
+    (session.metadata ?? {}) as Record<string, string | undefined>
+  );
+
+  if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
+    await reversePickemEntryBySession(sessionId);
+    return;
+  }
 
   await reversePurchaseBySession(sessionId);
 }

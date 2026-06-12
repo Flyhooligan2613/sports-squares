@@ -6,7 +6,8 @@ import type { PickemGameView, PickemSide } from "@/lib/pickem/types";
 interface PickemGameCardProps {
   game: PickemGameView;
   saving?: boolean;
-  onPick: (gameId: string, side: PickemSide) => void;
+  disabled?: boolean;
+  onPick?: (gameId: string, side: PickemSide) => void;
 }
 
 function formatKickoff(iso: string): string {
@@ -85,10 +86,16 @@ function TeamButton({
   );
 }
 
-export default function PickemGameCard({ game, saving, onPick }: PickemGameCardProps) {
+export default function PickemGameCard({
+  game,
+  saving,
+  disabled: entryLocked = false,
+  onPick,
+}: PickemGameCardProps) {
   const locked = game.picksLocked || new Date(game.kickoffAt).getTime() <= Date.now();
   const live = game.status === "live";
   const final = game.status === "final";
+  const disabled = locked || saving === true || entryLocked || !onPick;
 
   return (
     <article
@@ -126,8 +133,8 @@ export default function PickemGameCard({ game, saving, onPick }: PickemGameCardP
           record={game.awayRecord}
           logoUrl={game.awayLogoUrl}
           selected={game.userPick === "away"}
-          disabled={locked || saving === true}
-          onClick={() => onPick(game.id, "away")}
+          disabled={disabled}
+          onClick={() => onPick?.(game.id, "away")}
         />
         <span className="pickem-game-at">@</span>
         <TeamButton
@@ -137,8 +144,8 @@ export default function PickemGameCard({ game, saving, onPick }: PickemGameCardP
           record={game.homeRecord}
           logoUrl={game.homeLogoUrl}
           selected={game.userPick === "home"}
-          disabled={locked || saving === true}
-          onClick={() => onPick(game.id, "home")}
+          disabled={disabled}
+          onClick={() => onPick?.(game.id, "home")}
         />
       </div>
     </article>

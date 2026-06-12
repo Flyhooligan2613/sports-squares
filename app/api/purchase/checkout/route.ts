@@ -2,6 +2,8 @@ import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { getAppUrl, getCheckoutMissingConfig } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
+import { PURCHASE_TYPE_SQUARES } from "@/lib/platform/core/checkoutMetadata";
+import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
 import { getSupabaseConfig } from "@/lib/supabase";
 
 type CheckoutPool = {
@@ -9,12 +11,13 @@ type CheckoutPool = {
   name: string;
   status: string;
   cost_per_square: number;
+  entry_tier_cents: number | null;
 };
 
 async function fetchCheckoutPool(poolId: string): Promise<CheckoutPool | null> {
   const { url, publishableKey } = getSupabaseConfig();
   const response = await fetch(
-    `${url}/rest/v1/pools?select=id,name,status,cost_per_square&id=eq.${encodeURIComponent(poolId)}`,
+    `${url}/rest/v1/pools?select=id,name,status,cost_per_square,entry_tier_cents&id=eq.${encodeURIComponent(poolId)}`,
     {
       headers: {
         apikey: publishableKey,
@@ -97,6 +100,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const entryTierCents = normalizeEntryTierCents(pool.entry_tier_cents);
+    const expectedCost = entryTierCents / 100;
+    if (Math.abs(costPerSquare - expectedCost) > 0.001) {
+      return NextResponse.json(
+        { error: "Board pricing does not match entry tier." },
+        { status: 400 }
+      );
+    }
+
     const { url, publishableKey } = getSupabaseConfig();
     const squaresResponse = await fetch(
       `${url}/rest/v1/squares?select=id&pool_id=eq.${encodeURIComponent(poolId)}&claimed=eq.false`,
@@ -157,11 +169,13 @@ export async function POST(request: Request) {
       success_url: `${appUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pool/${poolId}`,
       metadata: {
+        purchaseType: PURCHASE_TYPE_SQUARES,
         poolId,
         name,
         email,
         phone: phone ?? "",
         squaresCount: String(squaresCount),
+        entryTierCents: String(entryTierCents),
       },
     });
 

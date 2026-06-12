@@ -10,6 +10,10 @@ import {
   recomputeLiveWeeklyStatsForPlayer,
 } from "@/lib/pickem/db/stats";
 import {
+  hasPickemEntryForContest,
+  pickemEntryAmountCents,
+} from "@/lib/pickem/entryPurchase";
+import {
   formatLeagueLabel,
   getPlayerPickemLeague,
 } from "@/lib/pickem/db/leagues";
@@ -17,6 +21,7 @@ import {
   getLongestActivePickemStreak,
   getPickemContestById,
 } from "@/lib/pickem/db/contests";
+import { isValidEntryTierCents } from "@/lib/platform/core/entryTiers";
 import type {
   PickemContest,
   PickemGameView,
@@ -131,6 +136,19 @@ export async function buildPickemWeekView(input: {
   email?: string | null;
   entryTierCents?: number;
 }): Promise<PickemWeekView> {
+  const entryTierCents =
+    input.entryTierCents != null && isValidEntryTierCents(input.entryTierCents)
+      ? input.entryTierCents
+      : 1000;
+
+  const entryPaid = input.email
+    ? await hasPickemEntryForContest({
+        contestId: input.contest.id,
+        email: input.email,
+        entryTierCents,
+      })
+    : false;
+
   const games = await listPickemGames(input.contest.id);
   const picks = input.email
     ? await listUserPicksForContest(input.contest.id, input.email)
@@ -181,6 +199,12 @@ export async function buildPickemWeekView(input: {
     playerStats,
     liveSummary,
     myPicks: buildMyPicksSummary(playerStats, liveSummary),
+    entry: {
+      tierCents: entryTierCents,
+      amountCents: pickemEntryAmountCents(entryTierCents),
+      paid: entryPaid,
+      requiresAuth: !input.email,
+    },
   };
 }
 
