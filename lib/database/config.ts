@@ -13,4 +13,6 @@ export const TABLES = {
   squares: "squares",
   winners: "winners",
   games: "games",
+  supportThreads: "support_threads",
+  supportMessages: "support_messages",
 } as const;

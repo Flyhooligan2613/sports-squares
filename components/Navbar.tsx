@@ -1,36 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Logo from "@/components/Logo";
 import Link from "next/link";
+import Logo from "@/components/Logo";
+import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 12);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <header
-      className={[
-        "navbar-header sticky top-0 z-50 border-b transition-all duration-300 ease-out",
-        scrolled
-          ? "navbar-header-scrolled border-white/[0.08] bg-sb-bg/92 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
-          : "border-white/[0.06] bg-sb-bg/80 backdrop-blur-xl",
-      ].join(" ")}
-    >
+    <header className="navbar-header sticky top-0 z-50 border-b border-white/[0.08] bg-sb-bg/88 backdrop-blur-2xl shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
-        <Logo href="/" className="sb-logo-nav" />
+        <div className="flex items-center gap-3 min-w-0">
+          <NavDrawerTrigger />
+          <Logo href="/" className="sb-logo-nav shrink-0" />
+        </div>
         <Link
           href="/my-games"
-          className="text-sm font-semibold text-sb-glow hover:text-white transition-colors"
+          className="text-sm font-semibold text-sb-glow hover:text-white transition-colors shrink-0"
         >
           My Games
         </Link>
