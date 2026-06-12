@@ -5,7 +5,7 @@ import {
   PICKEM_LEAGUE_MAX_PLAYERS,
 } from "@/lib/pickem/config";
 import {
-  PLATFORM_ENTRY_TIERS,
+  getActiveEntryTiers,
   normalizeEntryTierCents,
   isValidEntryTierCents,
 } from "@/lib/platform/core/entryTiers";
@@ -134,7 +134,7 @@ export async function ensurePickemLeaguesForAllTiers(
   contestId: string
 ): Promise<number> {
   let created = 0;
-  for (const tier of PLATFORM_ENTRY_TIERS) {
+  for (const tier of getActiveEntryTiers()) {
     const leagues = await listPickemLeaguesForContest(contestId, tier.cents);
     if (leagues.length === 0) {
       await createPickemLeague(contestId, 1, tier.cents);

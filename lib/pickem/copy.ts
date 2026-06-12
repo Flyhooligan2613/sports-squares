@@ -10,3 +10,6 @@ export const PICKEM_CHAMPIONSHIP_BANNER = "CHAMPIONSHIP TIEBREAKER ACTIVE";
 
 export const PICKEM_AUTO_ENGINE_TAGLINE =
   "Fully automated — no commissioners, no manual scoring, official NFL results only.";
+
+export const PICKEM_CHAMPIONSHIP_CONGRATS =
+  "Congratulations! You finished tied for first place. Predict the total combined points scored during Monday Night Football.";

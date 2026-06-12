@@ -46,7 +46,7 @@ export async function buildPickemNotifications(
 
     const { data: league } = await supabase
       .from("pickem_leagues")
-      .select("player_count, max_players, league_number, entry_tier_cents")
+      .select("player_count, max_players, league_number, entry_tier_cents, status")
       .eq("id", leagueId)
       .maybeSingle();
 
@@ -63,6 +63,16 @@ export async function buildPickemNotifications(
         type: "pickem_pool_almost_full",
         title: "🔥 Pool almost full",
         detail: `${contest.label} · $${tier} · Pool #${league.league_number} · ${remaining} spots left`,
+        at: new Date().toISOString(),
+      });
+    }
+
+    if (remaining === 0 || league.status === "full") {
+      notifications.push({
+        id: `pickem-pool-full-${leagueId}`,
+        type: "pickem_pool_full",
+        title: "✅ Pool at capacity",
+        detail: `${contest.label} · $${tier} · Pool #${league.league_number} · 1,000 players joined`,
         at: new Date().toISOString(),
       });
     }
@@ -170,6 +180,29 @@ export async function buildPickemNotifications(
       detail: `${stats.current_streak as number} picks in a row — keep it going`,
       at: new Date().toISOString(),
     });
+  }
+
+  const { data: perfectWeek } = await supabase
+    .from("pickem_week_history")
+    .select("week_label, weekly_record")
+    .eq("email", normalized)
+    .like("weekly_record", "%-%")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  for (const row of perfectWeek ?? []) {
+    const record = row.weekly_record as string;
+    const [wins, losses] = record.split("-").map(Number);
+    if (losses === 0 && wins > 0) {
+      notifications.push({
+        id: `pickem-perfect-${row.week_label}`,
+        type: "pickem_achievement",
+        title: "⭐ Perfect week",
+        detail: `${row.week_label as string} · ${record} — flawless picks`,
+        at: new Date().toISOString(),
+      });
+      break;
+    }
   }
 
   const { data: history } = await supabase

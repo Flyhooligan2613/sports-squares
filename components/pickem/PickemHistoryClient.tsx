@@ -26,7 +26,16 @@ interface HistorySummary {
   globalRank: number | null;
   countryRank: number | null;
   stateRank: number | null;
+  memberSince: string | null;
   weeks: PickemWeekHistoryEntry[];
+}
+
+function formatMemberSince(iso: string | null): string {
+  if (!iso) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(iso));
 }
 
 export default function PickemHistoryClient() {
@@ -76,6 +85,7 @@ export default function PickemHistoryClient() {
           label: "Lifetime Earnings",
           value: formatMoney(data.lifetimeEarningsCents),
         },
+        { label: "Member Since", value: formatMemberSince(data.memberSince) },
       ]
     : [];
 

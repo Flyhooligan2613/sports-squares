@@ -91,15 +91,24 @@ export async function getPickemHistorySummary(email: string): Promise<{
   globalRank: number | null;
   countryRank: number | null;
   stateRank: number | null;
+  memberSince: string | null;
   weeks: PickemWeekHistoryEntry[];
 }> {
   const { getPickemPlayerStats, getSeasonRankForPlayer } = await import(
     "@/lib/pickem/db/stats"
   );
   const { getPickemLeaderboard } = await import("@/lib/pickem/leaderboards");
+  const supabase = getSupabaseAdmin();
+  const normalized = normalizeEmail(email);
   const seasonYear = new Date().getFullYear();
   const stats = await getPickemPlayerStats(email, "nfl", seasonYear);
   const weeks = await listPickemWeekHistory(email);
+
+  const { data: profile } = await supabase
+    .from("player_profiles")
+    .select("created_at")
+    .eq("email", normalized)
+    .maybeSingle();
 
   const globalRank = await getSeasonRankForPlayer({
     sport: "nfl",
@@ -127,6 +136,7 @@ export async function getPickemHistorySummary(email: string): Promise<{
     globalRank,
     countryRank: usBoard.viewerRank,
     stateRank: null,
+    memberSince: (profile?.created_at as string | null) ?? null,
     weeks,
   };
 }

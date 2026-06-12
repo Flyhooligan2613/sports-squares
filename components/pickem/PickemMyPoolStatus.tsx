@@ -27,9 +27,16 @@ function KickoffCountdown({ targetIso }: { targetIso: string | null }) {
         setLabel("Kickoff passed");
         return;
       }
-      const h = Math.floor(diff / 3_600_000);
-      const m = Math.floor((diff % 3_600_000) / 60_000);
-      setLabel(`${h}h ${m}m to next kickoff`);
+      const days = Math.floor(diff / 86_400_000);
+      const hours = Math.floor((diff % 86_400_000) / 3_600_000);
+      const minutes = Math.floor((diff % 3_600_000) / 60_000);
+      if (days > 0) {
+        setLabel(`${days} ${days === 1 ? "Day" : "Days"} ${hours} ${hours === 1 ? "Hour" : "Hours"}`);
+      } else if (hours > 0) {
+        setLabel(`${hours} ${hours === 1 ? "Hour" : "Hours"} ${minutes}m`);
+      } else {
+        setLabel(`${minutes}m to kickoff`);
+      }
     }
     tick();
     const id = setInterval(tick, 30_000);
@@ -37,7 +44,11 @@ function KickoffCountdown({ targetIso }: { targetIso: string | null }) {
   }, [targetIso]);
 
   if (!label) return null;
-  return <span className="text-emerald-300/90">{label}</span>;
+  return (
+    <>
+      Kickoff · <span className="text-emerald-300/90">{label}</span>
+    </>
+  );
 }
 
 interface PickemMyPoolStatusProps {

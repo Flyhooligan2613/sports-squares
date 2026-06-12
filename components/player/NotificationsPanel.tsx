@@ -9,6 +9,7 @@ const ICONS: Record<PlayerNotification["type"], string> = {
   game_starting: "⏰",
   pickem_week_open: "🏈",
   pickem_pool_almost_full: "🔥",
+  pickem_pool_full: "✅",
   pickem_sunday_complete: "📊",
   pickem_championship: "👑",
   pickem_prediction_due: "⏱",
@@ -17,6 +18,7 @@ const ICONS: Record<PlayerNotification["type"], string> = {
   pickem_payout: "💰",
   pickem_streak: "🔥",
   pickem_rank_up: "📈",
+  pickem_achievement: "⭐",
 };
 
 interface NotificationsPanelProps {

@@ -53,6 +53,7 @@ export interface PlayerNotification {
     | "game_starting"
     | "pickem_week_open"
     | "pickem_pool_almost_full"
+    | "pickem_pool_full"
     | "pickem_sunday_complete"
     | "pickem_championship"
     | "pickem_prediction_due"
@@ -60,7 +61,8 @@ export interface PlayerNotification {
     | "pickem_winner"
     | "pickem_payout"
     | "pickem_streak"
-    | "pickem_rank_up";
+    | "pickem_rank_up"
+    | "pickem_achievement";
   title: string;
   detail: string;
   at: string;

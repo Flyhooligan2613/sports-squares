@@ -297,6 +297,35 @@ export interface PickemWeekHistoryEntry {
   createdAt: string;
 }
 
+export interface PickemSeasonArchive {
+  id: string;
+  sport: PickemSport;
+  seasonYear: number;
+  championEmail: string | null;
+  championDisplayName: string | null;
+  championRecord: string | null;
+  championAccuracyPct: number;
+  championLongestStreak: number;
+  championPerfectWeeks: number;
+  championEarningsCents: number;
+  totalPlayers: number;
+  totalWeeks: number;
+  archivedAt: string;
+}
+
+export interface PickemSeasonStanding {
+  rank: number;
+  email: string;
+  displayName: string;
+  seasonWins: number;
+  seasonLosses: number;
+  pickAccuracyPct: number;
+  longestStreak: number;
+  perfectWeeks: number;
+  lifetimePickemWins: number;
+  earningsCents: number;
+}
+
 export interface PickemScoreboardMeta {
   weekNumber: number;
   seasonYear: number;

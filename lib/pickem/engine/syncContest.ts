@@ -30,6 +30,7 @@ import {
 } from "@/lib/pickem/db/stats";
 import { seedPickemSeason } from "@/lib/pickem/engine/seedSeason";
 import { processContestResolution } from "@/lib/pickem/engine/resolution";
+import { maybeArchivePickemSeason } from "@/lib/pickem/engine/archiveSeason";
 import { allSundaySlateGamesFinal, getMondayNightGame } from "@/lib/pickem/mondayNight";
 import {
   syncPickemProfileStats,
@@ -173,6 +174,20 @@ async function syncSinglePickemContest(
   const leagues = await listPickemLeaguesForContest(activeContest.id);
   for (const league of leagues) {
     await refreshPickemLeaguePlayerCount(league.id);
+  }
+
+  if (refreshedContest?.status === "complete") {
+    try {
+      await maybeArchivePickemSeason({
+        sport,
+        seasonYear: refreshedContest.seasonYear,
+        seasonType: refreshedContest.seasonType,
+        weekNumber: refreshedContest.weekNumber,
+        contestStatus: refreshedContest.status,
+      });
+    } catch (err) {
+      errors.push(formatPickemSyncError(err, "Season archive failed."));
+    }
   }
 
   const refreshed = await getCurrentPickemContest(sport);

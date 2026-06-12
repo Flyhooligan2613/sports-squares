@@ -100,7 +100,17 @@ export default function PickemLandingClient() {
             <Button href="/pickem/leaderboards" variant="secondary">
               Leaderboards
             </Button>
+            <Button href="/pickem/history" variant="secondary">
+              My Profile
+            </Button>
+            <Button href="/pickem/hall-of-fame" variant="secondary">
+              Hall of Fame
+            </Button>
           </div>
+
+          <p className="text-center text-xs text-sb-muted mt-4 max-w-xl mx-auto">
+            Two flagship games, one account — SquareBoards for luck, Pick&apos;em for prediction.
+          </p>
 
           {overview ? (
             <p className="text-center text-sm text-sb-muted mt-6">

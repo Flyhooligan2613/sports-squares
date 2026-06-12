@@ -41,6 +41,22 @@ export const PLATFORM_ENTRY_TIERS: EntryTier[] = [
   { cents: 10000, label: "$100", group: "premium" },
 ];
 
+/** Future high-roller tiers — architected but hidden until launch. */
+export const HIGH_ROLLER_ENTRY_TIERS: EntryTier[] = [
+  { cents: 25000, label: "$250", group: "premium" },
+  { cents: 50000, label: "$500", group: "premium" },
+  { cents: 100000, label: "$1,000", group: "premium" },
+];
+
+export const HIGH_ROLLER_ENABLED = false;
+
+/** All tiers including high roller when enabled. */
+export function getActiveEntryTiers(): EntryTier[] {
+  return HIGH_ROLLER_ENABLED
+    ? [...PLATFORM_ENTRY_TIERS, ...HIGH_ROLLER_ENTRY_TIERS]
+    : PLATFORM_ENTRY_TIERS;
+}
+
 export function formatTierCents(cents: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -50,11 +66,11 @@ export function formatTierCents(cents: number): string {
 }
 
 export function getTiersByGroup(group: EntryTierGroup): EntryTier[] {
-  return PLATFORM_ENTRY_TIERS.filter((t) => t.group === group);
+  return getActiveEntryTiers().filter((t) => t.group === group);
 }
 
 export function getTierByCents(cents: number): EntryTier | undefined {
-  return PLATFORM_ENTRY_TIERS.find((t) => t.cents === cents);
+  return getActiveEntryTiers().find((t) => t.cents === cents);
 }
 
 /** Square price in dollars (pools.cost_per_square) from tier cents. */
@@ -68,7 +84,7 @@ export function normalizeEntryTierCents(cents: number | null | undefined): numbe
 }
 
 export function isValidEntryTierCents(cents: number): boolean {
-  return PLATFORM_ENTRY_TIERS.some((t) => t.cents === cents);
+  return getActiveEntryTiers().some((t) => t.cents === cents);
 }
 
 export function parseEntryTierParam(value: string | null | undefined): number {

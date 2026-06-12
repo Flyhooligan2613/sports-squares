@@ -12,6 +12,7 @@ import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge
 import type { PickemGame, PickemPlayerPoolStatus } from "@/lib/pickem/types";
 import {
   PICKEM_CHAMPIONSHIP_BANNER,
+  PICKEM_CHAMPIONSHIP_CONGRATS,
   PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE,
   PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE,
 } from "@/lib/pickem/copy";
@@ -178,6 +179,12 @@ export default function PickemTiebreakerClient() {
         {data ? (
           <>
             {playerStatus ? <PickemPlayerStatusBadge status={playerStatus} /> : null}
+
+            {data.playerStatus?.status === "tiebreaker" ? (
+              <LandingGlassCard className="p-5 mb-6 border border-amber-500/20 bg-amber-500/5">
+                <p className="text-sm text-white leading-relaxed">{PICKEM_CHAMPIONSHIP_CONGRATS}</p>
+              </LandingGlassCard>
+            ) : null}
 
             {data.mondayGame ? (
               <LandingGlassCard className="p-5 sm:p-6 mb-6">
