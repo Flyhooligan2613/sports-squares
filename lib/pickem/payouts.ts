@@ -18,7 +18,7 @@ import {
   refreshPickemLeaguePlayerCount,
 } from "@/lib/pickem/db/leagues";
 import { getContestWeeklyStandings } from "@/lib/pickem/db/stats";
-import type { PickemContest } from "@/lib/pickem/types";
+import type { PickemContest, PickemSport } from "@/lib/pickem/types";
 
 export interface PickemPayoutResult {
   contestId: string;
@@ -243,7 +243,7 @@ export async function syncPickemWinningsToPlatformStats(
 
 export async function syncPickemProfileStats(
   email: string,
-  sport: "nfl" = "nfl",
+  sport: PickemSport,
   seasonYear: number
 ): Promise<void> {
   const { getPickemPlayerStats } = await import("@/lib/pickem/db/stats");
