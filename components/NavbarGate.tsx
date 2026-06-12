@@ -10,6 +10,7 @@ export default function NavbarGate({ children }: { children: React.ReactNode }) 
     pathname.startsWith("/auth") ||
     pathname.startsWith("/learn") ||
     pathname.startsWith("/support/messages") ||
+    pathname.startsWith("/action-center") ||
     pathname.startsWith("/live-games") ||
     pathname.startsWith("/live-winners") ||
     pathname.startsWith("/favorites") ||
