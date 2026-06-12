@@ -1,7 +1,15 @@
 import { buildInviteMessage } from "@/lib/invites";
 
+function getResendApiKey(): string | undefined {
+  return process.env.RESEND_API_KEY ?? process.env.NEXT_RESEND_KEY;
+}
+
+function getResendFromEmail(): string | undefined {
+  return process.env.RESEND_FROM_EMAIL;
+}
+
 export function isResendConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
+  return Boolean(getResendApiKey() && getResendFromEmail());
 }
 
 export interface SendInviteEmailInput {
@@ -29,11 +37,11 @@ export async function sendPlayerSignInEmail(
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${getResendApiKey()}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL,
+        from: getResendFromEmail(),
         to: [to],
         subject: "Sign in to SquareBoards",
         html: `
@@ -89,11 +97,11 @@ export async function sendInviteEmail(
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${getResendApiKey()}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL,
+        from: getResendFromEmail(),
         to: [input.to.trim()],
         subject: `Your invite to ${input.poolName}`,
         html: `
