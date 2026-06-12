@@ -15,6 +15,7 @@
     "supabase:migrate": "node scripts/run-supabase-migrations.mjs",
     "supabase:migrate:open": "node scripts/open-supabase-sql-editor.mjs",
     "supabase:migrate:connect-sample": "node scripts/open-connect-sample-migration.mjs",
+    "connect-sample:verify": "node scripts/verify-connect-sample-setup.mjs",
     "stripe:enable-vercel": "node scripts/enable-stripe-connect-vercel.mjs",
     "resend:sync-vercel": "node scripts/sync-resend-key-to-vercel.mjs",
     "resend:setup-domain": "node scripts/setup-resend-domain.mjs"
