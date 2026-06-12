@@ -2,6 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isAuthorizedAdminEmail } from "@/lib/auth/config";
 import { ADMIN_LOGIN, requiresAdminSession } from "@/lib/auth/routes";
+import {
+  MY_GAMES_HOME,
+  PLAYER_LOGIN,
+  redirectToPlayerLogin,
+  requiresPlayerSession,
+} from "@/lib/auth/playerRoutes";
 
 async function resolveSessionUser(
   supabase: ReturnType<typeof createServerClient>
@@ -71,6 +77,16 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
+    if (pathname === PLAYER_LOGIN && user) {
+      return NextResponse.redirect(new URL(MY_GAMES_HOME, request.url));
+    }
+
+    if (requiresPlayerSession(pathname)) {
+      if (!user) {
+        return NextResponse.redirect(redirectToPlayerLogin(request.url));
+      }
+    }
+
     if (requiresAdminSession(pathname)) {
       if (!user) {
         return redirectToLogin(request);
@@ -84,6 +100,9 @@ export async function updateSession(request: NextRequest) {
   } catch {
     if (requiresAdminSession(pathname)) {
       return redirectToLogin(request);
+    }
+    if (requiresPlayerSession(pathname)) {
+      return NextResponse.redirect(redirectToPlayerLogin(request.url));
     }
     return NextResponse.next({ request });
   }

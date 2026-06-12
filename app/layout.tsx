@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import NavbarGate from "@/components/NavbarGate";
 import InstallPrompt from "@/components/InstallPrompt";
 import PwaRegister from "@/components/PwaRegister";
 import { BRAND_NAME } from "@/lib/brand";
@@ -43,8 +43,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${jakarta.variable}`}>
       <body className="font-sans bg-sb-bg text-white antialiased min-h-screen flex flex-col sb-app-bg">
-        <Navbar />
-        <div className="flex-1 flex flex-col">{children}</div>
+        <NavbarGate>
+          <div className="flex-1 flex flex-col">{children}</div>
+        </NavbarGate>
         <InstallPrompt />
         <PwaRegister />
       </body>
