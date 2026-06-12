@@ -55,6 +55,7 @@ export async function savePickemPick(input: {
   gameId: string;
   email: string;
   pickedSide: PickemSide;
+  entryTierCents?: number;
 }): Promise<PickemPick> {
   const email = normalizeEmail(input.email);
   const game = await getPickemGameById(input.gameId);
@@ -70,7 +71,11 @@ export async function savePickemPick(input: {
   const contest = await getPickemContestById(input.contestId);
   if (!contest) throw new Error("Contest not found.");
 
-  const league = await assignPlayerToPickemLeague(contest, email);
+  const league = await assignPlayerToPickemLeague(
+    contest,
+    email,
+    input.entryTierCents ?? 1000
+  );
 
   await ensurePlayerProfile(email, displayNameFromEmail(email));
 

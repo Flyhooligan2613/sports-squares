@@ -45,6 +45,7 @@ export interface PoolRow {
   auto_created: boolean;
   locked_at: string | null;
   marketplace_visible: boolean;
+  entry_tier_cents: number | null;
   created_at: string;
 }
 

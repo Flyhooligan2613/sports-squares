@@ -5,6 +5,7 @@ import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
 import { getPickemContestById } from "@/lib/pickem/db/contests";
 import { ensureCurrentPickemContest } from "@/lib/pickem/engine/syncContest";
 import { buildPickemWeekView } from "@/lib/pickem/weekView";
+import { parseEntryTierParam } from "@/lib/platform/core/entryTiers";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export async function GET(request: Request) {
   noStore();
   const { searchParams } = new URL(request.url);
   const contestId = searchParams.get("contestId");
+  const entryTierCents = parseEntryTierParam(searchParams.get("tier"));
 
   try {
     const contest = contestId
@@ -30,6 +32,7 @@ export async function GET(request: Request) {
     const week = await buildPickemWeekView({
       contest,
       email: user?.email ?? null,
+      entryTierCents,
     });
 
     return NextResponse.json(week);

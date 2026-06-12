@@ -24,7 +24,7 @@ export async function maybeCompleteGuaranteedBoard(
 
   const { data: pool, error } = await supabase
     .from(TABLES.pools)
-    .select("id, status, guaranteed_fill_at, kickoff_at, game_id, board_index")
+    .select("id, status, guaranteed_fill_at, kickoff_at, game_id, board_index, entry_tier_cents")
     .eq("id", poolId)
     .maybeSingle();
 
@@ -90,7 +90,8 @@ export async function maybeCompleteGuaranteedBoard(
       const game = await dbGetGame(pool.game_id as string);
       if (game) {
         const nextIndex = ((pool.board_index as number) ?? 1) + 1;
-        await dbCreateMarketplaceBoard(game, nextIndex);
+        const entryTierCents = (pool.entry_tier_cents as number | null) ?? 1000;
+        await dbCreateMarketplaceBoard(game, nextIndex, entryTierCents);
       }
     }
   }

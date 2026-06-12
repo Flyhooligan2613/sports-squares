@@ -35,6 +35,10 @@ export {
   PLATFORM_ENTRY_TIERS,
   ENTRY_TIER_GROUPS,
   formatTierCents,
+  tierCentsToCostPerSquare,
+  normalizeEntryTierCents,
+  parseEntryTierParam,
+  isValidEntryTierCents,
   type EntryTier,
   type EntryTierGroup,
 } from "@/lib/platform/core/entryTiers";

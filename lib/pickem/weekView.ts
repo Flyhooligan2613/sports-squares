@@ -62,15 +62,16 @@ async function buildLiveSummary(input: {
   picks: PickemPick[];
   playerStats: PickemPlayerStats | null;
   email: string;
+  entryTierCents?: number;
 }): Promise<PickemLiveSummary | null> {
-  const { picks, playerStats, email, contest } = input;
+  const { picks, playerStats, email, contest, entryTierCents } = input;
 
   if (!picks.length && !playerStats) return null;
 
   const wins = picks.filter((p) => p.isCorrect === true).length;
   const losses = picks.filter((p) => p.isCorrect === false).length;
 
-  const league = await getPlayerPickemLeague(contest.id, email);
+  const league = await getPlayerPickemLeague(contest.id, email, entryTierCents);
   const leagueId = league?.id ?? picks[0]?.leagueId ?? null;
 
   const [weeklyRank, seasonRank] = await Promise.all([
@@ -97,7 +98,9 @@ async function buildLiveSummary(input: {
     lifetimeRecord: `${stats?.lifetimeWins ?? 0}-${stats?.lifetimeLosses ?? 0}`,
     projectedWeeklyRank: weeklyRank,
     projectedSeasonRank: seasonRank,
-    leagueLabel: league ? formatLeagueLabel(league.leagueNumber) : null,
+    leagueLabel: league
+      ? formatLeagueLabel(league.leagueNumber, league.entryTierCents)
+      : null,
   };
 }
 
@@ -126,6 +129,7 @@ function buildMyPicksSummary(
 export async function buildPickemWeekView(input: {
   contest: PickemContest;
   email?: string | null;
+  entryTierCents?: number;
 }): Promise<PickemWeekView> {
   const games = await listPickemGames(input.contest.id);
   const picks = input.email
@@ -166,6 +170,7 @@ export async function buildPickemWeekView(input: {
         picks,
         playerStats,
         email: input.email,
+        entryTierCents: input.entryTierCents,
       })
     : null;
 

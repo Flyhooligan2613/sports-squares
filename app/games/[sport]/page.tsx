@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import Footer from "@/components/Footer";
 import GameBoardRow from "@/components/marketplace/GameBoardRow";
+import SportEntryTierNav from "@/components/marketplace/SportEntryTierNav";
 import StatusBadge from "@/components/ui/StatusBadge";
+import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { dbListBoardsForGame } from "@/lib/database/services/boards";
 import { dbListGames } from "@/lib/database/services/games";
 import {
@@ -10,10 +12,14 @@ import {
   formatPrizePool,
 } from "@/lib/marketplace/gameBoardStats";
 import { getEspnSportConfig, normalizeEspnSport } from "@/lib/espn/sports";
+import {
+  formatTierCents,
+  parseEntryTierParam,
+} from "@/lib/platform/core/entryTiers";
 import type { EspnSport } from "@/lib/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { TABLES } from "@/lib/database/config";
-import type { PoolRow } from "@/lib/database/types";
+import { notFound } from "next/navigation";
 
 async function countUnclaimedForPool(poolId: string): Promise<number> {
   const supabase = getSupabaseAdmin();
@@ -38,12 +44,16 @@ function formatKickoff(iso: string): string {
 
 export default async function SportGamesPage({
   params,
+  searchParams,
 }: {
   params: { sport: string };
+  searchParams: { tier?: string };
 }) {
   const sport = normalizeEspnSport(params.sport) as EspnSport;
   if (params.sport !== sport) notFound();
 
+  const tierCents = parseEntryTierParam(searchParams.tier);
+  const tierLabel = formatTierCents(tierCents);
   const config = getEspnSportConfig(sport);
   let games: Awaited<ReturnType<typeof dbListGames>> = [];
 
@@ -58,12 +68,7 @@ export default async function SportGamesPage({
 
   const gamesWithBoards = await Promise.all(
     games.map(async (game) => {
-      let boards: PoolRow[] = [];
-      try {
-        boards = await dbListBoardsForGame(game.id);
-      } catch {
-        boards = [];
-      }
+      let boards = await dbListBoardsForGame(game.id, tierCents).catch(() => []);
 
       const boardsWithAvailability = await Promise.all(
         boards.map(async (board) => {
@@ -99,10 +104,19 @@ export default async function SportGamesPage({
             {config.label}
           </h1>
           <p className="text-sb-muted max-w-2xl">
-            Choose a game and lock in squares. When a board fills, the next board
-            opens automatically until kickoff.
+            Choose a buy-in level, pick a game, and lock in squares. Every tier runs
+            automatically — when a board fills, the next opens until kickoff.
           </p>
         </div>
+
+        <LandingGlassCard className="p-5 sm:p-6 mb-8">
+          <p className="text-xs uppercase tracking-wider text-sb-muted mb-4">
+            Buy-in tier · showing {tierLabel} boards
+          </p>
+          <Suspense fallback={<p className="text-sb-muted text-sm">Loading tiers…</p>}>
+            <SportEntryTierNav sport={sport} />
+          </Suspense>
+        </LandingGlassCard>
 
         {gamesWithBoards.length === 0 ? (
           <div className="landing-glass-card text-center py-16 px-6">
@@ -150,37 +164,45 @@ export default async function SportGamesPage({
                     </div>
                     <div className="text-right text-sm space-y-1">
                       <p className="text-white font-semibold">
-                        {boards.length} board{boards.length === 1 ? "" : "s"}
+                        {boards.length} {tierLabel} board{boards.length === 1 ? "" : "s"}
                       </p>
                       <p className="text-sb-muted">
                         {openCount} open · Board #
-                        {openBoard?.board.board_index ?? boards.length}
+                        {(openBoard?.board.board_index ?? boards.length) || 1}
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {boards.map(({ board, remaining, prizePoolLabel }) => (
-                      <GameBoardRow
-                        key={board.id}
-                        poolId={board.id}
-                        boardIndex={board.board_index ?? 1}
-                        status={board.status}
-                        remaining={remaining}
-                        costPerSquare={Number(board.cost_per_square ?? 0)}
-                        prizePoolLabel={prizePoolLabel}
-                        isCurrentOpen={
-                          openBoard?.board.id === board.id &&
-                          board.status === "open" &&
-                          remaining > 0
-                        }
-                      />
-                    ))}
-                  </div>
+                  {boards.length === 0 ? (
+                    <p className="text-sm text-sb-muted">
+                      No {tierLabel} board yet — the next marketplace sync will create one
+                      automatically.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {boards.map(({ board, remaining, prizePoolLabel }) => (
+                        <GameBoardRow
+                          key={board.id}
+                          poolId={board.id}
+                          boardIndex={board.board_index ?? 1}
+                          status={board.status}
+                          remaining={remaining}
+                          costPerSquare={Number(board.cost_per_square ?? 0)}
+                          prizePoolLabel={prizePoolLabel}
+                          tierLabel={tierLabel}
+                          isCurrentOpen={
+                            openBoard?.board.id === board.id &&
+                            board.status === "open" &&
+                            remaining > 0
+                          }
+                        />
+                      ))}
+                    </div>
+                  )}
 
                   {openCount === 0 && boards.length > 0 && (
                     <p className="text-xs text-sb-muted mt-3">
-                      All boards are locked or sold out. The next board opens
+                      All {tierLabel} boards are locked or sold out. The next board opens
                       automatically when the current one fills.
                     </p>
                   )}

@@ -1,12 +1,13 @@
 import {
   dbCountClaimedSquares,
   dbCreateMarketplaceBoard,
-  dbEnsureBoardForGame,
+  dbEnsureAllTierBoardsForGame,
   dbGetOpenBoardForGame,
   dbListBoardsForGame,
   dbLockAndDrawBoard,
 } from "@/lib/database/services/boards";
 import { maybeCompleteGuaranteedBoard } from "@/lib/platform/core/guaranteedPlayEngine";
+import { PLATFORM_ENTRY_TIERS } from "@/lib/platform/core/entryTiers";
 import { dbListGames } from "@/lib/database/services/games";
 import { TABLES } from "@/lib/database/config";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -34,18 +35,20 @@ export async function processFullOpenBoards(): Promise<number> {
   for (const game of games) {
     if (!isBeforeKickoff(game)) continue;
 
-    const openBoard = await dbGetOpenBoardForGame(game.id);
-    if (!openBoard) continue;
+    for (const tier of PLATFORM_ENTRY_TIERS) {
+      const openBoard = await dbGetOpenBoardForGame(game.id, tier.cents);
+      if (!openBoard) continue;
 
-    await maybeCompleteGuaranteedBoard(openBoard.id);
+      await maybeCompleteGuaranteedBoard(openBoard.id);
 
-    const claimed = await dbCountClaimedSquares(openBoard.id);
-    if (claimed < 100) continue;
+      const claimed = await dbCountClaimedSquares(openBoard.id);
+      if (claimed < 100) continue;
 
-    await dbLockAndDrawBoard(openBoard.id);
-    const nextIndex = openBoard.board_index + 1;
-    await dbCreateMarketplaceBoard(game, nextIndex);
-    processed += 1;
+      await dbLockAndDrawBoard(openBoard.id);
+      const nextIndex = openBoard.board_index + 1;
+      await dbCreateMarketplaceBoard(game, nextIndex, tier.cents);
+      processed += 1;
+    }
   }
 
   return processed;
@@ -82,12 +85,7 @@ export async function ensureOpenBoardsForUpcomingGames(): Promise<number> {
 
   for (const game of games) {
     if (!isBeforeKickoff(game)) continue;
-
-    const openBoard = await dbGetOpenBoardForGame(game.id);
-    if (openBoard) continue;
-
-    await dbEnsureBoardForGame(game.id);
-    ensured += 1;
+    ensured += await dbEnsureAllTierBoardsForGame(game.id);
   }
 
   return ensured;
@@ -97,7 +95,7 @@ export async function maybeAdvanceBoardAfterClaim(poolId: string): Promise<boole
   const supabase = getSupabaseAdmin();
   const { data: poolRow, error } = await supabase
     .from(TABLES.pools)
-    .select("id, game_id, board_index, status, kickoff_at")
+    .select("id, game_id, board_index, status, kickoff_at, entry_tier_cents")
     .eq("id", poolId)
     .maybeSingle();
 
@@ -109,19 +107,20 @@ export async function maybeAdvanceBoardAfterClaim(poolId: string): Promise<boole
     return false;
   }
 
-  const claimed = await dbCountClaimedSquares(poolId);
   await maybeCompleteGuaranteedBoard(poolId);
 
   const refreshedClaimed = await dbCountClaimedSquares(poolId);
   if (refreshedClaimed < 100) return false;
 
   const { dbGetGame } = await import("@/lib/database/services/games");
-  const game = await dbGetGame(poolRow.game_id);
+  const game = await dbGetGame(poolRow.game_id as string);
   if (!game) return false;
+
+  const entryTierCents = (poolRow.entry_tier_cents as number | null) ?? 1000;
 
   await dbLockAndDrawBoard(poolId);
   const nextIndex = (poolRow.board_index ?? 1) + 1;
-  await dbCreateMarketplaceBoard(game, nextIndex);
+  await dbCreateMarketplaceBoard(game, nextIndex, entryTierCents);
   return true;
 }
 

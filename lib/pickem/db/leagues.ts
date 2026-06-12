@@ -4,6 +4,11 @@ import {
   PICKEM_DEFAULT_PRIZE_POOL_CENTS,
   PICKEM_LEAGUE_MAX_PLAYERS,
 } from "@/lib/pickem/config";
+import {
+  PLATFORM_ENTRY_TIERS,
+  normalizeEntryTierCents,
+  isValidEntryTierCents,
+} from "@/lib/platform/core/entryTiers";
 import type { PickemContest } from "@/lib/pickem/types";
 
 const TABLE = "pickem_leagues";
@@ -15,6 +20,7 @@ export interface PickemLeague {
   maxPlayers: number;
   playerCount: number;
   prizePoolCents: number;
+  entryTierCents: number;
   status: "open" | "full" | "complete";
 }
 
@@ -25,6 +31,7 @@ interface LeagueRow {
   max_players: number;
   player_count: number;
   prize_pool_cents: number;
+  entry_tier_cents: number;
   status: PickemLeague["status"];
 }
 
@@ -36,8 +43,16 @@ function mapLeague(row: LeagueRow): PickemLeague {
     maxPlayers: row.max_players,
     playerCount: row.player_count,
     prizePoolCents: row.prize_pool_cents,
+    entryTierCents: normalizeEntryTierCents(row.entry_tier_cents),
     status: row.status,
   };
+}
+
+function prizePoolForTier(entryTierCents: number): number {
+  return Math.max(
+    PICKEM_DEFAULT_PRIZE_POOL_CENTS,
+    Math.round(entryTierCents * PICKEM_LEAGUE_MAX_PLAYERS * 0.1)
+  );
 }
 
 export async function getPickemLeagueById(
@@ -55,7 +70,8 @@ export async function getPickemLeagueById(
 }
 
 export async function listPickemLeaguesForContest(
-  contestId: string
+  contestId: string,
+  entryTierCents?: number
 ): Promise<PickemLeague[]> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
@@ -65,12 +81,17 @@ export async function listPickemLeaguesForContest(
     .order("league_number", { ascending: true });
 
   if (error) throw error;
-  return (data as LeagueRow[]).map(mapLeague);
+  let rows = (data as LeagueRow[]).map(mapLeague);
+  if (entryTierCents != null) {
+    rows = rows.filter((l) => l.entryTierCents === entryTierCents);
+  }
+  return rows;
 }
 
 async function createPickemLeague(
   contestId: string,
-  leagueNumber: number
+  leagueNumber: number,
+  entryTierCents: number
 ): Promise<PickemLeague> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
@@ -79,7 +100,8 @@ async function createPickemLeague(
       contest_id: contestId,
       league_number: leagueNumber,
       max_players: PICKEM_LEAGUE_MAX_PLAYERS,
-      prize_pool_cents: PICKEM_DEFAULT_PRIZE_POOL_CENTS,
+      prize_pool_cents: prizePoolForTier(entryTierCents),
+      entry_tier_cents: entryTierCents,
       status: "open",
     })
     .select("*")
@@ -92,14 +114,37 @@ async function createPickemLeague(
 export async function ensureDefaultPickemLeague(
   contestId: string
 ): Promise<PickemLeague> {
-  const existing = await listPickemLeaguesForContest(contestId);
+  return ensurePickemLeagueForTier(contestId, 1000);
+}
+
+export async function ensurePickemLeagueForTier(
+  contestId: string,
+  entryTierCents: number
+): Promise<PickemLeague> {
+  const existing = await listPickemLeaguesForContest(contestId, entryTierCents);
   if (existing.length > 0) return existing[0];
-  return createPickemLeague(contestId, 1);
+  return createPickemLeague(contestId, 1, entryTierCents);
+}
+
+/** Seed one open league per platform entry tier for a contest. */
+export async function ensurePickemLeaguesForAllTiers(
+  contestId: string
+): Promise<number> {
+  let created = 0;
+  for (const tier of PLATFORM_ENTRY_TIERS) {
+    const leagues = await listPickemLeaguesForContest(contestId, tier.cents);
+    if (leagues.length === 0) {
+      await createPickemLeague(contestId, 1, tier.cents);
+      created += 1;
+    }
+  }
+  return created;
 }
 
 export async function getPlayerPickemLeague(
   contestId: string,
-  email: string
+  email: string,
+  entryTierCents?: number
 ): Promise<PickemLeague | null> {
   const supabase = getSupabaseAdmin();
   const normalized = normalizeEmail(email);
@@ -116,22 +161,30 @@ export async function getPlayerPickemLeague(
   if (error) throw error;
   if (!data?.league_id) return null;
 
-  return getPickemLeagueById(data.league_id as string);
+  const league = await getPickemLeagueById(data.league_id as string);
+  if (!league) return null;
+  if (entryTierCents != null && league.entryTierCents !== entryTierCents) {
+    return null;
+  }
+  return league;
 }
 
 /**
- * Assign player to the first open league, or auto-create the next shard.
+ * Assign player to the first open league shard for their entry tier.
  */
 export async function assignPlayerToPickemLeague(
   contest: PickemContest,
-  email: string
+  email: string,
+  entryTierCents = 1000
 ): Promise<PickemLeague> {
-  const existing = await getPlayerPickemLeague(contest.id, email);
+  const tierCents = isValidEntryTierCents(entryTierCents) ? entryTierCents : 1000;
+
+  const existing = await getPlayerPickemLeague(contest.id, email, tierCents);
   if (existing) return existing;
 
-  let leagues = await listPickemLeaguesForContest(contest.id);
+  let leagues = await listPickemLeaguesForContest(contest.id, tierCents);
   if (!leagues.length) {
-    leagues = [await ensureDefaultPickemLeague(contest.id)];
+    leagues = [await ensurePickemLeagueForTier(contest.id, tierCents)];
   }
 
   let openLeague = leagues.find(
@@ -140,7 +193,7 @@ export async function assignPlayerToPickemLeague(
 
   if (!openLeague) {
     const nextNumber = Math.max(...leagues.map((l) => l.leagueNumber)) + 1;
-    openLeague = await createPickemLeague(contest.id, nextNumber);
+    openLeague = await createPickemLeague(contest.id, nextNumber, tierCents);
   }
 
   return openLeague;
@@ -183,6 +236,13 @@ export async function refreshPickemLeaguePlayerCount(
   return playerCount;
 }
 
-export function formatLeagueLabel(leagueNumber: number): string {
-  return leagueNumber === 1 ? "League #1" : `League #${leagueNumber}`;
+export function formatLeagueLabel(
+  leagueNumber: number,
+  entryTierCents?: number
+): string {
+  const tierPart =
+    entryTierCents != null
+      ? `${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(entryTierCents / 100)} · `
+      : "";
+  return `${tierPart}${leagueNumber === 1 ? "League #1" : `League #${leagueNumber}`}`;
 }

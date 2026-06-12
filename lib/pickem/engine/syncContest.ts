@@ -21,6 +21,7 @@ import {
 import {
   listPickemLeaguesForContest,
   refreshPickemLeaguePlayerCount,
+  ensurePickemLeaguesForAllTiers,
 } from "@/lib/pickem/db/leagues";
 import {
   recomputeLiveWeeklyStatsForPlayer,
@@ -102,6 +103,7 @@ async function syncSinglePickemContest(
   });
 
   const imported = await upsertPickemGames(activeContest.id, games);
+  await ensurePickemLeaguesForAllTiers(activeContest.id);
   const gamesLocked = await lockPickemGamesPastKickoff(activeContest.id);
 
   let picksGraded = 0;

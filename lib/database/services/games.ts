@@ -118,7 +118,8 @@ export function buildGamePoolName(
   awayTeam: string,
   homeTeam: string,
   kickoffAt: string,
-  boardIndex: number
+  boardIndex: number,
+  entryTierLabel?: string
 ): string {
   const date = new Date(kickoffAt);
   const dateLabel = date.toLocaleDateString("en-US", {
@@ -130,5 +131,6 @@ export function buildGamePoolName(
     hour: "numeric",
     minute: "2-digit",
   });
-  return `${awayTeam} @ ${homeTeam} — ${dateLabel} ${timeLabel} · Board ${boardIndex}`;
+  const tierPart = entryTierLabel ? `${entryTierLabel} · ` : "";
+  return `${awayTeam} @ ${homeTeam} — ${dateLabel} ${timeLabel} · ${tierPart}Board ${boardIndex}`;
 }

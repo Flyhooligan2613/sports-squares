@@ -128,6 +128,7 @@ export async function dbCreatePool(data: {
     auto_created: false,
     locked_at: null,
     marketplace_visible: true,
+    entry_tier_cents: null,
   };
 
   const { error: poolError } = await supabase.from(TABLES.pools).insert(poolRow);
@@ -167,6 +168,7 @@ export async function dbDuplicatePool(sourcePoolId: string): Promise<Pool | null
     auto_created: false,
     locked_at: null,
     marketplace_visible: true,
+    entry_tier_cents: source.entryTierCents ?? null,
   };
 
   const { error: poolError } = await supabase.from(TABLES.pools).insert(poolRow);

@@ -4,6 +4,7 @@ import { savePickemPick } from "@/lib/pickem/db/picks";
 import { refreshPickemContestPlayerCount } from "@/lib/pickem/db/contests";
 import type { PickemSide } from "@/lib/pickem/types";
 import { normalizeEmail } from "@/lib/player/statsCore";
+import { isValidEntryTierCents } from "@/lib/platform/core/entryTiers";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
       contestId?: string;
       gameId?: string;
       pickedSide?: PickemSide;
+      tier?: number;
+      entryTierCents?: number;
     };
 
     if (!body.contestId || !body.gameId || !body.pickedSide) {
@@ -33,11 +36,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid pick side." }, { status: 400 });
     }
 
+    const rawTier = body.entryTierCents ?? body.tier;
+    const entryTierCents =
+      typeof rawTier === "number" && isValidEntryTierCents(rawTier) ? rawTier : 1000;
+
     const pick = await savePickemPick({
       contestId: body.contestId,
       gameId: body.gameId,
       email: normalizeEmail(user.email),
       pickedSide: body.pickedSide,
+      entryTierCents,
     });
 
     await refreshPickemContestPlayerCount(body.contestId);

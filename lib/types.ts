@@ -147,6 +147,7 @@ export interface Pool {
   kickoffAt?: string;
   autoCreated?: boolean;
   marketplaceVisible?: boolean;
+  entryTierCents?: number;
   participants: Participant[];
   squares: Square[];
   topNumbers?: number[];

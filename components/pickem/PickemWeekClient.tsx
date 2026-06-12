@@ -9,7 +9,9 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import PickemGameCard from "@/components/pickem/PickemGameCard";
+import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
+import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -115,6 +117,7 @@ export default function PickemWeekClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const contestIdParam = searchParams.get("contestId");
+  const entryTierCents = parseEntryTierParam(searchParams.get("tier"));
 
   const [week, setWeek] = useState<PickemWeekView | null>(null);
   const [weeks, setWeeks] = useState<PickemWeekOption[]>([]);
@@ -147,7 +150,10 @@ export default function PickemWeekClient() {
         setSelectedContestId(contestId);
       }
 
-      const query = contestId ? `?contestId=${encodeURIComponent(contestId)}` : "";
+      const params = new URLSearchParams();
+      if (contestId) params.set("contestId", contestId);
+      params.set("tier", String(entryTierCents));
+      const query = params.toString() ? `?${params.toString()}` : "";
       const res = await fetch(`/api/pickem/week${query}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to load picks.");
       setWeek((await res.json()) as PickemWeekView);
@@ -156,7 +162,7 @@ export default function PickemWeekClient() {
     } finally {
       setLoading(false);
     }
-  }, [contestIdParam, loadWeeks, selectedContestId, weeks]);
+  }, [contestIdParam, entryTierCents, loadWeeks, selectedContestId, weeks]);
 
   useEffect(() => {
     void load();
@@ -167,7 +173,16 @@ export default function PickemWeekClient() {
   function handleWeekChange(contestId: string) {
     setSelectedContestId(contestId);
     setLoading(true);
-    router.push(`/pickem/week?contestId=${encodeURIComponent(contestId)}`);
+    router.push(
+      `/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}`
+    );
+  }
+
+  function handleTierChange(cents: number) {
+    setLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tier", String(cents));
+    router.push(`/pickem/week?${params.toString()}`);
   }
 
   async function handlePick(gameId: string, pickedSide: PickemSide) {
@@ -184,6 +199,7 @@ export default function PickemWeekClient() {
           contestId: week.contest.id,
           gameId,
           pickedSide,
+          entryTierCents,
         }),
       });
 
@@ -241,6 +257,16 @@ export default function PickemWeekClient() {
                 onChange={handleWeekChange}
               />
             ) : null}
+
+            <LandingGlassCard className="p-4 sm:p-6 mb-6">
+              <p className="text-xs uppercase tracking-wider text-sb-muted mb-3">
+                Entry tier · {formatTierCents(entryTierCents)}
+              </p>
+              <EntryTierSelector
+                selectedCents={entryTierCents}
+                onSelect={(tier) => handleTierChange(tier.cents)}
+              />
+            </LandingGlassCard>
 
             <ExperienceHero
               badgeLabel={week.contest.label}

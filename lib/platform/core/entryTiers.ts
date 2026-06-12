@@ -57,5 +57,25 @@ export function getTierByCents(cents: number): EntryTier | undefined {
   return PLATFORM_ENTRY_TIERS.find((t) => t.cents === cents);
 }
 
+/** Square price in dollars (pools.cost_per_square) from tier cents. */
+export function tierCentsToCostPerSquare(cents: number): number {
+  return cents / 100;
+}
+
+/** Legacy boards without entry_tier_cents default to $10. */
+export function normalizeEntryTierCents(cents: number | null | undefined): number {
+  return cents ?? 1000;
+}
+
+export function isValidEntryTierCents(cents: number): boolean {
+  return PLATFORM_ENTRY_TIERS.some((t) => t.cents === cents);
+}
+
+export function parseEntryTierParam(value: string | null | undefined): number {
+  const parsed = Number.parseInt(value ?? "", 10);
+  if (isValidEntryTierCents(parsed)) return parsed;
+  return 1000;
+}
+
 export const SQUARES_ENTRY_TIERS = PLATFORM_ENTRY_TIERS;
 export const PICKEM_ENTRY_TIERS = PLATFORM_ENTRY_TIERS;

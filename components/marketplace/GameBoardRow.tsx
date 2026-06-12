@@ -14,6 +14,7 @@ interface GameBoardRowProps {
   remaining: number;
   costPerSquare: number;
   prizePoolLabel: string;
+  tierLabel?: string;
   isCurrentOpen: boolean;
 }
 
@@ -24,6 +25,7 @@ export default function GameBoardRow({
   remaining,
   costPerSquare,
   prizePoolLabel,
+  tierLabel,
   isCurrentOpen,
 }: GameBoardRowProps) {
   const open = status === "open" && remaining > 0;
@@ -41,6 +43,11 @@ export default function GameBoardRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span className="text-white font-semibold">Board #{boardIndex}</span>
+          {tierLabel ? (
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-300/90 bg-emerald-500/10 border border-emerald-500/25 rounded-full px-2 py-0.5">
+              {tierLabel}
+            </span>
+          ) : null}
           <PoolStatusBadge status={status} />
           {isCurrentOpen ? (
             <StatusBadge variant="open" pulse>

@@ -164,6 +164,7 @@ export function assemblePool(
     kickoffAt: poolRow.kickoff_at ?? undefined,
     autoCreated: poolRow.auto_created ?? false,
     marketplaceVisible: poolRow.marketplace_visible ?? true,
+    entryTierCents: poolRow.entry_tier_cents ?? undefined,
   };
 
   return normalizePoolParticipants(pool);
@@ -191,6 +192,7 @@ export function poolToPoolRow(pool: Pool): Omit<PoolRow, "created_at"> {
     auto_created: pool.autoCreated ?? false,
     locked_at: null,
     marketplace_visible: pool.marketplaceVisible ?? true,
+    entry_tier_cents: pool.entryTierCents ?? null,
   };
 }
 
