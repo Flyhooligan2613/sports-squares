@@ -4,8 +4,8 @@ import {
   ArrowRight,
   Grid3X3,
   ShoppingCart,
-  Wallet,
   History,
+  Trophy,
 } from "lucide-react";
 
 const ACTIONS = [
@@ -22,10 +22,10 @@ const ACTIONS = [
     description: "Secure checkout in seconds",
   },
   {
-    href: "/my-games/profile#wallet",
-    label: "View Wallet",
-    icon: Wallet,
-    description: "Balance & payouts",
+    href: "/my-games/profile#legacy",
+    label: "Your Legacy",
+    icon: Trophy,
+    description: "Wins, streaks & achievements",
   },
   {
     href: "/my-games/history",

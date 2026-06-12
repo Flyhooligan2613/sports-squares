@@ -3134,6 +3134,10 @@ body {
   box-shadow: 0 12px 32px rgba(91, 76, 247, 0.12);
 }
 
+.player-legacy-hero {
+  position: relative;
+}
+
 .player-active-card {
   animation: playerCardEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
