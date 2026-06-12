@@ -204,7 +204,7 @@ export async function buildPickemWeekView(input: {
       })
     : null;
 
-  const pools = await buildPoolSummaries(input.contest.id, entryTierCents);
+  const pools = await buildPoolSummaries(input.contest.id, entryTierCents, games);
 
   const playerLeague = input.email
     ? await getPlayerPickemLeague(input.contest.id, input.email, entryTierCents)
@@ -246,20 +246,40 @@ export async function buildPickemWeekView(input: {
 
 async function buildPoolSummaries(
   contestId: string,
-  entryTierCents: number
+  entryTierCents: number,
+  games: Awaited<ReturnType<typeof listPickemGames>>
 ): Promise<PickemPoolSummary[]> {
   const leagues = await listPickemLeaguesForContest(contestId, entryTierCents);
-  return leagues.map((league) => ({
-    id: league.id,
-    poolNumber: league.leagueNumber,
-    playerCount: league.playerCount,
-    maxPlayers: league.maxPlayers || PICKEM_LEAGUE_MAX_PLAYERS,
-    prizePoolCents: league.prizePoolCents,
-    entryTierCents: league.entryTierCents,
-    status: league.status,
-    resolutionStatus: league.resolutionStatus,
-    label: formatPoolLabel(league.leagueNumber),
-  }));
+  const nextKickoff = games.find((g) => g.status === "scheduled")?.kickoffAt ?? null;
+
+  return leagues.map((league) => {
+    const remainingSpots = Math.max(0, league.maxPlayers - league.playerCount);
+    let poolStatusLabel = "Open";
+    if (league.resolutionStatus === "tiebreaker_active") {
+      poolStatusLabel = "Championship Tiebreaker";
+    } else if (league.resolutionStatus === "complete") {
+      poolStatusLabel = "Complete";
+    } else if (league.status === "full") {
+      poolStatusLabel = "Full";
+    } else if (league.playerCount >= league.maxPlayers * 0.9) {
+      poolStatusLabel = "Almost Full";
+    }
+
+    return {
+      id: league.id,
+      poolNumber: league.leagueNumber,
+      playerCount: league.playerCount,
+      maxPlayers: league.maxPlayers || PICKEM_LEAGUE_MAX_PLAYERS,
+      remainingSpots,
+      prizePoolCents: league.prizePoolCents,
+      entryTierCents: league.entryTierCents,
+      status: league.status,
+      resolutionStatus: league.resolutionStatus,
+      poolStatusLabel,
+      label: formatPoolLabel(league.leagueNumber),
+      nextKickoffAt: nextKickoff,
+    };
+  });
 }
 
 async function buildPlayerPoolStatus(input: {

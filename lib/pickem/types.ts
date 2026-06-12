@@ -137,11 +137,14 @@ export interface PickemPoolSummary {
   poolNumber: number;
   playerCount: number;
   maxPlayers: number;
+  remainingSpots: number;
   prizePoolCents: number;
   entryTierCents: number;
   status: "open" | "full" | "complete";
   resolutionStatus: PickemLeagueResolutionStatus;
+  poolStatusLabel: string;
   label: string;
+  nextKickoffAt: string | null;
 }
 
 export interface PickemPlayerPoolStatus {
@@ -219,13 +222,16 @@ export type PickemLeaderboardScope =
   | "state"
   | "friends";
 
-export type PickemLeaderboardPeriod = "weekly" | "season" | "all-time";
+export type PickemLeaderboardPeriod = "weekly" | "monthly" | "season" | "all-time";
 
 export type PickemLeaderboardSort =
   | "accuracy"
   | "wins"
   | "current-streak"
-  | "longest-streak";
+  | "longest-streak"
+  | "perfect-weeks"
+  | "earnings"
+  | "championships";
 
 export interface PickemLeaderboardEntry {
   rank: number;

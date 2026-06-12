@@ -26,6 +26,12 @@ function sortStats(
         return b.currentStreak - a.currentStreak;
       case "longest-streak":
         return b.longestStreak - a.longestStreak;
+      case "perfect-weeks":
+        return b.perfectWeeks - a.perfectWeeks;
+      case "earnings":
+        return b.lifetimeEarningsCents - a.lifetimeEarningsCents;
+      case "championships":
+        return b.lifetimePickemWins - a.lifetimePickemWins;
       default:
         return 0;
     }
@@ -50,6 +56,35 @@ function valueForSort(
         return { value: stats.currentStreak, label: `${stats.currentStreak} streak` };
       case "longest-streak":
         return { value: stats.longestStreak, label: `${stats.longestStreak} best` };
+      case "perfect-weeks":
+        return { value: stats.perfectWeeks, label: `${stats.perfectWeeks} perfect` };
+      case "earnings":
+        return {
+          value: stats.lifetimeEarningsCents,
+          label: `$${(stats.lifetimeEarningsCents / 100).toFixed(0)}`,
+        };
+      case "championships":
+        return {
+          value: stats.lifetimePickemWins,
+          label: `${stats.lifetimePickemWins} titles`,
+        };
+    }
+  }
+
+  if (period === "monthly") {
+    switch (sort) {
+      case "wins":
+        return { value: stats.seasonWins, label: `${stats.seasonWins} wins (30d)` };
+      case "earnings":
+        return {
+          value: stats.lifetimeEarningsCents,
+          label: `$${(stats.lifetimeEarningsCents / 100).toFixed(0)}`,
+        };
+      default:
+        return {
+          value: stats.pickAccuracyPct,
+          label: `${stats.pickAccuracyPct}%`,
+        };
     }
   }
 
@@ -68,6 +103,18 @@ function valueForSort(
       return { value: stats.currentStreak, label: `${stats.currentStreak} streak` };
     case "longest-streak":
       return { value: stats.longestStreak, label: `${stats.longestStreak} best` };
+    case "perfect-weeks":
+      return { value: stats.perfectWeeks, label: `${stats.perfectWeeks} perfect` };
+    case "earnings":
+      return {
+        value: stats.lifetimeEarningsCents,
+        label: `$${(stats.lifetimeEarningsCents / 100).toFixed(0)}`,
+      };
+    case "championships":
+      return {
+        value: stats.lifetimePickemWins,
+        label: `${stats.lifetimePickemWins} titles`,
+      };
     default:
       return { value: 0, label: "—" };
   }
@@ -87,7 +134,13 @@ function boardTitle(
           ? "State"
           : "Friends";
   const periodLabel =
-    period === "weekly" ? "Weekly" : period === "season" ? "Season" : "All-Time";
+    period === "weekly"
+      ? "Weekly"
+      : period === "monthly"
+        ? "Monthly"
+        : period === "season"
+          ? "Season"
+          : "All-Time";
   const sortLabel =
     sort === "accuracy"
       ? "Accuracy"
@@ -95,7 +148,13 @@ function boardTitle(
         ? "Wins"
         : sort === "current-streak"
           ? "Current Streak"
-          : "Longest Streak";
+          : sort === "longest-streak"
+            ? "Longest Streak"
+            : sort === "perfect-weeks"
+              ? "Perfect Weeks"
+              : sort === "earnings"
+                ? "Earnings"
+                : "Championships";
 
   return `${scopeLabel} · ${periodLabel} · ${sortLabel}`;
 }
@@ -123,7 +182,11 @@ export async function getPickemLeaderboard(input: {
     stats = await loadWeeklySnapshotStats(input.contestId, stats);
   }
 
-  // Scope filters (state/friends) reserved for future profile graph data.
+  if (period === "monthly") {
+    stats = await loadMonthlyHistoryStats(input.seasonYear, stats);
+  }
+
+  // United States scope uses same worldwide stats until geo profiles ship.
   const sorted = sortStats(stats, sort).slice(0, LIMIT);
 
   const entries: PickemLeaderboardEntry[] = sorted.map((row, index) => {
@@ -166,8 +229,11 @@ export async function getPickemLeaderboardSuite(input: {
 }): Promise<PickemLeaderboardBoard[]> {
   const combos: Array<[PickemLeaderboardPeriod, PickemLeaderboardSort]> = [
     ["weekly", "wins"],
+    ["monthly", "wins"],
     ["season", "accuracy"],
-    ["season", "current-streak"],
+    ["season", "perfect-weeks"],
+    ["season", "earnings"],
+    ["season", "championships"],
     ["all-time", "longest-streak"],
   ];
 
@@ -236,6 +302,77 @@ async function loadWeeklySnapshotStats(
       weeklyLosses: losses,
       weeklyPending: row.pending as number,
       pickAccuracyPct: graded > 0 ? Math.round((wins / graded) * 1000) / 10 : 0,
+    };
+  });
+}
+
+async function loadMonthlyHistoryStats(
+  seasonYear: number,
+  fallback: Awaited<ReturnType<typeof listPickemStatsForLeaderboard>>
+): Promise<Awaited<ReturnType<typeof listPickemStatsForLeaderboard>>> {
+  const supabase = getSupabaseAdmin();
+  const since = new Date();
+  since.setDate(since.getDate() - 30);
+
+  const { data, error } = await supabase
+    .from("pickem_week_history")
+    .select("email, weekly_record, earnings_cents, status")
+    .gte("created_at", since.toISOString())
+    .eq("season_year", seasonYear);
+
+  if (error || !data?.length) return fallback;
+
+  const byEmail = new Map<
+    string,
+    { wins: number; losses: number; earnings: number; weeks: number }
+  >();
+
+  for (const row of data) {
+    const email = (row.email as string).toLowerCase();
+    const [w, l] = (row.weekly_record as string).split("-").map((n) => parseInt(n, 10) || 0);
+    const entry = byEmail.get(email) ?? { wins: 0, losses: 0, earnings: 0, weeks: 0 };
+    entry.wins += w;
+    entry.losses += l;
+    entry.earnings += row.earnings_cents as number;
+    entry.weeks += 1;
+    byEmail.set(email, entry);
+  }
+
+  const fallbackByEmail = new Map(fallback.map((s) => [s.email.toLowerCase(), s]));
+
+  return Array.from(byEmail.entries()).map(([email, agg]) => {
+    const base = fallbackByEmail.get(email);
+    const graded = agg.wins + agg.losses;
+    return {
+      ...(base ?? {
+        email,
+        sport: "nfl" as const,
+        seasonYear,
+        weeklyPending: 0,
+        seasonWins: 0,
+        seasonLosses: 0,
+        lifetimeWins: 0,
+        lifetimeLosses: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        perfectWeekStreak: 0,
+        weeklyWinStreak: 0,
+        weeksPlayed: 0,
+        perfectWeeks: 0,
+        seasonChampionships: 0,
+        totalPicks: 0,
+        correctPicks: 0,
+        mondayTiebreakerWins: 0,
+        lifetimeEarningsCents: 0,
+        bestFinish: null,
+        lifetimePickemWins: 0,
+        bestWeeklyRecord: null,
+        achievements: [],
+      }),
+      weeklyWins: agg.wins,
+      weeklyLosses: agg.losses,
+      lifetimeEarningsCents: agg.earnings,
+      pickAccuracyPct: graded > 0 ? Math.round((agg.wins / graded) * 1000) / 10 : 0,
     };
   });
 }

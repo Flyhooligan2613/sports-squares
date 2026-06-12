@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/Button";
 import PickemGameCard from "@/components/pickem/PickemGameCard";
 import PickemEntryPanel from "@/components/pickem/PickemEntryPanel";
 import PickemPoolList from "@/components/pickem/PickemPoolList";
+import PickemMyPoolStatus from "@/components/pickem/PickemMyPoolStatus";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
+import { PICKEM_CHAMPIONSHIP_BANNER } from "@/lib/pickem/copy";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
@@ -365,6 +367,21 @@ export default function PickemWeekClient() {
               myPoolNumber={week.playerStatus?.poolNumber}
             />
 
+            {week.playerStatus?.poolNumber
+              ? (() => {
+                  const myPool = week.pools.find(
+                    (p) => p.poolNumber === week.playerStatus?.poolNumber
+                  );
+                  return myPool ? (
+                    <PickemMyPoolStatus
+                      pool={myPool}
+                      entryTierCents={entryTierCents}
+                      contestLabel={week.contest.label}
+                    />
+                  ) : null;
+                })()
+              : null}
+
             {week.playerStatus ? (
               <PickemPlayerStatusBadge status={week.playerStatus} />
             ) : null}
@@ -372,16 +389,16 @@ export default function PickemWeekClient() {
             {week.tiebreaker?.active ? (
               <LandingGlassCard className="p-4 mb-6 border border-amber-500/30 bg-amber-500/5">
                 <p className="text-amber-300 text-sm font-semibold mb-2">
-                  TIEBREAKER ACTIVE
+                  {PICKEM_CHAMPIONSHIP_BANNER}
                 </p>
                 <p className="text-sb-muted text-sm mb-3">
-                  {week.tiebreaker.playersRemaining} players remain. Submit your Monday Night
-                  combined score prediction before kickoff.
+                  {week.tiebreaker.playersRemaining} players remain. Submit your SquareBoards
+                  Championship Tiebreaker prediction before kickoff.
                 </p>
                 <Button
                   href={`/pickem/tiebreaker?contestId=${encodeURIComponent(week.contest.id)}&tier=${entryTierCents}`}
                 >
-                  Go to Tiebreaker
+                  Championship Tiebreaker
                 </Button>
               </LandingGlassCard>
             ) : null}

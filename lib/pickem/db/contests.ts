@@ -74,24 +74,27 @@ export async function getCurrentPickemContest(
   sport: PickemSport
 ): Promise<PickemContest | null> {
   const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
+
+  // First incomplete week in calendar order (regular → playoffs → Super Bowl).
+  const { data: openRows, error: openError } = await supabase
     .from(TABLE)
     .select("*")
     .eq("sport", sport)
     .neq("status", "complete")
     .order("season_year", { ascending: false })
-    .order("week_number", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("season_type", { ascending: true })
+    .order("week_number", { ascending: true })
+    .limit(1);
 
-  if (error) throw error;
-  if (data) return mapContest(data as ContestRow);
+  if (openError) throw openError;
+  if (openRows?.[0]) return mapContest(openRows[0] as ContestRow);
 
   const { data: latest, error: latestError } = await supabase
     .from(TABLE)
     .select("*")
     .eq("sport", sport)
     .order("season_year", { ascending: false })
+    .order("season_type", { ascending: true })
     .order("week_number", { ascending: false })
     .limit(1)
     .maybeSingle();

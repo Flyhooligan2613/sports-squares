@@ -10,6 +10,11 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import { Button } from "@/components/ui/Button";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
 import type { PickemGame, PickemPlayerPoolStatus } from "@/lib/pickem/types";
+import {
+  PICKEM_CHAMPIONSHIP_BANNER,
+  PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE,
+  PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE,
+} from "@/lib/pickem/copy";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
 
 function formatMoney(cents: number): string {
@@ -146,16 +151,15 @@ export default function PickemTiebreakerClient() {
       <AppMenuBar logoHref="/pickem" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <LandingGlassCard className="p-6 sm:p-8 mb-6 text-center border border-amber-500/30 bg-amber-500/5">
+        <LandingGlassCard className="p-6 sm:p-8 mb-6 text-center border border-amber-500/30 bg-amber-500/5 pickem-championship-banner">
           <p className="text-xs uppercase tracking-widest text-amber-400 mb-2">
-            Tiebreaker Active
+            {PICKEM_CHAMPIONSHIP_BANNER}
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            Monday Night Tiebreaker
+            {PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE}
           </h1>
           <p className="text-sb-muted text-sm max-w-lg mx-auto">
-            Predict the combined final score of Monday Night Football. Closest prediction wins.
-            Equal distance = automatic prize split.
+            {PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE}
           </p>
         </LandingGlassCard>
 
@@ -278,6 +282,28 @@ export default function PickemTiebreakerClient() {
                 <p className="text-4xl font-bold text-white">
                   {data.tiebreaker.actualTotalPoints}
                 </p>
+              </LandingGlassCard>
+            ) : null}
+
+            {data.tiebreaker?.status === "complete" ||
+            data.tiebreaker?.status === "split" ? (
+              <LandingGlassCard className="p-6 mb-6 text-center border border-emerald-500/30 pickem-winner-reveal">
+                <p className="text-xs uppercase tracking-widest text-emerald-400 mb-2">
+                  {data.tiebreaker.status === "split" ? "Official Tie" : "Winner Revealed"}
+                </p>
+                <p className="text-2xl font-bold text-white mb-2">
+                  {data.playerStatus?.status === "winner"
+                    ? "🏆 You won the pool!"
+                    : data.playerStatus?.status === "prize_split"
+                      ? "🤝 Prize split — payout processing"
+                      : "Championship resolved"}
+                </p>
+                {data.myEntry?.predictedTotal != null ? (
+                  <p className="text-sm text-sb-muted">
+                    Your prediction: {data.myEntry.predictedTotal} · Actual:{" "}
+                    {data.tiebreaker.actualTotalPoints ?? "—"}
+                  </p>
+                ) : null}
               </LandingGlassCard>
             ) : null}
 

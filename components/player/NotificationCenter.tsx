@@ -19,6 +19,16 @@ const ICONS: Record<PlayerNotification["type"], string> = {
   quarter_winner: "🏆",
   payment_sent: "💰",
   game_starting: "🏈",
+  pickem_week_open: "🏈",
+  pickem_pool_almost_full: "🔥",
+  pickem_sunday_complete: "📊",
+  pickem_championship: "👑",
+  pickem_prediction_due: "⏱",
+  pickem_prediction_locked: "🔒",
+  pickem_winner: "🏆",
+  pickem_payout: "💰",
+  pickem_streak: "🔥",
+  pickem_rank_up: "📈",
 };
 
 function timeAgo(iso: string): string {

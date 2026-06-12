@@ -88,15 +88,33 @@ export async function getPickemHistorySummary(email: string): Promise<{
   longestWinStreak: number;
   lifetimePickemWins: number;
   lifetimeEarningsCents: number;
+  globalRank: number | null;
+  countryRank: number | null;
+  stateRank: number | null;
   weeks: PickemWeekHistoryEntry[];
 }> {
-  const { getPickemPlayerStats } = await import("@/lib/pickem/db/stats");
-  const stats = await getPickemPlayerStats(
-    email,
-    "nfl",
-    new Date().getFullYear()
+  const { getPickemPlayerStats, getSeasonRankForPlayer } = await import(
+    "@/lib/pickem/db/stats"
   );
+  const { getPickemLeaderboard } = await import("@/lib/pickem/leaderboards");
+  const seasonYear = new Date().getFullYear();
+  const stats = await getPickemPlayerStats(email, "nfl", seasonYear);
   const weeks = await listPickemWeekHistory(email);
+
+  const globalRank = await getSeasonRankForPlayer({
+    sport: "nfl",
+    seasonYear,
+    email,
+  });
+
+  const usBoard = await getPickemLeaderboard({
+    sport: "nfl",
+    seasonYear,
+    scope: "united-states",
+    period: "season",
+    sort: "wins",
+    viewerEmail: email,
+  });
 
   return {
     seasonRecord: `${stats.seasonWins}-${stats.seasonLosses}`,
@@ -106,6 +124,9 @@ export async function getPickemHistorySummary(email: string): Promise<{
     longestWinStreak: stats.longestStreak,
     lifetimePickemWins: stats.lifetimePickemWins,
     lifetimeEarningsCents: stats.lifetimeEarningsCents,
+    globalRank,
+    countryRank: usBoard.viewerRank,
+    stateRank: null,
     weeks,
   };
 }

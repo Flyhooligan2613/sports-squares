@@ -23,6 +23,9 @@ interface HistorySummary {
   longestWinStreak: number;
   lifetimePickemWins: number;
   lifetimeEarningsCents: number;
+  globalRank: number | null;
+  countryRank: number | null;
+  stateRank: number | null;
   weeks: PickemWeekHistoryEntry[];
 }
 
@@ -54,11 +57,19 @@ export default function PickemHistoryClient() {
     ? [
         { label: "Season Record", value: data.seasonRecord },
         {
+          label: "Global Rank",
+          value: data.globalRank != null ? `#${data.globalRank}` : "—",
+        },
+        {
+          label: "Country Rank",
+          value: data.countryRank != null ? `#${data.countryRank}` : "—",
+        },
+        {
           label: "Best Finish",
           value: data.bestFinish != null ? `#${data.bestFinish}` : "—",
         },
         { label: "Perfect Weeks", value: data.perfectWeeks },
-        { label: "MNF Tiebreaker Wins", value: data.mondayTiebreakerWins },
+        { label: "Championship Tiebreaker Wins", value: data.mondayTiebreakerWins },
         { label: "Longest Win Streak", value: data.longestWinStreak },
         { label: "Lifetime Pick'em Wins", value: data.lifetimePickemWins },
         {

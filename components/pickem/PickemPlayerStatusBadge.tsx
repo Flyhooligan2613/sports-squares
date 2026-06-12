@@ -16,7 +16,7 @@ const STATUS_CONFIG = {
     className: "text-red-400/90 bg-red-500/10 border-red-500/30",
   },
   tiebreaker: {
-    label: "Advanced to Monday Tiebreaker",
+    label: "Advanced to Championship Tiebreaker",
     icon: Zap,
     className: "text-amber-300 bg-amber-500/10 border-amber-500/30",
   },

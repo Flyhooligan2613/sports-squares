@@ -4,6 +4,7 @@ import { TABLES } from "@/lib/database/config";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { PlayerRow, PoolRow, SquareRow, WinnerRow } from "@/lib/database/types";
 import { buildPlayerNotifications } from "@/lib/notifications/buildPlayerNotifications";
+import { buildPickemNotifications } from "@/lib/pickem/notifications/buildPickemNotifications";
 import type { PlayerNotification } from "@/lib/player/dashboardTypes";
 import type { EspnLiveGame, Pool } from "@/lib/types";
 
@@ -74,7 +75,7 @@ export async function getPlayerNotifications(
     })
   );
 
-  return buildPlayerNotifications({
+  const squaresNotifications = buildPlayerNotifications({
     pools,
     players,
     squareRows,
@@ -83,4 +84,10 @@ export async function getPlayerNotifications(
     playerIds,
     playerNames,
   });
+
+  const pickemNotifications = await buildPickemNotifications(normalized);
+
+  return [...pickemNotifications, ...squaresNotifications].sort(
+    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
+  );
 }

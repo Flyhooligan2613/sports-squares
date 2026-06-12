@@ -59,9 +59,7 @@ export default function PickemPoolList({
                     </span>
                   ) : null}
                 </span>
-                <span className="text-sm text-sb-muted">
-                  {formatMoney(pool.prizePoolCents)} prize pool
-                </span>
+                <span className="text-sm text-sb-muted capitalize">{pool.poolStatusLabel}</span>
               </div>
               <div className="pickem-progress-track h-1.5 mb-1">
                 <div
@@ -71,8 +69,11 @@ export default function PickemPoolList({
               </div>
               <p className="text-xs text-sb-muted">
                 {pool.playerCount.toLocaleString()} / {pool.maxPlayers.toLocaleString()} players
-                {isFull ? " · Full — Pool #" + (pool.poolNumber + 1) + " open next" : ""}
-                {pool.resolutionStatus === "tiebreaker_active" ? " · Tiebreaker active" : ""}
+                {" · "}
+                {pool.remainingSpots.toLocaleString()} spots remaining
+                {" · "}
+                {formatMoney(pool.prizePoolCents)} pool
+                {isFull ? ` · Pool #${pool.poolNumber + 1} open next` : ""}
               </p>
             </div>
           );

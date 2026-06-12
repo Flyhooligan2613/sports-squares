@@ -21,13 +21,16 @@ const SCOPES: PickemLeaderboardScope[] = [
   "friends",
 ];
 
-const PERIODS: PickemLeaderboardPeriod[] = ["weekly", "season", "all-time"];
+const PERIODS: PickemLeaderboardPeriod[] = ["weekly", "monthly", "season", "all-time"];
 
 const SORTS: PickemLeaderboardSort[] = [
   "accuracy",
   "wins",
   "current-streak",
   "longest-streak",
+  "perfect-weeks",
+  "earnings",
+  "championships",
 ];
 
 function rankAccent(rank: number): string {
@@ -145,7 +148,13 @@ export default function PickemLeaderboardsClient() {
                   ? "Wins"
                   : item === "current-streak"
                     ? "Current Streak"
-                    : "Longest Streak"}
+                    : item === "longest-streak"
+                      ? "Longest Streak"
+                      : item === "perfect-weeks"
+                        ? "Perfect Weeks"
+                        : item === "earnings"
+                          ? "Earnings"
+                          : "Championships"}
             </button>
           ))}
         </div>
