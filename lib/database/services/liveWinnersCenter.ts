@@ -198,6 +198,12 @@ function emptyData(): LiveWinnersCenterData {
       squaresSold: 0,
       prizeMoneyToday: 0,
     },
+    platformTotals: {
+      totalPools: 0,
+      totalSquaresSold: 0,
+      totalPrizeMoney: 0,
+      totalPlayers: 0,
+    },
     bigWin: null,
     ticker: [],
     winners: [],
@@ -218,7 +224,7 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
   const streakSince = daysAgo(WIN_STREAK_WINDOW_DAYS);
   const recentSince = hoursAgo(3);
 
-  const [winnersRes, streakWinnersRes, poolsRes, playersRes, gamesRes] = await Promise.all([
+  const [winnersRes, streakWinnersRes, poolsRes, playersRes, gamesRes, poolCountRes, allPlayersRes, paidWinnersRes] = await Promise.all([
     supabase
       .from(TABLES.winners)
       .select("*")
@@ -239,6 +245,12 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
       .order("created_at", { ascending: false })
       .limit(120),
     supabase.from(TABLES.games).select("*").order("kickoff_at", { ascending: false }).limit(80),
+    supabase.from(TABLES.pools).select("*", { count: "exact", head: true }),
+    supabase.from(TABLES.players).select("credits_allocated, email"),
+    supabase
+      .from(TABLES.winners)
+      .select("payout_amount")
+      .eq("payout_status", "paid"),
   ]);
 
   if (winnersRes.error) throw winnersRes.error;
@@ -246,6 +258,9 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
   if (poolsRes.error) throw poolsRes.error;
   if (playersRes.error) throw playersRes.error;
   if (gamesRes.error) throw gamesRes.error;
+  if (poolCountRes.error) throw poolCountRes.error;
+  if (allPlayersRes.error) throw allPlayersRes.error;
+  if (paidWinnersRes.error) throw paidWinnersRes.error;
 
   const winnerRows = (winnersRes.data ?? []) as WinnerRow[];
   const streakWinnerRows = (streakWinnersRes.data ?? []) as WinnerRow[];
@@ -317,6 +332,29 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
     boardsPlayed: new Set(todaysWinners.map((w) => w.pool_id)).size,
     squaresSold: squaresPurchasedToday,
     prizeMoneyToday: Math.round(prizeMoneyToday),
+  };
+
+  const allPlayerRows = (allPlayersRes.data ?? []) as Pick<
+    PlayerRow,
+    "credits_allocated" | "email"
+  >[];
+  const platformTotals = {
+    totalPools: poolCountRes.count ?? 0,
+    totalSquaresSold: allPlayerRows.reduce(
+      (sum, player) => sum + (player.credits_allocated ?? 0),
+      0
+    ),
+    totalPrizeMoney: Math.round(
+      ((paidWinnersRes.data ?? []) as Pick<WinnerRow, "payout_amount">[]).reduce(
+        (sum, winner) => sum + (winner.payout_amount ?? 0),
+        0
+      )
+    ),
+    totalPlayers: new Set(
+      allPlayerRows
+        .map((player) => player.email?.trim().toLowerCase())
+        .filter(Boolean)
+    ).size,
   };
 
   const winners: LiveWinnerFeedItem[] = winnerRows.slice(0, 24).map((winner) => {
@@ -478,6 +516,7 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
 
   return {
     platform,
+    platformTotals,
     stats,
     bigWin: buildBigWinToday(todaysWinners, poolById),
     ticker: buildTicker(winnerRows),

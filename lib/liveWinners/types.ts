@@ -19,6 +19,13 @@ export interface LiveWinnersStats {
   prizeMoneyToday: number;
 }
 
+export interface PlatformTotals {
+  totalPools: number;
+  totalSquaresSold: number;
+  totalPrizeMoney: number;
+  totalPlayers: number;
+}
+
 export type LiveGameStatus = "live" | "upcoming" | "final";
 
 export interface LiveWinnerFeedItem {
@@ -88,6 +95,7 @@ export interface TickerPayout {
 
 export interface LiveWinnersCenterData {
   platform: LivePlatformStatus;
+  platformTotals: PlatformTotals;
   stats: LiveWinnersStats;
   bigWin: BigWinToday | null;
   ticker: TickerPayout[];

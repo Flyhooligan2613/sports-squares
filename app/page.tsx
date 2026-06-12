@@ -20,6 +20,7 @@ import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
 import HomeLiveActivityFeed from "@/components/landing/HomeLiveActivityFeed";
+import { LandingLiveProvider } from "@/components/landing/LandingLiveProvider";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 const PLAYER_STEPS = [
@@ -104,6 +105,7 @@ const WHY_PLAY: { title: string; description: string; icon: LucideIcon }[] = [
 
 export default function HomePage() {
   return (
+    <LandingLiveProvider>
     <div className="landing-page min-h-[calc(100vh-3.5rem)] flex flex-col overflow-x-hidden">
       <main className="flex-1">
         <HeroSection />
@@ -205,5 +207,6 @@ export default function HomePage() {
       </main>
       <Footer landing />
     </div>
+    </LandingLiveProvider>
   );
 }
