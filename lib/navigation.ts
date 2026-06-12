@@ -22,6 +22,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: "/live-tv", label: "Live TV", icon: "📺", badgeKey: "live" },
       { href: "/action-center", label: "Action Center", icon: "⚡" },
       { href: "/live-winners", label: "Winners Center", icon: "🏆" },
+      { href: "/leaderboards", label: "Leaderboards", icon: "📊" },
       { href: "/my-games", label: "My Games", icon: "🎮", requiresAuth: true },
       {
         href: "/my-games/notifications",

@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   History,
   Trophy,
+  BarChart3,
 } from "lucide-react";
 
 const ACTIONS = [
@@ -20,6 +21,12 @@ const ACTIONS = [
     label: "Purchase More Squares",
     icon: ShoppingCart,
     description: "Secure checkout in seconds",
+  },
+  {
+    href: "/leaderboards",
+    label: "Leaderboards",
+    icon: BarChart3,
+    description: "Worldwide rankings",
   },
   {
     href: "/my-games/profile#legacy",

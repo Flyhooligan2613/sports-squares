@@ -3,66 +3,12 @@ import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admi
 import type { PlayerRow, PoolRow, SquareRow, WinnerRow } from "@/lib/database/types";
 import { buildAchievements, legacyHeadline } from "@/lib/player/achievements";
 import type { PlayerLegacyData } from "@/lib/player/legacyTypes";
-
-const STREAK_WINDOW_DAYS = 21;
-
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-function displayNameFromEmail(email: string): string {
-  const local = email.split("@")[0] ?? "Player";
-  return local
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function playerOwnsWin(
-  winner: WinnerRow,
-  playerNames: Set<string>,
-  ownedSquares: Set<number>
-): boolean {
-  if (ownedSquares.has(winner.winning_square)) return true;
-  return playerNames.has(winner.winning_player.trim().toLowerCase());
-}
-
-function calcWinStreaks(winDates: Date[]): {
-  current: number;
-  longest: number;
-} {
-  if (!winDates.length) return { current: 0, longest: 0 };
-
-  const sorted = [...winDates].sort((a, b) => a.getTime() - b.getTime());
-  const windowMs = STREAK_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-
-  let longest = 1;
-  let run = 1;
-  for (let i = 1; i < sorted.length; i += 1) {
-    if (sorted[i].getTime() - sorted[i - 1].getTime() <= windowMs) {
-      run += 1;
-      longest = Math.max(longest, run);
-    } else {
-      run = 1;
-    }
-  }
-
-  let current = 1;
-  for (let i = sorted.length - 1; i > 0; i -= 1) {
-    if (sorted[i].getTime() - sorted[i - 1].getTime() <= windowMs) {
-      current += 1;
-    } else {
-      break;
-    }
-  }
-
-  const daysSinceLast =
-    (Date.now() - sorted[sorted.length - 1].getTime()) / (24 * 60 * 60 * 1000);
-  if (daysSinceLast > STREAK_WINDOW_DAYS) current = 0;
-
-  return { current, longest };
-}
+import {
+  calcWinStreaks,
+  displayNameFromEmail,
+  normalizeEmail,
+  playerOwnsWin,
+} from "@/lib/player/statsCore";
 
 function seasonKey(date: Date): string {
   const month = date.getUTCMonth();

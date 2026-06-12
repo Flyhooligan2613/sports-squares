@@ -147,19 +147,24 @@ export default function PlayerLegacyProfile() {
               </h1>
               <p className="text-sb-muted mt-2">{legacy.headline}</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleShare} className="shrink-0">
-              {copied ? (
-                <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share Profile
-                </>
-              )}
-            </Button>
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <Button href="/leaderboards" variant="ghost" size="sm">
+                View Rankings
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleShare}>
+                {copied ? (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
           <div className="flex flex-wrap gap-3 text-xs text-sb-muted">
             <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">

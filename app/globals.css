@@ -3138,6 +3138,18 @@ body {
   position: relative;
 }
 
+.lb-row-viewer {
+  background: linear-gradient(
+    90deg,
+    rgba(123, 97, 255, 0.12) 0%,
+    rgba(123, 97, 255, 0.04) 100%
+  );
+}
+
+.lb-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .player-active-card {
   animation: playerCardEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
