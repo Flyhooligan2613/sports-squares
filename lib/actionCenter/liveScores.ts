@@ -1,6 +1,8 @@
+import { buildGameId, mapEspnStatusToGameStatus } from "@/lib/database/services/games";
 import { parseEspnScoreboard } from "@/lib/espn/parser";
 import { getEspnSportConfig } from "@/lib/espn/sports";
-import type { EspnLiveGame, EspnScoreboardGame, EspnSport } from "@/lib/types";
+import { isKickoffInCurrentWeek } from "@/lib/actionCenter/week";
+import type { EspnLiveGame, EspnScoreboardGame, EspnSport, Game } from "@/lib/types";
 
 const SPORTS: EspnSport[] = ["nfl", "ncaaf", "nba", "ncaab"];
 
@@ -62,6 +64,76 @@ async function fetchSportScoreboard(sport: EspnSport): Promise<EspnScoreboardGam
   } catch {
     return [];
   }
+}
+
+export function sportFromScoreboardKey(key: string): EspnSport {
+  const dash = key.indexOf("-");
+  return key.slice(0, dash) as EspnSport;
+}
+
+export function scoreboardEntryToGame(sport: EspnSport, entry: EspnScoreboardGame): Game {
+  const mapped = mapEspnStatusToGameStatus(entry.completed, entry.status);
+  const status = entry.completed ? "final" : isScoreboardGameLive(entry) ? "live" : mapped;
+
+  return {
+    id: buildGameId(sport, entry.id),
+    espnGameId: entry.id,
+    espnSport: sport,
+    homeTeam: entry.homeTeam,
+    awayTeam: entry.awayTeam,
+    kickoffAt: entry.kickoffAt ?? new Date().toISOString(),
+    status,
+  };
+}
+
+/** Merge DB rows with the current ESPN scoreboard (source of truth for slates). */
+export function mergeDbAndScoreboardGames(
+  dbGames: Game[],
+  scoreboardByKey: Map<string, EspnScoreboardGame>
+): Game[] {
+  const byId = new Map<string, Game>();
+
+  for (const game of dbGames) {
+    byId.set(game.id, game);
+  }
+
+  for (const [key, entry] of Array.from(scoreboardByKey.entries())) {
+    if (entry.completed) continue;
+    const sport = sportFromScoreboardKey(key);
+    const id = buildGameId(sport, entry.id);
+    const fromScoreboard = scoreboardEntryToGame(sport, entry);
+    const existing = byId.get(id);
+
+    if (!existing) {
+      byId.set(id, fromScoreboard);
+      continue;
+    }
+
+    byId.set(id, {
+      ...existing,
+      kickoffAt: entry.kickoffAt ?? existing.kickoffAt,
+      homeTeam: entry.homeTeam,
+      awayTeam: entry.awayTeam,
+      status: fromScoreboard.status === "final" ? "final" : fromScoreboard.status,
+    });
+  }
+
+  return Array.from(byId.values());
+}
+
+export function isActionCenterVisibleGame(
+  game: Game,
+  scoreboard: EspnScoreboardGame | null
+): boolean {
+  if (scoreboard?.completed || game.status === "final" || game.status === "cancelled") {
+    return false;
+  }
+  if (scoreboard) return true;
+  if (game.status === "live") return true;
+  if (isKickoffInCurrentWeek(game.kickoffAt)) return true;
+
+  const hoursUntil = (new Date(game.kickoffAt).getTime() - Date.now()) / 3_600_000;
+  return hoursUntil >= -5 && hoursUntil <= 7 * 24;
 }
 
 /** Live scores for the current ESPN scoreboard week, keyed by `${sport}-${espnId}`. */

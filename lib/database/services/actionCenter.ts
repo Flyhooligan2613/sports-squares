@@ -9,11 +9,12 @@ import {
 } from "@/lib/actionCenter/format";
 import {
   fetchCurrentWeekScoreboards,
+  isActionCenterVisibleGame,
   isScoreboardGameLive,
+  mergeDbAndScoreboardGames,
   scoreboardKey,
   scoreboardToLiveGame,
 } from "@/lib/actionCenter/liveScores";
-import { getCurrentSportsWeekRange, isKickoffInCurrentWeek } from "@/lib/actionCenter/week";
 import type {
   ActionCenterData,
   ActionGameBoard,
@@ -203,15 +204,13 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
 
   const supabase = getSupabaseAdmin();
   const todayStart = startOfToday();
-  const weekRange = getCurrentSportsWeekRange();
   const recentSince = hoursAgo(3);
   const purchaseSince = hoursAgo(24);
 
   const [games, scoreboardByKey, poolsRes, playersRes, winnersRes, sportStats] = await Promise.all([
     dbListGames({
       status: ["scheduled", "live"],
-      fromKickoff: weekRange.start.toISOString(),
-      limit: 150,
+      limit: 200,
     }),
     fetchCurrentWeekScoreboards(),
     supabase
@@ -247,9 +246,11 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
   const openPools = poolRows.filter((p) => p.status === "open");
   const fillByPool = await batchFillStats(openPools.map((p) => p.id));
 
-  const weekGames = games.filter(
-    (game) => isKickoffInCurrentWeek(game.kickoffAt) || game.status === "live"
-  );
+  const weekGames = mergeDbAndScoreboardGames(games, scoreboardByKey).filter((game) => {
+    const scoreboard =
+      scoreboardByKey.get(scoreboardKey(game.espnSport, game.espnGameId)) ?? null;
+    return isActionCenterVisibleGame(game, scoreboard);
+  });
 
   const espnById = new Map<string, EspnLiveGame>();
   for (const game of weekGames) {
