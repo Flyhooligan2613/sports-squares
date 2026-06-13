@@ -202,6 +202,14 @@ export async function fulfillPickemEntryPurchase(input: {
     metadata: { entryTierCents, leagueId: league.id, amountCents: input.amountPaidCents },
   });
 
+  const { recordQualifiedGameplay } = await import("@/lib/platform/ecosystem/gameplay");
+  await recordQualifiedGameplay({
+    email,
+    gameType: "pickem",
+    amountCents: input.amountPaidCents,
+    isDeposit: input.amountPaidCents >= 2500,
+  }).catch(() => undefined);
+
   return { leagueId: league.id, alreadyFulfilled: false };
 }
 

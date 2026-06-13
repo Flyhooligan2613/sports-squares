@@ -31,14 +31,23 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       email?: string;
+      identifier?: string;
       rememberMe?: boolean;
       deviceKey?: string;
+      referralCode?: string;
     };
-    const email = body.email?.trim().toLowerCase();
+
+    let email = body.email?.trim().toLowerCase() ?? "";
+
+    if (!email && body.identifier?.trim()) {
+      const { resolveLoginIdentifier } = await import("@/lib/platform/ecosystem/identifiers");
+      const resolved = await resolveLoginIdentifier(body.identifier);
+      if (resolved) email = resolved;
+    }
 
     if (!email || !email.includes("@")) {
       return NextResponse.json(
-        { error: "Enter a valid email address." },
+        { error: "Enter a valid email, username, phone, or Player ID." },
         { status: 400 }
       );
     }
@@ -68,6 +77,16 @@ export async function POST(request: Request) {
         email,
         rememberMe: body.rememberMe ?? true,
       }).catch(() => undefined);
+
+      if (body.referralCode?.trim()) {
+        const { applyReferralCode } = await import("@/lib/platform/ecosystem/referrals");
+        await applyReferralCode({
+          refereeEmail: email,
+          referralCode: body.referralCode.trim(),
+          deviceKey: body.deviceKey,
+          ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        }).catch(() => undefined);
+      }
     }
 
     return NextResponse.json({ ok: true });

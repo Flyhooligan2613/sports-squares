@@ -22,7 +22,11 @@ export async function ensurePlayerProfile(
     .maybeSingle();
 
   if (lookupError) throw lookupError;
-  if (existing?.slug) return existing.slug as string;
+  if (existing?.slug) {
+    const { ensureEcosystemAccount } = await import("@/lib/platform/ecosystem/account");
+    await ensureEcosystemAccount(normalized, displayName).catch(() => undefined);
+    return existing.slug as string;
+  }
 
   let candidate = buildPlayerSlug(displayName, normalized);
 
@@ -43,14 +47,22 @@ export async function ensurePlayerProfile(
       display_name: displayName,
     });
 
-    if (!insertError) return candidate;
+    if (!insertError) {
+      const { ensureEcosystemAccount } = await import("@/lib/platform/ecosystem/account");
+      await ensureEcosystemAccount(normalized, displayName).catch(() => undefined);
+      return candidate;
+    }
     if (insertError.code === "23505") {
       const { data: raced } = await supabase
         .from(TABLES.playerProfiles)
         .select("slug")
         .eq("email", normalized)
         .maybeSingle();
-      if (raced?.slug) return raced.slug as string;
+      if (raced?.slug) {
+        const { ensureEcosystemAccount } = await import("@/lib/platform/ecosystem/account");
+        await ensureEcosystemAccount(normalized, displayName).catch(() => undefined);
+        return raced.slug as string;
+      }
     } else {
       throw insertError;
     }

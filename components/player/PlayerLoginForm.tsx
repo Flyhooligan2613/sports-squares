@@ -25,6 +25,7 @@ export default function PlayerLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
+  const referralCode = searchParams.get("ref") ?? "";
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +79,7 @@ export default function PlayerLoginForm() {
     const result = await signInPlayerWithMagicLink(email, {
       rememberMe,
       deviceKey,
+      referralCode: referralCode || undefined,
     });
     setLoading(false);
 
@@ -169,19 +171,26 @@ export default function PlayerLoginForm() {
                   htmlFor="player-email"
                   className="block text-xs font-semibold uppercase tracking-wider text-sb-muted mb-2"
                 >
-                  Email address
+                  Email, username, phone, or Player ID
                 </label>
                 <input
                   id="player-email"
-                  type="email"
+                  type="text"
                   required
-                  autoComplete="email"
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="you@example.com or ISAIAH742"
                   className="player-input w-full"
                 />
               </div>
+
+              {referralCode ? (
+                <p className="text-xs text-emerald-300/90 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                  Referral code <span className="font-mono font-semibold">{referralCode}</span> will be
+                  applied when you sign in.
+                </p>
+              ) : null}
 
               <label className="flex items-start gap-3 cursor-pointer">
                 <input

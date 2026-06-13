@@ -7,6 +7,8 @@ import {
   History,
   Trophy,
   BarChart3,
+  Gift,
+  Users,
 } from "lucide-react";
 
 const ACTIONS = [
@@ -27,6 +29,18 @@ const ACTIONS = [
     label: "Leaderboards",
     icon: BarChart3,
     description: "Worldwide rankings",
+  },
+  {
+    href: "/my-games/rewards",
+    label: "Rewards & Tiers",
+    icon: Gift,
+    description: "Credits, boxes & marketplace",
+  },
+  {
+    href: "/my-games/referrals",
+    label: "Refer & Earn",
+    icon: Users,
+    description: "Share your Player ID",
   },
   {
     href: "/my-games/profile#legacy",

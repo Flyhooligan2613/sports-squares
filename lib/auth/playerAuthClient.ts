@@ -2,16 +2,18 @@ import { createClient } from "@/lib/supabase/client";
 import { clearAppUnlock, clearStepUpToken } from "@/lib/auth/security/deviceClient";
 
 export async function signInPlayerWithMagicLink(
-  email: string,
-  options?: { rememberMe?: boolean; deviceKey?: string }
+  emailOrIdentifier: string,
+  options?: { rememberMe?: boolean; deviceKey?: string; referralCode?: string }
 ) {
   const response = await fetch("/api/auth/magic-link", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      email: email.trim().toLowerCase(),
+      email: emailOrIdentifier.includes("@") ? emailOrIdentifier.trim().toLowerCase() : undefined,
+      identifier: emailOrIdentifier.includes("@") ? undefined : emailOrIdentifier.trim(),
       rememberMe: options?.rememberMe ?? true,
       deviceKey: options?.deviceKey,
+      referralCode: options?.referralCode,
     }),
   });
 

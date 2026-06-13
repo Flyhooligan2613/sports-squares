@@ -3,7 +3,7 @@ import { TABLES } from "@/lib/database/config";
 import type { PlayerRow, PoolRow, SquareRow } from "@/lib/database/types";
 import { sendInviteEmail } from "@/lib/email/resend";
 import { buildInvitePath } from "@/lib/invites";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { sendInviteSms } from "@/lib/twilio/hooks";
 import type {
   InviteDeliveryStatus,
@@ -628,6 +628,16 @@ export async function fulfillPurchase(
     creditsPurchased,
     inviteUrl,
   });
+
+  if (isSupabaseAdminConfigured()) {
+    const { recordQualifiedGameplay } = await import("@/lib/platform/ecosystem/gameplay");
+    await recordQualifiedGameplay({
+      email,
+      gameType: "squareboards",
+      amountCents: input.amountPaidCents,
+      isDeposit: input.amountPaidCents >= 2500,
+    }).catch(() => undefined);
+  }
 
   return {
     playerId,
