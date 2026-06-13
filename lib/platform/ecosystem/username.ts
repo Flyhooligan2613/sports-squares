@@ -135,7 +135,7 @@ export async function changeUsername(input: {
   };
 
   if (usernameChanged || playerIdOutOfSync) {
-    patch.player_id = await assignPlayerIdFromUsername(username);
+    patch.player_id = await assignPlayerIdFromUsername(username, input.email);
   }
 
   await updateEcosystemProfile(input.email, patch);
@@ -144,17 +144,8 @@ export async function changeUsername(input: {
 /** Keep display_name and player_id aligned with the chosen username. */
 export async function syncPublicIdentityFields(email: string): Promise<void> {
   const account = await ensureEcosystemAccount(email);
-  const supabase = getSupabaseAdmin();
-  const normalized = normalizeEmail(email);
-
-  const { data: profile } = await supabase
-    .from("player_profiles")
-    .select("username_customized")
-    .eq("email", normalized)
-    .maybeSingle();
-
   const username = account.username?.trim();
-  if (!username || !profile?.username_customized) return;
+  if (!username) return;
 
   const currentIdBase = (account.playerId ?? "").replace(/\d+$/, "");
   const usernameBase = username.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
@@ -165,10 +156,11 @@ export async function syncPublicIdentityFields(email: string): Promise<void> {
     patch.display_name = username;
   }
   if (playerIdOutOfSync) {
-    patch.player_id = await assignPlayerIdFromUsername(username);
+    patch.player_id = await assignPlayerIdFromUsername(username, email);
   }
 
   if (Object.keys(patch).length) {
+    patch.username_customized = true;
     await updateEcosystemProfile(email, patch);
   }
 }

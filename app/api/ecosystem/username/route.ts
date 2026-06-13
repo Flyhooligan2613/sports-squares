@@ -25,6 +25,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  await syncPublicIdentityFields(user.email);
+
   const [eligibility, identity] = await Promise.all([
     getUsernameChangeEligibility(user.email),
     getPlayerPublicIdentity(user.email),

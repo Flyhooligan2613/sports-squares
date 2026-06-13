@@ -11,8 +11,12 @@ function generatePlayerId(label: string): string {
   return `${base}${suffix}`;
 }
 
-export async function assignPlayerIdFromUsername(username: string): Promise<string> {
+export async function assignPlayerIdFromUsername(
+  username: string,
+  excludeEmail?: string
+): Promise<string> {
   const supabase = getSupabaseAdmin();
+  const normalizedExclude = excludeEmail ? normalizeEmail(excludeEmail) : null;
   let playerId = generatePlayerId(username);
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const { data: conflict } = await supabase
@@ -20,7 +24,9 @@ export async function assignPlayerIdFromUsername(username: string): Promise<stri
       .select("email")
       .eq("player_id", playerId)
       .maybeSingle();
-    if (!conflict) return playerId;
+    if (!conflict || (normalizedExclude && conflict.email === normalizedExclude)) {
+      return playerId;
+    }
     playerId = generatePlayerId(username);
   }
   throw new Error("Could not assign Player ID.");
