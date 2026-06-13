@@ -15,6 +15,8 @@ export * from "@/lib/platform/ecosystem/promotions";
 export * from "@/lib/platform/ecosystem/progression";
 export * from "@/lib/platform/ecosystem/rewardsCenter";
 export * from "@/lib/platform/ecosystem/avatars";
+export * from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
+export * from "@/lib/platform/ecosystem/weeklyRewardDrop";
 export * from "@/lib/platform/ecosystem/gameStatus";
 export * from "@/lib/platform/ecosystem/config";
 export * from "@/lib/platform/ecosystem/adminConfig";

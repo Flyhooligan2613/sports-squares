@@ -25,12 +25,12 @@ export default function RewardsDashboardPanel() {
       <PlayerTierCard />
 
       {data.unopenedMysteryBox ? (
-        <LandingGlassCard className="p-5 flex flex-wrap items-center justify-between gap-4 border border-amber-500/30">
+        <LandingGlassCard className="p-5 flex flex-wrap items-center justify-between gap-4 border border-amber-500/30 wrd-panel-cube-ready">
           <div>
-            <p className="text-xs uppercase tracking-wider text-amber-300">Weekly Mystery Box</p>
-            <p className="text-white font-semibold">Your glowing cube is ready — open it now</p>
+            <p className="text-xs uppercase tracking-wider text-amber-300">🎁 Weekly Reward Drop Ready</p>
+            <p className="text-white font-semibold">Your premium reward crate is waiting</p>
           </div>
-          <Button onClick={() => setShowBox(true)}>Open Mystery Box</Button>
+          <Button onClick={() => setShowBox(true)}>Open Drop</Button>
         </LandingGlassCard>
       ) : null}
 

@@ -18,21 +18,12 @@ export default function AdminEcosystemClient() {
     <div className="max-w-5xl space-y-6">
       <PageHeader
         title="Player Ecosystem"
-        subtitle="Configure rewards marketplace, referral rules, tier credits, and mystery boxes."
+        subtitle="Configure rewards marketplace, weekly drops, referrals, and tier credits."
       />
 
       <LandingGlassCard className="p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Active promotions</h3>
-        <div className="space-y-2">
-          {(config?.promotions as { title: string; slug: string; active: boolean }[] | undefined)?.map(
-            (promo) => (
-              <div key={promo.slug} className="flex justify-between text-sm border-b border-white/5 py-2">
-                <span className="text-white">{promo.title}</span>
-                <span className="text-sb-muted">{promo.active ? "Active" : "Inactive"}</span>
-              </div>
-            )
-          )}
-        </div>
+        <h3 className="text-lg font-semibold text-white mb-4">Weekly Reward Drop</h3>
+        <ConfigBlock title="Drop rates & eligibility" value={config?.weeklyRewardDrop} />
       </LandingGlassCard>
 
       <LandingGlassCard className="p-6">
@@ -69,6 +60,7 @@ export default function AdminEcosystemClient() {
         <ConfigBlock title="Referral rules" value={config?.referral} />
         <ConfigBlock title="Tier credits" value={config?.tierCredits} />
         <ConfigBlock title="Mystery box" value={config?.mysteryBox} />
+        <ConfigBlock title="Weekly reward drop" value={config?.weeklyRewardDrop} />
         <ConfigBlock title="Tier ladder" value={config?.tiers} />
       </LandingGlassCard>
 

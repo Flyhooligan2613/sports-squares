@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { openMysteryBox } from "@/lib/platform/ecosystem/mysteryBox";
+import { openWeeklyRewardDrop } from "@/lib/platform/ecosystem/weeklyRewardDrop";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,11 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = await openMysteryBox(user.email);
-  return NextResponse.json({ ok: true, ...result });
+  try {
+    const { drop } = await openWeeklyRewardDrop(user.email);
+    return NextResponse.json({ ok: true, rewards: drop.rewards, drop });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not open box.";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 }

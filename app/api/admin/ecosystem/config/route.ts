@@ -13,12 +13,13 @@ export async function GET() {
   if (!admin) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   if (!isSupabaseAdminConfigured()) return NextResponse.json({ catalog: [], tiers: [] });
 
-  const [catalog, tiers, referral, tierCredits, mysteryBox, promotionsRes] = await Promise.all([
+  const [catalog, tiers, referral, tierCredits, mysteryBox, weeklyDrop, promotionsRes] = await Promise.all([
     listRewardsCatalog(),
     listTierDefinitions(),
     getAdminConfig("referral"),
     getAdminConfig("tier_credits"),
     getAdminConfig("mystery_box"),
+    getAdminConfig("weekly_reward_drop"),
     getSupabaseAdmin().from("ecosystem_promotions").select("*").order("sort_order"),
   ]);
 
@@ -28,6 +29,7 @@ export async function GET() {
     referral,
     tierCredits,
     mysteryBox,
+    weeklyRewardDrop: weeklyDrop,
     promotions: promotionsRes.data ?? [],
   });
 }
@@ -37,7 +39,7 @@ export async function PATCH(request: Request) {
   if (!admin) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
   const body = (await request.json()) as {
-    key?: "referral" | "tier_credits" | "mystery_box" | "username" | "game_status";
+    key?: "referral" | "tier_credits" | "mystery_box" | "weekly_reward_drop" | "username" | "game_status";
     value?: Record<string, unknown>;
   };
 

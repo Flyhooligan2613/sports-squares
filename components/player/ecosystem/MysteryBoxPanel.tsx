@@ -1,22 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
-import MysteryBoxModal from "@/components/player/ecosystem/MysteryBoxModal";
+import WeeklyRewardDropExperience from "@/components/player/ecosystem/WeeklyRewardDropExperience";
+import WeeklyDropHistoryPanel from "@/components/player/ecosystem/WeeklyDropHistoryPanel";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
 import { getTierVisual } from "@/lib/platform/ecosystem/tierVisuals";
+import { BOX_VISUALS } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
+import type { DropBoxType } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
 
 export default function MysteryBoxPanel() {
   const { data, loading, refresh } = useRewardsCenter();
-  const [showBox, setShowBox] = useState(false);
+  const [showDrop, setShowDrop] = useState(false);
+  const [boxType, setBoxType] = useState<DropBoxType>("bronze");
+
+  useEffect(() => {
+    if (!data?.unopenedMysteryBox) return;
+    void fetch("/api/ecosystem/weekly-drop", { credentials: "include" })
+      .then((res) => res.json())
+      .then((json: { status?: { boxType?: DropBoxType } }) => {
+        if (json.status?.boxType) setBoxType(json.status.boxType);
+      });
+  }, [data?.unopenedMysteryBox]);
 
   if (loading || !data) {
-    return <p className="text-center text-sb-muted py-16 animate-pulse">Loading mystery box…</p>;
+    return <p className="text-center text-sb-muted py-16 animate-pulse">Loading Weekly Reward Drop…</p>;
   }
 
   const visual = getTierVisual(data.dashboard.tier.slug);
-  const qualified = data.dashboard.account.weeklyGameplayCents >= 50000;
+  const minCents = 50000;
+  const qualified = data.dashboard.account.weeklyGameplayCents >= minCents;
+  const boxVisual = data.unopenedMysteryBox ? BOX_VISUALS[boxType] : null;
 
   return (
     <div className="space-y-6">
@@ -25,54 +40,65 @@ export default function MysteryBoxPanel() {
           className={`absolute inset-0 bg-gradient-to-br ${visual.gradient} opacity-50 pointer-events-none`}
         />
         <div className="relative">
+          <p className="text-xs uppercase tracking-[0.25em] text-amber-300 mb-2">🎁 Weekly Reward Drop</p>
           <div
             className={`mx-auto w-32 h-32 rounded-2xl flex items-center justify-center text-6xl mb-6 ${
-              data.unopenedMysteryBox ? "animate-pulse shadow-[0_0_60px_rgba(251,191,36,0.5)]" : ""
+              data.unopenedMysteryBox ? "wrd-panel-cube-ready" : ""
             }`}
-            style={{
-              background: "linear-gradient(135deg, rgba(91,76,247,0.4), rgba(251,191,36,0.2))",
-              border: "2px solid rgba(251,191,36,0.4)",
-            }}
+            style={
+              boxVisual
+                ? { boxShadow: `0 0 60px ${boxVisual.glow}66`, border: `2px solid ${boxVisual.glow}88` }
+                : undefined
+            }
           >
-            🎲
+            {boxVisual?.emoji ?? "🎁"}
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">Weekly Mystery Box</h3>
-          <p className="text-sm text-sb-muted max-w-md mx-auto mb-6">
-            Every Monday, players with $500+ weekly gameplay qualify. Higher tiers unlock better reward
-            pools — Tier Credits, Square Credits, badges, VIP tickets, and more.
+          <h3 className="text-2xl font-bold text-white mb-2">
+            {boxVisual?.label ?? "Weekly Reward Drop"}
+          </h3>
+          <p className="text-sm text-sb-muted max-w-lg mx-auto mb-6">
+            The signature SquareBoards experience. Qualify through weekly gameplay, VIP promotions,
+            referral milestones, and special events — then open your premium reward crate.
           </p>
           <p className="text-xs text-sb-muted mb-4">
             This week: ${(data.dashboard.account.weeklyGameplayCents / 100).toFixed(2)} gameplay ·{" "}
-            {qualified ? "Qualified ✓" : `$${((50000 - data.dashboard.account.weeklyGameplayCents) / 100).toFixed(2)} to qualify`}
+            {qualified ? "Qualified ✓" : `$${((minCents - data.dashboard.account.weeklyGameplayCents) / 100).toFixed(2)} to qualify`}
           </p>
           {data.unopenedMysteryBox ? (
-            <Button onClick={() => setShowBox(true)}>
-              Open Mystery Box
+            <Button className="player-btn-glow" onClick={() => setShowDrop(true)}>
+              🎁 Open Weekly Reward Drop
             </Button>
           ) : (
             <p className="text-sm text-sb-muted">
               {qualified
-                ? "Check back Monday for your next box, or you've already opened this week's."
-                : "Keep playing to unlock your weekly box."}
+                ? "You've opened this week's drop — check back Monday!"
+                : "Keep playing to unlock your Weekly Reward Drop."}
             </p>
           )}
         </div>
       </LandingGlassCard>
 
       <LandingGlassCard className="p-5">
-        <h4 className="font-semibold text-white mb-3">Your tier pool — {data.dashboard.tier.displayName}</h4>
-        <p className="text-sm text-sb-muted">
-          {visual.icon} Higher tiers receive better credit ranges, bonus Square Credits, exclusive badges,
-          and VIP giveaway entries.
-        </p>
+        <h4 className="font-semibold text-white mb-3">Drop tiers by player tier</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+          {Object.entries(BOX_VISUALS).map(([key, v]) => (
+            <div key={key} className="rounded-lg border border-white/10 px-3 py-2 text-sb-muted">
+              {v.emoji} {v.label}
+            </div>
+          ))}
+        </div>
         <p className="text-sm text-white mt-3">
-          Boxes opened: {data.dashboard.account.mysteryBoxesOpened}
+          Your tier: {visual.icon} {data.dashboard.tier.displayName} · Drops opened:{" "}
+          {data.dashboard.account.mysteryBoxesOpened}
         </p>
       </LandingGlassCard>
 
-      <MysteryBoxModal
-        open={showBox}
-        onClose={() => setShowBox(false)}
+      <WeeklyDropHistoryPanel />
+
+      <WeeklyRewardDropExperience
+        open={showDrop}
+        boxType={boxType}
+        onClose={() => setShowDrop(false)}
         onOpened={() => void refresh()}
       />
     </div>

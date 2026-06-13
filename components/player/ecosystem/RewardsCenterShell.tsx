@@ -10,7 +10,7 @@ const TABS: { href: string; label: string; icon: string; exact?: boolean }[] = [
   { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐" },
   { href: "/my-games/rewards/marketplace", label: "Marketplace", icon: "🛒" },
   { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒" },
-  { href: "/my-games/rewards/mystery-box", label: "Mystery Box", icon: "🎲" },
+  { href: "/my-games/rewards/mystery-box", label: "Weekly Drop", icon: "🎁" },
   { href: "/my-games/rewards/promotions", label: "Promotions", icon: "🎁" },
   { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎" },
   { href: "/my-games/rewards/history", label: "History", icon: "📜" },
