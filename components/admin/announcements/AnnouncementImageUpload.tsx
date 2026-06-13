@@ -9,6 +9,8 @@ interface AnnouncementImageUploadProps {
   onChange: (url: string) => void;
 }
 
+const UPLOAD_TIMEOUT_MS = 90_000;
+
 export default function AnnouncementImageUpload({
   value,
   onChange,
@@ -16,32 +18,57 @@ export default function AnnouncementImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const upload = useCallback(
     async (file: File) => {
       setUploading(true);
       setError(null);
-      const formData = new FormData();
-      formData.append("file", file);
 
-      const res = await fetch("/api/admin/announcements/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = (await res.json()) as {
-        publicUrl?: string;
-        width?: number;
-        height?: number;
-        error?: string;
-      };
+      const previewUrl = URL.createObjectURL(file);
+      setLocalPreview(previewUrl);
 
-      setUploading(false);
-      if (!res.ok || !data.publicUrl) {
-        setError(data.error ?? "Upload failed.");
-        return;
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/admin/announcements/upload", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+          signal: controller.signal,
+        });
+
+        let data: { publicUrl?: string; error?: string } = {};
+        try {
+          data = (await res.json()) as { publicUrl?: string; error?: string };
+        } catch {
+          data = { error: "Server returned an invalid response." };
+        }
+
+        if (!res.ok || !data.publicUrl) {
+          setError(data.error ?? `Upload failed (HTTP ${res.status}).`);
+          return;
+        }
+
+        onChange(data.publicUrl);
+        setLocalPreview(null);
+        URL.revokeObjectURL(previewUrl);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          setError("Upload timed out. Try a smaller image or check your connection.");
+        } else {
+          setError(err instanceof Error ? err.message : "Upload failed.");
+        }
+      } finally {
+        window.clearTimeout(timeout);
+        setUploading(false);
+        if (inputRef.current) inputRef.current.value = "";
       }
-      onChange(data.publicUrl);
     },
     [onChange]
   );
@@ -50,6 +77,8 @@ export default function AnnouncementImageUpload({
     const file = files?.[0];
     if (file) void upload(file);
   }
+
+  const previewSrc = value || localPreview;
 
   return (
     <div className="space-y-3">
@@ -70,17 +99,32 @@ export default function AnnouncementImageUpload({
             : "border-white/15 bg-white/[0.02]"
         }`}
       >
-        {value ? (
+        {previewSrc ? (
           <div className="relative">
-            <img src={value} alt="Announcement preview" className="w-full max-h-80 object-cover rounded-2xl" />
-            <button
-              type="button"
-              onClick={() => onChange("")}
-              className="absolute top-3 right-3 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/60 text-white border border-white/20"
-              aria-label="Remove image"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <img
+              src={previewSrc}
+              alt="Announcement preview"
+              className="w-full max-h-96 object-contain rounded-2xl bg-black/20"
+            />
+            {uploading ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-black/60">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                <p className="text-sm text-white">Optimizing & uploading…</p>
+              </div>
+            ) : null}
+            {value && !uploading ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("");
+                  setLocalPreview(null);
+                }}
+                className="absolute top-3 right-3 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/60 text-white border border-white/20"
+                aria-label="Remove image"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            ) : null}
           </div>
         ) : (
           <button
@@ -89,17 +133,11 @@ export default function AnnouncementImageUpload({
             disabled={uploading}
             className="w-full px-6 py-10 flex flex-col items-center justify-center gap-3 text-center"
           >
-            {uploading ? (
-              <Loader2 className="w-8 h-8 text-sb-purple-light animate-spin" />
-            ) : (
-              <div className="w-14 h-14 rounded-2xl bg-sb-purple/15 border border-sb-purple/30 flex items-center justify-center">
-                <ImagePlus className="w-7 h-7 text-sb-purple-light" />
-              </div>
-            )}
+            <div className="w-14 h-14 rounded-2xl bg-sb-purple/15 border border-sb-purple/30 flex items-center justify-center">
+              <ImagePlus className="w-7 h-7 text-sb-purple-light" />
+            </div>
             <div>
-              <p className="text-white font-semibold">
-                {uploading ? "Optimizing & uploading…" : "Drag & drop promo artwork"}
-              </p>
+              <p className="text-white font-semibold">Drag & drop promo artwork</p>
               <p className="text-xs text-sb-muted mt-1">JPG, PNG, or WEBP — auto-optimized to WebP</p>
             </div>
             <span className="inline-flex items-center gap-2 text-xs text-sb-purple-light mt-1">
@@ -110,7 +148,7 @@ export default function AnnouncementImageUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
@@ -125,7 +163,11 @@ export default function AnnouncementImageUpload({
         ))}
       </div>
 
-      {error ? <p className="text-xs text-red-400">{error}</p> : null}
+      {error ? (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2">
+          <p className="text-xs text-red-300">{error}</p>
+        </div>
+      ) : null}
     </div>
   );
 }

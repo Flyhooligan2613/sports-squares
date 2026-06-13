@@ -4,15 +4,20 @@ import { uploadAnnouncementImage } from "@/lib/platform/announcements/uploadImag
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const admin = await getAuthorizedAdminUser();
   if (!admin) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized. Sign in to Staff Portal first." }, { status: 401 });
   }
 
   if (!isSupabaseAdminConfigured()) {
-    return NextResponse.json({ error: "Database not configured." }, { status: 503 });
+    return NextResponse.json(
+      { error: "Server missing SUPABASE_SERVICE_ROLE_KEY — contact support." },
+      { status: 503 }
+    );
   }
 
   try {
@@ -26,6 +31,7 @@ export async function POST(request: Request) {
     const result = await uploadAnnouncementImage(file);
     return NextResponse.json(result);
   } catch (err) {
+    console.error("[announcements/upload]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Upload failed." },
       { status: 500 }
