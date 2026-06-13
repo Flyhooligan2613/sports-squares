@@ -18,6 +18,7 @@
     "supabase:migrate:pickem": "node scripts/open-pickem-migration.mjs",
     "pickem:sync": "node scripts/trigger-pickem-sync.mjs",
     "pickem:verify-migration": "node scripts/verify-pickem-migration.mjs",
+    "announcements:debug": "node scripts/debug-announcements.mjs",
     "admin:create-user": "node scripts/create-admin-user.mjs",
     "platform:verify-migration": "node scripts/verify-platform-migration.mjs",
     "connect-sample:verify": "node scripts/verify-connect-sample-setup.mjs",

@@ -99,6 +99,21 @@ export default function AnnouncementManager() {
   const [error, setError] = useState<string | null>(null);
   const [regionsInput, setRegionsInput] = useState("");
   const [runningAutomation, setRunningAutomation] = useState(false);
+  const [startImmediately, setStartImmediately] = useState(true);
+  const [deliveryStatus, setDeliveryStatus] = useState<{
+    configured?: boolean;
+    scheduledCount?: number;
+    publicAnonymousPopups?: number;
+    publicAnonymousCount?: number;
+    error?: string;
+  } | null>(null);
+
+  const loadDeliveryStatus = useCallback(async () => {
+    const res = await fetch("/api/admin/announcements/delivery-status");
+    if (!res.ok) return;
+    const data = (await res.json()) as typeof deliveryStatus;
+    setDeliveryStatus(data);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -115,7 +130,8 @@ export default function AnnouncementManager() {
     }
     setAnnouncements(data.announcements ?? []);
     setLoading(false);
-  }, []);
+    void loadDeliveryStatus();
+  }, [loadDeliveryStatus]);
 
   useEffect(() => {
     void load();
@@ -130,6 +146,7 @@ export default function AnnouncementManager() {
     setForm(EMPTY_FORM);
     setEditingId(null);
     setRegionsInput("");
+    setStartImmediately(true);
   }
 
   function handleEdit(item: PlatformAnnouncement) {
@@ -140,6 +157,8 @@ export default function AnnouncementManager() {
     setEditingId(item.id);
     setForm(formFromAnnouncement(item));
     setRegionsInput(item.audienceRegions.join(", "));
+    const startsInFuture = new Date(item.startsAt).getTime() > Date.now();
+    setStartImmediately(!startsInFuture);
   }
 
   async function handleRunAutomation() {
@@ -172,7 +191,11 @@ export default function AnnouncementManager() {
         .split(",")
         .map((r) => r.trim().toUpperCase())
         .filter(Boolean),
-      startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
+      startsAt: startImmediately
+        ? new Date().toISOString()
+        : form.startsAt
+          ? new Date(form.startsAt).toISOString()
+          : undefined,
       endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : null,
     };
 
@@ -212,12 +235,48 @@ export default function AnnouncementManager() {
   }
 
   async function toggleActive(item: PlatformAnnouncement) {
+    const activating = !item.active;
+    const patch: Partial<AnnouncementUpsertInput> = { active: activating };
+
+    if (activating) {
+      const now = Date.now();
+      if (new Date(item.startsAt).getTime() > now) {
+        patch.startsAt = new Date().toISOString();
+      }
+      if (item.endsAt && new Date(item.endsAt).getTime() < now) {
+        patch.endsAt = null;
+      }
+    }
+
     const res = await fetch(`/api/admin/announcements/${item.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active: !item.active }),
+      body: JSON.stringify(patch),
     });
-    if (res.ok) await load();
+    if (res.ok) {
+      if (activating && patch.startsAt) {
+        showToast("Activated and set to go live now.");
+      }
+      await load();
+    }
+  }
+
+  async function handleGoLiveNow(item: PlatformAnnouncement) {
+    const res = await fetch(`/api/admin/announcements/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        active: true,
+        startsAt: new Date().toISOString(),
+        endsAt: null,
+      }),
+    });
+    if (!res.ok) {
+      setError("Could not go live.");
+      return;
+    }
+    showToast("Announcement is live now.");
+    await load();
   }
 
   async function handleResetDismissals(id: string) {
@@ -243,6 +302,36 @@ export default function AnnouncementManager() {
       {error ? (
         <LandingGlassCard className="p-4 border border-red-500/30">
           <p className="text-red-400 text-sm">{error}</p>
+        </LandingGlassCard>
+      ) : null}
+
+      {deliveryStatus ? (
+        <LandingGlassCard
+          className={`p-4 border ${
+            deliveryStatus.configured === false
+              ? "border-red-500/40 bg-red-500/5"
+              : (deliveryStatus.publicAnonymousPopups ?? 0) > 0
+                ? "border-emerald-500/40 bg-emerald-500/5"
+                : "border-amber-500/40 bg-amber-500/5"
+          }`}
+        >
+          <p className="text-sm font-semibold text-white mb-1">Public site delivery</p>
+          {deliveryStatus.configured === false ? (
+            <p className="text-xs text-red-300">
+              {deliveryStatus.error ??
+                "Server database key missing — add SUPABASE_SERVICE_ROLE_KEY on Vercel and redeploy."}
+            </p>
+          ) : (
+            <p className="text-xs text-sb-muted leading-relaxed">
+              {(deliveryStatus.publicAnonymousPopups ?? 0) > 0
+                ? `${deliveryStatus.publicAnonymousPopups} welcome popup(s) delivering to visitors right now.`
+                : (deliveryStatus.publicAnonymousCount ?? 0) > 0
+                  ? `${deliveryStatus.publicAnonymousCount} announcement(s) live, but none are Welcome Popups — visitors see banners/tickers instead.`
+                  : (deliveryStatus.scheduledCount ?? 0) > 0
+                    ? `${deliveryStatus.scheduledCount} in schedule window but filtered out (audience, dismissals, or wrong display type).`
+                    : "Nothing is live yet — check start time is in the past and Display Type is Welcome Popup for a center modal."}
+            </p>
+          )}
         </LandingGlassCard>
       ) : null}
 
@@ -388,6 +477,13 @@ export default function AnnouncementManager() {
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-sb-muted mt-1">
+                {form.displayType === "welcome_popup"
+                  ? "Center-screen modal on the homepage and public pages."
+                  : form.displayType === "top_banner"
+                    ? "Thin strip at the top — not a popup."
+                    : "See label for placement on the public site."}
+              </p>
             </div>
             <div>
               <label className="block text-xs text-sb-muted mb-1.5 uppercase tracking-wider">
@@ -465,11 +561,24 @@ export default function AnnouncementManager() {
               <label className="block text-xs text-sb-muted mb-1.5 uppercase tracking-wider">
                 Start Date
               </label>
+              <label className="inline-flex items-center gap-2 text-sm text-white mb-2">
+                <input
+                  type="checkbox"
+                  checked={startImmediately}
+                  onChange={(e) => setStartImmediately(e.target.checked)}
+                  className="rounded border-white/20"
+                />
+                Start immediately (recommended)
+              </label>
               <input
                 type="datetime-local"
                 value={form.startsAt?.slice(0, 16) ?? ""}
-                onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
-                className={inputClassName()}
+                onChange={(e) => {
+                  setStartImmediately(false);
+                  setForm({ ...form, startsAt: e.target.value });
+                }}
+                disabled={startImmediately}
+                className={`${inputClassName()} disabled:opacity-40`}
               />
             </div>
             <div>
@@ -573,6 +682,18 @@ export default function AnnouncementManager() {
                     {DISPLAY_TYPE_LABELS[item.displayType]} · {AUDIENCE_LABELS[item.audience]} ·{" "}
                     {FREQUENCY_LABELS[item.frequency]} · Priority {item.priority}
                   </p>
+                  {status.tone === "scheduled" ? (
+                    <p className="text-xs text-amber-300/90 mt-1">
+                      Starts {new Date(item.startsAt).toLocaleString()} — use Go live now or edit
+                      start time.
+                    </p>
+                  ) : null}
+                  {status.tone === "live" && item.displayType !== "welcome_popup" ? (
+                    <p className="text-xs text-amber-300/90 mt-1">
+                      Live as {DISPLAY_TYPE_LABELS[item.displayType]} — change to Welcome Popup for
+                      a center modal.
+                    </p>
+                  ) : null}
                   {item.subtitle ? (
                     <p className="text-xs text-white/60 mt-1 truncate">{item.subtitle}</p>
                   ) : null}
@@ -593,6 +714,15 @@ export default function AnnouncementManager() {
                   >
                     {item.active ? "Pause" : "Activate"}
                   </button>
+                  {status.tone !== "live" && item.source !== "automated" ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleGoLiveNow(item)}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10"
+                    >
+                      Go live now
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => void handleResetDismissals(item.id)}
