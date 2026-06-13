@@ -40,12 +40,12 @@ export const DEFAULT_WEEKLY_REWARD_DROP_CONFIG: WeeklyRewardDropConfig = {
   minWeeklyGameplayCents: 50000,
   enabled: true,
   dropRates: {
-    bronze: { common: 80, rare: 15, epic: 5, legendary: 0, mythic: 0 },
-    silver: { common: 60, rare: 30, epic: 9, legendary: 1, mythic: 0 },
-    gold: { common: 45, rare: 35, epic: 15, legendary: 5, mythic: 0 },
-    diamond: { common: 35, rare: 35, epic: 20, legendary: 9, mythic: 1 },
-    legend: { common: 25, rare: 35, epic: 25, legendary: 10, mythic: 5 },
-    immortal: { common: 15, rare: 30, epic: 30, legendary: 15, mythic: 10 },
+    bronze: { common: 80, rare: 15, epic: 5, legendary: 0, mythic: 0, immortal: 0 },
+    silver: { common: 58, rare: 30, epic: 10, legendary: 2, mythic: 0, immortal: 0 },
+    gold: { common: 42, rare: 35, epic: 15, legendary: 7, mythic: 1, immortal: 0 },
+    diamond: { common: 32, rare: 33, epic: 20, legendary: 10, mythic: 4, immortal: 1 },
+    legend: { common: 22, rare: 32, epic: 25, legendary: 12, mythic: 8, immortal: 1 },
+    immortal: { common: 10, rare: 25, epic: 30, legendary: 18, mythic: 12, immortal: 5 },
   },
   tierBoxMap: {
     rookie: "bronze",

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { DropReward, DropBoxType } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
 import { BOX_VISUALS, RARITY_COLORS } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
+import { SQUARE_DROP_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
 
 interface RewardShareCardProps {
   rewards: DropReward[];
@@ -14,7 +15,7 @@ interface RewardShareCardProps {
 export default function RewardShareCard({ rewards, boxType, dropId }: RewardShareCardProps) {
   const [copied, setCopied] = useState(false);
   const best = [...rewards].sort((a, b) => {
-    const order = ["mythic", "legendary", "epic", "rare", "common"];
+    const order = ["immortal", "mythic", "legendary", "epic", "rare", "common"];
     return order.indexOf(a.rarity) - order.indexOf(b.rarity);
   })[0];
 
@@ -22,13 +23,13 @@ export default function RewardShareCard({ rewards, boxType, dropId }: RewardShar
 
   const visual = BOX_VISUALS[boxType];
   const rarity = RARITY_COLORS[best.rarity];
-  const shareText = `🎁 Just pulled a ${rarity.label} ${best.label} from my ${visual.label} on SquareBoards! #SquareBoards #WeeklyRewardDrop`;
+  const shareText = `🎁 Just pulled a ${rarity.label} ${best.label} from my ${visual.label} on SquareBoards! #SquareBoards #SquareDrop`;
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://squareboards.pro";
 
   async function shareNative() {
     if (navigator.share) {
       await navigator.share({
-        title: "SquareBoards Weekly Reward Drop",
+        title: `SquareBoards ${SQUARE_DROP_NAME}`,
         text: shareText,
         url: shareUrl,
       });

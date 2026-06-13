@@ -26,9 +26,9 @@ export default function WeeklyDropHistoryPanel() {
   return (
     <>
       <LandingGlassCard className="p-5">
-        <h3 className="text-lg font-semibold text-white mb-4">Reward Drop History</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Square Drop History</h3>
         {!history.length ? (
-          <p className="text-sm text-sb-muted">Your weekly drops are saved forever — open your first drop to get started.</p>
+          <p className="text-sm text-sb-muted">Every Square Drop is saved forever — open your first drop to get started.</p>
         ) : (
           <ul className="space-y-3 max-h-96 overflow-y-auto">
             {history.map((drop) => {

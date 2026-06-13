@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import PlayerTierCard from "@/components/player/ecosystem/PlayerTierCard";
 import MysteryBoxModal from "@/components/player/ecosystem/MysteryBoxModal";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
+import { SQUARE_DROP_NAME, SQUARE_DROP_READY } from "@/lib/platform/ecosystem/squareDropBrand";
 import { useState } from "react";
 
 export default function RewardsDashboardPanel() {
@@ -25,10 +26,10 @@ export default function RewardsDashboardPanel() {
       <PlayerTierCard />
 
       {data.unopenedMysteryBox ? (
-        <LandingGlassCard className="p-5 flex flex-wrap items-center justify-between gap-4 border border-amber-500/30 wrd-panel-cube-ready">
+        <LandingGlassCard className="p-5 flex flex-wrap items-center justify-between gap-4 border border-purple-500/30 wrd-panel-cube-ready">
           <div>
-            <p className="text-xs uppercase tracking-wider text-amber-300">🎁 Weekly Reward Drop Ready</p>
-            <p className="text-white font-semibold">Your premium reward crate is waiting</p>
+            <p className="text-xs uppercase tracking-wider text-purple-300">🎁 {SQUARE_DROP_READY}</p>
+            <p className="text-white font-semibold">Your {SQUARE_DROP_NAME} is waiting</p>
           </div>
           <Button onClick={() => setShowBox(true)}>Open Drop</Button>
         </LandingGlassCard>
@@ -36,10 +37,10 @@ export default function RewardsDashboardPanel() {
 
       <div className="grid md:grid-cols-3 gap-4">
         <QuickLink
-          href="/my-games/rewards/marketplace"
-          icon="🛒"
-          title="Reward Marketplace"
-          detail="Redeem Tier Credits for entries, merch, and VIP experiences."
+          href="/my-games/rewards/square-drop"
+          icon="🎁"
+          title={SQUARE_DROP_NAME}
+          detail="Weekly premium reward experience"
         />
         <QuickLink
           href="/my-games/referrals"
@@ -48,10 +49,10 @@ export default function RewardsDashboardPanel() {
           detail={`${data.referral.qualifiedReferrals} qualified · Code ${data.referral.referralCode}`}
         />
         <QuickLink
-          href="/my-games/rewards/promotions"
-          icon="🎁"
-          title="Active Promotions"
-          detail={`${data.promotions.filter((p) => !p.claimed).length} offers available`}
+          href="/my-games/rewards/achievements"
+          icon="🏆"
+          title="Achievements"
+          detail="100+ milestones — build your legacy"
         />
       </div>
 

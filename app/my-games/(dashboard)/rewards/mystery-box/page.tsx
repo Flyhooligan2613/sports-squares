@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import MysteryBoxPanel from "@/components/player/ecosystem/MysteryBoxPanel";
-import { BRAND_NAME } from "@/lib/brand";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: `Weekly Reward Drop | ${BRAND_NAME}`,
-};
-
-export default function MysteryBoxPage() {
-  return <MysteryBoxPanel />;
+export default function MysteryBoxRedirectPage() {
+  redirect("/my-games/rewards/square-drop");
 }

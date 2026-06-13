@@ -4,9 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { DropReward, DropBoxType } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
 import { BOX_VISUALS, RARITY_COLORS } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
+import {
+  SQUARE_DROP_NAME,
+  SQUARE_DROP_READY,
+} from "@/lib/platform/ecosystem/squareDropBrand";
 import RewardShareCard from "@/components/player/ecosystem/RewardShareCard";
 
 type Phase =
+  | "intro"
+  | "logo"
+  | "tiles"
+  | "form"
   | "appear"
   | "rotate"
   | "pulse"
@@ -36,7 +44,7 @@ export default function WeeklyRewardDropExperience({
   onClose,
   onOpened,
 }: WeeklyRewardDropExperienceProps) {
-  const [phase, setPhase] = useState<Phase>("appear");
+  const [phase, setPhase] = useState<Phase>("intro");
   const [rewards, setRewards] = useState<DropReward[]>([]);
   const [flippedIndex, setFlippedIndex] = useState(-1);
   const [error, setError] = useState<string | null>(null);
@@ -44,12 +52,12 @@ export default function WeeklyRewardDropExperience({
   const visual = BOX_VISUALS[boxType];
 
   const reset = useCallback(() => {
-    setPhase("appear");
+    setPhase(replayOnly ? "ready" : "intro");
     setRewards([]);
     setFlippedIndex(-1);
     setError(null);
     setDropId(null);
-  }, []);
+  }, [replayOnly]);
 
   useEffect(() => {
     if (!open) reset();
@@ -59,16 +67,36 @@ export default function WeeklyRewardDropExperience({
   }, [open, reset, replayOnly, replayRewards]);
 
   useEffect(() => {
-    if (!open || phase !== "appear" || replayOnly) return;
-    const t1 = setTimeout(() => setPhase("rotate"), 600);
-    const t2 = setTimeout(() => setPhase("pulse"), 1800);
-    const t3 = setTimeout(() => setPhase("ready"), 2800);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [open, phase]);
+    if (!open || replayOnly) return;
+    if (phase === "intro") {
+      const t = setTimeout(() => setPhase("logo"), 700);
+      return () => clearTimeout(t);
+    }
+    if (phase === "logo") {
+      const t = setTimeout(() => setPhase("tiles"), 1400);
+      return () => clearTimeout(t);
+    }
+    if (phase === "tiles") {
+      const t = setTimeout(() => setPhase("form"), 1600);
+      return () => clearTimeout(t);
+    }
+    if (phase === "form") {
+      const t = setTimeout(() => setPhase("appear"), 900);
+      return () => clearTimeout(t);
+    }
+    if (phase === "appear") {
+      const t1 = setTimeout(() => setPhase("rotate"), 500);
+      return () => clearTimeout(t1);
+    }
+    if (phase === "rotate") {
+      const t = setTimeout(() => setPhase("pulse"), 1200);
+      return () => clearTimeout(t);
+    }
+    if (phase === "pulse") {
+      const t = setTimeout(() => setPhase("ready"), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [open, phase, replayOnly]);
 
   useEffect(() => {
     if (phase !== "reveal" || rewards.length === 0) return;
@@ -96,6 +124,10 @@ export default function WeeklyRewardDropExperience({
   }, [phase]);
 
   async function handleOpen() {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate([40, 30, 80]);
+    }
+
     setPhase("shake");
     setError(null);
     await new Promise((r) => setTimeout(r, 900));
@@ -131,23 +163,51 @@ export default function WeeklyRewardDropExperience({
 
   if (!open) return null;
 
+  const showIntro = ["intro", "logo", "tiles", "form"].includes(phase);
   const showCube = ["appear", "rotate", "pulse", "ready", "shake", "explode"].includes(phase);
   const showConfetti = phase === "celebrate" || phase === "done";
+  const isPremiumPull = rewards.some(
+    (r) => r.rarity === "legendary" || r.rarity === "mythic" || r.rarity === "immortal"
+  );
 
   return (
-    <div className="wrd-overlay" role="dialog" aria-modal="true" aria-label="Weekly Reward Drop">
+    <div className="wrd-overlay" role="dialog" aria-modal="true" aria-label={SQUARE_DROP_NAME}>
       <div className="wrd-backdrop" />
+      <FloatingParticles active={showIntro || showCube} />
 
-      {showConfetti ? <Confetti /> : null}
+      {showConfetti ? <Confetti premium={isPremiumPull} /> : null}
+      {phase === "celebrate" && isPremiumPull ? <Fireworks /> : null}
 
       <div className="wrd-stage">
-        <p className="wrd-eyebrow">🎁 Weekly Reward Drop</p>
-        <h2 className="wrd-title">{visual.label}</h2>
+        {!showIntro ? (
+          <>
+            <p className="wrd-eyebrow">🎁 {SQUARE_DROP_READY}</p>
+            <h2 className="wrd-title">{visual.label}</h2>
+          </>
+        ) : null}
 
         {error ? <p className="wrd-error">{error}</p> : null}
 
+        {showIntro ? (
+          <div className="wrd-intro-scene">
+            {phase === "intro" ? <div className="wrd-intro-fade" /> : null}
+            {(phase === "logo" || phase === "tiles" || phase === "form") ? (
+              <div className={`wrd-logo-mark wrd-logo-${phase}`}>
+                <div className="wrd-logo-grid">
+                  <span className="wrd-logo-tile wrd-logo-tile-1" />
+                  <span className="wrd-logo-tile wrd-logo-tile-2" />
+                  <span className="wrd-logo-tile wrd-logo-tile-3" />
+                  <span className="wrd-logo-tile wrd-logo-tile-4" />
+                </div>
+                <p className="wrd-logo-text">{SQUARE_DROP_NAME}</p>
+                <div className="wrd-logo-electricity" aria-hidden />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         {showCube ? (
-          <div className="wrd-cube-scene">
+          <div className={`wrd-cube-scene ${phase === "form" ? "wrd-cube-scene-enter" : ""}`}>
             <div
               className={[
                 "wrd-cube",
@@ -164,7 +224,12 @@ export default function WeeklyRewardDropExperience({
               <div className="wrd-cube-face wrd-cube-bottom">🎲</div>
             </div>
             {phase === "pulse" || phase === "ready" ? <div className="wrd-energy-ring" /> : null}
-            {phase === "explode" ? <div className="wrd-particles" /> : null}
+            {phase === "explode" ? (
+              <>
+                <div className="wrd-particles" />
+                <div className="wrd-smoke" />
+              </>
+            ) : null}
           </div>
         ) : null}
 
@@ -184,6 +249,7 @@ export default function WeeklyRewardDropExperience({
                 reward={reward}
                 flipped={flippedIndex >= index}
                 flying={phase === "inventory" || phase === "celebrate" || phase === "done"}
+                spotlight={phase === "reveal" && flippedIndex === index}
               />
             ))}
           </div>
@@ -194,7 +260,7 @@ export default function WeeklyRewardDropExperience({
             <p className="wrd-celebrate-text">
               {replayOnly ? "Animation replay" : "Rewards added to your Inventory!"}
             </p>
-            {!replayOnly && rewards.some((r) => r.rarity === "legendary" || r.rarity === "mythic") ? (
+            {!replayOnly && isPremiumPull ? (
               <RewardShareCard rewards={rewards} boxType={boxType} dropId={dropId} />
             ) : null}
             <Button className="w-full max-w-xs mx-auto" onClick={onClose}>
@@ -217,10 +283,12 @@ function RewardCard({
   reward,
   flipped,
   flying,
+  spotlight,
 }: {
   reward: DropReward;
   flipped: boolean;
   flying: boolean;
+  spotlight?: boolean;
 }) {
   const rarity = RARITY_COLORS[reward.rarity];
   return (
@@ -230,6 +298,7 @@ function RewardCard({
         flipped ? "wrd-reward-card-flipped" : "",
         flying ? "wrd-reward-card-fly" : "",
         reward.special ? "wrd-reward-card-special" : "",
+        spotlight ? "wrd-reward-card-spotlight" : "",
       ].join(" ")}
       style={{ "--rarity-glow": rarity.glow, borderColor: rarity.border } as React.CSSProperties}
     >
@@ -252,12 +321,38 @@ function RewardCard({
   );
 }
 
-function Confetti() {
-  const pieces = Array.from({ length: 40 }, (_, i) => i);
+function FloatingParticles({ active }: { active: boolean }) {
+  if (!active) return null;
+  return (
+    <div className="wrd-float-particles" aria-hidden>
+      {Array.from({ length: 24 }, (_, i) => (
+        <span key={i} className="wrd-float-particle" style={{ "--i": i } as React.CSSProperties} />
+      ))}
+    </div>
+  );
+}
+
+function Confetti({ premium }: { premium: boolean }) {
+  const count = premium ? 60 : 40;
+  const pieces = Array.from({ length: count }, (_, i) => i);
   return (
     <div className="wrd-confetti" aria-hidden>
       {pieces.map((i) => (
-        <span key={i} className="wrd-confetti-piece" style={{ "--i": i } as React.CSSProperties} />
+        <span
+          key={i}
+          className={premium ? "wrd-confetti-piece wrd-confetti-premium" : "wrd-confetti-piece"}
+          style={{ "--i": i } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Fireworks() {
+  return (
+    <div className="wrd-fireworks" aria-hidden>
+      {Array.from({ length: 6 }, (_, i) => (
+        <span key={i} className="wrd-firework-burst" style={{ "--i": i } as React.CSSProperties} />
       ))}
     </div>
   );

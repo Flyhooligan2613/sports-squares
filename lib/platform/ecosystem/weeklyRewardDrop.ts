@@ -51,7 +51,7 @@ function mapRow(row: Record<string, unknown>): WeeklyDropRecord {
 function rollRarity(rates: WeeklyRewardDropConfig["dropRates"][DropBoxType]): RewardRarity {
   const roll = Math.random() * 100;
   let cumulative = 0;
-  const order: RewardRarity[] = ["common", "rare", "epic", "legendary", "mythic"];
+  const order: RewardRarity[] = ["common", "rare", "epic", "legendary", "mythic", "immortal"];
   for (const rarity of order) {
     cumulative += rates[rarity] ?? 0;
     if (roll < cumulative) return rarity;
@@ -93,10 +93,19 @@ const REWARD_POOL: Record<
   ],
   mythic: [
     { type: "tier_credits", label: "Tier Credits", icon: "⭐", amountRange: [800, 1500] },
-    { type: "diamond_box", label: "Diamond Box Token", icon: "💎", amountRange: [1, 1] },
+    { type: "diamond_box", label: "Diamond Drop Token", icon: "💎", amountRange: [1, 1] },
     { type: "animated_avatar", label: "Animated Avatar", icon: "✨", amountRange: [1, 1] },
-    { type: "legend_box", label: "Legend Box Token", icon: "👑", amountRange: [1, 1] },
-    { type: "secret_reward", label: "Secret Reward", icon: "🎁", amountRange: [1, 1] },
+    { type: "legend_box", label: "Legend Drop Token", icon: "👑", amountRange: [1, 1] },
+    { type: "player_title", label: "Legendary Title", icon: "🏷️", amountRange: [1, 1] },
+    { type: "secret_reward", label: "Mystery Reward", icon: "🎁", amountRange: [1, 1] },
+  ],
+  immortal: [
+    { type: "tier_credits", label: "Tier Credits", icon: "⭐", amountRange: [1500, 3000] },
+    { type: "square_credit", label: "Square Credit", icon: "💵", valueCentsRange: [2500, 5000] },
+    { type: "vip_pass", label: "VIP Pass", icon: "🌟", amountRange: [1, 1] },
+    { type: "profile_frame", label: "Immortal Frame", icon: "🖼️", amountRange: [1, 1] },
+    { type: "giveaway_ticket", label: "Sweepstakes Entry", icon: "🎟️", amountRange: [1, 3] },
+    { type: "username_effect", label: "Username Effect", icon: "⚡", amountRange: [1, 1] },
   ],
 };
 
@@ -358,9 +367,21 @@ async function fulfillReward(email: string, reward: DropReward, weekKey: string)
       break;
     case "badge":
     case "vip_ticket":
+    case "vip_pass":
     case "profile_frame":
     case "animated_avatar":
+    case "profile_theme":
+    case "name_color":
+    case "username_effect":
+    case "emoji_pack":
+    case "player_title":
     case "season_token":
+    case "giveaway_ticket":
+    case "holiday_reward":
+    case "mystery_reward":
+    case "reward_token":
+    case "bonus_square":
+    case "store_credit":
     case "golden_box":
     case "diamond_box":
     case "legend_box":
@@ -392,8 +413,8 @@ export async function openWeeklyRewardDrop(email: string): Promise<{ drop: Weekl
     .maybeSingle();
 
   if (error) throw error;
-  if (!row) throw new Error("No Weekly Reward Drop available.");
-  if (row.opened_at) throw new Error("Weekly Reward Drop already opened.");
+  if (!row) throw new Error("No Square Drop available.");
+  if (row.opened_at) throw new Error("Square Drop already opened.");
 
   const drop = mapRow(row as Record<string, unknown>);
   const rewards = drop.rewards;

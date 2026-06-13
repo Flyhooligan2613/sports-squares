@@ -4,17 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import { RewardsCenterProvider, useRewardsCenter } from "./RewardsCenterProvider";
-
-const TABS: { href: string; label: string; icon: string; exact?: boolean }[] = [
-  { href: "/my-games/rewards", label: "Dashboard", icon: "📊", exact: true },
-  { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐" },
-  { href: "/my-games/rewards/marketplace", label: "Marketplace", icon: "🛒" },
-  { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒" },
-  { href: "/my-games/rewards/mystery-box", label: "Weekly Drop", icon: "🎁" },
-  { href: "/my-games/rewards/promotions", label: "Promotions", icon: "🎁" },
-  { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎" },
-  { href: "/my-games/rewards/history", label: "History", icon: "📜" },
-];
+import { SQUARE_DROP_NAME, REWARDS_CENTER_SECTIONS } from "@/lib/platform/ecosystem/squareDropBrand";
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -23,8 +13,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
       <PageHeader
-        title="🎁 Rewards"
-        subtitle="Earn, unlock, and redeem across every SquareBoards game."
+        title="🎁 Rewards Center"
+        subtitle={`Earn, unlock, and redeem — featuring ${SQUARE_DROP_NAME}™`}
       />
 
       {!loading && data ? (
@@ -41,7 +31,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             label="Pick'em $"
             value={`$${(data.wallet.pickemCreditsCents / 100).toFixed(0)}`}
           />
-          <StatPill label="Mystery" value={String(data.wallet.mysteryBoxesAvailable)} />
+          <StatPill label="Drops" value={String(data.wallet.mysteryBoxesAvailable)} />
           <StatPill label="Promos" value={String(data.promotions.filter((p) => !p.claimed).length)} />
         </div>
       ) : null}
@@ -50,10 +40,11 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         className="flex gap-1 overflow-x-auto pb-2 mb-6 scrollbar-hide border-b border-white/10"
         aria-label="Rewards sections"
       >
-        {TABS.map((tab) => {
-          const active = tab.exact
-            ? pathname === tab.href
-            : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+        {REWARDS_CENTER_SECTIONS.map((tab) => {
+          const active =
+            "exact" in tab && tab.exact
+              ? pathname === tab.href
+              : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
           return (
             <Link
               key={tab.href}

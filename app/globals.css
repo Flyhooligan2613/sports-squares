@@ -5840,7 +5840,7 @@ body {
   margin-top: 0.5rem;
 }
 
-/* ── Weekly Reward Drop (premium loot crate) ── */
+/* ── The Square Drop (premium reward crate) ── */
 
 .wrd-overlay {
   position: fixed;
@@ -6149,4 +6149,204 @@ body {
 @keyframes wrd-panel-glow {
   0%, 100% { filter: brightness(1); }
   50% { filter: brightness(1.25); }
+}
+
+/* ── The Square Drop — cinematic intro ── */
+.wrd-intro-scene {
+  position: relative;
+  width: 100%;
+  min-height: 16rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrd-intro-fade {
+  position: absolute;
+  inset: -2rem;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.15), transparent 70%);
+  animation: wrd-intro-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wrd-intro-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.wrd-logo-mark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wrd-logo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 2.5rem);
+  gap: 0.35rem;
+  position: relative;
+}
+
+.wrd-logo-tile {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+}
+
+.wrd-logo-logo .wrd-logo-grid,
+.wrd-logo-tiles .wrd-logo-grid,
+.wrd-logo-form .wrd-logo-grid {
+  animation: wrd-logo-float 2s ease-in-out infinite;
+}
+
+.wrd-logo-logo .wrd-logo-grid { animation: wrd-logo-float 2s ease-in-out infinite, wrd-logo-glow 1.2s ease-in-out infinite; }
+.wrd-logo-tiles .wrd-logo-tile { animation: wrd-tile-orbit 1.6s ease-in-out forwards; }
+.wrd-logo-tiles .wrd-logo-tile-1 { animation-delay: 0s; }
+.wrd-logo-tiles .wrd-logo-tile-2 { animation-delay: 0.1s; }
+.wrd-logo-tiles .wrd-logo-tile-3 { animation-delay: 0.2s; }
+.wrd-logo-tiles .wrd-logo-tile-4 { animation-delay: 0.3s; }
+.wrd-logo-form .wrd-logo-grid { animation: wrd-tiles-merge 0.9s ease forwards; }
+
+.wrd-logo-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #e9d5ff;
+  opacity: 0;
+  animation: wrd-fade-in 0.8s ease 0.4s forwards;
+}
+
+.wrd-logo-electricity {
+  position: absolute;
+  inset: -1rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(167, 139, 250, 0.8);
+  animation: wrd-electric-spin 1.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes wrd-logo-float {
+  0%, 100% { transform: translateY(0) rotateX(0deg); }
+  50% { transform: translateY(-8px) rotateX(8deg); }
+}
+
+@keyframes wrd-logo-glow {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.5)); }
+  50% { filter: drop-shadow(0 0 28px rgba(167, 139, 250, 0.9)); }
+}
+
+@keyframes wrd-tile-orbit {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(calc(var(--orbit-x, 0) * 1px), calc(var(--orbit-y, 0) * 1px)) rotate(180deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+.wrd-logo-tile-1 { --orbit-x: -18; --orbit-y: -12; }
+.wrd-logo-tile-2 { --orbit-x: 18; --orbit-y: -12; }
+.wrd-logo-tile-3 { --orbit-x: -18; --orbit-y: 12; }
+.wrd-logo-tile-4 { --orbit-x: 18; --orbit-y: 12; }
+
+@keyframes wrd-tiles-merge {
+  from { transform: scale(1.2) rotate(15deg); opacity: 0.6; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes wrd-electric-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wrd-float-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 205;
+  overflow: hidden;
+}
+
+.wrd-float-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.7);
+  top: calc(10% + (var(--i) * 3.5%));
+  left: calc((var(--i) * 4.2%) + 2%);
+  animation: wrd-float-drift 4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.12s);
+}
+
+@keyframes wrd-float-drift {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+  50% { transform: translateY(-24px) scale(1.4); opacity: 0.9; }
+}
+
+.wrd-smoke {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.35), transparent 65%);
+  animation: wrd-smoke-expand 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes wrd-smoke-expand {
+  from { transform: scale(0.2); opacity: 0.8; }
+  to { transform: scale(2.5); opacity: 0; }
+}
+
+.wrd-reward-card-spotlight {
+  z-index: 5;
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 24px var(--rarity-glow));
+}
+
+.wrd-confetti-premium {
+  width: 10px;
+  height: 14px;
+  background: linear-gradient(135deg, #fbbf24, #a855f7, #22d3ee);
+}
+
+.wrd-fireworks {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 208;
+}
+
+.wrd-firework-burst {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fbbf24;
+  top: 30%;
+  left: calc(15% + var(--i) * 14%);
+  box-shadow:
+    0 0 20px 8px rgba(251, 191, 36, 0.4),
+    40px 0 0 rgba(168, 85, 247, 0.5),
+    -40px 0 0 rgba(56, 189, 248, 0.5),
+    0 40px 0 rgba(244, 114, 182, 0.5),
+    0 -40px 0 rgba(234, 179, 8, 0.5);
+  animation: wrd-firework-pop 1.2s ease-out forwards;
+  animation-delay: calc(var(--i) * 0.15s);
+  opacity: 0;
+}
+
+@keyframes wrd-firework-pop {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.wrd-cube-scene-enter {
+  animation: wrd-scene-zoom 0.6s ease forwards;
+}
+
+@keyframes wrd-scene-zoom {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
