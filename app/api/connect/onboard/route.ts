@@ -19,11 +19,14 @@ import {
 } from "@/lib/stripe/connectV2Payouts";
 import { isStripeConfigured } from "@/lib/stripe/config";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
+import { notifySecurityEvent } from "@/lib/auth/security/notify";
+import { emailHasPasskey } from "@/lib/auth/security/webauthn";
 import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: Request) {
   if (!isStripeConfigured() || !isSupabaseAdminConfigured()) {
     return NextResponse.json(
       { error: "Payout setup is unavailable — server not configured." },
@@ -48,6 +51,12 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const stepUp = await requireStepUpFromRequest(request, "payout_change");
+  const hasPasskey = await emailHasPasskey(user.email);
+  if (hasPasskey && !stepUp.ok) {
+    return NextResponse.json({ error: stepUp.error, requiresStepUp: true }, { status: 403 });
+  }
+
   try {
     const email = normalizeEmail(user.email);
     let status = await getPlayerConnectStatus(email);
@@ -69,6 +78,11 @@ export async function POST() {
         await ensureConnectAccountId(email, accountId);
       }
       status = await getPlayerConnectStatus(email);
+      await notifySecurityEvent({
+        email,
+        eventType: "payout_change",
+        metadata: { action: "connect_account_created" },
+      }).catch(() => undefined);
     } else {
       status = await refreshPlayerConnectStatus(email);
       accountId = status.accountId ?? accountId;

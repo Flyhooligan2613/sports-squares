@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
+import { ensurePayoutStepUp } from "@/components/player/TrustedDevicesSettings";
+import { getStepUpToken } from "@/lib/auth/security/deviceClient";
 
 interface PlayerPayoutSetupProps {
   initialStatus?: PlayerConnectStatus | null;
@@ -75,7 +77,18 @@ export default function PlayerPayoutSetup({
     setError(null);
 
     try {
-      const res = await fetch("/api/connect/onboard", { method: "POST" });
+      let stepUpToken = getStepUpToken();
+      if (!stepUpToken) {
+        stepUpToken = await ensurePayoutStepUp();
+      }
+
+      const headers: Record<string, string> = {};
+      if (stepUpToken) headers["x-step-up-token"] = stepUpToken;
+
+      const res = await fetch("/api/connect/onboard", {
+        method: "POST",
+        headers,
+      });
       const json = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !json.url) {
         throw new Error(json.error ?? "Could not start payout setup.");

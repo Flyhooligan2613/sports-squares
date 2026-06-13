@@ -1,12 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { signInPlayerWithMagicLink } from "@/lib/auth/playerAuthClient";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import Logo from "@/components/Logo";
+import {
+  biometricLabel,
+  detectDeviceInfo,
+  getOrCreateDeviceKey,
+  getRememberMePreference,
+  getRequiresEmailSignIn,
+  isWebAuthnAvailable,
+  setRememberMePreference,
+} from "@/lib/auth/security/deviceClient";
+import {
+  fetchAuthBootstrap,
+  signInWithBiometric,
+} from "@/lib/auth/security/webauthnClient";
 
 export default function PlayerLoginForm() {
   const router = useRouter();
@@ -15,14 +28,60 @@ export default function PlayerLoginForm() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const deviceKey = getOrCreateDeviceKey();
+  const device = detectDeviceInfo(
+    typeof navigator !== "undefined" ? navigator.userAgent : "",
+    deviceKey
+  );
+  const biometricName = biometricLabel(device.platform);
+  const webAuthnSupported = isWebAuthnAvailable();
+
+  useEffect(() => {
+    setRememberMe(getRememberMePreference());
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function bootstrap() {
+      const bootstrapData = await fetchAuthBootstrap(email || undefined);
+      if (cancelled) return;
+
+      if (bootstrapData.authenticated) {
+        router.replace("/my-games");
+        return;
+      }
+
+      const canUsePasskey =
+        Boolean(email) &&
+        Boolean(bootstrapData.passkeyAvailable) &&
+        !getRequiresEmailSignIn();
+      setPasskeyAvailable(canUsePasskey);
+
+      setCheckingSession(false);
+    }
+
+    void bootstrap();
+    return () => {
+      cancelled = true;
+    };
+  }, [email, router]);
+
+  async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     router.replace("/my-games/login");
+    setRememberMePreference(rememberMe);
 
-    const result = await signInPlayerWithMagicLink(email);
+    const result = await signInPlayerWithMagicLink(email, {
+      rememberMe,
+      deviceKey,
+    });
     setLoading(false);
 
     if (!result.ok) {
@@ -31,6 +90,38 @@ export default function PlayerLoginForm() {
     }
 
     setSent(true);
+  }
+
+  async function handleBiometricSignIn() {
+    if (!email.trim()) {
+      setError("Enter your email first, then use biometric sign-in.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setRememberMePreference(rememberMe);
+
+    try {
+      await signInWithBiometric(email.trim().toLowerCase(), rememberMe);
+      router.replace("/my-games");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Biometric sign-in failed. Use your email link instead."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="player-login-page min-h-screen flex items-center justify-center text-sb-muted">
+        Loading…
+      </div>
+    );
   }
 
   return (
@@ -43,7 +134,7 @@ export default function PlayerLoginForm() {
             My Games
           </h1>
           <p className="text-sb-muted text-sm sm:text-base">
-            Sign in with the email you used at checkout.
+            Verify your email once. Stay signed in securely on trusted devices.
           </p>
         </div>
 
@@ -55,9 +146,9 @@ export default function PlayerLoginForm() {
               </div>
               <h2 className="text-xl font-bold text-white">Check your inbox</h2>
               <p className="text-sb-muted text-sm leading-relaxed">
-                We sent a secure sign-in link to{" "}
-                <span className="text-white font-medium">{email}</span>. Tap the
-                link to open your boards.
+                We sent a one-time verification link to{" "}
+                <span className="text-white font-medium">{email}</span>. After you confirm, this
+                device will be trusted for faster sign-in.
               </p>
               <Button
                 variant="ghost"
@@ -72,7 +163,7 @@ export default function PlayerLoginForm() {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleMagicLink} className="space-y-5">
               <div>
                 <label
                   htmlFor="player-email"
@@ -92,18 +183,44 @@ export default function PlayerLoginForm() {
                 />
               </div>
 
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="mt-1"
+                />
+                <span className="text-sm text-sb-muted leading-relaxed">
+                  <span className="text-white font-medium">Keep me signed in</span>
+                  <br />
+                  Secure persistent session on this device — like ESPN or DraftKings.
+                </span>
+              </label>
+
               {error && (
                 <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
                   {error}
                 </p>
               )}
 
+              {webAuthnSupported && passkeyAvailable ? (
+                <Button
+                  type="button"
+                  className="w-full player-btn-glow"
+                  disabled={loading}
+                  onClick={() => void handleBiometricSignIn()}
+                >
+                  {loading ? "Unlocking…" : `Unlock with ${biometricName}`}
+                </Button>
+              ) : null}
+
               <Button
                 type="submit"
-                className="w-full player-btn-glow"
+                variant={passkeyAvailable ? "secondary" : "primary"}
+                className={`w-full ${passkeyAvailable ? "" : "player-btn-glow"}`}
                 disabled={loading}
               >
-                {loading ? "Sending link…" : "Send Magic Link"}
+                {loading ? "Sending link…" : passkeyAvailable ? "Email me a sign-in link" : "Continue with email"}
               </Button>
             </form>
           )}

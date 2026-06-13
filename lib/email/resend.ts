@@ -140,6 +140,77 @@ export async function sendInviteEmail(
   }
 }
 
+export interface SendSecurityNotificationEmailInput {
+  to: string;
+  subject: string;
+  title: string;
+  body: string;
+  details?: string[];
+}
+
+export async function sendSecurityNotificationEmail(
+  input: SendSecurityNotificationEmailInput
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!isResendConfigured()) {
+    return { ok: false, error: "Email delivery is not configured." };
+  }
+
+  const detailsHtml =
+    input.details?.length ?
+      `<ul style="margin:16px 0;padding-left:20px;color:#444;">${input.details
+        .map((line) => `<li>${escapeHtml(line)}</li>`)
+        .join("")}</ul>`
+    : "";
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getResendApiKey()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: getResendFromEmail(),
+        to: [input.to.trim()],
+        subject: input.subject,
+        html: `
+          <p><strong>${escapeHtml(input.title)}</strong></p>
+          <p>${escapeHtml(input.body)}</p>
+          ${detailsHtml}
+          <p style="color:#666;font-size:12px;">If this wasn't you, sign in to SquareBoards and review your trusted devices in Security settings.</p>
+        `,
+        text: `${input.title}\n\n${input.body}${
+          input.details?.length ? `\n\n${input.details.join("\n")}` : ""
+        }`,
+      }),
+    });
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as {
+        message?: string | string[];
+        error?: string;
+      };
+      const detail =
+        typeof payload.message === "string"
+          ? payload.message
+          : Array.isArray(payload.message)
+            ? payload.message.join(", ")
+            : payload.error;
+      return {
+        ok: false,
+        error: detail || `Resend returned HTTP ${response.status}`,
+      };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to send email.",
+    };
+  }
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

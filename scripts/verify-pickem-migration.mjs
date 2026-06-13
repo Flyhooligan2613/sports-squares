@@ -86,4 +86,5 @@ console.log("If hall of fame tables show ✗, run 027_pickem_hall_of_fame.sql in
 console.log("If announcement tables show ✗, run 028_platform_announcements.sql in Supabase SQL Editor.");
 console.log("For automation keys, run 029_announcement_automation.sql in Supabase SQL Editor.");
 console.log("For upload/analytics/templates, run 030_announcement_studio.sql in Supabase SQL Editor.");
+console.log("For trusted devices + biometrics, run 032_player_auth_security.sql in Supabase SQL Editor.");
 console.log("");

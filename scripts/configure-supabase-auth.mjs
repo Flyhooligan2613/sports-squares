@@ -101,6 +101,9 @@ async function main() {
     body: JSON.stringify({
       site_url: SITE_URL,
       additional_redirect_urls: REDIRECT_URLS,
+      jwt_exp: 3600,
+      refresh_token_rotation_enabled: true,
+      security_refresh_token_reuse_interval: 10,
     }),
   });
 
@@ -122,6 +125,8 @@ async function main() {
   );
   console.log("");
   console.log("Request a new magic link at /my-games/login to test.");
+  console.log("");
+  console.log("For trusted devices + biometrics, run 032_player_auth_security.sql in Supabase SQL Editor.");
 }
 
 main().catch((err) => {

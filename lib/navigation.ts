@@ -56,6 +56,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/my-games/winnings", label: "My Winnings", icon: "💰", requiresAuth: true },
       { href: "/my-games/history", label: "Win History", icon: "🧾", requiresAuth: true },
+      { href: "/my-games/security", label: "Security", icon: "🔐", requiresAuth: true },
       { href: "/my-games/profile", label: "Settings", icon: "⚙️", requiresAuth: true },
       { href: "/favorites", label: "Favorites", icon: "❤️" },
     ],

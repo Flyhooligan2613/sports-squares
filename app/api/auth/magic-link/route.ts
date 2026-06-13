@@ -29,7 +29,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { email?: string };
+    const body = (await request.json()) as {
+      email?: string;
+      rememberMe?: boolean;
+      deviceKey?: string;
+    };
     const email = body.email?.trim().toLowerCase();
 
     if (!email || !email.includes("@")) {
@@ -56,6 +60,14 @@ export async function POST(request: Request) {
         { error: formatPlayerAuthError(result.error ?? "Could not send sign-in link.") },
         { status: 502 }
       );
+    }
+
+    if (isSupabaseAdminConfigured() && email) {
+      const { upsertAuthProfile } = await import("@/lib/auth/security/db");
+      await upsertAuthProfile({
+        email,
+        rememberMe: body.rememberMe ?? true,
+      }).catch(() => undefined);
     }
 
     return NextResponse.json({ ok: true });
