@@ -8,6 +8,7 @@ import type {
 
 const VIP_EARNINGS_CENTS = 50_000;
 const NEW_PLAYER_DAYS = 14;
+const ACTIVE_POOL_STATUSES = ["open", "locked", "numbers-drawn"];
 
 export function buildViewerKey(email: string | null, anonymousId: string | null): string {
   if (email) return normalizeEmail(email);
@@ -33,14 +34,16 @@ export async function resolveViewerContext(input: {
       isSquaresPlayer: false,
       isPickemPlayer: false,
       isVipPlayer: false,
+      hasActiveBoards: false,
+      hasNoPurchases: true,
       region: input.region ?? null,
     };
   }
 
   const supabase = getSupabaseAdmin();
 
-  const [playersRes, pickemRes, profileRes, pickemStatsRes] = await Promise.all([
-    supabase.from("players").select("id, created_at").ilike("email", email).limit(1),
+  const [playersRes, pickemRes, profileRes, pickemStatsRes, purchasesRes] = await Promise.all([
+    supabase.from("players").select("id, created_at, pool_id").ilike("email", email),
     supabase
       .from("pickem_entry_purchases")
       .select("id")
@@ -55,11 +58,32 @@ export async function resolveViewerContext(input: {
       .order("lifetime_earnings_cents", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from("purchases")
+      .select("id")
+      .eq("email", email)
+      .eq("status", "fulfilled")
+      .limit(1),
   ]);
 
-  const isSquaresPlayer = (playersRes.data?.length ?? 0) > 0;
+  const isSquaresPlayer =
+    (playersRes.data?.length ?? 0) > 0 || (purchasesRes.data?.length ?? 0) > 0;
   const isPickemPlayer = (pickemRes.data?.length ?? 0) > 0;
   const isReturningPlayer = isSquaresPlayer || isPickemPlayer;
+  const hasNoPurchases = !isReturningPlayer;
+
+  const poolIds = Array.from(new Set((playersRes.data ?? []).map((row) => row.pool_id as string)));
+  let hasActiveBoards = false;
+
+  if (poolIds.length) {
+    const { count } = await supabase
+      .from("pools")
+      .select("id", { count: "exact", head: true })
+      .in("id", poolIds)
+      .in("status", ACTIVE_POOL_STATUSES);
+
+    hasActiveBoards = (count ?? 0) > 0;
+  }
 
   const memberSince =
     (profileRes.data?.created_at as string | undefined) ??
@@ -70,8 +94,7 @@ export async function resolveViewerContext(input: {
     ? Date.now() - new Date(memberSince).getTime()
     : Number.POSITIVE_INFINITY;
   const isNewPlayer =
-    !isReturningPlayer ||
-    memberAgeMs <= NEW_PLAYER_DAYS * 24 * 60 * 60 * 1000;
+    !isReturningPlayer || memberAgeMs <= NEW_PLAYER_DAYS * 24 * 60 * 60 * 1000;
 
   const pickemEarnings = (pickemStatsRes.data?.lifetime_earnings_cents as number) ?? 0;
   const isVipPlayer = pickemEarnings >= VIP_EARNINGS_CENTS;
@@ -85,8 +108,17 @@ export async function resolveViewerContext(input: {
     isSquaresPlayer,
     isPickemPlayer,
     isVipPlayer,
+    hasActiveBoards,
+    hasNoPurchases,
     region: input.region ?? null,
   };
+}
+
+function matchesEmailList(announcement: PlatformAnnouncement, viewer: ViewerContext): boolean {
+  if (!announcement.audienceEmails.length) return false;
+  if (!viewer.email) return false;
+  const normalized = viewer.email.toLowerCase();
+  return announcement.audienceEmails.some((entry) => entry.trim().toLowerCase() === normalized);
 }
 
 function matchesAudience(
@@ -108,6 +140,12 @@ function matchesAudience(
       return !viewer.isAnonymous && viewer.isPickemPlayer;
     case "vip_players":
       return !viewer.isAnonymous && viewer.isVipPlayer;
+    case "active_boards_players":
+      return !viewer.isAnonymous && viewer.hasActiveBoards;
+    case "no_purchases_players":
+      return !viewer.isAnonymous && viewer.hasNoPurchases;
+    case "email_list":
+      return matchesEmailList(announcement, viewer);
     default:
       return true;
   }

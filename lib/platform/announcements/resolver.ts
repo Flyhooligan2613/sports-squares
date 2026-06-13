@@ -1,4 +1,5 @@
 import {
+  listClickEventsForViewer,
   listDismissalsForViewer,
   listScheduledAnnouncements,
 } from "@/lib/platform/announcements/db";
@@ -16,13 +17,14 @@ export async function getActiveAnnouncementsForViewer(input: {
   displayType?: PlatformAnnouncement["displayType"];
 }): Promise<PlatformAnnouncement[]> {
   const viewer = await resolveViewerContext(input);
-  const [scheduled, dismissals] = await Promise.all([
+  const [scheduled, dismissals, clicks] = await Promise.all([
     listScheduledAnnouncements(),
     listDismissalsForViewer(viewer.viewerKey),
+    listClickEventsForViewer(viewer.viewerKey),
   ]);
 
   let filtered = filterAnnouncementsForViewer(scheduled, viewer);
-  filtered = applyFrequencyFilter(filtered, dismissals);
+  filtered = applyFrequencyFilter(filtered, dismissals, clicks);
 
   if (input.displayType) {
     filtered = filtered.filter((a) => a.displayType === input.displayType);

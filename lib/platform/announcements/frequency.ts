@@ -20,21 +20,28 @@ function startOfWeek(d: Date): Date {
 export function shouldShowAnnouncement(input: {
   announcement: PlatformAnnouncement;
   dismissedAt: string | null;
+  clicked?: boolean;
   now?: Date;
 }): boolean {
-  const { announcement, dismissedAt } = input;
+  const { announcement, dismissedAt, clicked = false } = input;
   const now = input.now ?? new Date();
+
+  if (announcement.frequency === "never_after_click" && clicked) return false;
+
+  if (announcement.frequency === "until_dismissed" || announcement.frequency === "once") {
+    if (dismissedAt) return false;
+    return true;
+  }
 
   if (!dismissedAt) return true;
 
   switch (announcement.frequency as AnnouncementFrequency) {
-    case "once":
-      return false;
     case "daily":
       return new Date(dismissedAt) < startOfDay(now);
     case "weekly":
       return new Date(dismissedAt) < startOfWeek(now);
     case "always":
+    case "every_login":
       return true;
     default:
       return false;
@@ -43,16 +50,19 @@ export function shouldShowAnnouncement(input: {
 
 export function applyFrequencyFilter(
   announcements: PlatformAnnouncement[],
-  dismissals: { announcementId: string; dismissedAt: string }[]
+  dismissals: { announcementId: string; dismissedAt: string }[],
+  clicks: { announcementId: string }[] = []
 ): PlatformAnnouncement[] {
   const dismissalMap = new Map(
     dismissals.map((d) => [d.announcementId, d.dismissedAt])
   );
+  const clickedIds = new Set(clicks.map((c) => c.announcementId));
 
   return announcements.filter((announcement) =>
     shouldShowAnnouncement({
       announcement,
       dismissedAt: dismissalMap.get(announcement.id) ?? null,
+      clicked: clickedIds.has(announcement.id),
     })
   );
 }

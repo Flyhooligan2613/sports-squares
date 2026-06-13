@@ -1,14 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { X } from "lucide-react";
-import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PlatformAnnouncement } from "@/lib/platform/announcements/types";
 
 interface DisplayProps {
   announcement: PlatformAnnouncement;
   onDismiss?: () => void;
+  onPrimaryClick?: () => void;
+  onSecondaryClick?: () => void;
+}
+
+function animationClass(style: PlatformAnnouncement["animationStyle"]): string {
+  switch (style) {
+    case "fade":
+      return "sb-promo-anim-fade";
+    case "slide_up":
+      return "sb-promo-anim-slide-up";
+    default:
+      return "sb-promo-scale-in";
+  }
 }
 
 function DismissButton({ onDismiss }: { onDismiss?: () => void }) {
@@ -28,14 +41,43 @@ function DismissButton({ onDismiss }: { onDismiss?: () => void }) {
 function AnnouncementCta({
   announcement,
   variant = "primary",
+  className = "",
+  onClick,
 }: {
   announcement: PlatformAnnouncement;
   variant?: "primary" | "secondary";
+  className?: string;
+  onClick?: () => void;
 }) {
   if (!announcement.destinationHref || !announcement.buttonText) return null;
   return (
-    <Button href={announcement.destinationHref} variant={variant} className="shrink-0">
+    <Button
+      href={announcement.destinationHref}
+      variant={variant}
+      className={`shrink-0 ${className}`.trim()}
+      onClick={onClick}
+    >
       {announcement.buttonText}
+    </Button>
+  );
+}
+
+function SecondaryCta({
+  announcement,
+  onClick,
+}: {
+  announcement: PlatformAnnouncement;
+  onClick?: () => void;
+}) {
+  if (!announcement.secondaryDestinationHref || !announcement.secondaryButtonText) return null;
+  return (
+    <Button
+      href={announcement.secondaryDestinationHref}
+      variant="secondary"
+      className="w-full min-h-[48px]"
+      onClick={onClick}
+    >
+      {announcement.secondaryButtonText}
     </Button>
   );
 }
@@ -98,7 +140,7 @@ export function AnnouncementLiveEventBanner({ announcement, onDismiss }: Display
 
 export function AnnouncementFloatingToast({ announcement, onDismiss }: DisplayProps) {
   return (
-    <LandingGlassCard className="sb-announcement-toast sb-announcement-enter p-4 max-w-sm shadow-2xl">
+    <div className="sb-card sb-announcement-toast sb-announcement-enter p-4 max-w-sm shadow-2xl border border-white/10">
       {announcement.imageUrl ? (
         <img
           src={announcement.imageUrl}
@@ -122,38 +164,98 @@ export function AnnouncementFloatingToast({ announcement, onDismiss }: DisplayPr
           </button>
         ) : null}
       </div>
-    </LandingGlassCard>
+    </div>
   );
 }
 
-export function AnnouncementWelcomePopup({ announcement, onDismiss }: DisplayProps) {
+export function AnnouncementWelcomePopup({
+  announcement,
+  onDismiss,
+  onPrimaryClick,
+  onSecondaryClick,
+}: DisplayProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUrl = announcement.imageUrl?.trim() ?? "";
+  const showImage = Boolean(imageUrl) && !imageFailed;
+  const hasFooterCopy =
+    Boolean(announcement.title) ||
+    Boolean(announcement.subtitle) ||
+    Boolean(announcement.buttonText);
+
+  const imageContent = showImage ? (
+    <img
+      src={imageUrl}
+      alt={announcement.title}
+      className="sb-promo-image"
+      onError={() => setImageFailed(true)}
+    />
+  ) : (
+    <div className="sb-promo-image-fallback">
+      <p className="text-xs uppercase tracking-[0.2em] text-sb-purple-light mb-3">SquareBoards</p>
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 leading-tight">
+        {announcement.title}
+      </h2>
+      {announcement.subtitle ? (
+        <p className="text-white/75 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
+          {announcement.subtitle}
+        </p>
+      ) : null}
+    </div>
+  );
+
   return (
-    <div className="sb-announcement-overlay sb-announcement-fade" role="dialog" aria-modal="true">
-      <LandingGlassCard className="sb-announcement-popup sb-announcement-enter p-6 sm:p-8 max-w-md w-full mx-4 relative">
-        {announcement.dismissible ? (
+    <div className="sb-promo-overlay sb-announcement-fade" role="dialog" aria-modal="true">
+      <div className={`sb-promo-modal ${animationClass(announcement.animationStyle)}`}>
+        {announcement.dismissible && onDismiss ? (
           <button
             type="button"
             onClick={onDismiss}
-            className="absolute top-4 right-4 sb-announcement-dismiss"
-            aria-label="Close"
+            className="sb-promo-close"
+            aria-label="Close promotion"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" strokeWidth={2.5} />
           </button>
         ) : null}
-        {announcement.imageUrl ? (
-          <img
-            src={announcement.imageUrl}
-            alt=""
-            className="w-full h-36 sm:h-44 object-cover rounded-xl mb-5"
-          />
+
+        <div className="sb-promo-media">
+          {showImage && announcement.destinationHref ? (
+            <Link href={announcement.destinationHref} className="block sb-promo-image-link">
+              {imageContent}
+            </Link>
+          ) : (
+            imageContent
+          )}
+
+          {showImage && hasFooterCopy ? (
+            <div className="sb-promo-caption">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">{announcement.title}</h2>
+              {announcement.subtitle ? (
+                <p className="text-white/75 text-sm leading-relaxed">{announcement.subtitle}</p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        {(announcement.buttonText && announcement.destinationHref) ||
+        (announcement.secondaryButtonText && announcement.secondaryDestinationHref) ||
+        announcement.dismissible ? (
+          <div className="sb-promo-actions">
+            {announcement.buttonText && announcement.destinationHref ? (
+              <AnnouncementCta
+                announcement={announcement}
+                className="w-full min-h-[52px] text-base"
+                onClick={onPrimaryClick}
+              />
+            ) : null}
+            <SecondaryCta announcement={announcement} onClick={onSecondaryClick} />
+            {announcement.dismissible && onDismiss ? (
+              <button type="button" onClick={onDismiss} className="sb-promo-decline">
+                No thanks
+              </button>
+            ) : null}
+          </div>
         ) : null}
-        <p className="text-xs uppercase tracking-widest text-sb-purple-light mb-2">Welcome</p>
-        <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{announcement.title}</h2>
-        {announcement.subtitle ? (
-          <p className="text-sb-muted text-sm leading-relaxed mb-6">{announcement.subtitle}</p>
-        ) : null}
-        <AnnouncementCta announcement={announcement} />
-      </LandingGlassCard>
+      </div>
     </div>
   );
 }
@@ -191,13 +293,13 @@ export function AnnouncementNotificationCard({
   href?: string;
 }) {
   const content = (
-    <LandingGlassCard className="p-4 border border-sb-purple/20 bg-sb-purple/5">
+    <div className="sb-card p-4 border border-sb-purple/20 bg-sb-purple/5">
       <p className="text-xs uppercase tracking-wider text-sb-purple-light mb-1">Platform</p>
       <p className="text-white font-semibold">{announcement.title}</p>
       {announcement.subtitle ? (
         <p className="text-sb-muted text-sm mt-1">{announcement.subtitle}</p>
       ) : null}
-    </LandingGlassCard>
+    </div>
   );
 
   if (href) {

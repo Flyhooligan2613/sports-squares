@@ -51,6 +51,8 @@ const tables = [
   "pickem_season_standings",
   "platform_announcements",
   "platform_announcement_dismissals",
+  "platform_announcement_events",
+  "platform_announcement_templates",
 ];
 
 console.log("");
@@ -83,4 +85,5 @@ console.log("If leagues/payouts show ✗, run 022_pickem_leagues_payouts.sql in 
 console.log("If hall of fame tables show ✗, run 027_pickem_hall_of_fame.sql in Supabase SQL Editor.");
 console.log("If announcement tables show ✗, run 028_platform_announcements.sql in Supabase SQL Editor.");
 console.log("For automation keys, run 029_announcement_automation.sql in Supabase SQL Editor.");
+console.log("For upload/analytics/templates, run 030_announcement_studio.sql in Supabase SQL Editor.");
 console.log("");

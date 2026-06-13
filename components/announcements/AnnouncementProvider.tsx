@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -17,7 +18,10 @@ import {
   AnnouncementTopBanner,
   AnnouncementWelcomePopup,
 } from "@/components/announcements/AnnouncementDisplays";
-import type { PlatformAnnouncement } from "@/lib/platform/announcements/types";
+import type {
+  AnnouncementEventType,
+  PlatformAnnouncement,
+} from "@/lib/platform/announcements/types";
 
 const ANON_KEY = "sb-anon-id";
 
@@ -50,11 +54,24 @@ function isAdminPath(pathname: string): boolean {
   return pathname.startsWith("/admin");
 }
 
+async function trackEvents(announcementId: string, eventTypes: AnnouncementEventType[]) {
+  await fetch("/api/announcements/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      announcementId,
+      anonymousId: getAnonymousId(),
+      eventTypes,
+    }),
+  });
+}
+
 export function AnnouncementProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [announcements, setAnnouncements] = useState<PlatformAnnouncement[]>([]);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   const [showWelcome, setShowWelcome] = useState(false);
+  const viewedRef = useRef<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     if (isAdminPath(pathname)) {
@@ -82,8 +99,9 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
   const dismiss = useCallback(
     async (id: string, frequency: PlatformAnnouncement["frequency"]) => {
       setHiddenIds((prev) => new Set(prev).add(id));
+      void trackEvents(id, ["dismiss"]);
 
-      if (frequency === "always") return;
+      if (frequency === "always" || frequency === "every_login") return;
 
       await fetch("/api/announcements/dismiss", {
         method: "POST",
@@ -101,6 +119,14 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
     () => announcements.filter((a) => !hiddenIds.has(a.id)),
     [announcements, hiddenIds]
   );
+
+  useEffect(() => {
+    for (const item of visible) {
+      if (viewedRef.current.has(item.id)) continue;
+      viewedRef.current.add(item.id);
+      void trackEvents(item.id, ["view"]);
+    }
+  }, [visible]);
 
   const homeHero = useMemo(
     () => (pathname === "/" ? pickHighestPriority(visible, "homepage_hero") : null),
@@ -163,6 +189,8 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
               ? () => void dismiss(welcomePopup.id, welcomePopup.frequency)
               : undefined
           }
+          onPrimaryClick={() => void trackEvents(welcomePopup.id, ["click"])}
+          onSecondaryClick={() => void trackEvents(welcomePopup.id, ["secondary_click"])}
         />
       ) : null}
       {floatingToast ? (

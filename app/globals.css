@@ -5587,6 +5587,214 @@ body {
   padding: 1rem;
 }
 
+/* Full-screen sportsbook-style promo popup */
+@keyframes sb-promo-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.sb-promo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(10px);
+}
+
+.sb-promo-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(520px, 98vw);
+  max-height: min(94vh, 920px);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: #0a0f1e;
+  box-shadow:
+    0 40px 120px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 80px rgba(123, 97, 255, 0.15);
+}
+
+@media (min-width: 640px) {
+  .sb-promo-modal {
+    width: min(480px, 94vw);
+  }
+}
+
+@media (min-width: 1024px) {
+  .sb-promo-modal {
+    width: min(520px, 90vw);
+  }
+}
+
+.sb-promo-scale-in {
+  animation: sb-promo-scale-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sb-promo-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sb-promo-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sb-promo-anim-fade {
+  animation: sb-promo-fade-in 0.4s ease-out forwards;
+}
+
+.sb-promo-anim-slide-up {
+  animation: sb-promo-slide-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sb-promo-close {
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sb-promo-close:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: scale(1.05);
+}
+
+.sb-promo-media {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sb-promo-image-link {
+  display: block;
+  height: 100%;
+}
+
+.sb-promo-image {
+  display: block;
+  width: 100%;
+  height: min(78vh, 720px);
+  min-height: 380px;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.sb-promo-image-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: min(72vh, 680px);
+  padding: 3rem 1.75rem 2rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(123, 97, 255, 0.35), transparent 55%),
+    linear-gradient(180deg, #151b33 0%, #0a0f1e 100%);
+}
+
+.sb-promo-caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 2.5rem 1.25rem 1.25rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+}
+
+.sb-promo-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: linear-gradient(180deg, #0a0f1e 0%, #060912 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sb-promo-decline {
+  width: 100%;
+  padding: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.2s ease;
+}
+
+.sb-promo-decline:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sb-admin-select {
+  color-scheme: dark;
+}
+
+.sb-admin-select option {
+  background-color: #111827;
+  color: #ffffff;
+}
+
+.sb-admin-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .sb-admin-option-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.sb-admin-option-tile {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.875rem;
+  padding: 0.75rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.sb-admin-option-tile:hover {
+  border-color: rgba(123, 97, 255, 0.35);
+  background: rgba(123, 97, 255, 0.08);
+}
+
+.sb-admin-option-tile-active {
+  border-color: rgba(123, 97, 255, 0.55);
+  background: rgba(123, 97, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(123, 97, 255, 0.25);
+}
+
 .sb-announcement-popup {
   border: 1px solid rgba(123, 97, 255, 0.3);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
