@@ -101,7 +101,7 @@ export function validateUsername(raw: string): ModerationResult & { value?: stri
 }
 
 export function validateProfileBio(raw: string): ModerationResult & { value?: string } {
-  const value = raw.trim().replace(/[<>\n\r\t]/g, "").slice(0, 120);
+  const value = raw.trim().replace(/[<>\n\r\t]/g, "").slice(0, 150);
   if (!value) return { ok: true, value: "" };
 
   const scan = scanTextForProfanity(value);

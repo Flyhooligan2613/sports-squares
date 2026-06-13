@@ -5,6 +5,8 @@ import { getPlayerLegacy } from "@/lib/database/services/playerLegacy";
 import type { PublicPlayerProfile } from "@/lib/player/publicProfileTypes";
 import { buildPlayerSlug } from "@/lib/player/slug";
 import { normalizeEmail } from "@/lib/player/statsCore";
+import { getHuddlePlayerSummary } from "@/lib/huddle/profiles";
+import { isFollowing } from "@/lib/huddle/follows";
 
 export async function ensurePlayerProfile(
   email: string,
@@ -139,6 +141,13 @@ export async function getPublicPlayerProfile(
     ? normalizeEmail(viewerEmail)
     : null;
 
+  let huddleSummary = null;
+  try {
+    huddleSummary = await getHuddlePlayerSummary(email);
+  } catch {
+    /* huddle tables may not exist yet */
+  }
+
   return {
     slug: ensuredSlug,
     displayName: legacy.publicLabel,
@@ -148,5 +157,21 @@ export async function getPublicPlayerProfile(
     achievements: legacy.achievements.filter((a) => a.unlocked),
     ranks,
     isOwner: normalizedViewer === email,
+    avatarEmoji: huddleSummary?.avatarEmoji,
+    playerId: huddleSummary?.playerId ?? null,
+    bio: huddleSummary?.bio ?? null,
+    tierName: huddleSummary?.tierName,
+    tierSlug: huddleSummary?.tierSlug,
+    pickAccuracyPct: huddleSummary?.pickAccuracyPct ?? null,
+    followerCount: huddleSummary?.followerCount ?? 0,
+    followingCount: huddleSummary?.followingCount ?? 0,
+    communityReputation: huddleSummary?.communityReputation ?? 0,
+    creatorLevel: huddleSummary?.creatorLevel,
+    isVerified: huddleSummary?.isVerified ?? false,
+    favoriteTeam: huddleSummary?.favoriteTeam ?? null,
+    viewerIsFollowing:
+      normalizedViewer && normalizedViewer !== email
+        ? await isFollowing(normalizedViewer, email).catch(() => false)
+        : false,
   };
 }

@@ -18,6 +18,8 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Main",
     items: [
       { href: "/", label: "Home", icon: "🏠" },
+      { href: "/huddle", label: "The Huddle", icon: "👥" },
+      { href: "/stats-hub", label: "Stats Hub", icon: "📊" },
       { href: "/my-games", label: "My Games", icon: "🎮", requiresAuth: true },
       { href: "/live-tv", label: "Live TV", icon: "📺", badgeKey: "live" },
       { href: "/action-center", label: "Action Center", icon: "⚡" },

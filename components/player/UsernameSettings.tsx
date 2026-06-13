@@ -143,16 +143,16 @@ export default function UsernameSettings() {
             id="profile-bio"
             value={profileBio}
             onChange={(e) => {
-              setProfileBio(e.target.value.slice(0, 120));
+              setProfileBio(e.target.value.slice(0, 150));
               setSuccess(false);
             }}
-            maxLength={120}
+            maxLength={150}
             rows={3}
             placeholder="Write a short bio…"
             className="player-input player-input-bio w-full resize-none"
           />
           <p className="text-xs text-sb-muted mt-2">
-            {profileBio.length}/120 · Keep it respectful
+            {profileBio.length}/150 · Keep it respectful
             {!profileBio.trim() && !savedBioPreview ? (
               <span className="text-sb-purple-light"> · No bio saved yet</span>
             ) : null}

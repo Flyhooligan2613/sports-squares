@@ -10,6 +10,35 @@ import { useCountUp } from "@/lib/motion/useCountUp";
 import { CalendarDays, Copy, Flame, Share2, Trophy } from "lucide-react";
 import { useState } from "react";
 
+function FollowButton({
+  slug,
+  initialFollowing,
+}: {
+  slug: string;
+  initialFollowing?: boolean;
+}) {
+  const [following, setFollowing] = useState(initialFollowing ?? false);
+  const [loading, setLoading] = useState(false);
+
+  async function toggle() {
+    setLoading(true);
+    const res = await fetch("/api/huddle/follow", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug, action: following ? "unfollow" : "follow" }),
+    });
+    setLoading(false);
+    if (res.ok) setFollowing(!following);
+  }
+
+  return (
+    <Button variant="secondary" size="sm" disabled={loading} onClick={() => void toggle()}>
+      {following ? "Following" : "+ Follow"}
+    </Button>
+  );
+}
+
 function Stat({
   label,
   value,
@@ -81,31 +110,67 @@ export default function PublicPlayerView({
                 SquareBoards Legacy
               </p>
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-                <div>
-                  <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                    {profile.displayName}
-                  </h1>
-                  <p className="text-sb-muted mt-2">{profile.headline}</p>
+                <div className="flex items-start gap-4">
+                  {profile.avatarEmoji ? (
+                    <span className="text-5xl shrink-0">{profile.avatarEmoji}</span>
+                  ) : null}
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                        {profile.displayName}
+                      </h1>
+                      {profile.isVerified ? (
+                        <span className="text-sky-400 text-sm" title="Verified">✓</span>
+                      ) : null}
+                    </div>
+                    {profile.playerId ? (
+                      <p className="text-xs text-sb-muted mt-1">{profile.playerId}</p>
+                    ) : null}
+                    {profile.tierName ? (
+                      <p className="text-sm text-purple-300 mt-1">{profile.tierName}</p>
+                    ) : null}
+                    <p className="text-sb-muted mt-2">{profile.bio ?? profile.headline}</p>
+                  </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={handleShare} className="shrink-0">
-                  {copied ? (
-                    <>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Share
-                    </>
-                  )}
-                </Button>
+                <div className="flex flex-col gap-2 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={handleShare}>
+                    {copied ? (
+                      <>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share
+                      </>
+                    )}
+                  </Button>
+                  {!profile.isOwner && profile.slug ? (
+                    <FollowButton slug={profile.slug} initialFollowing={profile.viewerIsFollowing} />
+                  ) : null}
+                </div>
               </div>
               <div className="flex flex-wrap gap-3 text-xs text-sb-muted">
                 <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
                   <CalendarDays className="w-3.5 h-3.5" />
                   Member since {formatMemberSince(profile.memberSince)}
                 </span>
+                {profile.followerCount != null ? (
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+                    👥 {profile.followerCount} followers
+                  </span>
+                ) : null}
+                {profile.pickAccuracyPct != null ? (
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+                    🎯 {profile.pickAccuracyPct}% Pick&apos;em accuracy
+                  </span>
+                ) : null}
+                {profile.communityReputation != null && profile.communityReputation > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+                    ⭐ Rep {profile.communityReputation.toLocaleString()}
+                  </span>
+                ) : null}
                 <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
                   <Trophy className="w-3.5 h-3.5" />
                   {profile.achievements.length} achievements
