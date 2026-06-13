@@ -1,4 +1,4 @@
--- Phase 3: The Huddle — social prediction feed
+-- Phase 3: The Huddle social prediction feed
 
 alter table public.player_profiles
   add column if not exists community_reputation integer not null default 0,
@@ -98,9 +98,9 @@ alter table public.huddle_pick_of_week enable row level security;
 alter table public.huddle_content_reports enable row level security;
 alter table public.huddle_hall_of_fame enable row level security;
 
-insert into public.ecosystem_admin_config (config_key, config_value)
+insert into public.ecosystem_admin_config (key, value)
 values (
   'huddle_verification',
   '{"minFollowers":100,"minWinningWeeks":10,"minReputation":500,"requireGoodStanding":true}'::jsonb
 )
-on conflict (config_key) do nothing;
+on conflict (key) do nothing;
