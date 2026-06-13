@@ -1,9 +1,8 @@
-import sharp from "sharp";
 import { randomUUID } from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 const BUCKET = "platform-announcements";
-const MAX_BYTES = 10 * 1024 * 1024;
+const MAX_BYTES = 4 * 1024 * 1024;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function resolveMimeType(file: File): string {
@@ -20,30 +19,6 @@ function extensionForMime(mime: string): string {
   return "webp";
 }
 
-async function optimizeImage(input: Buffer, mime: string): Promise<{ buffer: Buffer; contentType: string }> {
-  const meta = await sharp(input, {
-    failOn: "none",
-    limitInputPixels: 4096 * 4096,
-  }).metadata();
-
-  const width = meta.width ?? 1080;
-  const height = meta.height ?? 1350;
-  const isLandscape = width >= height;
-
-  const buffer = await sharp(input, { failOn: "none", limitInputPixels: 4096 * 4096 })
-    .rotate()
-    .resize({
-      width: isLandscape ? 1920 : 1080,
-      height: isLandscape ? 1080 : 1350,
-      fit: "inside",
-      withoutEnlargement: true,
-    })
-    .webp({ quality: 85 })
-    .toBuffer();
-
-  return { buffer, contentType: "image/webp" };
-}
-
 export async function uploadAnnouncementImage(file: File): Promise<{
   publicUrl: string;
   width: number;
@@ -56,33 +31,20 @@ export async function uploadAnnouncementImage(file: File): Promise<{
   }
 
   if (file.size > MAX_BYTES) {
-    throw new Error("Image must be 10 MB or smaller.");
+    throw new Error("Image must be 4 MB or smaller after compression.");
   }
 
-  const input = Buffer.from(await file.arrayBuffer());
-  let output: Buffer;
-  let contentType: string;
-
-  try {
-    const optimized = await optimizeImage(input, mime);
-    output = optimized.buffer;
-    contentType = optimized.contentType;
-  } catch {
-    output = input;
-    contentType = mime;
+  if (file.size === 0) {
+    throw new Error("Image file is empty.");
   }
 
-  const outMeta = await sharp(output, { failOn: "none" }).metadata().catch(() => ({
-    width: undefined,
-    height: undefined,
-  }));
-
-  const ext = extensionForMime(contentType);
+  const ext = extensionForMime(mime);
   const filename = `${randomUUID()}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
   const supabase = getSupabaseAdmin();
 
-  const { error } = await supabase.storage.from(BUCKET).upload(filename, output, {
-    contentType,
+  const { error } = await supabase.storage.from(BUCKET).upload(filename, buffer, {
+    contentType: mime,
     cacheControl: "31536000",
     upsert: false,
   });
@@ -90,7 +52,7 @@ export async function uploadAnnouncementImage(file: File): Promise<{
   if (error) {
     if (error.message.toLowerCase().includes("bucket")) {
       throw new Error(
-        "Storage bucket missing. Run migration 030_announcement_studio.sql in Supabase SQL Editor."
+        "Storage bucket missing. Run migration 031_announcement_storage_bucket.sql in Supabase SQL Editor."
       );
     }
     throw new Error(error.message);
@@ -100,7 +62,7 @@ export async function uploadAnnouncementImage(file: File): Promise<{
 
   return {
     publicUrl: data.publicUrl,
-    width: outMeta.width ?? 1080,
-    height: outMeta.height ?? 1350,
+    width: 1080,
+    height: 1350,
   };
 }

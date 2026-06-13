@@ -24,10 +24,10 @@ async function readErrorFromResponse(res: Response): Promise<string> {
   }
 
   if (res.status === 413) {
-    return "Image is too large for the server. Try a smaller file — we compress automatically on upload.";
+    return "Image is too large. Try a smaller file — we compress automatically before upload.";
   }
 
-  const snippet = text.replace(/\s+/g, " ").trim().slice(0, 120);
+  const snippet = text.replace(/\s+/g, " ").trim().slice(0, 160);
   return snippet
     ? `Upload failed (HTTP ${res.status}): ${snippet}`
     : `Upload failed (HTTP ${res.status}).`;
@@ -43,6 +43,11 @@ export default function AnnouncementImageUpload({
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const clearPreview = useCallback((previewUrl: string) => {
+    setLocalPreview(null);
+    URL.revokeObjectURL(previewUrl);
+  }, []);
+
   const upload = useCallback(
     async (file: File) => {
       setUploading(true);
@@ -56,79 +61,56 @@ export default function AnnouncementImageUpload({
 
       try {
         const { blob, contentType } = await optimizeAnnouncementImageClient(file);
+        const ext = contentType === "image/jpeg" ? "jpg" : contentType === "image/png" ? "png" : "webp";
+        const uploadFile = new File([blob], `promo.${ext}`, { type: contentType });
 
-        const urlRes = await fetch("/api/admin/announcements/upload-url", {
+        const formData = new FormData();
+        formData.append("file", uploadFile);
+
+        const res = await fetch("/api/admin/announcements/upload", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          body: formData,
           credentials: "include",
           signal: controller.signal,
-          body: JSON.stringify({ contentType }),
         });
 
-        if (!urlRes.ok) {
-          setError(await readErrorFromResponse(urlRes));
-          setLocalPreview(null);
-          URL.revokeObjectURL(previewUrl);
+        if (!res.ok) {
+          setError(await readErrorFromResponse(res));
+          clearPreview(previewUrl);
           return;
         }
 
-        let urlData: {
-          signedUrl?: string;
-          path?: string;
-          token?: string;
-          publicUrl?: string;
-          contentType?: string;
-          error?: string;
-        };
-
+        let data: { publicUrl?: string; error?: string } = {};
         try {
-          urlData = (await urlRes.json()) as typeof urlData;
+          data = (await res.json()) as { publicUrl?: string; error?: string };
         } catch {
-          setError("Server returned an invalid response while preparing upload.");
-          setLocalPreview(null);
-          URL.revokeObjectURL(previewUrl);
+          setError(await readErrorFromResponse(res));
+          clearPreview(previewUrl);
           return;
         }
 
-        if (!urlData.publicUrl || !urlData.path || !urlData.token) {
-          setError(urlData.error ?? "Could not prepare storage upload.");
-          setLocalPreview(null);
-          URL.revokeObjectURL(previewUrl);
+        if (!data.publicUrl) {
+          setError(data.error ?? "Upload failed — no image URL returned.");
+          clearPreview(previewUrl);
           return;
         }
 
-        const uploadRes = await fetch(urlData.signedUrl!, {
-          method: "PUT",
-          headers: { "Content-Type": urlData.contentType ?? contentType },
-          body: blob,
-          signal: controller.signal,
-        });
-
-        if (!uploadRes.ok) {
-          setError(`Storage upload failed (HTTP ${uploadRes.status}). Check Supabase bucket setup.`);
-          setLocalPreview(null);
-          URL.revokeObjectURL(previewUrl);
-          return;
-        }
-
-        onChange(urlData.publicUrl);
-        setLocalPreview(null);
-        URL.revokeObjectURL(previewUrl);
+        onChange(data.publicUrl);
+        clearPreview(previewUrl);
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
           setError("Upload timed out. Try a smaller image or check your connection.");
         } else {
           setError(err instanceof Error ? err.message : "Upload failed.");
         }
-        setLocalPreview(null);
-        URL.revokeObjectURL(previewUrl);
+        clearPreview(previewUrl);
       } finally {
         window.clearTimeout(timeout);
         setUploading(false);
         if (inputRef.current) inputRef.current.value = "";
       }
     },
-    [onChange]
+    [clearPreview, onChange]
   );
 
   function handleFiles(files: FileList | null) {
