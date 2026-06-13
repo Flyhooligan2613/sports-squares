@@ -428,9 +428,12 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
     }
   }
 
+  const kickoffSeen = new Set<string>();
+
   for (const pool of poolRows.slice(0, 40)) {
     const matchup = `${pool.away_team} vs ${pool.home_team}`;
     const createdAt = pool.created_at;
+    const kickoffKey = pool.game_id ?? `${pool.espn_game_id ?? pool.id}-${pool.kickoff_at}`;
 
     if (pool.marketplace_visible && new Date(createdAt) >= new Date(activitySince)) {
       activity.push({
@@ -476,15 +479,21 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
       });
     }
 
-    if (pool.kickoff_at && new Date(pool.kickoff_at) >= new Date(activitySince)) {
-      activity.push({
-        id: `kickoff-${pool.id}`,
-        type: "kickoff_started",
-        title: "Kickoff Started",
-        detail: matchup,
-        at: pool.kickoff_at,
-        accent: "red",
-      });
+    if (pool.kickoff_at) {
+      const kickoffMs = new Date(pool.kickoff_at).getTime();
+      const startedRecently =
+        kickoffMs <= Date.now() && kickoffMs >= Date.now() - 4 * 60 * 60 * 1000;
+      if (startedRecently && !kickoffSeen.has(kickoffKey)) {
+        kickoffSeen.add(kickoffKey);
+        activity.push({
+          id: `kickoff-${kickoffKey}`,
+          type: "kickoff_started",
+          title: "Kickoff Started",
+          detail: matchup,
+          at: pool.kickoff_at,
+          accent: "red",
+        });
+      }
     }
   }
 

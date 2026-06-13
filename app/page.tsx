@@ -21,7 +21,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
-import HomeLiveActivityFeed from "@/components/landing/HomeLiveActivityFeed";
+import HomeLiveGamesFeed from "@/components/landing/HomeLiveGamesFeed";
 import { LandingLiveProvider } from "@/components/landing/LandingLiveProvider";
 import MoreWaysToPlaySection from "@/components/platform/MoreWaysToPlaySection";
 import ScrollReveal from "@/components/ui/ScrollReveal";
@@ -120,11 +120,11 @@ export default function HomePage() {
             <LandingSectionHeader
               eyebrow="Live"
               title="Happening right now"
-              subtitle="Real purchases, quarter winners, payouts, and streak milestones — updated every few seconds."
+              subtitle="Live scores and kickoff countdowns for this week's games — updated every 5 seconds."
             />
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <HomeLiveActivityFeed />
+            <HomeLiveGamesFeed />
           </ScrollReveal>
         </LandingSection>
 
