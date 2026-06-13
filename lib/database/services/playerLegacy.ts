@@ -3,7 +3,7 @@ import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admi
 import type { PlayerRow, PoolRow, SquareRow, WinnerRow } from "@/lib/database/types";
 import { buildAchievements, legacyHeadline } from "@/lib/player/achievements";
 import type { PlayerLegacyData } from "@/lib/player/legacyTypes";
-import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
+import { getPlayerPublicIdentity, resolveLegacyDisplayName } from "@/lib/player/publicIdentity";
 import { calcWinStreaks, normalizeEmail, playerOwnsWin } from "@/lib/player/statsCore";
 
 function seasonKey(date: Date): string {
@@ -41,7 +41,8 @@ export async function getPlayerLegacy(
       longestWinStreak: 0,
     };
     return {
-      displayName: identity.publicLabel,
+      displayName: identity.legacyName,
+      profileBio: identity.profileBio,
       email: normalized,
       memberSince: new Date().toISOString(),
       stats,
@@ -56,7 +57,13 @@ export async function getPlayerLegacy(
   const poolIds = Array.from(new Set(players.map((p) => p.pool_id)));
   const playerIds = new Set(players.map((p) => p.id));
   const playerNames = new Set(players.map((p) => p.name.trim().toLowerCase()));
+  const playerRecordName = players.find((p) => p.name.trim())?.name ?? null;
   const identity = await getPlayerPublicIdentity(normalized);
+  const legacyName = resolveLegacyDisplayName({
+    playerRecordName,
+    displayName: identity.displayName,
+    email: normalized,
+  });
 
   const memberSince = players.reduce((earliest, row) => {
     const at = new Date(row.created_at).getTime();
@@ -133,7 +140,8 @@ export async function getPlayerLegacy(
   };
 
   return {
-    displayName: identity.publicLabel,
+    displayName: legacyName,
+    profileBio: identity.profileBio,
     email: normalized,
     memberSince: new Date(memberSince).toISOString(),
     stats,

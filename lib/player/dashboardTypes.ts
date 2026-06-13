@@ -73,6 +73,7 @@ export interface PlayerNotification {
 
 export interface PlayerDashboardData {
   displayName: string;
+  legacyName: string;
   username: string | null;
   publicLabel: string;
   profileBio: string | null;

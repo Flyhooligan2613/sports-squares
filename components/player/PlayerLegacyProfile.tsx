@@ -78,8 +78,15 @@ export default function PlayerLegacyProfile() {
     }
 
     load();
+
+    function handleProfileUpdated() {
+      void load();
+    }
+    window.addEventListener("player-profile-updated", handleProfileUpdated);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("player-profile-updated", handleProfileUpdated);
     };
   }, []);
 
@@ -149,6 +156,11 @@ export default function PlayerLegacyProfile() {
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
                 {legacy.displayName}
               </h1>
+              {legacy.profileBio ? (
+                <div className="player-bio-banner mt-3">
+                  <p className="player-bio-banner-text">{legacy.profileBio}</p>
+                </div>
+              ) : null}
               <p className="text-sb-muted mt-2">{legacy.headline}</p>
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">

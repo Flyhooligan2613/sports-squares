@@ -7,6 +7,7 @@ export interface PlayerPublicIdentity {
   email: string;
   username: string | null;
   displayName: string;
+  legacyName: string;
   profileBio: string | null;
   avatarEmoji: string;
   playerId: string | null;
@@ -24,6 +25,26 @@ export function resolvePlayerDisplayName(input: {
   if (input.playerId?.trim()) return input.playerId.trim();
   if (input.displayName?.trim()) return input.displayName.trim();
   if (input.email) return displayNameFromEmail(input.email);
+  return "Player";
+}
+
+/** First-name style label from purchase records or profile — not the public username. */
+export function resolveLegacyDisplayName(input: {
+  playerRecordName?: string | null;
+  displayName?: string | null;
+  email?: string;
+}): string {
+  const fromPlayer = input.playerRecordName?.trim();
+  if (fromPlayer) {
+    return fromPlayer.split(/\s+/)[0] ?? fromPlayer;
+  }
+  const fromProfile = input.displayName?.trim();
+  if (fromProfile) {
+    return fromProfile.split(/\s+/)[0] ?? fromProfile;
+  }
+  if (input.email) {
+    return displayNameFromEmail(input.email).split(/\s+/)[0] ?? displayNameFromEmail(input.email);
+  }
   return "Player";
 }
 
@@ -47,6 +68,7 @@ export async function getPlayerPublicIdentity(email: string): Promise<PlayerPubl
     email: normalized,
     username,
     displayName,
+    legacyName: resolveLegacyDisplayName({ displayName, email: normalized }),
     profileBio: ((profile?.profile_bio as string) ?? "").trim() || null,
     avatarEmoji: (profile?.avatar_emoji as string) ?? DEFAULT_AVATAR,
     playerId,
@@ -77,6 +99,7 @@ export async function getPlayerPublicIdentityMap(
       email,
       username,
       displayName,
+      legacyName: resolveLegacyDisplayName({ displayName, email }),
       profileBio: ((row?.profile_bio as string) ?? "").trim() || null,
       avatarEmoji: (row?.avatar_emoji as string) ?? DEFAULT_AVATAR,
       playerId,

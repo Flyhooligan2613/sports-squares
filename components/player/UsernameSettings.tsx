@@ -61,6 +61,7 @@ export default function UsernameSettings() {
     setUsername(json.username ?? username);
     setProfileBio(json.profileBio ?? profileBio);
     setSuccess(true);
+    window.dispatchEvent(new CustomEvent("player-profile-updated"));
     setTimeout(() => setSuccess(false), 3000);
   }
 

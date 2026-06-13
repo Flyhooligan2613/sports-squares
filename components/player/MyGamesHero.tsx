@@ -6,7 +6,7 @@ import { useCountUp } from "@/lib/motion/useCountUp";
 import type { PlayerDashboardStats } from "@/lib/player/dashboardTypes";
 
 interface MyGamesHeroProps {
-  displayName: string;
+  legacyName: string;
   avatarEmoji?: string;
   profileBio?: string | null;
   needsUsernameSetup?: boolean;
@@ -39,7 +39,7 @@ function StatTile({
 }
 
 export default function MyGamesHero({
-  displayName,
+  legacyName,
   avatarEmoji,
   profileBio,
   needsUsernameSetup,
@@ -58,11 +58,29 @@ export default function MyGamesHero({
           Player Dashboard
         </p>
 
-        <div className="flex items-center gap-4 mb-3 player-hero-enter player-hero-enter-1">
-          <PlayerAvatar emoji={avatarEmoji} size="lg" />
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-            Welcome back, {displayName}
-          </h1>
+        <div className="flex items-start gap-4 mb-3 player-hero-enter player-hero-enter-1">
+          <PlayerAvatar emoji={avatarEmoji} size="lg" className="shrink-0 mt-1" />
+          <div className="min-w-0">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+              Welcome back, {legacyName}
+            </h1>
+
+            {profileBio ? (
+              <div className="player-bio-banner mt-4">
+                <p className="player-bio-banner-text">{profileBio}</p>
+              </div>
+            ) : (
+              <div className="player-bio-banner player-bio-banner-empty mt-4">
+                <p className="text-sm text-sb-muted">
+                  Add a short bio on your{" "}
+                  <Link href="/my-games/profile" className="text-sb-purple-light hover:underline">
+                    profile
+                  </Link>{" "}
+                  — tell the community who you are.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {needsUsernameSetup ? (
@@ -75,22 +93,6 @@ export default function MyGamesHero({
             </p>
           </div>
         ) : null}
-
-        {profileBio ? (
-          <div className="player-bio-banner mb-6 player-hero-enter player-hero-enter-2">
-            <p className="player-bio-banner-text">{profileBio}</p>
-          </div>
-        ) : (
-          <div className="player-bio-banner player-bio-banner-empty mb-6 player-hero-enter player-hero-enter-2">
-            <p className="text-sm text-sb-muted">
-              Add a short bio on your{" "}
-              <Link href="/my-games/profile" className="text-sb-purple-light hover:underline">
-                profile
-              </Link>{" "}
-              — tell the community who you are.
-            </p>
-          </div>
-        )}
 
         <p className="text-lg sm:text-xl text-sb-muted mb-10 player-hero-enter player-hero-enter-2">
           {activeLabel}

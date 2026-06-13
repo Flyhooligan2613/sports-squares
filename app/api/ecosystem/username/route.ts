@@ -49,16 +49,23 @@ export async function PATCH(request: Request) {
   const body = (await request.json()) as { username?: string; profileBio?: string };
 
   try {
+    let savedBio: string | null | undefined;
+    if (body.profileBio !== undefined) {
+      savedBio = await setProfileBio(user.email, body.profileBio);
+    }
     if (body.username?.trim()) {
       await changeUsername({ email: user.email, username: body.username });
-    }
-    if (body.profileBio !== undefined) {
-      await setProfileBio(user.email, body.profileBio);
     }
 
     const eligibility = await getUsernameChangeEligibility(user.email);
     const identity = await getPlayerPublicIdentity(user.email);
-    return NextResponse.json({ ok: true, ...eligibility, publicLabel: identity.publicLabel });
+    return NextResponse.json({
+      ok: true,
+      ...eligibility,
+      profileBio: savedBio ?? eligibility.profileBio,
+      publicLabel: identity.publicLabel,
+      avatarEmoji: identity.avatarEmoji,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not update profile.";
     return NextResponse.json({ error: message }, { status: 400 });
