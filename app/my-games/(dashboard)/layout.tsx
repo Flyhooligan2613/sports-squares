@@ -1,4 +1,5 @@
 import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
+import QuickUnlockGate from "@/components/player/QuickUnlockGate";
 import PlayerShell from "@/components/player/PlayerShell";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,7 +16,7 @@ export default async function MyGamesDashboardLayout({
   return (
     <PlayerShell userEmail={user?.email ?? undefined}>
       <PlayerAuthBootstrap />
-      {children}
+      <QuickUnlockGate>{children}</QuickUnlockGate>
     </PlayerShell>
   );
 }

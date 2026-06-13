@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
-import { ensurePayoutStepUp } from "@/components/player/TrustedDevicesSettings";
+import { ensurePayoutStepUp } from "@/lib/auth/security/fastConfirm";
 import { getStepUpToken } from "@/lib/auth/security/deviceClient";
 
 interface PlayerPayoutSetupProps {

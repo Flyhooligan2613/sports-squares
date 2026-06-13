@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { clearStepUpToken } from "@/lib/auth/security/deviceClient";
+import { clearAppUnlock, clearStepUpToken } from "@/lib/auth/security/deviceClient";
 
 export async function signInPlayerWithMagicLink(
   email: string,
@@ -33,6 +33,7 @@ export async function signOutPlayer() {
   const supabase = createClient();
   await supabase.auth.signOut();
   clearStepUpToken();
+  clearAppUnlock();
 }
 
 export async function getPlayerSessionUser() {

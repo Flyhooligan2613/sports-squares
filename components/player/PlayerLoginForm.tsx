@@ -13,6 +13,7 @@ import {
   getOrCreateDeviceKey,
   getRememberMePreference,
   isWebAuthnAvailable,
+  markAppUnlocked,
   setRememberMePreference,
 } from "@/lib/auth/security/deviceClient";
 import {
@@ -100,6 +101,7 @@ export default function PlayerLoginForm() {
 
     try {
       await signInWithBiometric(email.trim().toLowerCase(), rememberMe);
+      markAppUnlocked(email.trim().toLowerCase());
       router.replace("/my-games");
     } catch (err) {
       setError(

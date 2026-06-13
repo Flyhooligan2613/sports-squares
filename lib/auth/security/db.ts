@@ -9,17 +9,32 @@ export type SecurityEventType =
   | "unusual_login"
   | "sign_out_all"
   | "device_revoked"
-  | "biometric_enabled";
+  | "biometric_enabled"
+  | "biometric_login"
+  | "pin_enabled"
+  | "pin_login"
+  | "pin_locked"
+  | "purchase_confirmed"
+  | "profile_update"
+  | "phone_change"
+  | "session_revoked"
+  | "device_acknowledged"
+  | "account_secured";
 
 export interface TrustedDevice {
   id: string;
   email: string;
   deviceKey: string;
   deviceName: string;
+  customName: string | null;
   platform: string;
+  browserName: string | null;
   userAgent: string | null;
+  lastLocation: string | null;
+  lastIp: string | null;
   lastActiveAt: string;
   registeredAt: string;
+  acknowledgedAt: string | null;
   revokedAt: string | null;
 }
 
@@ -39,10 +54,15 @@ function mapDevice(row: Record<string, unknown>): TrustedDevice {
     email: row.email as string,
     deviceKey: row.device_key as string,
     deviceName: row.device_name as string,
+    customName: (row.custom_name as string | null) ?? null,
     platform: row.platform as string,
+    browserName: (row.browser_name as string | null) ?? null,
     userAgent: (row.user_agent as string | null) ?? null,
+    lastLocation: (row.last_location as string | null) ?? null,
+    lastIp: (row.last_ip as string | null) ?? null,
     lastActiveAt: row.last_active_at as string,
     registeredAt: row.registered_at as string,
+    acknowledgedAt: (row.acknowledged_at as string | null) ?? null,
     revokedAt: (row.revoked_at as string | null) ?? null,
   };
 }
@@ -53,6 +73,9 @@ export async function upsertAuthProfile(input: {
   emailVerified?: boolean;
   rememberMe?: boolean;
   biometricPrompted?: boolean;
+  biometricEnabled?: boolean;
+  pinEnabled?: boolean;
+  onboardingCompleted?: boolean;
 }) {
   const supabase = getSupabaseAdmin();
   const email = normalizeEmail(input.email);
@@ -65,6 +88,9 @@ export async function upsertAuthProfile(input: {
   if (input.emailVerified) patch.email_verified_at = new Date().toISOString();
   if (input.rememberMe !== undefined) patch.remember_me = input.rememberMe;
   if (input.biometricPrompted) patch.biometric_prompted_at = new Date().toISOString();
+  if (input.biometricEnabled !== undefined) patch.biometric_enabled = input.biometricEnabled;
+  if (input.pinEnabled !== undefined) patch.pin_enabled = input.pinEnabled;
+  if (input.onboardingCompleted) patch.onboarding_completed_at = new Date().toISOString();
 
   const { error } = await supabase.from("player_auth_profiles").upsert(patch, { onConflict: "email" });
   if (error) throw error;
@@ -87,6 +113,9 @@ export async function registerTrustedDevice(input: {
   deviceName: string;
   platform: string;
   userAgent?: string | null;
+  browserName?: string | null;
+  lastLocation?: string | null;
+  lastIp?: string | null;
 }): Promise<{ device: TrustedDevice; isNew: boolean }> {
   const supabase = getSupabaseAdmin();
   const email = normalizeEmail(input.email);
@@ -102,7 +131,14 @@ export async function registerTrustedDevice(input: {
   if (existing && !existing.revoked_at) {
     const { data, error } = await supabase
       .from("player_trusted_devices")
-      .update({ last_active_at: now, device_name: input.deviceName, platform: input.platform })
+      .update({
+        last_active_at: now,
+        device_name: input.deviceName,
+        platform: input.platform,
+        browser_name: input.browserName ?? null,
+        last_location: input.lastLocation ?? null,
+        last_ip: input.lastIp ?? null,
+      })
       .eq("id", existing.id as string)
       .select("*")
       .single();
@@ -119,6 +155,9 @@ export async function registerTrustedDevice(input: {
         device_name: input.deviceName,
         platform: input.platform,
         user_agent: input.userAgent ?? null,
+        browser_name: input.browserName ?? null,
+        last_location: input.lastLocation ?? null,
+        last_ip: input.lastIp ?? null,
         last_active_at: now,
         registered_at: now,
         revoked_at: null,
@@ -205,6 +244,55 @@ export async function revokeAllTrustedDevices(email: string): Promise<number> {
     .is("revoked_at", null);
 
   return data?.length ?? 0;
+}
+
+export async function renameTrustedDevice(
+  email: string,
+  deviceId: string,
+  customName: string
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("player_trusted_devices")
+    .update({ custom_name: customName.trim() || null })
+    .eq("id", deviceId)
+    .eq("email", normalizeEmail(email));
+  if (error) throw error;
+}
+
+export async function acknowledgeTrustedDevice(
+  email: string,
+  deviceId: string
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("player_trusted_devices")
+    .update({ acknowledged_at: new Date().toISOString() })
+    .eq("id", deviceId)
+    .eq("email", normalizeEmail(email));
+  if (error) throw error;
+}
+
+export async function listSecurityEvents(
+  email: string,
+  limit = 20
+): Promise<
+  { id: string; eventType: SecurityEventType; metadata: Record<string, unknown>; createdAt: string }[]
+> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("player_security_events")
+    .select("id, event_type, metadata, created_at")
+    .eq("email", normalizeEmail(email))
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    eventType: row.event_type as SecurityEventType,
+    metadata: (row.metadata as Record<string, unknown>) ?? {},
+    createdAt: row.created_at as string,
+  }));
 }
 
 export async function saveWebAuthnCredential(input: {

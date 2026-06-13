@@ -3,6 +3,8 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { verifyAuthentication } from "@/lib/auth/security/webauthn";
 import { createPlayerSessionForEmail } from "@/lib/auth/security/sessionMint";
 import { completePlayerSignIn } from "@/lib/auth/security/completeSignIn";
+import { resolveClientIp, resolveLoginLocation } from "@/lib/auth/security/securityCenter";
+import { notifySecurityEvent } from "@/lib/auth/security/notify";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -39,11 +41,22 @@ export async function POST(request: Request) {
     }
 
     const userAgent = request.headers.get("user-agent") ?? "unknown";
-    await completePlayerSignIn({
+    const signInResult = await completePlayerSignIn({
       email: verified.email,
       deviceKey,
       userAgent,
       rememberMe: body.rememberMe ?? true,
+      lastLocation: resolveLoginLocation(request.headers),
+      lastIp: resolveClientIp(request.headers),
+    });
+
+    await notifySecurityEvent({
+      email: verified.email,
+      eventType: "biometric_login",
+      metadata: {
+        device: signInResult.device.deviceName,
+        location: resolveLoginLocation(request.headers) ?? undefined,
+      },
     });
 
     return NextResponse.json({ ok: true });

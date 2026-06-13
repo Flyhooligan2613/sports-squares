@@ -13,6 +13,9 @@ const DEVICE_ID_KEY = "sb-device-id";
 const REMEMBER_ME_KEY = "sb-remember-me";
 const STEP_UP_KEY = "sb-step-up-token";
 const BIOMETRIC_PROMPT_PREFIX = "sb-biometric-prompted:";
+const APP_UNLOCK_AT_KEY = "sb-app-unlocked-at";
+const APP_UNLOCK_EMAIL_KEY = "sb-app-unlocked-email";
+const LOCAL_UNLOCK_AT_KEY = "sb-local-unlock-at";
 
 export function wasBiometricPromptHandled(email: string): boolean {
   if (typeof window === "undefined") return false;
@@ -117,4 +120,36 @@ export function biometricLabel(platform: DevicePlatform): string {
 
 export function isWebAuthnAvailable(): boolean {
   return typeof window !== "undefined" && Boolean(window.PublicKeyCredential);
+}
+
+export function markAppUnlocked(email: string): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(APP_UNLOCK_AT_KEY, Date.now().toString());
+  sessionStorage.setItem(APP_UNLOCK_EMAIL_KEY, email.trim().toLowerCase());
+}
+
+export function clearAppUnlock(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(APP_UNLOCK_AT_KEY);
+  sessionStorage.removeItem(APP_UNLOCK_EMAIL_KEY);
+}
+
+export function isAppUnlocked(email: string, maxAgeMs = 12 * 60 * 60 * 1000): boolean {
+  if (typeof window === "undefined") return false;
+  const at = sessionStorage.getItem(APP_UNLOCK_AT_KEY);
+  const storedEmail = sessionStorage.getItem(APP_UNLOCK_EMAIL_KEY);
+  if (!at || storedEmail !== email.trim().toLowerCase()) return false;
+  return Date.now() - Number(at) < maxAgeMs;
+}
+
+export function markLocalUnlock(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(LOCAL_UNLOCK_AT_KEY, Date.now().toString());
+}
+
+export function hasRecentLocalUnlock(maxAgeMs = 2 * 60 * 1000): boolean {
+  if (typeof window === "undefined") return false;
+  const at = sessionStorage.getItem(LOCAL_UNLOCK_AT_KEY);
+  if (!at) return false;
+  return Date.now() - Number(at) < maxAgeMs;
 }

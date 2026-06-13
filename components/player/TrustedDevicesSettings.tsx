@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/Button";
 import {
   detectDeviceInfo,
   getOrCreateDeviceKey,
-  isWebAuthnAvailable,
 } from "@/lib/auth/security/deviceClient";
-import { setStepUpToken } from "@/lib/auth/security/deviceClient";
-import { confirmSensitiveActionWithBiometric } from "@/lib/auth/security/webauthnClient";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
 
 interface TrustedDeviceRow {
   id: string;
   deviceName: string;
+  customName: string | null;
   platform: string;
+  browserName: string | null;
+  lastLocation: string | null;
   lastActiveAt: string;
   registeredAt: string;
   isCurrent: boolean;
@@ -26,6 +26,8 @@ export default function TrustedDevicesSettings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   const deviceKey = getOrCreateDeviceKey();
   const currentDevice = detectDeviceInfo(navigator.userAgent, deviceKey);
@@ -65,6 +67,24 @@ export default function TrustedDevicesSettings() {
     await load();
   }
 
+  async function saveRename(id: string) {
+    setBusyId(id);
+    const res = await fetch(`/api/auth/device/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ customName: renameValue }),
+    });
+    setBusyId(null);
+    setRenamingId(null);
+    setRenameValue("");
+    if (!res.ok) {
+      setError("Could not rename device.");
+      return;
+    }
+    await load();
+  }
+
   async function signOutAllDevices() {
     setBusyId("all");
     await fetch("/api/auth/device/sign-out-all", {
@@ -80,13 +100,17 @@ export default function TrustedDevicesSettings() {
     window.location.href = "/my-games/login";
   }
 
+  function displayName(device: TrustedDeviceRow): string {
+    return device.customName || device.deviceName;
+  }
+
   return (
     <LandingGlassCard className="p-6 space-y-5">
       <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-sb-purple-light mb-1">Security</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-sb-purple-light mb-1">Account</p>
         <h2 className="text-xl font-bold text-white">Trusted devices</h2>
         <p className="text-sm text-sb-muted mt-2">
-          Devices that completed email verification can use biometric unlock and stay signed in.
+          Devices that completed verification can use biometric unlock and stay signed in.
         </p>
       </div>
 
@@ -107,32 +131,67 @@ export default function TrustedDevicesSettings() {
         {devices.map((device) => (
           <div
             key={device.id}
-            className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
+            className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 space-y-2"
           >
-            <div className="min-w-0">
-              <p className="text-white font-medium truncate">
-                {device.deviceName}
-                {device.isCurrent ? (
-                  <span className="ml-2 text-[11px] uppercase tracking-wider text-sb-purple-light">
-                    Current
-                  </span>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-white font-medium truncate">
+                  {displayName(device)}
+                  {device.isCurrent ? (
+                    <span className="ml-2 text-[11px] uppercase tracking-wider text-sb-purple-light">
+                      Current
+                    </span>
+                  ) : null}
+                </p>
+                <p className="text-xs text-sb-muted mt-1 capitalize">
+                  {device.platform}
+                  {device.browserName ? ` · ${device.browserName}` : ""}
+                </p>
+                {device.lastLocation ? (
+                  <p className="text-xs text-sb-muted mt-1">{device.lastLocation}</p>
                 ) : null}
-              </p>
-              <p className="text-xs text-sb-muted mt-1 capitalize">
-                {device.platform} · Last active{" "}
-                {new Date(device.lastActiveAt).toLocaleString()}
-              </p>
+                <p className="text-xs text-sb-muted mt-1">
+                  Last active {new Date(device.lastActiveAt).toLocaleString()}
+                  {" · "}Trusted since {new Date(device.registeredAt).toLocaleDateString()}
+                </p>
+              </div>
+              {!device.isCurrent ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={busyId === device.id}
+                  onClick={() => void removeDevice(device.id)}
+                >
+                  Remove
+                </Button>
+              ) : null}
             </div>
-            {!device.isCurrent ? (
+
+            {renamingId === device.id ? (
+              <div className="flex gap-2">
+                <input
+                  value={renameValue}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  placeholder="Device name"
+                  className="player-input flex-1 text-sm"
+                />
+                <Button size="sm" disabled={busyId === device.id} onClick={() => void saveRename(device.id)}>
+                  Save
+                </Button>
+              </div>
+            ) : (
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={busyId === device.id}
-                onClick={() => void removeDevice(device.id)}
+                className="px-0"
+                onClick={() => {
+                  setRenamingId(device.id);
+                  setRenameValue(device.customName ?? device.deviceName);
+                }}
               >
-                Remove
+                Rename
               </Button>
-            ) : null}
+            )}
           </div>
         ))}
       </div>
@@ -147,15 +206,4 @@ export default function TrustedDevicesSettings() {
       </div>
     </LandingGlassCard>
   );
-}
-
-export async function ensurePayoutStepUp(): Promise<string | null> {
-  if (!isWebAuthnAvailable()) return null;
-  try {
-    const token = await confirmSensitiveActionWithBiometric("payout_change");
-    setStepUpToken(token);
-    return token;
-  } catch {
-    return null;
-  }
 }

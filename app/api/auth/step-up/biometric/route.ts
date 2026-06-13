@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     deviceKey?: string;
     response?: unknown;
-    purpose?: "payout_change" | "email_change" | "account_delete" | "view_financials";
+    purpose?: "payout_change" | "email_change" | "account_delete" | "view_financials" | "purchase" | "profile_update" | "password_change" | "phone_change";
   };
 
   const deviceKey = body.deviceKey?.trim();

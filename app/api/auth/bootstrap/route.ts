@@ -40,6 +40,9 @@ export async function GET(request: Request) {
       trustedDevice: trusted,
       passkeyAvailable: passkeyOnDevice || passkeyOnAccount,
       webAuthnSupported: true,
+      onboardingCompleted: Boolean(profile?.onboarding_completed_at),
+      biometricEnabled: Boolean(profile?.biometric_enabled),
+      pinEnabled: Boolean(profile?.pin_enabled),
     });
   }
 

@@ -1,32 +1,36 @@
 "use client";
 
-import { useEffect } from "react";
-import BiometricEnrollmentModal, {
-  useBiometricEnrollmentPrompt,
-} from "@/components/player/BiometricEnrollmentModal";
+import { useEffect, useState } from "react";
+import SecurityOnboardingWizard from "@/components/player/SecurityOnboardingWizard";
+import NewDeviceAlertModal from "@/components/player/NewDeviceAlertModal";
 import {
   getOrCreateDeviceKey,
   getRememberMePreference,
+  markAppUnlocked,
 } from "@/lib/auth/security/deviceClient";
-import { registerDeviceAfterLogin } from "@/lib/auth/security/webauthnClient";
+import { fetchAuthBootstrap, registerDeviceAfterLogin } from "@/lib/auth/security/webauthnClient";
 
 export default function PlayerAuthBootstrap() {
-  const { showPrompt, dismissPrompt, markEnabled, email } = useBiometricEnrollmentPrompt();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
     async function bootstrap() {
       const deviceKey = getOrCreateDeviceKey();
-      const res = await fetch(`/api/auth/bootstrap?deviceKey=${encodeURIComponent(deviceKey)}`, {
-        cache: "no-store",
-        credentials: "include",
-      });
-      const data = (await res.json()) as { authenticated?: boolean };
+      const data = await fetchAuthBootstrap();
 
-      if (cancelled || !data.authenticated) return;
+      if (cancelled || !data.authenticated || !data.email) return;
+
+      setEmail(data.email);
+      markAppUnlocked(data.email);
 
       await registerDeviceAfterLogin(getRememberMePreference());
+
+      if (!data.onboardingCompleted) {
+        setShowOnboarding(true);
+      }
     }
 
     void bootstrap();
@@ -36,11 +40,13 @@ export default function PlayerAuthBootstrap() {
   }, []);
 
   return (
-    <BiometricEnrollmentModal
-      open={showPrompt}
-      email={email}
-      onClose={dismissPrompt}
-      onEnabled={markEnabled}
-    />
+    <>
+      <SecurityOnboardingWizard
+        open={showOnboarding}
+        email={email}
+        onComplete={() => setShowOnboarding(false)}
+      />
+      <NewDeviceAlertModal />
+    </>
   );
 }

@@ -46,7 +46,62 @@ const LABELS: Record<SecurityEventType, { subject: string; title: string; body: 
     title: "Biometric login enabled",
     body: "Biometric login was enabled on one of your devices.",
   },
+  biometric_login: {
+    subject: "SquareBoards sign-in",
+    title: "Biometric login",
+    body: "You signed in with biometrics.",
+  },
+  pin_enabled: {
+    subject: "Quick PIN enabled on SquareBoards",
+    title: "Quick PIN enabled",
+    body: "A 4-digit Quick Unlock PIN was enabled on your device.",
+  },
+  pin_login: {
+    subject: "SquareBoards unlock",
+    title: "Quick PIN unlock",
+    body: "Your account was unlocked with Quick PIN.",
+  },
+  pin_locked: {
+    subject: "Quick PIN locked on SquareBoards",
+    title: "Quick PIN temporarily locked",
+    body: "Quick PIN was locked after too many failed attempts.",
+  },
+  purchase_confirmed: {
+    subject: "SquareBoards purchase confirmed",
+    title: "Purchase confirmed",
+    body: "A purchase was confirmed on your account.",
+  },
+  profile_update: {
+    subject: "SquareBoards profile updated",
+    title: "Profile updated",
+    body: "Your profile information was updated.",
+  },
+  phone_change: {
+    subject: "SquareBoards phone updated",
+    title: "Phone number updated",
+    body: "The phone number on your account was updated.",
+  },
+  session_revoked: {
+    subject: "SquareBoards session ended",
+    title: "Session revoked",
+    body: "An active session was revoked on your account.",
+  },
+  device_acknowledged: {
+    subject: "SquareBoards device confirmed",
+    title: "Device confirmed",
+    body: "You confirmed a new device sign-in.",
+  },
+  account_secured: {
+    subject: "SquareBoards account secured",
+    title: "Account secured",
+    body: "You secured your account after a new device alert.",
+  },
 };
+
+const SILENT_EVENTS = new Set<SecurityEventType>([
+  "biometric_login",
+  "pin_login",
+]);
 
 export async function notifySecurityEvent(input: {
   email: string;
@@ -60,6 +115,10 @@ export async function notifySecurityEvent(input: {
   });
 
   const copy = LABELS[input.eventType];
+  if (!copy || SILENT_EVENTS.has(input.eventType)) {
+    return;
+  }
+
   const metaLines = Object.entries(input.metadata ?? {})
     .filter(([, value]) => value !== undefined && value !== null && value !== "")
     .map(([key, value]) => `${key}: ${String(value)}`);

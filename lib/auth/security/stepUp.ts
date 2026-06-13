@@ -6,7 +6,15 @@ import {
 } from "@/lib/auth/security/db";
 import { createStepUpToken, hashStepUpToken } from "@/lib/auth/security/deviceClient";
 
-export type StepUpPurpose = "payout_change" | "email_change" | "account_delete" | "view_financials";
+export type StepUpPurpose =
+  | "payout_change"
+  | "email_change"
+  | "account_delete"
+  | "view_financials"
+  | "purchase"
+  | "profile_update"
+  | "password_change"
+  | "phone_change";
 
 const STEP_UP_TTL_MS = 15 * 60 * 1000;
 

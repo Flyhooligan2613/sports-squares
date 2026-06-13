@@ -83,7 +83,15 @@ export async function signInWithBiometric(email: string, rememberMe?: boolean) {
 }
 
 export async function confirmSensitiveActionWithBiometric(
-  purpose: "payout_change" | "email_change" | "account_delete" | "view_financials"
+  purpose:
+    | "payout_change"
+    | "email_change"
+    | "account_delete"
+    | "view_financials"
+    | "purchase"
+    | "profile_update"
+    | "password_change"
+    | "phone_change"
 ) {
   const deviceKey = getOrCreateDeviceKey();
   const { options } = await postJson<{ options: PublicKeyCredentialRequestOptionsJSON }>(
@@ -128,5 +136,8 @@ export async function fetchAuthBootstrap(email?: string) {
     trustedDevice?: boolean;
     emailVerified?: boolean;
     rememberMe?: boolean;
+    onboardingCompleted?: boolean;
+    biometricEnabled?: boolean;
+    pinEnabled?: boolean;
   };
 }
