@@ -72,18 +72,26 @@ export async function listScheduledAnnouncements(
 ): Promise<PlatformAnnouncement[]> {
   const supabase = getSupabaseAdmin();
   const iso = now.toISOString();
+  const nowMs = now.getTime();
 
+  // Filter end dates in memory — ISO timestamps break PostgREST `.or()` filters.
   const { data, error } = await supabase
     .from(TABLE)
     .select("*")
     .eq("active", true)
     .lte("starts_at", iso)
-    .or(`ends_at.is.null,ends_at.gte.${iso}`)
     .order("priority", { ascending: false })
     .order("starts_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
+
+  return (data ?? [])
+    .filter((row) => {
+      const endsAt = row.ends_at as string | null;
+      if (!endsAt) return true;
+      return new Date(endsAt).getTime() >= nowMs;
+    })
+    .map((row) => mapRow(row as Record<string, unknown>));
 }
 
 export async function getAnnouncementById(
@@ -182,6 +190,15 @@ export async function dismissAnnouncement(input: {
     { onConflict: "announcement_id,viewer_key" }
   );
 
+  if (error) throw error;
+}
+
+export async function clearAnnouncementDismissals(announcementId: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from(DISMISSALS)
+    .delete()
+    .eq("announcement_id", announcementId);
   if (error) throw error;
 }
 

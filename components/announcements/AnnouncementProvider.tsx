@@ -54,6 +54,7 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [announcements, setAnnouncements] = useState<PlatformAnnouncement[]>([]);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const load = useCallback(async () => {
     if (isAdminPath(pathname)) {
@@ -62,7 +63,10 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
     }
 
     const params = new URLSearchParams({ anonymousId: getAnonymousId() });
-    const res = await fetch(`/api/announcements?${params}`, { cache: "no-store" });
+    const res = await fetch(`/api/announcements?${params}`, {
+      cache: "no-store",
+      credentials: "include",
+    });
     if (!res.ok) {
       setAnnouncements([]);
       return;
@@ -109,6 +113,15 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
   const welcomePopup = pickHighestPriority(visible, "welcome_popup");
   const floatingToast = pickHighestPriority(visible, "floating_toast");
 
+  useEffect(() => {
+    if (!welcomePopup) {
+      setShowWelcome(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setShowWelcome(true), 600);
+    return () => window.clearTimeout(timer);
+  }, [welcomePopup?.id]);
+
   const value = useMemo(
     () => ({ announcements: visible, homeHero, refresh: load }),
     [visible, homeHero, load]
@@ -142,7 +155,7 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
         />
       ) : null}
       {children}
-      {welcomePopup ? (
+      {welcomePopup && showWelcome ? (
         <AnnouncementWelcomePopup
           announcement={welcomePopup}
           onDismiss={

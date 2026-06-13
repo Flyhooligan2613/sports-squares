@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Megaphone, Plus, RefreshCw, Trash2, Zap } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
@@ -22,30 +23,47 @@ const CATEGORIES = Object.keys(CATEGORY_LABELS) as AnnouncementCategory[];
 const AUDIENCES = Object.keys(AUDIENCE_LABELS) as AnnouncementAudience[];
 const FREQUENCIES = Object.keys(FREQUENCY_LABELS) as AnnouncementFrequency[];
 
-const EMPTY_FORM: AnnouncementUpsertInput = {
-  title: "",
-  subtitle: "",
-  imageUrl: "",
-  buttonText: "",
-  destinationHref: "",
-  displayType: "top_banner",
-  category: "feature_release",
-  audience: "all",
-  audienceRegions: [],
-  priority: 0,
-  dismissible: true,
-  frequency: "once",
-  startsAt: new Date().toISOString().slice(0, 16),
-  endsAt: "",
-  active: true,
-};
-
 function toLocalInput(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+function nowLocalInput(): string {
+  return toLocalInput(new Date().toISOString());
+}
+
+function scheduleStatus(item: PlatformAnnouncement): {
+  label: string;
+  tone: "live" | "scheduled" | "expired" | "paused";
+} {
+  if (!item.active) return { label: "Paused", tone: "paused" };
+  const now = Date.now();
+  const starts = new Date(item.startsAt).getTime();
+  const ends = item.endsAt ? new Date(item.endsAt).getTime() : null;
+  if (starts > now) return { label: "Scheduled (not yet live)", tone: "scheduled" };
+  if (ends !== null && ends < now) return { label: "Expired", tone: "expired" };
+  return { label: "Live on site", tone: "live" };
+}
+
+const EMPTY_FORM: AnnouncementUpsertInput = {
+  title: "",
+  subtitle: "",
+  imageUrl: "",
+  buttonText: "",
+  destinationHref: "",
+  displayType: "welcome_popup",
+  category: "feature_release",
+  audience: "all",
+  audienceRegions: [],
+  priority: 0,
+  dismissible: true,
+  frequency: "once",
+  startsAt: nowLocalInput(),
+  endsAt: "",
+  active: true,
+};
 
 function formFromAnnouncement(a: PlatformAnnouncement): AnnouncementUpsertInput {
   return {
@@ -202,6 +220,18 @@ export default function AnnouncementManager() {
     if (res.ok) await load();
   }
 
+  async function handleResetDismissals(id: string) {
+    if (!window.confirm("Reset dismissals so all visitors see this again?")) return;
+    const res = await fetch(`/api/admin/announcements/${id}/reset-dismissals`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      setError("Could not reset dismissals.");
+      return;
+    }
+    showToast("Dismissals cleared — popup will show again for everyone.");
+  }
+
   return (
     <div className="space-y-6">
       {toast ? (
@@ -226,18 +256,30 @@ export default function AnnouncementManager() {
             <p className="text-xs text-sb-muted leading-relaxed max-w-xl">
               The platform automatically publishes announcements for NFL week opens, Thursday Night
               Football, Sunday Game Day, Monday Championship Tiebreakers, holidays, and Super Bowl
-              week. Runs every 30 minutes and after each Pick&apos;em sync.
+              week. Runs every 30 minutes and after each Pick&apos;em sync. Popups only appear on
+              the public site (not in admin) — use Display Type &quot;Welcome Popup&quot; for the
+              center modal.
             </p>
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={runningAutomation}
-            onClick={() => void handleRunAutomation()}
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${runningAutomation ? "animate-spin" : ""}`} />
-            {runningAutomation ? "Running…" : "Run automation now"}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sb-btn-motion sb-btn-secondary sb-btn-sm inline-flex items-center justify-center font-semibold min-h-[52px] px-6 py-3 rounded-xl"
+            >
+              Preview homepage
+            </Link>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={runningAutomation}
+              onClick={() => void handleRunAutomation()}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${runningAutomation ? "animate-spin" : ""}`} />
+              {runningAutomation ? "Running…" : "Run automation now"}
+            </Button>
+          </div>
         </div>
       </LandingGlassCard>
 
@@ -497,7 +539,18 @@ export default function AnnouncementManager() {
           <p className="p-6 text-sb-muted text-sm">No announcements yet.</p>
         ) : (
           <div className="divide-y divide-white/5">
-            {announcements.map((item) => (
+            {announcements.map((item) => {
+              const status = scheduleStatus(item);
+              const statusClass =
+                status.tone === "live"
+                  ? "border-emerald-500/40 text-emerald-300"
+                  : status.tone === "scheduled"
+                    ? "border-amber-500/40 text-amber-300"
+                    : status.tone === "expired"
+                      ? "border-red-500/40 text-red-300"
+                      : "border-white/20 text-sb-muted";
+
+              return (
               <div
                 key={item.id}
                 className="px-5 py-4 flex flex-wrap items-start justify-between gap-3"
@@ -506,13 +559,9 @@ export default function AnnouncementManager() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <p className="text-white font-medium">{item.title}</p>
                     <span
-                      className={`text-[10px] uppercase px-2 py-0.5 rounded-full border ${
-                        item.active
-                          ? "border-emerald-500/40 text-emerald-300"
-                          : "border-white/20 text-sb-muted"
-                      }`}
+                      className={`text-[10px] uppercase px-2 py-0.5 rounded-full border ${statusClass}`}
                     >
-                      {item.active ? "Active" : "Paused"}
+                      {status.label}
                     </span>
                     {item.source === "automated" ? (
                       <span className="text-[10px] uppercase px-2 py-0.5 rounded-full border border-sky-500/40 text-sky-300">
@@ -546,6 +595,13 @@ export default function AnnouncementManager() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => void handleResetDismissals(item.id)}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-white hover:bg-white/5"
+                  >
+                    Reset dismissals
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void handleDelete(item.id)}
                     className="text-xs px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 inline-flex items-center gap-1"
                   >
@@ -553,7 +609,8 @@ export default function AnnouncementManager() {
                   </button>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
       </LandingGlassCard>
