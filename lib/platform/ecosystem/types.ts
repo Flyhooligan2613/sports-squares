@@ -37,6 +37,7 @@ export interface EcosystemAccount {
   profileFrameId: string | null;
   referredByCode: string | null;
   memberSince: string;
+  followerCount: number;
 }
 
 export interface TierDefinition {

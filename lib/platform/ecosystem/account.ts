@@ -56,6 +56,7 @@ function mapAccount(row: Record<string, unknown>): EcosystemAccount {
     profileFrameId: (row.profile_frame_id as string | null) ?? null,
     referredByCode: (row.referred_by_code as string | null) ?? null,
     memberSince: row.created_at as string,
+    followerCount: Number(row.follower_count ?? 0),
   };
 }
 
