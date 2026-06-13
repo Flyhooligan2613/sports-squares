@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getPickemContestById } from "@/lib/pickem/db/contests";
 import {
+  fulfillPickemEntryPurchase,
   hasPickemEntryForContest,
   pickemEntryAmountCents,
-  reservePickemEntryPurchase,
 } from "@/lib/pickem/entryPurchase";
 import { PURCHASE_TYPE_PICKEM_ENTRY } from "@/lib/platform/core/checkoutMetadata";
 import {
@@ -13,9 +14,10 @@ import {
   isValidEntryTierCents,
 } from "@/lib/platform/core/entryTiers";
 import { normalizeEmail } from "@/lib/player/statsCore";
-import { getAppUrl, getCheckoutMissingConfig } from "@/lib/stripe/config";
-import { getStripe } from "@/lib/stripe/client";
-import { getOrCreateStripeCustomer } from "@/lib/stripe/playerWallet";
+import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
+import { notifySecurityEvent } from "@/lib/auth/security/notify";
+import { chargeSavedPaymentMethod } from "@/lib/stripe/playerWallet";
+import { getCheckoutMissingConfig } from "@/lib/stripe/config";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -31,14 +33,22 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!isSupabaseAdminConfigured()) {
+    return NextResponse.json({ error: "Not configured." }, { status: 503 });
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
-    error: authError,
   } = await supabase.auth.getUser();
 
-  if (authError || !user?.email) {
+  if (!user?.email) {
     return NextResponse.json({ error: "Sign in to enter Pick'em." }, { status: 401 });
+  }
+
+  const stepUp = await requireStepUpFromRequest(request, "purchase");
+  if (!stepUp.ok) {
+    return NextResponse.json({ error: stepUp.error }, { status: 403 });
   }
 
   try {
@@ -82,31 +92,11 @@ export async function POST(request: Request) {
 
     const amountCents = pickemEntryAmountCents(entryTierCents);
     const tierLabel = formatTierCents(entryTierCents);
-    const appUrl = getAppUrl();
-    const stripe = getStripe();
-    const customerId = await getOrCreateStripeCustomer(email);
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer: customerId,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            unit_amount: amountCents,
-            product_data: {
-              name: `Pick'em ${contest.label} — ${tierLabel} Entry`,
-              description: `Weekly NFL Pick'em entry at the ${tierLabel} tier. Picks lock at kickoff.`,
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${appUrl}/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}&entry_session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}`,
-      payment_intent_data: {
-        setup_future_usage: "off_session",
-      },
+    const paymentIntent = await chargeSavedPaymentMethod({
+      email,
+      amountCents,
+      description: `Pick'em ${contest.label} — ${tierLabel}`,
       metadata: {
         purchaseType: PURCHASE_TYPE_PICKEM_ENTRY,
         contestId,
@@ -115,27 +105,39 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!session.url || !session.id) {
-      return NextResponse.json({ error: "Could not create checkout session." }, { status: 500 });
+    if (paymentIntent.status !== "succeeded") {
+      return NextResponse.json({ error: "Payment could not be completed." }, { status: 402 });
     }
 
-    await reservePickemEntryPurchase({
+    const sessionKey = `pi_${paymentIntent.id}`;
+    const result = await fulfillPickemEntryPurchase({
       contestId,
       email,
       entryTierCents,
-      amountCents,
-      sessionId: session.id,
-      paymentIntentId:
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : session.payment_intent?.id ?? null,
+      stripeCheckoutSessionId: sessionKey,
+      amountPaidCents: amountCents,
+      stripePaymentIntentId: paymentIntent.id,
     });
 
-    return NextResponse.json({ url: session.url, sessionId: session.id });
+    await notifySecurityEvent({
+      email,
+      eventType: "purchase_confirmed",
+      metadata: {
+        type: "pickem",
+        contest: contest.label,
+        amount: tierLabel,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      leagueId: result.leagueId,
+      alreadyFulfilled: result.alreadyFulfilled,
+    });
   } catch (err) {
-    console.error("[pickem/checkout]", err);
+    console.error("[pickem/fast-checkout]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to start checkout." },
+      { error: err instanceof Error ? err.message : "Fast checkout failed." },
       { status: 500 }
     );
   }

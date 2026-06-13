@@ -13,6 +13,7 @@ import {
   resolvePurchaseType,
 } from "@/lib/platform/core/checkoutMetadata";
 import { syncConnectAccountFromStripe } from "@/lib/database/services/stripeConnect";
+import { syncPlayerWalletFromCheckoutSession } from "@/lib/stripe/playerWallet";
 import { getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -93,10 +94,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
     await handlePickemEntryCheckout(session);
-    return;
+  } else {
+    await handleSquaresCheckout(session);
   }
 
-  await handleSquaresCheckout(session);
+  try {
+    await syncPlayerWalletFromCheckoutSession(session);
+  } catch (err) {
+    console.error("[stripe/webhook] wallet sync failed", err);
+  }
 }
 
 async function handleChargeRefunded(charge: Stripe.Charge) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CreditCard, ShieldCheck, Zap } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { formatTierCents } from "@/lib/platform/core/entryTiers";
@@ -11,7 +12,9 @@ interface PickemEntryPanelProps {
   entry: PickemEntryStatus;
   loading?: boolean;
   error?: string | null;
+  savedPaymentLabel?: string | null;
   onCheckout: () => void;
+  onFastCheckout?: () => void;
 }
 
 export default function PickemEntryPanel({
@@ -19,7 +22,9 @@ export default function PickemEntryPanel({
   entry,
   loading = false,
   error,
+  savedPaymentLabel,
   onCheckout,
+  onFastCheckout,
 }: PickemEntryPanelProps) {
   const tierLabel = formatTierCents(entry.tierCents);
   const priceLabel = formatTierCents(entry.amountCents);
@@ -68,6 +73,21 @@ export default function PickemEntryPanel({
 
       {entry.requiresAuth ? (
         <Button href="/my-games/login?next=/pickem/week">Sign in to enter</Button>
+      ) : savedPaymentLabel && onFastCheckout ? (
+        <div className="space-y-3">
+          <Button
+            onClick={onFastCheckout}
+            disabled={loading}
+            className="inline-flex items-center gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            {loading ? "Processing…" : `Confirm with biometrics · ${priceLabel}`}
+          </Button>
+          <p className="text-xs text-sb-muted">Charging {savedPaymentLabel}</p>
+          <Button variant="ghost" size="sm" disabled={loading} onClick={onCheckout}>
+            Use different payment method
+          </Button>
+        </div>
       ) : (
         <Button onClick={onCheckout} disabled={loading} className="inline-flex items-center gap-2">
           <CreditCard className="w-4 h-4" />

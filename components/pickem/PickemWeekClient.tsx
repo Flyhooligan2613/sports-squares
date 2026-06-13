@@ -17,6 +17,8 @@ import { PICKEM_CHAMPIONSHIP_BANNER } from "@/lib/pickem/copy";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
+import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
+import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -135,6 +137,35 @@ export default function PickemWeekClient() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [entryPolling, setEntryPolling] = useState(false);
   const [entryCheckoutError, setEntryCheckoutError] = useState<string | null>(null);
+  const [savedPaymentLabel, setSavedPaymentLabel] = useState<string | null>(null);
+  const [playerEmail, setPlayerEmail] = useState("");
+  const [showFastConfirm, setShowFastConfirm] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadWallet() {
+      const bootstrap = await fetchAuthBootstrap();
+      if (cancelled || !bootstrap.authenticated || !bootstrap.email) return;
+      setPlayerEmail(bootstrap.email);
+
+      const res = await fetch("/api/player/wallet", { cache: "no-store", credentials: "include" });
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        savedPayment?: { label?: string } | null;
+        fastCheckoutAvailable?: boolean;
+      };
+      if (cancelled) return;
+      if (data.fastCheckoutAvailable && data.savedPayment?.label) {
+        setSavedPaymentLabel(data.savedPayment.label);
+      }
+    }
+
+    void loadWallet();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const loadWeeks = useCallback(async () => {
     const res = await fetch("/api/pickem/weeks", { cache: "no-store" });
@@ -229,6 +260,53 @@ export default function PickemWeekClient() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("tier", String(cents));
     router.push(`/pickem/week?${params.toString()}`);
+  }
+
+  async function handleFastEntryCheckout() {
+    if (!playerEmail) {
+      await handleEntryCheckout();
+      return;
+    }
+    setShowFastConfirm(true);
+  }
+
+  async function executeFastEntryCheckout(stepUpToken: string) {
+    if (!week) return;
+    setCheckoutLoading(true);
+    setEntryCheckoutError(null);
+    setShowFastConfirm(false);
+
+    try {
+      const res = await fetch("/api/pickem/fast-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-step-up-token": stepUpToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          contestId: week.contest.id,
+          entryTierCents,
+        }),
+      });
+
+      const data = (await res.json()) as { error?: string };
+
+      if (res.status === 401) {
+        setAuthRequired(true);
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error ?? "Fast checkout failed.");
+      }
+
+      await load();
+    } catch (err) {
+      setEntryCheckoutError(err instanceof Error ? err.message : "Checkout failed.");
+    } finally {
+      setCheckoutLoading(false);
+    }
   }
 
   async function handleEntryCheckout() {
@@ -358,7 +436,9 @@ export default function PickemWeekClient() {
               entry={week.entry}
               loading={checkoutLoading}
               error={entryCheckoutError}
+              savedPaymentLabel={savedPaymentLabel}
               onCheckout={handleEntryCheckout}
+              onFastCheckout={savedPaymentLabel ? handleFastEntryCheckout : undefined}
             />
 
             <PickemPoolList
@@ -469,6 +549,16 @@ export default function PickemWeekClient() {
           </>
         ) : null}
       </div>
+
+      <FastPurchaseConfirmModal
+        open={showFastConfirm}
+        email={playerEmail}
+        title="Enter Pick'em"
+        subtitle="Confirm with biometrics or Quick PIN to charge your saved card"
+        amountLabel={week ? formatTierCents(entryTierCents) : undefined}
+        onClose={() => setShowFastConfirm(false)}
+        onConfirmed={executeFastEntryCheckout}
+      />
     </div>
   );
 }
