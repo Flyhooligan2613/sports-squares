@@ -13,7 +13,6 @@ import type {
 import {
   getOrCreateDeviceKey,
   getRememberMePreference,
-  setRequiresEmailSignIn,
 } from "@/lib/auth/security/deviceClient";
 
 async function postJson<T>(url: string, body: Record<string, unknown>): Promise<T> {
@@ -36,17 +35,36 @@ export async function registerDeviceAfterLogin(rememberMe?: boolean) {
     deviceKey,
     rememberMe: rememberMe ?? getRememberMePreference(),
   });
-  setRequiresEmailSignIn(false);
+}
+
+function isAlreadyRegisteredError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+  return (
+    message.includes("already") ||
+    message.includes("invalidstate") ||
+    message.includes("registered") ||
+    message.includes("active")
+  );
 }
 
 export async function registerBiometricLogin(deviceName: string) {
   const deviceKey = getOrCreateDeviceKey();
-  const { options } = await postJson<{ options: PublicKeyCredentialCreationOptionsJSON }>(
+  const optionsRes = await postJson<{ options?: PublicKeyCredentialCreationOptionsJSON; alreadyEnabled?: boolean }>(
     "/api/auth/webauthn/register/options",
     { deviceKey, deviceName }
   );
-  const response = (await startRegistration({ optionsJSON: options })) as RegistrationResponseJSON;
-  await postJson("/api/auth/webauthn/register/verify", { deviceKey, response });
+
+  if (optionsRes.alreadyEnabled) return;
+
+  try {
+    const response = (await startRegistration({
+      optionsJSON: optionsRes.options!,
+    })) as RegistrationResponseJSON;
+    await postJson("/api/auth/webauthn/register/verify", { deviceKey, response });
+  } catch (err) {
+    if (isAlreadyRegisteredError(err)) return;
+    throw err;
+  }
 }
 
 export async function signInWithBiometric(email: string, rememberMe?: boolean) {
@@ -62,7 +80,6 @@ export async function signInWithBiometric(email: string, rememberMe?: boolean) {
     response,
     rememberMe: rememberMe ?? getRememberMePreference(),
   });
-  setRequiresEmailSignIn(false);
 }
 
 export async function confirmSensitiveActionWithBiometric(

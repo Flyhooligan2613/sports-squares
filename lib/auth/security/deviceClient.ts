@@ -10,19 +10,18 @@ export interface DeviceInfo {
 }
 
 const DEVICE_ID_KEY = "sb-device-id";
-const REQUIRES_EMAIL_KEY = "sb-requires-email-signin";
 const REMEMBER_ME_KEY = "sb-remember-me";
 const STEP_UP_KEY = "sb-step-up-token";
+const BIOMETRIC_PROMPT_PREFIX = "sb-biometric-prompted:";
 
-export function getRequiresEmailSignIn(): boolean {
+export function wasBiometricPromptHandled(email: string): boolean {
   if (typeof window === "undefined") return false;
-  return localStorage.getItem(REQUIRES_EMAIL_KEY) === "1";
+  return localStorage.getItem(`${BIOMETRIC_PROMPT_PREFIX}${email.toLowerCase()}`) === "1";
 }
 
-export function setRequiresEmailSignIn(required: boolean): void {
+export function markBiometricPromptHandled(email: string): void {
   if (typeof window === "undefined") return;
-  if (required) localStorage.setItem(REQUIRES_EMAIL_KEY, "1");
-  else localStorage.removeItem(REQUIRES_EMAIL_KEY);
+  localStorage.setItem(`${BIOMETRIC_PROMPT_PREFIX}${email.toLowerCase()}`, "1");
 }
 
 export function getRememberMePreference(): boolean {

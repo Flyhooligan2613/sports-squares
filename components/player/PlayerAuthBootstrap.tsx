@@ -7,13 +7,11 @@ import BiometricEnrollmentModal, {
 import {
   getOrCreateDeviceKey,
   getRememberMePreference,
-  getRequiresEmailSignIn,
-  setRequiresEmailSignIn,
 } from "@/lib/auth/security/deviceClient";
 import { registerDeviceAfterLogin } from "@/lib/auth/security/webauthnClient";
 
 export default function PlayerAuthBootstrap() {
-  const { showPrompt, dismissPrompt, markEnabled } = useBiometricEnrollmentPrompt();
+  const { showPrompt, dismissPrompt, markEnabled, email } = useBiometricEnrollmentPrompt();
 
   useEffect(() => {
     let cancelled = false;
@@ -29,9 +27,6 @@ export default function PlayerAuthBootstrap() {
       if (cancelled || !data.authenticated) return;
 
       await registerDeviceAfterLogin(getRememberMePreference());
-      if (!getRequiresEmailSignIn()) {
-        setRequiresEmailSignIn(false);
-      }
     }
 
     void bootstrap();
@@ -43,6 +38,7 @@ export default function PlayerAuthBootstrap() {
   return (
     <BiometricEnrollmentModal
       open={showPrompt}
+      email={email}
       onClose={dismissPrompt}
       onEnabled={markEnabled}
     />

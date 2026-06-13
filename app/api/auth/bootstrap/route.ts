@@ -30,6 +30,7 @@ export async function GET(request: Request) {
     const passkeyOnDevice = deviceKey
       ? await deviceHasPasskey(email, deviceKey)
       : false;
+    const passkeyOnAccount = await emailHasPasskey(email);
 
     return NextResponse.json({
       authenticated: true,
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
       emailVerified: Boolean(profile?.email_verified_at),
       rememberMe: profile?.remember_me ?? true,
       trustedDevice: trusted,
-      passkeyAvailable: passkeyOnDevice,
+      passkeyAvailable: passkeyOnDevice || passkeyOnAccount,
       webAuthnSupported: true,
     });
   }

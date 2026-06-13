@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { createRegistrationOptions } from "@/lib/auth/security/webauthn";
+import { createRegistrationOptions, deviceHasPasskey } from "@/lib/auth/security/webauthn";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +26,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (await deviceHasPasskey(user.email, deviceKey)) {
+      return NextResponse.json({ ok: true, alreadyEnabled: true });
+    }
+
     const options = await createRegistrationOptions({
       email: user.email,
       deviceKey,

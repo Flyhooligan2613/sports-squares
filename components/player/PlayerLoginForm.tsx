@@ -12,7 +12,6 @@ import {
   detectDeviceInfo,
   getOrCreateDeviceKey,
   getRememberMePreference,
-  getRequiresEmailSignIn,
   isWebAuthnAvailable,
   setRememberMePreference,
 } from "@/lib/auth/security/deviceClient";
@@ -56,10 +55,7 @@ export default function PlayerLoginForm() {
         return;
       }
 
-      const canUsePasskey =
-        Boolean(email) &&
-        Boolean(bootstrapData.passkeyAvailable) &&
-        !getRequiresEmailSignIn();
+      const canUsePasskey = Boolean(email) && Boolean(bootstrapData.passkeyAvailable);
       setPasskeyAvailable(canUsePasskey);
 
       setCheckingSession(false);
@@ -134,7 +130,9 @@ export default function PlayerLoginForm() {
             My Games
           </h1>
           <p className="text-sb-muted text-sm sm:text-base">
-            Verify your email once. Stay signed in securely on trusted devices.
+            {passkeyAvailable
+              ? "Welcome back — unlock with biometrics or use your email as backup."
+              : "Verify your email once. Stay signed in securely on trusted devices."}
           </p>
         </div>
 
@@ -146,9 +144,9 @@ export default function PlayerLoginForm() {
               </div>
               <h2 className="text-xl font-bold text-white">Check your inbox</h2>
               <p className="text-sb-muted text-sm leading-relaxed">
-                We sent a one-time verification link to{" "}
-                <span className="text-white font-medium">{email}</span>. After you confirm, this
-                device will be trusted for faster sign-in.
+                We sent a sign-in link to{" "}
+                <span className="text-white font-medium">{email}</span>. Tap it to open My Games —
+                you only need this when biometrics are unavailable.
               </p>
               <Button
                 variant="ghost"

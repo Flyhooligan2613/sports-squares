@@ -8,6 +8,8 @@ import {
   detectDeviceInfo,
   getOrCreateDeviceKey,
   isWebAuthnAvailable,
+  markBiometricPromptHandled,
+  wasBiometricPromptHandled,
 } from "@/lib/auth/security/deviceClient";
 import {
   fetchAuthBootstrap,
@@ -18,12 +20,14 @@ interface BiometricEnrollmentModalProps {
   open: boolean;
   onClose: () => void;
   onEnabled: () => void;
+  email: string;
 }
 
 export default function BiometricEnrollmentModal({
   open,
   onClose,
   onEnabled,
+  email,
 }: BiometricEnrollmentModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,13 +45,25 @@ export default function BiometricEnrollmentModal({
     setError(null);
     try {
       await registerBiometricLogin(device.deviceName);
+      markBiometricPromptHandled(email);
       onEnabled();
       onClose();
     } catch (err) {
+      if (err instanceof Error && /already|active|registered/i.test(err.message)) {
+        markBiometricPromptHandled(email);
+        onEnabled();
+        onClose();
+        return;
+      }
       setError(err instanceof Error ? err.message : "Could not enable biometric login.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function dismiss() {
+    markBiometricPromptHandled(email);
+    onClose();
   }
 
   return (
@@ -70,7 +86,7 @@ export default function BiometricEnrollmentModal({
           <Button className="w-full" disabled={loading} onClick={() => void enableBiometric()}>
             {loading ? "Setting up…" : `Enable ${label}`}
           </Button>
-          <Button variant="ghost" className="w-full" disabled={loading} onClick={onClose}>
+          <Button variant="ghost" className="w-full" disabled={loading} onClick={dismiss}>
             Not now
           </Button>
         </div>
@@ -81,6 +97,7 @@ export default function BiometricEnrollmentModal({
 
 export function useBiometricEnrollmentPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -88,13 +105,12 @@ export function useBiometricEnrollmentPrompt() {
     async function check() {
       if (!isWebAuthnAvailable()) return;
       const bootstrap = await fetchAuthBootstrap();
-      if (cancelled || !bootstrap.authenticated) return;
+      if (cancelled || !bootstrap.authenticated || !bootstrap.email) return;
       if (bootstrap.passkeyAvailable) return;
+      if (wasBiometricPromptHandled(bootstrap.email)) return;
 
-      const prompted = sessionStorage.getItem("sb-biometric-prompted");
-      if (!prompted) {
-        setShowPrompt(true);
-      }
+      setEmail(bootstrap.email);
+      setShowPrompt(true);
     }
 
     void check();
@@ -104,14 +120,14 @@ export function useBiometricEnrollmentPrompt() {
   }, []);
 
   function dismissPrompt() {
-    sessionStorage.setItem("sb-biometric-prompted", "1");
+    if (email) markBiometricPromptHandled(email);
     setShowPrompt(false);
   }
 
   function markEnabled() {
-    sessionStorage.setItem("sb-biometric-prompted", "1");
+    if (email) markBiometricPromptHandled(email);
     setShowPrompt(false);
   }
 
-  return { showPrompt, dismissPrompt, markEnabled };
+  return { showPrompt, dismissPrompt, markEnabled, email };
 }
