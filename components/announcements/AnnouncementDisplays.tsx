@@ -177,10 +177,6 @@ export function AnnouncementWelcomePopup({
   const [imageFailed, setImageFailed] = useState(false);
   const imageUrl = announcement.imageUrl?.trim() ?? "";
   const showImage = Boolean(imageUrl) && !imageFailed;
-  const hasFooterCopy =
-    Boolean(announcement.title) ||
-    Boolean(announcement.subtitle) ||
-    Boolean(announcement.buttonText);
 
   const imageContent = showImage ? (
     <img
@@ -225,15 +221,6 @@ export function AnnouncementWelcomePopup({
           ) : (
             imageContent
           )}
-
-          {showImage && hasFooterCopy ? (
-            <div className="sb-promo-caption">
-              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">{announcement.title}</h2>
-              {announcement.subtitle ? (
-                <p className="text-white/75 text-sm leading-relaxed">{announcement.subtitle}</p>
-              ) : null}
-            </div>
-          ) : null}
         </div>
 
         {(announcement.buttonText && announcement.destinationHref) ||

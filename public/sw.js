@@ -1,4 +1,4 @@
-const CACHE = "sports-squares-v1";
+const CACHE = "sports-squares-v2";
 const OFFLINE_URL = "/offline";
 
 const SHELL = ["/", "/offline", "/manifest.json", "/icons/icon-192.png"];
@@ -22,6 +22,9 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Never intercept API routes — promos and other dynamic data must always be fresh.
+  if (url.pathname.startsWith("/api/")) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(

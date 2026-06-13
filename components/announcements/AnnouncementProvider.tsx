@@ -22,6 +22,7 @@ import type {
   AnnouncementEventType,
   PlatformAnnouncement,
 } from "@/lib/platform/announcements/types";
+import { PLATFORM_MESSAGES_API } from "@/lib/platform/announcements/clientApi";
 
 const ANON_KEY = "sb-anon-id";
 
@@ -55,7 +56,7 @@ function isAdminPath(pathname: string): boolean {
 }
 
 async function trackEvents(announcementId: string, eventTypes: AnnouncementEventType[]) {
-  await fetch("/api/announcements/events", {
+  await fetch(`${PLATFORM_MESSAGES_API}/events`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -80,7 +81,7 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
     }
 
     const params = new URLSearchParams({ anonymousId: getAnonymousId() });
-    const res = await fetch(`/api/announcements?${params}`, {
+    const res = await fetch(`${PLATFORM_MESSAGES_API}?${params}`, {
       cache: "no-store",
       credentials: "include",
     });
@@ -103,7 +104,7 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
 
       if (frequency === "always" || frequency === "every_login") return;
 
-      await fetch("/api/announcements/dismiss", {
+      await fetch(`${PLATFORM_MESSAGES_API}/dismiss`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -144,8 +145,7 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
       setShowWelcome(false);
       return;
     }
-    const timer = window.setTimeout(() => setShowWelcome(true), 600);
-    return () => window.clearTimeout(timer);
+    setShowWelcome(true);
   }, [welcomePopup?.id]);
 
   const value = useMemo(
