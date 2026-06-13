@@ -49,7 +49,7 @@ export const PICKEM_SPORT_CONFIG: Record<PickemSport, PickemSportConfig> = {
     platformGameId: "baseball-pickem",
     espnPath: "baseball/mlb",
     defaultSeasonType: 2,
-    enabled: false,
+    enabled: true,
   },
   nhl: {
     id: "nhl",
@@ -78,13 +78,18 @@ export function getPickemSportConfig(sport: PickemSport = DEFAULT_PICKEM_SPORT) 
 export function pickemScoreboardUrl(
   sport: PickemSport,
   week?: number,
-  seasonType?: number
+  seasonType?: number,
+  dates?: string
 ): string {
   const config = getPickemSportConfig(sport);
   const base = `https://site.api.espn.com/apis/site/v2/sports/${config.espnPath}/scoreboard`;
   const params = new URLSearchParams();
-  if (week != null) params.set("week", String(week));
-  if (seasonType != null) params.set("seasontype", String(seasonType));
+  if (dates) {
+    params.set("dates", dates);
+  } else {
+    if (week != null) params.set("week", String(week));
+    if (seasonType != null) params.set("seasontype", String(seasonType));
+  }
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
 }
@@ -104,14 +109,40 @@ export const NFL_PLAYOFF_LABELS = [
   "Super Bowl",
 ] as const;
 
+/** MLB regular season weeks (~26). */
+export const MLB_REGULAR_WEEKS = 26;
+
+/** MLB playoff round labels. */
+export const MLB_PLAYOFF_LABELS = [
+  "Wild Card",
+  "Division Series",
+  "Championship Series",
+  "World Series",
+] as const;
+
 export function formatPickemWeekLabel(
   weekNumber: number,
-  seasonType: number = PICKEM_SEASON_TYPE_REGULAR
+  seasonType: number = PICKEM_SEASON_TYPE_REGULAR,
+  sport: PickemSport = DEFAULT_PICKEM_SPORT
 ): string {
   if (seasonType === PICKEM_SEASON_TYPE_PLAYOFFS) {
-    return NFL_PLAYOFF_LABELS[weekNumber - 1] ?? `Playoff Week ${weekNumber}`;
+    const labels = sport === "mlb" ? MLB_PLAYOFF_LABELS : NFL_PLAYOFF_LABELS;
+    return labels[weekNumber - 1] ?? `Playoff Week ${weekNumber}`;
   }
   return `Week ${weekNumber}`;
+}
+
+export function pickemSeasonWeekSpecs(sport: PickemSport): PickemSeasonWeekSpec[] {
+  if (sport === "mlb") return mlbSeasonWeekSpecs();
+  if (sport === "nfl") return nflSeasonWeekSpecs();
+  const config = getPickemSportConfig(sport);
+  return [
+    {
+      seasonType: config.defaultSeasonType,
+      weekNumber: 1,
+      label: formatPickemWeekLabel(1, config.defaultSeasonType, sport),
+    },
+  ];
 }
 
 /** Max players per pool before auto-creating the next pool for the same week + tier. */
@@ -136,14 +167,34 @@ export function nflSeasonWeekSpecs(): PickemSeasonWeekSpec[] {
     weeks.push({
       seasonType: PICKEM_SEASON_TYPE_REGULAR,
       weekNumber: w,
-      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_REGULAR),
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_REGULAR, "nfl"),
     });
   }
   for (let w = 1; w <= NFL_PLAYOFF_LABELS.length; w += 1) {
     weeks.push({
       seasonType: PICKEM_SEASON_TYPE_PLAYOFFS,
       weekNumber: w,
-      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_PLAYOFFS),
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_PLAYOFFS, "nfl"),
+    });
+  }
+  return weeks;
+}
+
+/** Full MLB calendar — regular season + playoffs. */
+export function mlbSeasonWeekSpecs(): PickemSeasonWeekSpec[] {
+  const weeks: PickemSeasonWeekSpec[] = [];
+  for (let w = 1; w <= MLB_REGULAR_WEEKS; w += 1) {
+    weeks.push({
+      seasonType: PICKEM_SEASON_TYPE_REGULAR,
+      weekNumber: w,
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_REGULAR, "mlb"),
+    });
+  }
+  for (let w = 1; w <= MLB_PLAYOFF_LABELS.length; w += 1) {
+    weeks.push({
+      seasonType: PICKEM_SEASON_TYPE_PLAYOFFS,
+      weekNumber: w,
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_PLAYOFFS, "mlb"),
     });
   }
   return weeks;

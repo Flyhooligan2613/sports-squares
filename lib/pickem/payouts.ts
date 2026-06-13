@@ -15,6 +15,7 @@ import {
   getPickemPlayerStats,
   upsertPickemPlayerStats,
 } from "@/lib/pickem/db/stats";
+import { getPickemSportConfig } from "@/lib/pickem/config";
 import type { PickemContest, PickemSport } from "@/lib/pickem/types";
 
 export interface PickemPayoutResult {
@@ -320,19 +321,23 @@ export async function syncPickemProfileStats(
   seasonYear: number
 ): Promise<void> {
   const stats = await getPickemPlayerStats(email, sport, seasonYear);
+  const config = getPickemSportConfig(sport);
+  const gameType = config.platformGameId;
   const existing = await import("@/lib/database/services/playerGameStats").then(
-    (m) => m.getPlayerGameStats(email, "pickem")
+    (m) => m.getPlayerGameStats(email, gameType)
   );
 
   await upsertPlayerGameStats(email, {
-    gameType: "pickem",
+    gameType,
     wins: stats.seasonWins,
     winningsCents: existing.winningsCents,
     gamesPlayed: stats.weeksPlayed,
     currentStreak: stats.currentStreak,
     longestStreak: stats.longestStreak,
     extra: {
-      pickemWins: stats.lifetimePickemWins,
+      ...(sport === "mlb"
+        ? { baseballPickemWins: stats.lifetimePickemWins }
+        : { pickemWins: stats.lifetimePickemWins }),
       pickAccuracyPct: Math.round(stats.pickAccuracyPct * 10),
       perfectWeeks: stats.perfectWeeks,
       seasonChampionships: stats.seasonChampionships,

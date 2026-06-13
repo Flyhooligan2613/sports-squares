@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
+import { resolvePickemSportFromRequest, assertPickemSportEnabled } from "@/lib/pickem/resolveSport";
 import { ensureCurrentPickemContest } from "@/lib/pickem/engine/syncContest";
 import { buildPickemOverview } from "@/lib/pickem/weekView";
 import { buildPickemWeekView } from "@/lib/pickem/weekView";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   noStore();
   try {
-    const contest = await ensureCurrentPickemContest(DEFAULT_PICKEM_SPORT);
+    const sport = resolvePickemSportFromRequest(request);
+    assertPickemSportEnabled(sport);
+    const contest = await ensureCurrentPickemContest(sport);
     if (!contest) {
       return NextResponse.json({ error: "No Pick'em contest available." }, { status: 404 });
     }
@@ -22,7 +24,7 @@ export async function GET() {
     } = await supabase.auth.getUser();
 
     const [overview, week] = await Promise.all([
-      buildPickemOverview(DEFAULT_PICKEM_SPORT, contest),
+      buildPickemOverview(sport, contest),
       buildPickemWeekView({ contest, email: user?.email ?? null }),
     ]);
 

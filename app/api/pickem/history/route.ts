@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPickemHistorySummary } from "@/lib/pickem/db/history";
+import { resolvePickemSportFromRequest, assertPickemSportEnabled } from "@/lib/pickem/resolveSport";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   noStore();
+  const sport = resolvePickemSportFromRequest(request);
+  assertPickemSportEnabled(sport);
 
   const supabase = await createClient();
   const {
@@ -19,7 +22,7 @@ export async function GET() {
   }
 
   try {
-    const summary = await getPickemHistorySummary(user.email);
+    const summary = await getPickemHistorySummary(user.email, sport);
     return NextResponse.json(summary);
   } catch (err) {
     console.error("[pickem/history]", err);

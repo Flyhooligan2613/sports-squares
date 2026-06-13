@@ -31,7 +31,7 @@ import {
 import { seedPickemSeason } from "@/lib/pickem/engine/seedSeason";
 import { processContestResolution } from "@/lib/pickem/engine/resolution";
 import { maybeArchivePickemSeason } from "@/lib/pickem/engine/archiveSeason";
-import { allSundaySlateGamesFinal, getMondayNightGame } from "@/lib/pickem/mondayNight";
+import { allMainSlateGamesFinal, getTiebreakerGame } from "@/lib/pickem/tiebreakerGame";
 import {
   syncPickemProfileStats,
 } from "@/lib/pickem/payouts";
@@ -86,6 +86,7 @@ async function syncSinglePickemContest(
     sport,
     week: contest.weekNumber,
     seasonType: contest.seasonType,
+    seasonYear: contest.seasonYear,
   });
 
   const existing = await getPickemContestForWeek({
@@ -132,8 +133,8 @@ async function syncSinglePickemContest(
   const allFinal =
     imported.length > 0 && imported.every((g) => g.status === "final");
   const anyLive = imported.some((g) => g.status === "live");
-  const sundayComplete = allSundaySlateGamesFinal(imported);
-  const mondayGame = getMondayNightGame(imported);
+  const sundayComplete = allMainSlateGamesFinal(imported);
+  const mondayGame = getTiebreakerGame(imported);
   const mondayFinal = mondayGame?.status === "final";
 
   if (sundayComplete || mondayFinal) {

@@ -6,7 +6,8 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import { Button } from "@/components/ui/Button";
-import type { PickemWeekHistoryEntry } from "@/lib/pickem/types";
+import type { PickemWeekHistoryEntry, PickemSport } from "@/lib/pickem/types";
+import { pickemApiUrl, pickemBasePath } from "@/lib/pickem/routes";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -38,7 +39,8 @@ function formatMemberSince(iso: string | null): string {
   }).format(new Date(iso));
 }
 
-export default function PickemHistoryClient() {
+export default function PickemHistoryClient({ sport = "nfl" }: { sport?: PickemSport }) {
+  const basePath = pickemBasePath(sport);
   const [data, setData] = useState<HistorySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function PickemHistoryClient() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/pickem/history", { cache: "no-store" });
+        const res = await fetch(pickemApiUrl("history", sport), { cache: "no-store" });
         if (res.status === 401) {
           setError("Sign in to view your Pick'em history.");
           return;
@@ -60,7 +62,7 @@ export default function PickemHistoryClient() {
       }
     }
     void load();
-  }, []);
+  }, [sport]);
 
   const stats = data
     ? [
@@ -92,7 +94,7 @@ export default function PickemHistoryClient() {
   return (
     <div className="pickem-page min-h-screen relative">
       <AmbientBackground />
-      <AppMenuBar logoHref="/pickem" />
+      <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <LandingGlassCard className="p-6 sm:p-8 mb-6">
@@ -109,7 +111,7 @@ export default function PickemHistoryClient() {
         {error ? (
           <LandingGlassCard className="p-5 mb-6 border border-emerald-500/30">
             <p className="text-emerald-200 text-sm mb-3">{error}</p>
-            <Button href="/my-games/login?next=/pickem/history">Sign in</Button>
+            <Button href={`/my-games/login?next=${encodeURIComponent(`${basePath}/history`)}`}>Sign in</Button>
           </LandingGlassCard>
         ) : null}
 
@@ -161,7 +163,7 @@ export default function PickemHistoryClient() {
             </LandingGlassCard>
 
             <div className="mt-8 text-center">
-              <Link href="/pickem" className="text-sm text-sb-muted hover:text-white">
+              <Link href={basePath} className="text-sm text-sb-muted hover:text-white">
                 ← Pick&apos;em Home
               </Link>
             </div>

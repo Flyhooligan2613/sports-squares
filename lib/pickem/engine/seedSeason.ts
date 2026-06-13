@@ -1,7 +1,7 @@
 import {
   DEFAULT_PICKEM_SPORT,
   getPickemSportConfig,
-  nflSeasonWeekSpecs,
+  pickemSeasonWeekSpecs,
   PICKEM_DEFAULT_PRIZE_POOL_CENTS,
   PICKEM_SEASON_TYPE_PLAYOFFS,
   PICKEM_SEASON_TYPE_REGULAR,
@@ -39,16 +39,7 @@ export async function seedPickemSeason(
   let contestsCreated = 0;
   let contestsExisting = 0;
 
-  const specs =
-    sport === "nfl"
-      ? nflSeasonWeekSpecs()
-      : [
-          {
-            seasonType: config.defaultSeasonType,
-            weekNumber: 1,
-            label: "Week 1",
-          },
-        ];
+  const specs = pickemSeasonWeekSpecs(sport);
 
   for (const spec of specs) {
     const existing = await getPickemContestForWeek({

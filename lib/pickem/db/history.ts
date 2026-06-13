@@ -80,7 +80,10 @@ export async function listPickemWeekHistory(
   return (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
 }
 
-export async function getPickemHistorySummary(email: string): Promise<{
+export async function getPickemHistorySummary(
+  email: string,
+  sport: PickemSport = "nfl"
+): Promise<{
   seasonRecord: string;
   bestFinish: number | null;
   perfectWeeks: number;
@@ -101,8 +104,10 @@ export async function getPickemHistorySummary(email: string): Promise<{
   const supabase = getSupabaseAdmin();
   const normalized = normalizeEmail(email);
   const seasonYear = new Date().getFullYear();
-  const stats = await getPickemPlayerStats(email, "nfl", seasonYear);
-  const weeks = await listPickemWeekHistory(email);
+  const stats = await getPickemPlayerStats(email, sport, seasonYear);
+  const weeks = await listPickemWeekHistory(email).then((rows) =>
+    rows.filter((row) => row.sport === sport)
+  );
 
   const { data: profile } = await supabase
     .from("player_profiles")
@@ -111,13 +116,13 @@ export async function getPickemHistorySummary(email: string): Promise<{
     .maybeSingle();
 
   const globalRank = await getSeasonRankForPlayer({
-    sport: "nfl",
+    sport,
     seasonYear,
     email,
   });
 
   const usBoard = await getPickemLeaderboard({
-    sport: "nfl",
+    sport,
     seasonYear,
     scope: "united-states",
     period: "season",

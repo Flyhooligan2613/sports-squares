@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
-import type { PickemOverviewStats, PickemWeekView } from "@/lib/pickem/types";
+import type { PickemOverviewStats, PickemSport, PickemWeekView } from "@/lib/pickem/types";
+import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -44,7 +45,9 @@ const FEATURES = [
   },
 ];
 
-export default function PickemLandingClient() {
+export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemSport }) {
+  const basePath = pickemBasePath(sport);
+  const sportLabel = pickemSportLabel(sport);
   const [overview, setOverview] = useState<PickemOverviewStats | null>(null);
   const [week, setWeek] = useState<PickemWeekView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +55,7 @@ export default function PickemLandingClient() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/pickem/overview", { cache: "no-store" });
+        const res = await fetch(pickemApiUrl("overview", sport), { cache: "no-store" });
         if (!res.ok) return;
         const json = (await res.json()) as {
           overview: PickemOverviewStats;
@@ -65,20 +68,20 @@ export default function PickemLandingClient() {
       }
     }
     void load();
-  }, []);
+  }, [sport]);
 
   return (
     <div className="pickem-page min-h-screen relative">
       <AmbientBackground className="pickem-ambient-green" />
-      <AppMenuBar logoHref="/pickem" />
+      <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10">
         <LandingSection variant="glow" className="pt-8 sm:pt-12">
           <ExperienceHero
             badgeLabel="Flagship Game #2"
             badgeVariant="live"
-            title="SquareBoards Pick'em"
-            subtitle="Predict every NFL winner. Build winning streaks. Compete worldwide."
+            title={sport === "mlb" ? "MLB Pick'em" : "SquareBoards Pick'em"}
+            subtitle={`Predict every ${sportLabel} winner. Build winning streaks. Compete worldwide.`}
             stats={
               overview
                 ? [
@@ -89,21 +92,21 @@ export default function PickemLandingClient() {
                   ]
                 : undefined
             }
-            cta={{ label: "Play This Week", href: "/pickem/week" }}
+            cta={{ label: "Play This Week", href: `${basePath}/week` }}
           />
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            <Button href="/pickem/week">Play This Week</Button>
-            <Button href="/pickem/week" variant="secondary">
+            <Button href={`${basePath}/week`}>Play This Week</Button>
+            <Button href={`${basePath}/week`} variant="secondary">
               My Picks
             </Button>
-            <Button href="/pickem/leaderboards" variant="secondary">
+            <Button href={`${basePath}/leaderboards`} variant="secondary">
               Leaderboards
             </Button>
-            <Button href="/pickem/history" variant="secondary">
+            <Button href={`${basePath}/history`} variant="secondary">
               My Profile
             </Button>
-            <Button href="/pickem/hall-of-fame" variant="secondary">
+            <Button href={`${basePath}/hall-of-fame`} variant="secondary">
               Hall of Fame
             </Button>
           </div>

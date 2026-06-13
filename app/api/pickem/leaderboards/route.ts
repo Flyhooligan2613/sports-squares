@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
+import { resolvePickemSportFromRequest, assertPickemSportEnabled } from "@/lib/pickem/resolveSport";
 import { ensureCurrentPickemContest } from "@/lib/pickem/engine/syncContest";
 import { getPickemLeaderboardSuite } from "@/lib/pickem/leaderboards";
 import type {
@@ -20,9 +20,11 @@ export async function GET(request: Request) {
   const period = (searchParams.get("period") ?? "season") as PickemLeaderboardPeriod;
   const sort = (searchParams.get("sort") ?? "accuracy") as PickemLeaderboardSort;
   const suite = searchParams.get("suite") === "1";
+  const sport = resolvePickemSportFromRequest(request);
+  assertPickemSportEnabled(sport);
 
   try {
-    const contest = await ensureCurrentPickemContest(DEFAULT_PICKEM_SPORT);
+    const contest = await ensureCurrentPickemContest(sport);
     if (!contest) {
       return NextResponse.json({ error: "No contest found." }, { status: 404 });
     }
@@ -34,7 +36,7 @@ export async function GET(request: Request) {
 
     if (suite) {
       const boards = await getPickemLeaderboardSuite({
-        sport: DEFAULT_PICKEM_SPORT,
+        sport,
         seasonYear: contest.seasonYear,
         viewerEmail: user?.email ?? null,
         contestId: contest.id,
@@ -43,7 +45,7 @@ export async function GET(request: Request) {
     }
 
     const board = await getPickemLeaderboard({
-      sport: DEFAULT_PICKEM_SPORT,
+      sport,
       seasonYear: contest.seasonYear,
       scope,
       period,

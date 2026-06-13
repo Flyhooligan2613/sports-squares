@@ -12,7 +12,9 @@ import type {
   PickemLeaderboardPeriod,
   PickemLeaderboardScope,
   PickemLeaderboardSort,
+  PickemSport,
 } from "@/lib/pickem/types";
+import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
 
 const SCOPES: PickemLeaderboardScope[] = [
   "worldwide",
@@ -40,7 +42,9 @@ function rankAccent(rank: number): string {
   return "text-sb-muted";
 }
 
-export default function PickemLeaderboardsClient() {
+export default function PickemLeaderboardsClient({ sport = "nfl" }: { sport?: PickemSport }) {
+  const basePath = pickemBasePath(sport);
+  const sportLabel = pickemSportLabel(sport);
   const [scope, setScope] = useState<PickemLeaderboardScope>("worldwide");
   const [period, setPeriod] = useState<PickemLeaderboardPeriod>("season");
   const [sort, setSort] = useState<PickemLeaderboardSort>("accuracy");
@@ -63,7 +67,7 @@ export default function PickemLeaderboardsClient() {
 
     async function load() {
       try {
-        const res = await fetch(`/api/pickem/leaderboards?${query}`, {
+        const res = await fetch(pickemApiUrl(`leaderboards?${query}`, sport), {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed");
@@ -80,12 +84,12 @@ export default function PickemLeaderboardsClient() {
     return () => {
       cancelled = true;
     };
-  }, [query]);
+  }, [query, sport]);
 
   return (
     <div className="pickem-page min-h-screen relative">
       <AmbientBackground />
-      <AppMenuBar logoHref="/pickem" />
+      <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <ExperienceHero

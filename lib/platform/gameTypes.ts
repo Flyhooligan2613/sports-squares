@@ -80,13 +80,14 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   },
   {
     id: "baseball-pickem",
-    name: "Baseball Pick'em",
+    name: "MLB Pick'em",
     description:
-      "Daily MLB picks with streak bonuses and season-long rankings.",
+      "Predict every MLB winner each week. Build streaks, climb leaderboards, and compete all season — no spreads, no odds, just winners.",
     icon: "⚾",
-    status: "coming_soon",
-    href: null,
+    status: "available",
+    href: "/baseball-pickem",
     accent: "#ef4444",
+    navBadge: "new",
     statKeys: ["baseballPickemWins"],
   },
   {
@@ -112,8 +113,16 @@ export function isPlatformGameAvailable(id: PlatformGameId): boolean {
   return getPlatformGame(id).status === "available";
 }
 
+export function isBaseballPickemRoute(pathname: string): boolean {
+  return pathname === "/baseball-pickem" || pathname.startsWith("/baseball-pickem/");
+}
+
 export function isPickemRoute(pathname: string): boolean {
-  return pathname === "/pickem" || pathname.startsWith("/pickem/");
+  return (
+    pathname === "/pickem" ||
+    pathname.startsWith("/pickem/") ||
+    isBaseballPickemRoute(pathname)
+  );
 }
 
 export function isSquareBoardsRoute(pathname: string): boolean {
@@ -133,6 +142,7 @@ export function isPlatformGameNavActive(
 ): boolean {
   if (game.status !== "available" || !game.href) return false;
   if (game.id === "squareboards") return isSquareBoardsRoute(pathname);
-  if (game.id === "pickem") return isPickemRoute(pathname);
+  if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname);
+  if (game.id === "baseball-pickem") return isBaseballPickemRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);
 }

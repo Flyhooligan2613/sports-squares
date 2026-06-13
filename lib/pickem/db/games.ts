@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { identifyMondayNightEspnGameId } from "@/lib/pickem/mondayNight";
+import { getPickemContestById } from "@/lib/pickem/db/contests";
+import { identifyTiebreakerEspnGameId } from "@/lib/pickem/tiebreakerGame";
 import type { PickemGame, PickemGameStatus, PickemScheduleGame } from "@/lib/pickem/types";
 
 const TABLE = "pickem_games";
@@ -65,7 +66,9 @@ export async function upsertPickemGames(
   games: PickemScheduleGame[]
 ): Promise<PickemGame[]> {
   const supabase = getSupabaseAdmin();
-  const mondayEspnId = identifyMondayNightEspnGameId(games);
+  const contest = await getPickemContestById(contestId);
+  const sport = contest?.sport ?? "nfl";
+  const tiebreakerEspnId = identifyTiebreakerEspnGameId(sport, games);
   const rows = games.map((game) => ({
     contest_id: contestId,
     espn_game_id: game.espnGameId,
@@ -82,7 +85,7 @@ export async function upsertPickemGames(
     winner_side: game.winnerSide,
     away_score: game.awayScore,
     home_score: game.homeScore,
-    is_monday_night: game.espnGameId === mondayEspnId,
+    is_monday_night: game.espnGameId === tiebreakerEspnId,
     updated_at: new Date().toISOString(),
   }));
 

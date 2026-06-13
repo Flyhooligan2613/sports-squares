@@ -115,7 +115,7 @@ export async function upsertPickemContest(input: {
   const supabase = getSupabaseAdmin();
   const label =
     input.label ??
-    formatPickemWeekLabel(input.weekNumber, input.seasonType);
+    formatPickemWeekLabel(input.weekNumber, input.seasonType, input.sport);
 
   const { data, error } = await supabase
     .from(TABLE)

@@ -9,7 +9,8 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import { Button } from "@/components/ui/Button";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
-import type { PickemGame, PickemPlayerPoolStatus } from "@/lib/pickem/types";
+import type { PickemGame, PickemPlayerPoolStatus, PickemSport } from "@/lib/pickem/types";
+import { pickemBasePath } from "@/lib/pickem/routes";
 import {
   PICKEM_CHAMPIONSHIP_BANNER,
   PICKEM_CHAMPIONSHIP_CONGRATS,
@@ -71,7 +72,8 @@ interface TiebreakerPayload {
   playersRemaining: number;
 }
 
-export default function PickemTiebreakerClient() {
+export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: PickemSport }) {
+  const basePath = pickemBasePath(sport);
   const searchParams = useSearchParams();
   const contestId = searchParams.get("contestId");
   const entryTierCents = parseEntryTierParam(searchParams.get("tier"));
@@ -149,7 +151,7 @@ export default function PickemTiebreakerClient() {
   return (
     <div className="pickem-page min-h-screen relative">
       <AmbientBackground />
-      <AppMenuBar logoHref="/pickem" />
+      <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <LandingGlassCard className="p-6 sm:p-8 mb-6 text-center border border-amber-500/30 bg-amber-500/5 pickem-championship-banner">
@@ -316,12 +318,12 @@ export default function PickemTiebreakerClient() {
 
             <div className="flex flex-wrap justify-center gap-3">
               <Button
-                href={`/pickem/week?contestId=${encodeURIComponent(contestId ?? "")}&tier=${entryTierCents}`}
+                href={`${basePath}/week?contestId=${encodeURIComponent(contestId ?? "")}&tier=${entryTierCents}`}
                 variant="secondary"
               >
                 Back to picks
               </Button>
-              <Link href="/pickem/history" className="text-sm text-sb-muted hover:text-white">
+              <Link href={`${basePath}/history`} className="text-sm text-sb-muted hover:text-white">
                 View history
               </Link>
             </div>

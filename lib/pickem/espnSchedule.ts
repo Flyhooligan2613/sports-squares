@@ -11,6 +11,11 @@ import {
   getPickemSportConfig,
   pickemScoreboardUrl,
 } from "@/lib/pickem/config";
+import {
+  formatEspnDateParam,
+  getCurrentMlbWeekNumber,
+  getMlbWeekDateRange,
+} from "@/lib/pickem/mlbCalendar";
 import type { PickemSport } from "@/lib/pickem/types";
 
 function parseRecord(competitor: {
@@ -50,12 +55,21 @@ function resolveWinnerSide(
 
 export function parsePickemScoreboardMeta(
   data: EspnScoreboardResponse,
-  sport: PickemSport = DEFAULT_PICKEM_SPORT
+  sport: PickemSport = DEFAULT_PICKEM_SPORT,
+  weekOverride?: number,
+  seasonYearOverride?: number
 ): PickemScoreboardMeta {
   const config = getPickemSportConfig(sport);
+  const seasonYear = seasonYearOverride ?? data.season?.year ?? new Date().getFullYear();
+  const weekNumber =
+    weekOverride ??
+    (sport === "mlb"
+      ? getCurrentMlbWeekNumber(seasonYear)
+      : data.week?.number ?? 1);
+
   return {
-    weekNumber: data.week?.number ?? 1,
-    seasonYear: data.season?.year ?? new Date().getFullYear(),
+    weekNumber,
+    seasonYear,
     seasonType: data.season?.type ?? config.defaultSeasonType,
   };
 }
@@ -114,17 +128,28 @@ export async function fetchPickemScoreboard(input?: {
   sport?: PickemSport;
   week?: number;
   seasonType?: number;
+  seasonYear?: number;
 }): Promise<{
   meta: PickemScoreboardMeta;
   games: PickemScheduleGame[];
 }> {
   const sport = input?.sport ?? DEFAULT_PICKEM_SPORT;
   const config = getPickemSportConfig(sport);
-  const url = pickemScoreboardUrl(
-    sport,
-    input?.week,
-    input?.seasonType ?? config.defaultSeasonType
-  );
+  const seasonType = input?.seasonType ?? config.defaultSeasonType;
+  const seasonYear = input?.seasonYear ?? new Date().getFullYear();
+
+  let url: string;
+  let weekOverride: number | undefined = input?.week;
+
+  if (sport === "mlb") {
+    const weekNumber = input?.week ?? getCurrentMlbWeekNumber(seasonYear);
+    weekOverride = weekNumber;
+    const { weekStart, weekEnd } = getMlbWeekDateRange(seasonYear, weekNumber);
+    const dates = `${formatEspnDateParam(weekStart)}-${formatEspnDateParam(weekEnd)}`;
+    url = pickemScoreboardUrl(sport, undefined, undefined, dates);
+  } else {
+    url = pickemScoreboardUrl(sport, input?.week, seasonType);
+  }
 
   const response = await fetch(url, {
     headers: { "User-Agent": "SquareBoards-Pickem/1.0" },
@@ -137,7 +162,7 @@ export async function fetchPickemScoreboard(input?: {
 
   const data = (await response.json()) as EspnScoreboardResponse;
   return {
-    meta: parsePickemScoreboardMeta(data, sport),
+    meta: parsePickemScoreboardMeta(data, sport, weekOverride, seasonYear),
     games: parsePickemScheduleGames(data),
   };
 }

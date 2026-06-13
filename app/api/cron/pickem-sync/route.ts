@@ -23,13 +23,19 @@ async function runPickemSync(request: Request) {
 
   try {
     const result = await syncAllPickemContests(DEFAULT_PICKEM_SPORT);
+    let mlbResult = null;
+    try {
+      mlbResult = await syncAllPickemContests("mlb");
+    } catch (mlbErr) {
+      console.error("[pickem-sync] mlb", mlbErr);
+    }
     let announcements = null;
     try {
       announcements = await runAnnouncementAutomation();
     } catch (announcementErr) {
       console.error("[pickem-sync] announcement automation", announcementErr);
     }
-    return NextResponse.json({ ok: true, result, announcements });
+    return NextResponse.json({ ok: true, result, mlbResult, announcements });
   } catch (err) {
     console.error("[pickem-sync]", err);
     const message =

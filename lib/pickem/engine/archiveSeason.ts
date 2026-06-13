@@ -1,15 +1,18 @@
 import { listPickemContestsForSeason } from "@/lib/pickem/db/contests";
 import { archivePickemSeason } from "@/lib/pickem/db/hallOfFame";
 import {
-  PICKEM_SEASON_TYPE_PLAYOFFS,
+  MLB_PLAYOFF_LABELS,
   NFL_PLAYOFF_LABELS,
+  PICKEM_SEASON_TYPE_PLAYOFFS,
 } from "@/lib/pickem/config";
 import type { PickemSport } from "@/lib/pickem/types";
 
-const SUPER_BOWL_WEEK = NFL_PLAYOFF_LABELS.length;
+function championshipWeekForSport(sport: PickemSport): number {
+  return sport === "mlb" ? MLB_PLAYOFF_LABELS.length : NFL_PLAYOFF_LABELS.length;
+}
 
 /**
- * After Super Bowl completes, archive the full season to Hall of Fame.
+ * After championship week completes, archive the full season to Hall of Fame.
  */
 export async function maybeArchivePickemSeason(input: {
   sport: PickemSport;
@@ -18,11 +21,11 @@ export async function maybeArchivePickemSeason(input: {
   weekNumber: number;
   contestStatus: string;
 }): Promise<{ archived: boolean }> {
-  const isSuperBowl =
+  const isChampionship =
     input.seasonType === PICKEM_SEASON_TYPE_PLAYOFFS &&
-    input.weekNumber === SUPER_BOWL_WEEK;
+    input.weekNumber === championshipWeekForSport(input.sport);
 
-  if (!isSuperBowl || input.contestStatus !== "complete") {
+  if (!isChampionship || input.contestStatus !== "complete") {
     return { archived: false };
   }
 

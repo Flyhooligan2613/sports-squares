@@ -7,7 +7,8 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
-import type { PickemSeasonArchive, PickemSeasonStanding } from "@/lib/pickem/types";
+import type { PickemSeasonArchive, PickemSeasonStanding, PickemSport } from "@/lib/pickem/types";
+import { pickemApiUrl, pickemBasePath } from "@/lib/pickem/routes";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -17,7 +18,8 @@ function formatMoney(cents: number): string {
   }).format(cents / 100);
 }
 
-export default function PickemHallOfFameClient() {
+export default function PickemHallOfFameClient({ sport = "nfl" }: { sport?: PickemSport }) {
+  const basePath = pickemBasePath(sport);
   const [seasons, setSeasons] = useState<PickemSeasonArchive[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [archive, setArchive] = useState<PickemSeasonArchive | null>(null);
@@ -26,7 +28,7 @@ export default function PickemHallOfFameClient() {
 
   useEffect(() => {
     async function loadSeasons() {
-      const res = await fetch("/api/pickem/hall-of-fame", { cache: "no-store" });
+      const res = await fetch(pickemApiUrl("hall-of-fame", sport), { cache: "no-store" });
       if (!res.ok) {
         setLoading(false);
         return;
@@ -39,13 +41,13 @@ export default function PickemHallOfFameClient() {
       setLoading(false);
     }
     void loadSeasons();
-  }, []);
+  }, [sport]);
 
   useEffect(() => {
     if (selectedYear == null) return;
     async function loadDetail() {
       const res = await fetch(
-        `/api/pickem/hall-of-fame?seasonYear=${selectedYear}`,
+        pickemApiUrl(`hall-of-fame?seasonYear=${selectedYear}`, sport),
         { cache: "no-store" }
       );
       if (!res.ok) {
@@ -61,12 +63,12 @@ export default function PickemHallOfFameClient() {
       setStandings(data.standings);
     }
     void loadDetail();
-  }, [selectedYear]);
+  }, [selectedYear, sport]);
 
   return (
     <div className="pickem-page min-h-screen relative">
       <AmbientBackground />
-      <AppMenuBar logoHref="/pickem" />
+      <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <ExperienceHero
@@ -178,10 +180,10 @@ export default function PickemHallOfFameClient() {
         )}
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/pickem" className="text-sm text-sb-muted hover:text-white">
+          <Link href={basePath} className="text-sm text-sb-muted hover:text-white">
             ← Pick&apos;em Home
           </Link>
-          <Link href="/pickem/history" className="text-sm text-sb-muted hover:text-white">
+          <Link href={`${basePath}/history`} className="text-sm text-sb-muted hover:text-white">
             My History
           </Link>
         </div>

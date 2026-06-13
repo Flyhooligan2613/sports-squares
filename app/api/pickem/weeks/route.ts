@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
-import { DEFAULT_PICKEM_SPORT } from "@/lib/pickem/config";
+import { resolvePickemSportFromRequest, assertPickemSportEnabled } from "@/lib/pickem/resolveSport";
 import {
   ensureCurrentPickemContest,
   listPickemWeeksForSeason,
@@ -8,16 +8,18 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   noStore();
   try {
-    const current = await ensureCurrentPickemContest(DEFAULT_PICKEM_SPORT);
+    const sport = resolvePickemSportFromRequest(request);
+    assertPickemSportEnabled(sport);
+    const current = await ensureCurrentPickemContest(sport);
     if (!current) {
       return NextResponse.json({ error: "No contest found." }, { status: 404 });
     }
 
     const weeks = await listPickemWeeksForSeason({
-      sport: DEFAULT_PICKEM_SPORT,
+      sport,
       seasonYear: current.seasonYear,
     });
 

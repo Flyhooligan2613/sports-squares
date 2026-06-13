@@ -15,7 +15,8 @@ import PickemMyPoolStatus from "@/components/pickem/PickemMyPoolStatus";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
 import { PICKEM_CHAMPIONSHIP_BANNER } from "@/lib/pickem/copy";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
-import type { PickemMyPicksSummary, PickemSide, PickemWeekView } from "@/lib/pickem/types";
+import type { PickemMyPicksSummary, PickemSide, PickemSport, PickemWeekView } from "@/lib/pickem/types";
+import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
@@ -42,15 +43,17 @@ function WeekSelector({
   weeks,
   selectedId,
   onChange,
+  sportLabel,
 }: {
   weeks: PickemWeekOption[];
   selectedId: string;
   onChange: (contestId: string) => void;
+  sportLabel: string;
 }) {
   return (
     <LandingGlassCard className="p-4 mb-6">
       <label htmlFor="pickem-week-select" className="block text-xs uppercase tracking-wider text-sb-muted mb-2">
-        Select NFL Week
+        Select {sportLabel} Week
       </label>
       <select
         id="pickem-week-select"
@@ -120,8 +123,10 @@ function MyPicksPanel({ summary }: { summary: PickemMyPicksSummary }) {
   );
 }
 
-export default function PickemWeekClient() {
+export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSport }) {
   const router = useRouter();
+  const basePath = pickemBasePath(sport);
+  const sportLabel = pickemSportLabel(sport);
   const searchParams = useSearchParams();
   const contestIdParam = searchParams.get("contestId");
   const entryTierCents = parseEntryTierParam(searchParams.get("tier"));
@@ -168,7 +173,7 @@ export default function PickemWeekClient() {
   }, []);
 
   const loadWeeks = useCallback(async () => {
-    const res = await fetch("/api/pickem/weeks", { cache: "no-store" });
+    const res = await fetch(pickemApiUrl("weeks", sport), { cache: "no-store" });
     if (!res.ok) return null;
     const json = (await res.json()) as {
       weeks: PickemWeekOption[];
@@ -176,7 +181,7 @@ export default function PickemWeekClient() {
     };
     setWeeks(json.weeks);
     return json;
-  }, []);
+  }, [sport]);
 
   const load = useCallback(async () => {
     setError(null);
@@ -193,8 +198,9 @@ export default function PickemWeekClient() {
       const params = new URLSearchParams();
       if (contestId) params.set("contestId", contestId);
       params.set("tier", String(entryTierCents));
-      const query = params.toString() ? `?${params.toString()}` : "";
-      const res = await fetch(`/api/pickem/week${query}`, { cache: "no-store" });
+      const res = await fetch(pickemApiUrl(`week?${params.toString()}`, sport), {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Failed to load picks.");
       setWeek((await res.json()) as PickemWeekView);
     } catch (err) {
@@ -202,7 +208,7 @@ export default function PickemWeekClient() {
     } finally {
       setLoading(false);
     }
-  }, [contestIdParam, entryTierCents, loadWeeks, selectedContestId, weeks]);
+  }, [contestIdParam, entryTierCents, loadWeeks, selectedContestId, sport, weeks]);
 
   useEffect(() => {
     void load();
@@ -229,7 +235,7 @@ export default function PickemWeekClient() {
         setEntryPolling(false);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("entry_session_id");
-        router.replace(`/pickem/week?${params.toString()}`);
+        router.replace(`${basePath}/week?${params.toString()}`);
         await load();
         return;
       }
@@ -245,13 +251,13 @@ export default function PickemWeekClient() {
     return () => {
       cancelled = true;
     };
-  }, [entrySessionId, load, router, searchParams]);
+  }, [basePath, entrySessionId, load, router, searchParams]);
 
   function handleWeekChange(contestId: string) {
     setSelectedContestId(contestId);
     setLoading(true);
     router.push(
-      `/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}`
+      `${basePath}/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}`
     );
   }
 
@@ -259,7 +265,7 @@ export default function PickemWeekClient() {
     setLoading(true);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tier", String(cents));
-    router.push(`/pickem/week?${params.toString()}`);
+    router.push(`${basePath}/week?${params.toString()}`);
   }
 
   async function handleFastEntryCheckout() {
@@ -381,7 +387,7 @@ export default function PickemWeekClient() {
   return (
     <div className="pickem-page min-h-screen relative">
       <AmbientBackground />
-      <AppMenuBar logoHref="/pickem" />
+      <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {loading && !week ? (
@@ -401,7 +407,7 @@ export default function PickemWeekClient() {
             <p className="text-emerald-200 text-sm mb-3">
               Sign in to save your picks. One account works across SquareBoards and Pick&apos;em.
             </p>
-            <Button href="/my-games/login?next=/pickem/week">Sign in</Button>
+            <Button href={`/my-games/login?next=${encodeURIComponent(`${basePath}/week`)}`}>Sign in</Button>
           </LandingGlassCard>
         ) : null}
 
@@ -412,6 +418,7 @@ export default function PickemWeekClient() {
                 weeks={weeks}
                 selectedId={week.contest.id}
                 onChange={handleWeekChange}
+                sportLabel={sportLabel}
               />
             ) : null}
 
@@ -476,7 +483,7 @@ export default function PickemWeekClient() {
                   Championship Tiebreaker prediction before kickoff.
                 </p>
                 <Button
-                  href={`/pickem/tiebreaker?contestId=${encodeURIComponent(week.contest.id)}&tier=${entryTierCents}`}
+                  href={`${basePath}/tiebreaker?contestId=${encodeURIComponent(week.contest.id)}&tier=${entryTierCents}`}
                 >
                   Championship Tiebreaker
                 </Button>
@@ -536,13 +543,13 @@ export default function PickemWeekClient() {
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button href="/pickem/leaderboards" variant="secondary">
+              <Button href={`${basePath}/leaderboards`} variant="secondary">
                 View Leaderboards
               </Button>
-              <Button href="/pickem/history" variant="secondary">
+              <Button href={`${basePath}/history`} variant="secondary">
                 My History
               </Button>
-              <Link href="/pickem" className="text-sm text-sb-muted hover:text-white">
+              <Link href={basePath} className="text-sm text-sb-muted hover:text-white">
                 ← Pick&apos;em Home
               </Link>
             </div>
