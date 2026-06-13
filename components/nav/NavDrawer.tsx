@@ -119,7 +119,7 @@ export default function NavDrawer() {
                   })}
                 </ul>
               </div>
-              {section.id === "main" ? <NavGamesSection /> : null}
+              {section.id === "player" ? <NavGamesSection /> : null}
             </Fragment>
           ))}
         </nav>

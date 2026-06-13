@@ -18,18 +18,26 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Main",
     items: [
       { href: "/", label: "Home", icon: "🏠" },
+      { href: "/my-games", label: "My Games", icon: "🎮", requiresAuth: true },
       { href: "/live-tv", label: "Live TV", icon: "📺", badgeKey: "live" },
       { href: "/action-center", label: "Action Center", icon: "⚡" },
       { href: "/live-winners", label: "Winners Center", icon: "🏆" },
       { href: "/leaderboards", label: "Leaderboards", icon: "📊" },
-      { href: "/my-games", label: "My Games", icon: "🎮", requiresAuth: true },
-      {
-        href: "/my-games/notifications",
-        label: "Notifications",
-        icon: "🔔",
-        badgeKey: "notifications",
-        requiresAuth: true,
-      },
+    ],
+  },
+  {
+    id: "player",
+    title: "Player",
+    items: [
+      { href: "/my-games/profile", label: "My Profile", icon: "👤", requiresAuth: true },
+      { href: "/my-games/rewards", label: "Rewards", icon: "🎁", requiresAuth: true },
+      { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐", requiresAuth: true },
+      { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎", requiresAuth: true },
+      { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒", requiresAuth: true },
+      { href: "/my-games/rewards/mystery-box", label: "Mystery Boxes", icon: "🎲", requiresAuth: true },
+      { href: "/my-games/referrals", label: "Invite Friends", icon: "👥", requiresAuth: true },
+      { href: "/my-games/winnings", label: "My Winnings", icon: "💰", requiresAuth: true },
+      { href: "/my-games/history", label: "Win History", icon: "📜", requiresAuth: true },
     ],
   },
   {
@@ -46,17 +54,15 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Support",
     items: [
       { href: "/support/help-center", label: "Support", icon: "💬" },
-      { href: "/support/messages", label: "Message Center", icon: "📨", badgeKey: "messages" },
-      { href: "/contact", label: "Contact", icon: "📞" },
+      { href: "/support/messages", label: "Messages", icon: "📨", badgeKey: "messages" },
+      { href: "/contact", label: "Contact", icon: "☎️" },
     ],
   },
   {
     id: "account",
     title: "Account",
     items: [
-      { href: "/my-games/winnings", label: "My Winnings", icon: "💰", requiresAuth: true },
-      { href: "/my-games/history", label: "Win History", icon: "🧾", requiresAuth: true },
-      { href: "/my-games/security", label: "Security", icon: "🔐", requiresAuth: true },
+      { href: "/my-games/security", label: "Security", icon: "🔒", requiresAuth: true },
       { href: "/my-games/profile", label: "Settings", icon: "⚙️", requiresAuth: true },
       { href: "/favorites", label: "Favorites", icon: "❤️" },
     ],
@@ -75,6 +81,9 @@ export const NAV_SECTIONS: NavSection[] = [
 export function isNavItemActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   if (href === "/my-games") return pathname === "/my-games";
+  if (href === "/my-games/rewards") {
+    return pathname === href;
+  }
   if (href.startsWith("/#")) return false;
   return pathname === href || pathname.startsWith(`${href}/`);
 }

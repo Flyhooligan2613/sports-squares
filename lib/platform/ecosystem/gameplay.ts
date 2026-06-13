@@ -7,6 +7,7 @@ import {
 } from "@/lib/platform/ecosystem/credits";
 import { processReferralGameplay } from "@/lib/platform/ecosystem/referrals";
 import { ensureWeeklyMysteryBox } from "@/lib/platform/ecosystem/mysteryBox";
+import { trackLifetimePurchase } from "@/lib/platform/ecosystem/progression";
 import type { GameplayEvent } from "@/lib/platform/ecosystem/types";
 
 export async function recordQualifiedGameplay(event: GameplayEvent): Promise<void> {
@@ -14,6 +15,7 @@ export async function recordQualifiedGameplay(event: GameplayEvent): Promise<voi
   if (event.amountCents <= 0) return;
 
   await recordWeeklyGameplay(email, event.amountCents);
+  await trackLifetimePurchase(email, event.amountCents);
 
   const credits = await gameplayToTierCredits(event.amountCents);
   if (credits > 0) {

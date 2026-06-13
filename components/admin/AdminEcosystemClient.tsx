@@ -22,6 +22,34 @@ export default function AdminEcosystemClient() {
       />
 
       <LandingGlassCard className="p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Active promotions</h3>
+        <div className="space-y-2">
+          {(config?.promotions as { title: string; slug: string; active: boolean }[] | undefined)?.map(
+            (promo) => (
+              <div key={promo.slug} className="flex justify-between text-sm border-b border-white/5 py-2">
+                <span className="text-white">{promo.title}</span>
+                <span className="text-sb-muted">{promo.active ? "Active" : "Inactive"}</span>
+              </div>
+            )
+          )}
+        </div>
+      </LandingGlassCard>
+
+      <LandingGlassCard className="p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Active promotions</h3>
+        <div className="space-y-2">
+          {(config?.promotions as { title: string; slug: string; active: boolean }[] | undefined)?.map(
+            (promo) => (
+              <div key={promo.slug} className="flex justify-between text-sm border-b border-white/5 py-2">
+                <span className="text-white">{promo.title}</span>
+                <span className="text-sb-muted">{promo.active ? "Active" : "Inactive"}</span>
+              </div>
+            )
+          )}
+        </div>
+      </LandingGlassCard>
+
+      <LandingGlassCard className="p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Rewards catalog</h3>
         <div className="space-y-2">
           {(config?.catalog as { title: string; creditCost: number; category: string }[] | undefined)?.map(

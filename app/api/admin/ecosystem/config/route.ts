@@ -4,6 +4,7 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { listRewardsCatalog } from "@/lib/platform/ecosystem/rewards";
 import { getAdminConfig, setAdminConfig } from "@/lib/platform/ecosystem/adminConfig";
 import { listTierDefinitions } from "@/lib/platform/ecosystem/tiers";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +13,23 @@ export async function GET() {
   if (!admin) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   if (!isSupabaseAdminConfigured()) return NextResponse.json({ catalog: [], tiers: [] });
 
-  const [catalog, tiers, referral, tierCredits, mysteryBox] = await Promise.all([
+  const [catalog, tiers, referral, tierCredits, mysteryBox, promotionsRes] = await Promise.all([
     listRewardsCatalog(),
     listTierDefinitions(),
     getAdminConfig("referral"),
     getAdminConfig("tier_credits"),
     getAdminConfig("mystery_box"),
+    getSupabaseAdmin().from("ecosystem_promotions").select("*").order("sort_order"),
   ]);
 
-  return NextResponse.json({ catalog, tiers, referral, tierCredits, mysteryBox });
+  return NextResponse.json({
+    catalog,
+    tiers,
+    referral,
+    tierCredits,
+    mysteryBox,
+    promotions: promotionsRes.data ?? [],
+  });
 }
 
 export async function PATCH(request: Request) {

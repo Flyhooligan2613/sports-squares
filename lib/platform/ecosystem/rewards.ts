@@ -2,8 +2,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { ensureEcosystemAccount, updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
 import { addSquareCredits, spendTierCredits } from "@/lib/platform/ecosystem/credits";
+import { addInventoryItem, incrementLifetimeRewards } from "@/lib/platform/ecosystem/inventory";
 import type { RewardsCatalogItem } from "@/lib/platform/ecosystem/types";
-
 function mapCatalog(row: Record<string, unknown>): RewardsCatalogItem {
   return {
     id: row.id as string,
@@ -82,6 +82,14 @@ export async function redeemReward(input: {
         source: "reward_redemption",
         metadata: { catalogSlug: catalog.slug },
       });
+      await addInventoryItem({
+        email: input.email,
+        itemType: "square_credit",
+        title: catalog.title,
+        valueCents: amountCents,
+        source: "marketplace",
+        metadata: { slug: catalog.slug },
+      });
     }
   }
 
@@ -91,7 +99,24 @@ export async function redeemReward(input: {
     await updateEcosystemProfile(input.email, {
       pickem_credits_cents: current + entryTierCents,
     });
+    await addInventoryItem({
+      email: input.email,
+      itemType: "pickem_entry",
+      title: catalog.title,
+      valueCents: entryTierCents,
+      source: "marketplace",
+    });
   }
+
+  await addInventoryItem({
+    email: input.email,
+    itemType: "tier_reward",
+    title: `Redeemed: ${catalog.title}`,
+    source: "marketplace",
+    metadata: { redemptionId: redemption.id as string },
+  });
+
+  await incrementLifetimeRewards(input.email, catalog.creditCost);
 
   await supabase
     .from("ecosystem_reward_redemptions")

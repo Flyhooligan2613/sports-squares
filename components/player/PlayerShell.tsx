@@ -2,32 +2,20 @@
 
 import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
-import type { PlayerDashboardData } from "@/lib/player/dashboardTypes";
+import PlayerAvatar from "@/components/player/PlayerAvatar";
 
 interface PlayerShellProps {
   children: React.ReactNode;
   userEmail?: string;
   displayName?: string;
-}
-
-function initialsFromUser(email?: string, name?: string): string {
-  if (name?.trim()) {
-    const parts = name.trim().split(/\s+/);
-    return parts
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase() ?? "")
-      .join("");
-  }
-  return (email?.[0] ?? "P").toUpperCase();
+  avatarEmoji?: string;
 }
 
 export default function PlayerShell({
   children,
   userEmail,
-  displayName,
+  avatarEmoji,
 }: PlayerShellProps) {
-  const initials = initialsFromUser(userEmail, displayName);
-
   return (
     <div className="player-shell min-h-screen flex flex-col">
       <AppMenuBar
@@ -35,10 +23,10 @@ export default function PlayerShell({
         rightSlot={
           <Link
             href="/my-games/profile"
-            className="player-avatar shrink-0"
+            className="shrink-0"
             aria-label="Profile"
           >
-            {initials}
+            <PlayerAvatar emoji={avatarEmoji} size="md" />
           </Link>
         }
       />
@@ -51,11 +39,15 @@ export function PlayerShellFromData({
   data,
   children,
 }: {
-  data: Pick<PlayerDashboardData, "email" | "displayName">;
+  data: { email: string; displayName?: string; avatarEmoji?: string };
   children: React.ReactNode;
 }) {
   return (
-    <PlayerShell userEmail={data.email} displayName={data.displayName}>
+    <PlayerShell
+      userEmail={data.email}
+      displayName={data.displayName}
+      avatarEmoji={data.avatarEmoji}
+    >
       {children}
     </PlayerShell>
   );

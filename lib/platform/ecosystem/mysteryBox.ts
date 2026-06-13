@@ -2,6 +2,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { getAdminConfig } from "@/lib/platform/ecosystem/adminConfig";
 import { ensureEcosystemAccount, updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
+import { addInventoryItem } from "@/lib/platform/ecosystem/inventory";
 import { addSquareCredits, earnTierCredits } from "@/lib/platform/ecosystem/credits";
 import type { PlayerTierSlug } from "@/lib/platform/ecosystem/types";
 
@@ -98,15 +99,38 @@ export async function openMysteryBox(email: string): Promise<{ rewards: Record<s
         amount: Number(reward.amount),
         source: "mystery_box",
       });
+      await addInventoryItem({
+        email,
+        itemType: "tier_reward",
+        title: String(reward.label ?? "Tier Credits"),
+        quantity: Number(reward.amount) || 1,
+        source: "mystery_box",
+      });
     }
     if (reward.type === "square_credit") {
+      const amountCents = Number(reward.amount);
       await addSquareCredits({
         email,
-        amountCents: Number(reward.amount),
+        amountCents,
+        source: "mystery_box",
+      });
+      await addInventoryItem({
+        email,
+        itemType: "square_credit",
+        title: String(reward.label ?? "Square Credit"),
+        valueCents: amountCents,
         source: "mystery_box",
       });
     }
   }
+
+  await addInventoryItem({
+    email,
+    itemType: "mystery_box",
+    title: "Weekly Mystery Box",
+    source: "mystery_box",
+    metadata: { weekKey },
+  });
 
   await supabase
     .from("player_mystery_boxes")
