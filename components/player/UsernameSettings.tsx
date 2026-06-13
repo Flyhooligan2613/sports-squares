@@ -14,6 +14,7 @@ interface ProfileSettings {
   freeChangeDays: number;
   daysUntilFreeChange: number;
   publicLabel?: string;
+  usernameError?: string;
 }
 
 export default function UsernameSettings() {
@@ -23,31 +24,56 @@ export default function UsernameSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [savedBioPreview, setSavedBioPreview] = useState<string | null>(null);
+
+  async function loadSettings() {
+    const res = await fetch("/api/ecosystem/username", { cache: "no-store", credentials: "include" });
+    const json = (await res.json()) as ProfileSettings;
+    setData(json);
+    setUsername(json.username ?? "");
+    setProfileBio(json.profileBio ?? "");
+    setSavedBioPreview(json.profileBio?.trim() || null);
+    return json;
+  }
 
   useEffect(() => {
-    void fetch("/api/ecosystem/username", { cache: "no-store", credentials: "include" })
-      .then((res) => res.json())
-      .then((json) => {
-        const payload = json as ProfileSettings;
-        setData(payload);
-        setUsername(payload.username ?? "");
-        setProfileBio(payload.profileBio ?? "");
-      })
-      .finally(() => setLoading(false));
+    void loadSettings().finally(() => setLoading(false));
   }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    setWarning(null);
     setSuccess(false);
+
+    const trimmedBio = profileBio.trim();
+    const savedUsername = data?.username ?? "";
+    const savedBio = data?.profileBio?.trim() ?? "";
+    const usernameChanged = username.trim() !== savedUsername;
+    const bioChanged = trimmedBio !== savedBio;
+
+    if (!usernameChanged && !bioChanged) {
+      setSaving(false);
+      setError("No changes to save.");
+      return;
+    }
+
+    const payload: { username?: string; profileBio?: string } = {};
+    if (bioChanged) {
+      payload.profileBio = trimmedBio;
+    }
+    if (usernameChanged && username.trim()) {
+      payload.username = username.trim();
+    }
 
     const res = await fetch("/api/ecosystem/username", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ username, profileBio }),
+      body: JSON.stringify(payload),
     });
     const json = (await res.json()) as ProfileSettings & { error?: string };
     setSaving(false);
@@ -57,12 +83,11 @@ export default function UsernameSettings() {
       return;
     }
 
-    setData(json);
-    setUsername(json.username ?? username);
-    setProfileBio(json.profileBio ?? profileBio);
+    const refreshed = await loadSettings();
+    setWarning(json.usernameError ?? null);
     setSuccess(true);
+    setSavedBioPreview(refreshed.profileBio?.trim() || trimmedBio || null);
     window.dispatchEvent(new CustomEvent("player-profile-updated"));
-    setTimeout(() => setSuccess(false), 3000);
   }
 
   if (loading) {
@@ -117,13 +142,21 @@ export default function UsernameSettings() {
           <textarea
             id="profile-bio"
             value={profileBio}
-            onChange={(e) => setProfileBio(e.target.value.slice(0, 120))}
+            onChange={(e) => {
+              setProfileBio(e.target.value.slice(0, 120));
+              setSuccess(false);
+            }}
             maxLength={120}
-            rows={2}
-            placeholder="Squares fan since day one 🏈 — chasing Q4 wins every Sunday."
-            className="player-input w-full resize-none"
+            rows={3}
+            placeholder="Write a short bio…"
+            className="player-input player-input-bio w-full resize-none"
           />
-          <p className="text-xs text-sb-muted mt-2">{profileBio.length}/120 · Keep it respectful</p>
+          <p className="text-xs text-sb-muted mt-2">
+            {profileBio.length}/120 · Keep it respectful
+            {!profileBio.trim() && !savedBioPreview ? (
+              <span className="text-sb-purple-light"> · No bio saved yet</span>
+            ) : null}
+          </p>
         </div>
 
         <p className="text-xs text-sb-muted">{costNote}</p>
@@ -140,11 +173,23 @@ export default function UsernameSettings() {
         ) : null}
         {success ? (
           <p className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
-            Profile updated!
+            {warning
+              ? "Bio saved."
+              : savedBioPreview
+                ? `Saved! Your bio is live on your dashboard.`
+                : "Profile updated!"}
+          </p>
+        ) : null}
+        {warning ? (
+          <p className="text-sm text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+            {warning}
           </p>
         ) : null}
 
-        <Button type="submit" disabled={saving || username.length < 3}>
+        <Button
+          type="submit"
+          disabled={saving || (username.trim().length < 3 && !(data?.username?.trim()))}
+        >
           {saving ? "Saving…" : "Save profile"}
         </Button>
       </form>

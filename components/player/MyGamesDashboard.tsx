@@ -41,8 +41,15 @@ export default function MyGamesDashboard() {
     }
 
     load();
+
+    function handleProfileUpdated() {
+      void load();
+    }
+    window.addEventListener("player-profile-updated", handleProfileUpdated);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("player-profile-updated", handleProfileUpdated);
     };
   }, []);
 

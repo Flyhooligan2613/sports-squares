@@ -117,10 +117,28 @@ export async function updateEcosystemProfile(
   email: string,
   patch: Record<string, unknown>
 ): Promise<void> {
+  const normalized = normalizeEmail(email);
   const supabase = getSupabaseAdmin();
-  const { error } = await supabase
+
+  const { data, error } = await supabase
     .from(TABLES.playerProfiles)
     .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq("email", normalizeEmail(email));
+    .eq("email", normalized)
+    .select("email");
+
   if (error) throw error;
+  if (data?.length) return;
+
+  await ensureEcosystemAccount(normalized);
+
+  const { data: retry, error: retryError } = await supabase
+    .from(TABLES.playerProfiles)
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq("email", normalized)
+    .select("email");
+
+  if (retryError) throw retryError;
+  if (!retry?.length) {
+    throw new Error("Could not update player profile.");
+  }
 }

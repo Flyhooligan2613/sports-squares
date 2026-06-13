@@ -29,7 +29,12 @@ export async function GET() {
     getPlayerPublicIdentity(user.email),
   ]);
 
-  return NextResponse.json({ ...eligibility, publicLabel: identity.publicLabel, avatarEmoji: identity.avatarEmoji });
+  return NextResponse.json({
+    ...eligibility,
+    profileBio: identity.profileBio ?? eligibility.profileBio,
+    publicLabel: identity.publicLabel,
+    avatarEmoji: identity.avatarEmoji,
+  });
 }
 
 export async function PATCH(request: Request) {
@@ -48,26 +53,41 @@ export async function PATCH(request: Request) {
 
   const body = (await request.json()) as { username?: string; profileBio?: string };
 
+  let savedBio: string | null | undefined;
+  let usernameError: string | undefined;
+
   try {
-    let savedBio: string | null | undefined;
     if (body.profileBio !== undefined) {
       savedBio = await setProfileBio(user.email, body.profileBio);
     }
-    if (body.username?.trim()) {
-      await changeUsername({ email: user.email, username: body.username });
-    }
-
-    const eligibility = await getUsernameChangeEligibility(user.email);
-    const identity = await getPlayerPublicIdentity(user.email);
-    return NextResponse.json({
-      ok: true,
-      ...eligibility,
-      profileBio: savedBio ?? eligibility.profileBio,
-      publicLabel: identity.publicLabel,
-      avatarEmoji: identity.avatarEmoji,
-    });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not update profile.";
+    const message = err instanceof Error ? err.message : "Could not save profile bio.";
     return NextResponse.json({ error: message }, { status: 400 });
   }
+
+  if (body.username?.trim()) {
+    try {
+      await changeUsername({ email: user.email, username: body.username });
+    } catch (err) {
+      usernameError = err instanceof Error ? err.message : "Could not update username.";
+    }
+  }
+
+  const eligibility = await getUsernameChangeEligibility(user.email);
+  const identity = await getPlayerPublicIdentity(user.email);
+  const profileBio =
+    savedBio !== undefined ? savedBio || null : eligibility.profileBio;
+
+  if (usernameError && savedBio === undefined) {
+    return NextResponse.json({ error: usernameError }, { status: 400 });
+  }
+
+  return NextResponse.json({
+    ok: !usernameError,
+    ...eligibility,
+    profileBio,
+    publicLabel: identity.publicLabel,
+    avatarEmoji: identity.avatarEmoji,
+    usernameError,
+  });
 }

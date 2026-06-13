@@ -3426,6 +3426,11 @@ body {
   box-shadow: 0 0 0 3px rgba(91, 76, 247, 0.15);
 }
 
+.player-input-bio::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+  font-style: italic;
+}
+
 .player-skeleton-hero {
   height: 12rem;
   border-radius: 1rem;

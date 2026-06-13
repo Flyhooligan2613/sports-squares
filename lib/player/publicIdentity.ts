@@ -1,6 +1,8 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { TABLES } from "@/lib/database/config";
 import { normalizeEmail, displayNameFromEmail } from "@/lib/player/statsCore";
 import { ensureEcosystemAccount } from "@/lib/platform/ecosystem/account";
+import { getProfileBio } from "@/lib/platform/ecosystem/profileBio";
 import { DEFAULT_AVATAR } from "@/lib/platform/ecosystem/avatars";
 
 export interface PlayerPublicIdentity {
@@ -53,23 +55,29 @@ export async function getPlayerPublicIdentity(email: string): Promise<PlayerPubl
   const account = await ensureEcosystemAccount(normalized).catch(() => null);
   const supabase = getSupabaseAdmin();
 
-  const { data: profile } = await supabase
-    .from("player_profiles")
+  const { data: profile, error: profileError } = await supabase
+    .from(TABLES.playerProfiles)
     .select("username, display_name, profile_bio, avatar_emoji, player_id, username_customized")
     .eq("email", normalized)
     .maybeSingle();
+
+  if (profileError) throw profileError;
 
   const username = (profile?.username as string | null) ?? account?.username ?? null;
   const displayName =
     (profile?.display_name as string) ?? account?.displayName ?? displayNameFromEmail(normalized);
   const playerId = (profile?.player_id as string | null) ?? account?.playerId ?? null;
+  const profileBio =
+    profile && "profile_bio" in profile
+      ? ((profile.profile_bio as string) ?? "").trim() || null
+      : await getProfileBio(normalized);
 
   return {
     email: normalized,
     username,
     displayName,
     legacyName: resolveLegacyDisplayName({ displayName, email: normalized }),
-    profileBio: ((profile?.profile_bio as string) ?? "").trim() || null,
+    profileBio,
     avatarEmoji: (profile?.avatar_emoji as string) ?? DEFAULT_AVATAR,
     playerId,
     usernameCustomized: Boolean(profile?.username_customized),
