@@ -8,7 +8,8 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import type { PickemSeasonArchive, PickemSeasonStanding, PickemSport } from "@/lib/pickem/types";
-import { pickemApiUrl, pickemBasePath } from "@/lib/pickem/routes";
+import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
+import { pickemHallOfFameEmptyMessage, pickemHallOfFameSubtitle } from "@/lib/pickem/copy";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -20,6 +21,7 @@ function formatMoney(cents: number): string {
 
 export default function PickemHallOfFameClient({ sport = "nfl" }: { sport?: PickemSport }) {
   const basePath = pickemBasePath(sport);
+  const sportLabel = pickemSportLabel(sport);
   const [seasons, setSeasons] = useState<PickemSeasonArchive[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [archive, setArchive] = useState<PickemSeasonArchive | null>(null);
@@ -74,8 +76,8 @@ export default function PickemHallOfFameClient({ sport = "nfl" }: { sport?: Pick
         <ExperienceHero
           badgeLabel="Legacy"
           badgeVariant="info"
-          title="Pick'em Hall of Fame"
-          subtitle="Every NFL season archived forever — champions, records, and top 100 standings."
+          title={`${sportLabel} Pick'em Hall of Fame`}
+          subtitle={pickemHallOfFameSubtitle(sport)}
         />
 
         {loading ? (
@@ -84,8 +86,7 @@ export default function PickemHallOfFameClient({ sport = "nfl" }: { sport?: Pick
           <LandingGlassCard className="p-8 text-center">
             <Trophy className="w-10 h-10 text-sb-muted mx-auto mb-3 opacity-60" />
             <p className="text-sb-muted text-sm">
-              Seasons are archived automatically when the Super Bowl completes.
-              Check back after the first full season.
+              {pickemHallOfFameEmptyMessage(sport)}
             </p>
           </LandingGlassCard>
         ) : (

@@ -13,7 +13,11 @@ import PickemEntryPanel from "@/components/pickem/PickemEntryPanel";
 import PickemPoolList from "@/components/pickem/PickemPoolList";
 import PickemMyPoolStatus from "@/components/pickem/PickemMyPoolStatus";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
-import { PICKEM_CHAMPIONSHIP_BANNER } from "@/lib/pickem/copy";
+import {
+  PICKEM_CHAMPIONSHIP_BANNER,
+  pickemTiebreakerSubmitMessage,
+  pickemWeekPicksSubtitle,
+} from "@/lib/pickem/copy";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemSport, PickemWeekView } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
@@ -441,6 +445,8 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
             <PickemEntryPanel
               contestLabel={week.contest.label}
               entry={week.entry}
+              sport={sport}
+              loginNextPath={`${basePath}/week`}
               loading={checkoutLoading}
               error={entryCheckoutError}
               savedPaymentLabel={savedPaymentLabel}
@@ -479,8 +485,8 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
                   {PICKEM_CHAMPIONSHIP_BANNER}
                 </p>
                 <p className="text-sb-muted text-sm mb-3">
-                  {week.tiebreaker.playersRemaining} players remain. Submit your SquareBoards
-                  Championship Tiebreaker prediction before kickoff.
+                  {week.tiebreaker.playersRemaining} players remain.{" "}
+                  {pickemTiebreakerSubmitMessage(sport)}
                 </p>
                 <Button
                   href={`${basePath}/tiebreaker?contestId=${encodeURIComponent(week.contest.id)}&tier=${entryTierCents}`}
@@ -494,7 +500,7 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
               badgeLabel={week.contest.label}
               badgeVariant={liveMode ? "live" : "open"}
               title={`${week.contest.label} Picks`}
-              subtitle="Tap the team you think wins. Picks save instantly and lock at kickoff."
+              subtitle={pickemWeekPicksSubtitle(sport)}
               stats={[
                 {
                   label: "Progress",

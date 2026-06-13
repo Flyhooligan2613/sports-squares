@@ -8,6 +8,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import { Button } from "@/components/ui/Button";
 import type { PickemWeekHistoryEntry, PickemSport } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath } from "@/lib/pickem/routes";
+import { pickemTiebreakerHistoryLabel } from "@/lib/pickem/copy";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -143,7 +144,9 @@ export default function PickemHistoryClient({ sport = "nfl" }: { sport?: PickemS
                         <p className="text-white font-medium">{week.weekLabel}</p>
                         <p className="text-xs text-sb-muted">
                           Pool #{week.poolNumber} · {week.weeklyRecord}
-                          {week.tiebreakerUsed ? " · MNF tiebreaker" : ""}
+                          {week.tiebreakerUsed
+                            ? ` · ${pickemTiebreakerHistoryLabel(sport)}`
+                            : ""}
                         </p>
                       </div>
                       <div className="text-right">

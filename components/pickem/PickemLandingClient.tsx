@@ -13,6 +13,13 @@ import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemOverviewStats, PickemSport, PickemWeekView } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
+import {
+  pickemGamesRemainingLabel,
+  pickemLandingAccountTagline,
+  pickemLandingFeatures,
+  pickemLandingHowItWorksSubtitle,
+  pickemLandingHowItWorksTitle,
+} from "@/lib/pickem/copy";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -22,32 +29,10 @@ function formatMoney(cents: number): string {
   }).format(cents / 100);
 }
 
-const FEATURES = [
-  {
-    title: "Pick winners, not spreads",
-    description:
-      "No point spreads, no odds, no fantasy stats. Just choose the team you think wins.",
-  },
-  {
-    title: "Instant saves",
-    description:
-      "Tap a team and your pick saves immediately. Edit anytime until kickoff.",
-  },
-  {
-    title: "Live game day",
-    description:
-      "Cards turn green or red as games finish. Track your record and streak in real time.",
-  },
-  {
-    title: "One SquareBoards account",
-    description:
-      "Same login, wallet, notifications, and profile across every platform game.",
-  },
-];
-
 export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemSport }) {
   const basePath = pickemBasePath(sport);
   const sportLabel = pickemSportLabel(sport);
+  const features = pickemLandingFeatures(sport);
   const [overview, setOverview] = useState<PickemOverviewStats | null>(null);
   const [week, setWeek] = useState<PickemWeekView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -112,7 +97,7 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
           </div>
 
           <p className="text-center text-xs text-sb-muted mt-4 max-w-xl mx-auto">
-            Two flagship games, one account — SquareBoards for luck, Pick&apos;em for prediction.
+            {pickemLandingAccountTagline(sport)}
           </p>
 
           {overview ? (
@@ -136,7 +121,9 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
           </ScrollReveal>
           <ScrollReveal delay={60}>
             <LandingGlassCard className="p-6 sm:p-8">
-              <EntryTierSelector hrefBuilder={(tier) => `/pickem/week?tier=${tier.cents}`} />
+              <EntryTierSelector
+                hrefBuilder={(tier) => `${basePath}/week?tier=${tier.cents}`}
+              />
             </LandingGlassCard>
           </ScrollReveal>
         </LandingSection>
@@ -145,12 +132,12 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
           <ScrollReveal>
             <LandingSectionHeader
               eyebrow="How it works"
-              title="Football pools, reimagined"
-              subtitle="Classic pick-the-winner pools — built for everyone, from casual fans to die-hards."
+              title={pickemLandingHowItWorksTitle(sport)}
+              subtitle={pickemLandingHowItWorksSubtitle(sport)}
             />
           </ScrollReveal>
           <div className="grid sm:grid-cols-2 gap-4">
-            {FEATURES.map((feature, index) => (
+            {features.map((feature, index) => (
               <ScrollReveal key={feature.title} delay={index * 60}>
                 <LandingGlassCard className="p-6 h-full pickem-feature-card">
                   <h3 className="text-white font-semibold text-lg mb-2">{feature.title}</h3>
@@ -167,7 +154,11 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
               <LandingSectionHeader
                 eyebrow="This week"
                 title={`${week.contest.label} slate`}
-                subtitle={`${week.games.length} NFL games · ${week.progress.remaining} picks remaining for you`}
+                subtitle={pickemGamesRemainingLabel(
+                  sport,
+                  week.games.length,
+                  week.progress.remaining
+                )}
               />
             </ScrollReveal>
             <ScrollReveal delay={80}>
@@ -176,7 +167,7 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
                   {week.progress.completed}/{week.progress.total}
                 </p>
                 <p className="text-sb-muted text-sm mb-6">Your picks complete</p>
-                <Button href="/pickem/week">Make your picks</Button>
+                <Button href={`${basePath}/week`}>Make your picks</Button>
               </LandingGlassCard>
             </ScrollReveal>
           </LandingSection>

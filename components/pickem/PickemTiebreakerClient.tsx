@@ -13,9 +13,15 @@ import type { PickemGame, PickemPlayerPoolStatus, PickemSport } from "@/lib/pick
 import { pickemBasePath } from "@/lib/pickem/routes";
 import {
   PICKEM_CHAMPIONSHIP_BANNER,
-  PICKEM_CHAMPIONSHIP_CONGRATS,
-  PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE,
   PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE,
+  pickemChampionshipCongrats,
+  pickemChampionshipTiebreakerSubtitle,
+  pickemCountdownLockedMessage,
+  pickemLockTermCapitalized,
+  pickemLockTerm,
+  pickemTiebreakerCombinedLabel,
+  pickemTiebreakerFinalLabel,
+  pickemTiebreakerMatchupLabel,
 } from "@/lib/pickem/copy";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
 
@@ -38,14 +44,20 @@ function formatKickoff(iso: string): string {
   }).format(new Date(iso));
 }
 
-function Countdown({ targetIso }: { targetIso: string }) {
+function Countdown({
+  targetIso,
+  sport,
+}: {
+  targetIso: string;
+  sport: PickemSport;
+}) {
   const [remaining, setRemaining] = useState("");
 
   useEffect(() => {
     function tick() {
       const diff = new Date(targetIso).getTime() - Date.now();
       if (diff <= 0) {
-        setRemaining("Kickoff — predictions locked");
+        setRemaining(pickemCountdownLockedMessage(sport));
         return;
       }
       const h = Math.floor(diff / 3_600_000);
@@ -56,7 +68,7 @@ function Countdown({ targetIso }: { targetIso: string }) {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [targetIso]);
+  }, [targetIso, sport]);
 
   return <span className="font-mono text-emerald-300">{remaining}</span>;
 }
@@ -162,7 +174,7 @@ export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: Pick
             {PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE}
           </h1>
           <p className="text-sb-muted text-sm max-w-lg mx-auto">
-            {PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE}
+            {pickemChampionshipTiebreakerSubtitle(sport)}
           </p>
         </LandingGlassCard>
 
@@ -184,14 +196,14 @@ export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: Pick
 
             {data.playerStatus?.status === "tiebreaker" ? (
               <LandingGlassCard className="p-5 mb-6 border border-amber-500/20 bg-amber-500/5">
-                <p className="text-sm text-white leading-relaxed">{PICKEM_CHAMPIONSHIP_CONGRATS}</p>
+                <p className="text-sm text-white leading-relaxed">{pickemChampionshipCongrats(sport)}</p>
               </LandingGlassCard>
             ) : null}
 
             {data.mondayGame ? (
               <LandingGlassCard className="p-5 sm:p-6 mb-6">
                 <p className="text-xs uppercase tracking-wider text-sb-muted mb-4">
-                  Monday Night matchup
+                  {pickemTiebreakerMatchupLabel(sport)}
                 </p>
                 <div className="flex items-center justify-center gap-6 mb-4">
                   <div className="text-center">
@@ -221,12 +233,12 @@ export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: Pick
                   </div>
                 </div>
                 <p className="text-center text-sm text-sb-muted">
-                  Kickoff: {formatKickoff(data.mondayGame.kickoffAt)}
+                  {pickemLockTermCapitalized(sport)}: {formatKickoff(data.mondayGame.kickoffAt)}
                 </p>
                 <p className="text-center mt-3 text-sm">
                   Locks in:{" "}
                   {data.mondayGame.kickoffAt ? (
-                    <Countdown targetIso={data.mondayGame.kickoffAt} />
+                    <Countdown targetIso={data.mondayGame.kickoffAt} sport={sport} />
                   ) : (
                     "—"
                   )}
@@ -258,7 +270,8 @@ export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: Pick
                 <p className="text-xs uppercase text-emerald-400 mb-1">Your prediction</p>
                 <p className="text-3xl font-bold text-white">{data.myEntry.predictedTotal}</p>
                 <p className="text-xs text-sb-muted mt-2">
-                  Combined MNF total points · {locked ? "Locked" : "Editable until kickoff"}
+                  {pickemTiebreakerCombinedLabel(sport)} ·{" "}
+                  {locked ? "Locked" : `Editable until ${pickemLockTerm(sport)}`}
                 </p>
               </LandingGlassCard>
             ) : data.playerStatus?.status === "tiebreaker" && !locked ? (
@@ -287,7 +300,7 @@ export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: Pick
 
             {data.tiebreaker?.actualTotalPoints != null ? (
               <LandingGlassCard className="p-5 mb-6 text-center">
-                <p className="text-xs uppercase text-sb-muted mb-1">Final MNF combined score</p>
+                <p className="text-xs uppercase text-sb-muted mb-1">{pickemTiebreakerFinalLabel(sport)}</p>
                 <p className="text-4xl font-bold text-white">
                   {data.tiebreaker.actualTotalPoints}
                 </p>

@@ -5,11 +5,15 @@ import { CreditCard, ShieldCheck, Zap } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { formatTierCents } from "@/lib/platform/core/entryTiers";
-import type { PickemEntryStatus } from "@/lib/pickem/types";
+import type { PickemEntryStatus, PickemSport } from "@/lib/pickem/types";
+import { pickemBasePath } from "@/lib/pickem/routes";
+import { pickemEntryPaidMessage } from "@/lib/pickem/copy";
 
 interface PickemEntryPanelProps {
   contestLabel: string;
   entry: PickemEntryStatus;
+  sport?: PickemSport;
+  loginNextPath?: string;
   loading?: boolean;
   error?: string | null;
   savedPaymentLabel?: string | null;
@@ -20,6 +24,8 @@ interface PickemEntryPanelProps {
 export default function PickemEntryPanel({
   contestLabel,
   entry,
+  sport = "nfl",
+  loginNextPath,
   loading = false,
   error,
   savedPaymentLabel,
@@ -28,6 +34,9 @@ export default function PickemEntryPanel({
 }: PickemEntryPanelProps) {
   const tierLabel = formatTierCents(entry.tierCents);
   const priceLabel = formatTierCents(entry.amountCents);
+  const signInHref = `/my-games/login?next=${encodeURIComponent(
+    loginNextPath ?? `${pickemBasePath(sport)}/week`
+  )}`;
 
   if (entry.paid) {
     return (
@@ -41,7 +50,7 @@ export default function PickemEntryPanel({
               {tierLabel} tier · {contestLabel}
             </p>
             <p className="text-sb-muted text-sm mt-1">
-              You&apos;re in. Make your picks before kickoff — they lock automatically.
+              {pickemEntryPaidMessage(sport)}
             </p>
           </div>
           <span className="text-emerald-400 text-sm font-semibold">✓ Paid</span>
@@ -72,7 +81,7 @@ export default function PickemEntryPanel({
       </div>
 
       {entry.requiresAuth ? (
-        <Button href="/my-games/login?next=/pickem/week">Sign in to enter</Button>
+        <Button href={signInHref}>Sign in to enter</Button>
       ) : savedPaymentLabel && onFastCheckout ? (
         <div className="space-y-3">
           <Button
