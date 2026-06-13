@@ -5,10 +5,11 @@ import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import UsernameSettings from "@/components/player/UsernameSettings";
+import ProfileWalletSection from "@/components/player/ProfileWalletSection";
 import ProfileSocialView from "@/components/player/social/ProfileSocialView";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
 import type { PublicPlayerProfile } from "@/lib/player/publicProfileTypes";
-import { Copy, Grid3X3, Share2, Wallet } from "lucide-react";
+import { Copy, Grid3X3, Share2 } from "lucide-react";
 
 interface MyProfileClientProps {
   profile: PublicPlayerProfile;
@@ -98,19 +99,7 @@ export default function MyProfileClient({ profile, email }: MyProfileClientProps
           </Link>
         </LandingGlassCard>
 
-        <LandingGlassCard className="p-6">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2 flex items-center gap-2">
-            <Wallet className="w-4 h-4" />
-            Wallet
-          </h3>
-          <p className="text-sb-muted text-sm leading-relaxed mb-4">
-            Automatic Stripe payouts are coming soon. Your quarter wins will deposit directly to
-            the card on file.
-          </p>
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-sb-gold bg-sb-gold/10 border border-sb-gold/25 rounded-full px-3 py-1">
-            Coming soon
-          </span>
-        </LandingGlassCard>
+        <ProfileWalletSection />
 
         <Button variant="ghost" onClick={handleSignOut} className="w-full sm:w-auto">
           Sign out

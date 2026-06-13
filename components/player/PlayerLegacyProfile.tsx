@@ -310,15 +310,15 @@ export default function PlayerLegacyProfile() {
         <LandingGlassCard id="wallet" className="p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2 flex items-center gap-2">
             <Wallet className="w-4 h-4" />
-            Wallet
+            Wallet & Payouts
           </h2>
           <p className="text-sb-muted text-sm leading-relaxed mb-4">
-            Automatic Stripe payouts are coming soon. Your quarter wins will deposit
-            directly to the card on file.
+            Connect Stripe on My Winnings for automatic quarter payouts. Save a card at checkout
+            for faster purchases.
           </p>
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-sb-gold bg-sb-gold/10 border border-sb-gold/25 rounded-full px-3 py-1">
-            Coming soon
-          </span>
+          <Button href="/my-games/winnings" variant="secondary" size="sm">
+            Manage payouts
+          </Button>
         </LandingGlassCard>
 
         <Button variant="ghost" onClick={handleSignOut} className="w-full sm:w-auto">
