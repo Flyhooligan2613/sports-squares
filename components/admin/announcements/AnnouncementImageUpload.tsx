@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { ImagePlus, Loader2, Upload, X } from "lucide-react";
 import { IMAGE_SIZE_GUIDES } from "@/lib/platform/announcements/types";
+import { optimizeAnnouncementImageClient } from "@/lib/platform/announcements/clientOptimize";
 
 interface AnnouncementImageUploadProps {
   value: string;
@@ -10,6 +11,27 @@ interface AnnouncementImageUploadProps {
 }
 
 const UPLOAD_TIMEOUT_MS = 90_000;
+
+async function readErrorFromResponse(res: Response): Promise<string> {
+  const text = await res.text();
+  if (!text) return `Upload failed (HTTP ${res.status}).`;
+
+  try {
+    const data = JSON.parse(text) as { error?: string };
+    if (data.error) return data.error;
+  } catch {
+    // Not JSON — often a Vercel/proxy HTML error page.
+  }
+
+  if (res.status === 413) {
+    return "Image is too large for the server. Try a smaller file — we compress automatically on upload.";
+  }
+
+  const snippet = text.replace(/\s+/g, " ").trim().slice(0, 120);
+  return snippet
+    ? `Upload failed (HTTP ${res.status}): ${snippet}`
+    : `Upload failed (HTTP ${res.status}).`;
+}
 
 export default function AnnouncementImageUpload({
   value,
@@ -33,29 +55,63 @@ export default function AnnouncementImageUpload({
       const timeout = window.setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
       try {
-        const formData = new FormData();
-        formData.append("file", file);
+        const { blob, contentType } = await optimizeAnnouncementImageClient(file);
 
-        const res = await fetch("/api/admin/announcements/upload", {
+        const urlRes = await fetch("/api/admin/announcements/upload-url", {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
           signal: controller.signal,
+          body: JSON.stringify({ contentType }),
         });
 
-        let data: { publicUrl?: string; error?: string } = {};
-        try {
-          data = (await res.json()) as { publicUrl?: string; error?: string };
-        } catch {
-          data = { error: "Server returned an invalid response." };
-        }
-
-        if (!res.ok || !data.publicUrl) {
-          setError(data.error ?? `Upload failed (HTTP ${res.status}).`);
+        if (!urlRes.ok) {
+          setError(await readErrorFromResponse(urlRes));
+          setLocalPreview(null);
+          URL.revokeObjectURL(previewUrl);
           return;
         }
 
-        onChange(data.publicUrl);
+        let urlData: {
+          signedUrl?: string;
+          path?: string;
+          token?: string;
+          publicUrl?: string;
+          contentType?: string;
+          error?: string;
+        };
+
+        try {
+          urlData = (await urlRes.json()) as typeof urlData;
+        } catch {
+          setError("Server returned an invalid response while preparing upload.");
+          setLocalPreview(null);
+          URL.revokeObjectURL(previewUrl);
+          return;
+        }
+
+        if (!urlData.publicUrl || !urlData.path || !urlData.token) {
+          setError(urlData.error ?? "Could not prepare storage upload.");
+          setLocalPreview(null);
+          URL.revokeObjectURL(previewUrl);
+          return;
+        }
+
+        const uploadRes = await fetch(urlData.signedUrl!, {
+          method: "PUT",
+          headers: { "Content-Type": urlData.contentType ?? contentType },
+          body: blob,
+          signal: controller.signal,
+        });
+
+        if (!uploadRes.ok) {
+          setError(`Storage upload failed (HTTP ${uploadRes.status}). Check Supabase bucket setup.`);
+          setLocalPreview(null);
+          URL.revokeObjectURL(previewUrl);
+          return;
+        }
+
+        onChange(urlData.publicUrl);
         setLocalPreview(null);
         URL.revokeObjectURL(previewUrl);
       } catch (err) {
@@ -64,6 +120,8 @@ export default function AnnouncementImageUpload({
         } else {
           setError(err instanceof Error ? err.message : "Upload failed.");
         }
+        setLocalPreview(null);
+        URL.revokeObjectURL(previewUrl);
       } finally {
         window.clearTimeout(timeout);
         setUploading(false);
