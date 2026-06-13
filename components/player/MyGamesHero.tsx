@@ -6,7 +6,7 @@ import { useCountUp } from "@/lib/motion/useCountUp";
 import type { PlayerDashboardStats } from "@/lib/player/dashboardTypes";
 
 interface MyGamesHeroProps {
-  legacyName: string;
+  publicLabel: string;
   avatarEmoji?: string;
   profileBio?: string | null;
   needsUsernameSetup?: boolean;
@@ -39,7 +39,7 @@ function StatTile({
 }
 
 export default function MyGamesHero({
-  legacyName,
+  publicLabel,
   avatarEmoji,
   profileBio,
   needsUsernameSetup,
@@ -62,7 +62,7 @@ export default function MyGamesHero({
           <PlayerAvatar emoji={avatarEmoji} size="lg" className="shrink-0 mt-1" />
           <div className="min-w-0">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-              Welcome back, {legacyName}
+              Welcome back, {publicLabel}
             </h1>
 
             {profileBio ? (

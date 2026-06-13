@@ -1,7 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { getAdminConfig } from "@/lib/platform/ecosystem/adminConfig";
-import { ensureEcosystemAccount, updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
+import { ensureEcosystemAccount, updateEcosystemProfile, assignPlayerIdFromUsername } from "@/lib/platform/ecosystem/account";
 import { spendTierCredits } from "@/lib/platform/ecosystem/credits";
 import { validateUsername } from "@/lib/platform/ecosystem/profanityFilter";
 import { getProfileBio } from "@/lib/platform/ecosystem/profileBio";
@@ -122,9 +122,53 @@ export async function changeUsername(input: {
     });
   }
 
-  await updateEcosystemProfile(input.email, {
+  const usernameChanged = !profile?.username || profile.username !== username;
+  const currentIdBase = (account.playerId ?? "").replace(/\d+$/, "");
+  const usernameBase = username.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
+  const playerIdOutOfSync = usernameBase.length >= 3 && currentIdBase !== usernameBase;
+
+  const patch: Record<string, unknown> = {
     username,
+    display_name: username,
     username_changed_at: new Date().toISOString(),
     username_customized: true,
-  });
+  };
+
+  if (usernameChanged || playerIdOutOfSync) {
+    patch.player_id = await assignPlayerIdFromUsername(username);
+  }
+
+  await updateEcosystemProfile(input.email, patch);
+}
+
+/** Keep display_name and player_id aligned with the chosen username. */
+export async function syncPublicIdentityFields(email: string): Promise<void> {
+  const account = await ensureEcosystemAccount(email);
+  const supabase = getSupabaseAdmin();
+  const normalized = normalizeEmail(email);
+
+  const { data: profile } = await supabase
+    .from("player_profiles")
+    .select("username_customized")
+    .eq("email", normalized)
+    .maybeSingle();
+
+  const username = account.username?.trim();
+  if (!username || !profile?.username_customized) return;
+
+  const currentIdBase = (account.playerId ?? "").replace(/\d+$/, "");
+  const usernameBase = username.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
+  const playerIdOutOfSync = usernameBase.length >= 3 && currentIdBase !== usernameBase;
+
+  const patch: Record<string, unknown> = {};
+  if (account.displayName !== username) {
+    patch.display_name = username;
+  }
+  if (playerIdOutOfSync) {
+    patch.player_id = await assignPlayerIdFromUsername(username);
+  }
+
+  if (Object.keys(patch).length) {
+    await updateEcosystemProfile(email, patch);
+  }
 }

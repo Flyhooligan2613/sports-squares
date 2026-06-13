@@ -5,10 +5,25 @@ import { normalizeEmail, displayNameFromEmail } from "@/lib/player/statsCore";
 import { buildPlayerSlug } from "@/lib/player/slug";
 import type { EcosystemAccount, PlayerTierSlug } from "@/lib/platform/ecosystem/types";
 
-function generatePlayerId(displayName: string): string {
-  const base = displayName.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 6) || "PLAYER";
+function generatePlayerId(label: string): string {
+  const base = label.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6) || "PLAYER";
   const suffix = String(Math.floor(Math.random() * 900) + 100);
   return `${base}${suffix}`;
+}
+
+export async function assignPlayerIdFromUsername(username: string): Promise<string> {
+  const supabase = getSupabaseAdmin();
+  let playerId = generatePlayerId(username);
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const { data: conflict } = await supabase
+      .from(TABLES.playerProfiles)
+      .select("email")
+      .eq("player_id", playerId)
+      .maybeSingle();
+    if (!conflict) return playerId;
+    playerId = generatePlayerId(username);
+  }
+  throw new Error("Could not assign Player ID.");
 }
 
 function mapAccount(row: Record<string, unknown>): EcosystemAccount {

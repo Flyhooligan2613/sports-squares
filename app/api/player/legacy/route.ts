@@ -29,7 +29,7 @@ export async function GET() {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const publicSlug = await ensurePlayerProfile(user.email, legacy.displayName);
+    const publicSlug = await ensurePlayerProfile(user.email, legacy.publicLabel);
 
     return NextResponse.json({
       ...legacy,

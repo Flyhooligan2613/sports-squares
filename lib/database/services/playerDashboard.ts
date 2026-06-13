@@ -17,7 +17,7 @@ import type {
 } from "@/lib/player/dashboardTypes";
 import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
 import { isStripeConnectEnabled } from "@/lib/stripe/connect";
-import { getPlayerPublicIdentity, resolveLegacyDisplayName } from "@/lib/player/publicIdentity";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import type { EspnLiveGame, Pool, PoolStatus, ScoringPeriod } from "@/lib/types";
 
 const ACTIVE_STATUSES: PoolStatus[] = ["open", "locked", "numbers-drawn"];
@@ -119,7 +119,7 @@ export async function getPlayerDashboard(
     const identity = await getPlayerPublicIdentity(normalized);
     return {
       displayName: identity.publicLabel,
-      legacyName: identity.legacyName,
+      legacyName: identity.publicLabel,
       username: identity.username,
       publicLabel: identity.publicLabel,
       profileBio: identity.profileBio,
@@ -148,13 +148,7 @@ export async function getPlayerDashboard(
   const playerNames = new Set(
     players.map((p) => p.name.trim().toLowerCase())
   );
-  const playerRecordName = players.find((p) => p.name.trim())?.name ?? null;
   const identity = await getPlayerPublicIdentity(normalized);
-  const legacyName = resolveLegacyDisplayName({
-    playerRecordName,
-    displayName: identity.displayName,
-    email: normalized,
-  });
 
   const [poolsRes, squaresRes, winnersRes] = await Promise.all([
     supabase.from(TABLES.pools).select("*").in("id", poolIds),
@@ -344,7 +338,7 @@ export async function getPlayerDashboard(
 
   return {
     displayName: identity.publicLabel,
-    legacyName,
+    legacyName: identity.publicLabel,
     username: identity.username,
     publicLabel: identity.publicLabel,
     profileBio: identity.profileBio,

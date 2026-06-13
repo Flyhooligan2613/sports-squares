@@ -97,7 +97,7 @@ export default function PlayerLegacyProfile() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: `${legacy?.displayName ?? "My"} SquareBoards Legacy`,
+          title: `${legacy?.publicLabel ?? "My"} SquareBoards Legacy`,
           text: legacy?.headline,
           url,
         });
@@ -154,7 +154,7 @@ export default function PlayerLegacyProfile() {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                {legacy.displayName}
+                {legacy.publicLabel}
               </h1>
               {legacy.profileBio ? (
                 <div className="player-bio-banner mt-3">

@@ -20,6 +20,8 @@ export interface PlayerAchievement {
 
 export interface PlayerLegacyData {
   displayName: string;
+  publicLabel: string;
+  legacyName: string;
   profileBio: string | null;
   email: string;
   memberSince: string;

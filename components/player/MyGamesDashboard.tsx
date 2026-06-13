@@ -75,7 +75,7 @@ export default function MyGamesDashboard() {
   return (
     <>
       <MyGamesHero
-        legacyName={data.legacyName}
+        publicLabel={data.publicLabel}
         avatarEmoji={data.avatarEmoji}
         profileBio={data.profileBio}
         needsUsernameSetup={data.needsUsernameSetup}

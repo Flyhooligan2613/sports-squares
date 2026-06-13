@@ -141,7 +141,7 @@ export async function getPublicPlayerProfile(
 
   return {
     slug: ensuredSlug,
-    displayName: legacy.displayName,
+    displayName: legacy.publicLabel,
     memberSince: legacy.memberSince,
     headline: legacy.headline,
     stats: legacy.stats,

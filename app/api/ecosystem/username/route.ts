@@ -4,6 +4,7 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import {
   changeUsername,
   getUsernameChangeEligibility,
+  syncPublicIdentityFields,
 } from "@/lib/platform/ecosystem/username";
 import { setProfileBio } from "@/lib/platform/ecosystem/profileBio";
 import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
@@ -72,6 +73,8 @@ export async function PATCH(request: Request) {
       usernameError = err instanceof Error ? err.message : "Could not update username.";
     }
   }
+
+  await syncPublicIdentityFields(user.email);
 
   const eligibility = await getUsernameChangeEligibility(user.email);
   const identity = await getPlayerPublicIdentity(user.email);

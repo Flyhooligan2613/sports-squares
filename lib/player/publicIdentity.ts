@@ -19,35 +19,22 @@ export interface PlayerPublicIdentity {
 
 export function resolvePlayerDisplayName(input: {
   username?: string | null;
-  displayName?: string | null;
   email?: string;
   playerId?: string | null;
 }): string {
   if (input.username?.trim()) return input.username.trim();
   if (input.playerId?.trim()) return input.playerId.trim();
-  if (input.displayName?.trim()) return input.displayName.trim();
   if (input.email) return displayNameFromEmail(input.email);
   return "Player";
 }
 
-/** First-name style label from purchase records or profile — not the public username. */
+/** @deprecated Real names are only shown when chosen as the username. */
 export function resolveLegacyDisplayName(input: {
   playerRecordName?: string | null;
   displayName?: string | null;
   email?: string;
 }): string {
-  const fromPlayer = input.playerRecordName?.trim();
-  if (fromPlayer) {
-    return fromPlayer.split(/\s+/)[0] ?? fromPlayer;
-  }
-  const fromProfile = input.displayName?.trim();
-  if (fromProfile) {
-    return fromProfile.split(/\s+/)[0] ?? fromProfile;
-  }
-  if (input.email) {
-    return displayNameFromEmail(input.email).split(/\s+/)[0] ?? displayNameFromEmail(input.email);
-  }
-  return "Player";
+  return resolvePlayerDisplayName({ email: input.email });
 }
 
 export async function getPlayerPublicIdentity(email: string): Promise<PlayerPublicIdentity> {
@@ -76,12 +63,12 @@ export async function getPlayerPublicIdentity(email: string): Promise<PlayerPubl
     email: normalized,
     username,
     displayName,
-    legacyName: resolveLegacyDisplayName({ displayName, email: normalized }),
+    legacyName: resolveLegacyDisplayName({ email: normalized }),
     profileBio,
     avatarEmoji: (profile?.avatar_emoji as string) ?? DEFAULT_AVATAR,
     playerId,
     usernameCustomized: Boolean(profile?.username_customized),
-    publicLabel: resolvePlayerDisplayName({ username, displayName, email: normalized, playerId }),
+    publicLabel: resolvePlayerDisplayName({ username, email: normalized, playerId }),
   };
 }
 
@@ -107,12 +94,12 @@ export async function getPlayerPublicIdentityMap(
       email,
       username,
       displayName,
-      legacyName: resolveLegacyDisplayName({ displayName, email }),
+      legacyName: resolveLegacyDisplayName({ email }),
       profileBio: ((row?.profile_bio as string) ?? "").trim() || null,
       avatarEmoji: (row?.avatar_emoji as string) ?? DEFAULT_AVATAR,
       playerId,
       usernameCustomized: Boolean(row?.username_customized),
-      publicLabel: resolvePlayerDisplayName({ username, displayName, email, playerId }),
+      publicLabel: resolvePlayerDisplayName({ username, email, playerId }),
     });
   }
 
