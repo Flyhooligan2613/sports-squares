@@ -6,82 +6,88 @@ import { usePathname } from "next/navigation";
 import {
   isPlatformGameNavActive,
   PLATFORM_GAMES,
+  type PlatformGameDefinition,
 } from "@/lib/platform/gameTypes";
 import { useNavDrawer } from "@/components/nav/NavDrawerProvider";
 
-export default function NavGamesSection() {
+function statusLabel(game: PlatformGameDefinition, isAvailable: boolean): string {
+  if (game.navBadge === "new") return "NEW";
+  if (isAvailable) return "Available Now";
+  return "Coming Soon";
+}
+
+function NavGameCard({ game }: { game: PlatformGameDefinition }) {
   const pathname = usePathname();
   const { close } = useNavDrawer();
+  const active = isPlatformGameNavActive(game, pathname);
+  const isAvailable = game.status === "available" && game.href;
+
+  const content = (
+    <>
+      <span className="nav-game-card-icon" aria-hidden>
+        {game.icon}
+      </span>
+      <span className="nav-game-card-body">
+        <span className="nav-game-card-name">{game.name}</span>
+        <span
+          className={[
+            "nav-game-card-status",
+            isAvailable ? "nav-game-card-status-live" : "",
+            game.navBadge === "new" ? "nav-game-card-status-new" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {statusLabel(game, Boolean(isAvailable))}
+        </span>
+      </span>
+    </>
+  );
+
+  if (isAvailable && game.href) {
+    return (
+      <Link
+        href={game.href}
+        onClick={close}
+        className={["nav-game-card", active ? "nav-game-card-active" : ""]
+          .filter(Boolean)
+          .join(" ")}
+        style={{ "--nav-game-accent": game.accent } as CSSProperties}
+      >
+        {content}
+      </Link>
+    );
+  }
 
   return (
-    <div className="nav-drawer-section">
-      <p className="nav-drawer-section-title">Play</p>
-      <ul className="space-y-2">
-        {PLATFORM_GAMES.map((game) => {
-          const active = isPlatformGameNavActive(game, pathname);
-          const isAvailable = game.status === "available" && game.href;
-
-          const statusLabel = game.navBadge === "new"
-            ? "NEW"
-            : isAvailable
-              ? "Available Now"
-              : "Coming Soon";
-
-          const content = (
-            <>
-              <span className="nav-game-card-icon" aria-hidden>
-                {game.icon}
-              </span>
-              <span className="nav-game-card-body">
-                <span className="nav-game-card-name">{game.name}</span>
-                <span
-                  className={[
-                    "nav-game-card-status",
-                    isAvailable ? "nav-game-card-status-live" : "",
-                    game.navBadge === "new" ? "nav-game-card-status-new" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {statusLabel}
-                </span>
-              </span>
-            </>
-          );
-
-          if (isAvailable && game.href) {
-            return (
-              <li key={game.id}>
-                <Link
-                  href={game.href}
-                  onClick={close}
-                  className={[
-                    "nav-game-card",
-                    active ? "nav-game-card-active" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  style={{ "--nav-game-accent": game.accent } as CSSProperties}
-                >
-                  {content}
-                </Link>
-              </li>
-            );
-          }
-
-          return (
-            <li key={game.id}>
-              <div
-                className="nav-game-card nav-game-card-disabled"
-                style={{ "--nav-game-accent": game.accent } as CSSProperties}
-                aria-disabled="true"
-              >
-                {content}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+    <div
+      className="nav-game-card nav-game-card-disabled"
+      style={{ "--nav-game-accent": game.accent } as CSSProperties}
+      aria-disabled="true"
+    >
+      {content}
     </div>
+  );
+}
+
+export default function NavGamesSection({
+  filter,
+}: {
+  filter: "available" | "coming_soon";
+}) {
+  const games = PLATFORM_GAMES.filter((game) =>
+    filter === "available" ? game.status === "available" : game.status === "coming_soon"
+  );
+
+  if (games.length === 0) return null;
+
+  return (
+    <ul className="space-y-2 mb-3">
+      {games.map((game) => (
+        <li key={game.id}>
+          <NavGameCard game={game} />
+        </li>
+      ))}
+    </ul>
   );
 }

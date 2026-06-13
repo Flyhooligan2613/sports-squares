@@ -10,21 +10,21 @@ export interface NavSection {
   id: string;
   title: string;
   items: NavItem[];
+  /** Render platform game cards at the top of this section */
+  renderGames?: "available" | "coming_soon";
 }
 
 export const NAV_SECTIONS: NavSection[] = [
   {
     id: "main",
     title: "Main",
+    renderGames: "available",
     items: [
       { href: "/", label: "Home", icon: "🏠" },
       { href: "/huddle", label: "The Huddle", icon: "👥" },
       { href: "/stats-hub", label: "Stats Hub", icon: "📊" },
       { href: "/my-games", label: "My Games", icon: "🎮", requiresAuth: true },
       { href: "/live-tv", label: "Live TV", icon: "📺", badgeKey: "live" },
-      { href: "/action-center", label: "Action Center", icon: "⚡" },
-      { href: "/live-winners", label: "Winners Center", icon: "🏆" },
-      { href: "/leaderboards", label: "Leaderboards", icon: "📊" },
     ],
   },
   {
@@ -41,6 +41,21 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: "/my-games/winnings", label: "My Winnings", icon: "💰", requiresAuth: true },
       { href: "/my-games/history", label: "Win History", icon: "📜", requiresAuth: true },
     ],
+  },
+  {
+    id: "player-live",
+    title: "Live & Rankings",
+    items: [
+      { href: "/action-center", label: "Action Center", icon: "⚡" },
+      { href: "/live-winners", label: "Winners Center", icon: "🏆" },
+      { href: "/leaderboards", label: "Leaderboards", icon: "📊" },
+    ],
+  },
+  {
+    id: "upcoming",
+    title: "Upcoming Games",
+    renderGames: "coming_soon",
+    items: [],
   },
   {
     id: "learn",

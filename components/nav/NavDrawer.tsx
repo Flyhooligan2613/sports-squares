@@ -1,6 +1,5 @@
 "use client";
 
-import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
@@ -79,49 +78,58 @@ export default function NavDrawer() {
         </div>
 
         <nav className="nav-drawer-scroll flex-1 overflow-y-auto">
-          {NAV_SECTIONS.map((section) => (
-            <Fragment key={section.id}>
-              <div className="nav-drawer-section">
-                <p className="nav-drawer-section-title">{section.title}</p>
-                <ul className="space-y-1">
-                  {section.items.map((item) => {
-                    if (item.requiresAuth && !userEmail) return null;
-                    const active = isNavItemActive(pathname, item.href);
-                    const badge = badgeForItem(
-                      item,
-                      unreadMessages,
-                      activeBoards,
-                      unreadNotifications
-                    );
+          {NAV_SECTIONS.map((section) => {
+            const visibleItems = section.items.filter(
+              (item) => !item.requiresAuth || userEmail
+            );
+            const hasGames = section.renderGames != null;
+            if (visibleItems.length === 0 && !hasGames) return null;
 
-                    return (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          onClick={close}
-                          className={[
-                            "nav-drawer-link",
-                            active ? "nav-drawer-link-active" : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                        >
-                          <span className="nav-drawer-link-icon" aria-hidden>
-                            {item.icon}
-                          </span>
-                          <span className="flex-1 min-w-0">{item.label}</span>
-                          {badge != null ? (
-                            <span className="nav-drawer-badge">{badge}</span>
-                          ) : null}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
+            return (
+              <div key={section.id} className="nav-drawer-section">
+                <p className="nav-drawer-section-title">{section.title}</p>
+                {section.renderGames ? (
+                  <NavGamesSection filter={section.renderGames} />
+                ) : null}
+                {visibleItems.length > 0 ? (
+                  <ul className="space-y-1">
+                    {visibleItems.map((item) => {
+                      const active = isNavItemActive(pathname, item.href);
+                      const badge = badgeForItem(
+                        item,
+                        unreadMessages,
+                        activeBoards,
+                        unreadNotifications
+                      );
+
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={close}
+                            className={[
+                              "nav-drawer-link",
+                              active ? "nav-drawer-link-active" : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                          >
+                            <span className="nav-drawer-link-icon" aria-hidden>
+                              {item.icon}
+                            </span>
+                            <span className="flex-1 min-w-0">{item.label}</span>
+                            {badge != null ? (
+                              <span className="nav-drawer-badge">{badge}</span>
+                            ) : null}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
               </div>
-              {section.id === "player" ? <NavGamesSection /> : null}
-            </Fragment>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="nav-drawer-footer">
