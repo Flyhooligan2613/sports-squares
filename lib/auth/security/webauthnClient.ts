@@ -6,6 +6,8 @@ import {
 } from "@simplewebauthn/browser";
 import type {
   AuthenticationResponseJSON,
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
   RegistrationResponseJSON,
 } from "@simplewebauthn/browser";
 import {
