@@ -7,6 +7,13 @@ import {
   periodDisplayLabel,
   estimateMinutesToPayout,
 } from "@/lib/actionCenter/format";
+import {
+  fetchCurrentWeekScoreboards,
+  isScoreboardGameLive,
+  scoreboardKey,
+  scoreboardToLiveGame,
+} from "@/lib/actionCenter/liveScores";
+import { getCurrentSportsWeekRange, isKickoffInCurrentWeek } from "@/lib/actionCenter/week";
 import type {
   ActionCenterData,
   ActionGameBoard,
@@ -26,13 +33,12 @@ import { TABLES } from "@/lib/database/config";
 import { dbListBoardsForGame } from "@/lib/database/services/boards";
 import { dbListGames } from "@/lib/database/services/games";
 import type { GameRow, PlayerRow, PoolRow, WinnerRow } from "@/lib/database/types";
-import { parseEspnSummary } from "@/lib/espn/parser";
 import { getEspnSportConfig } from "@/lib/espn/sports";
 import { getMarketplaceSportStats } from "@/lib/marketplace/listings";
 import { getTemplatePercentages } from "@/lib/payoutTemplates";
 import { calcPeriodPayouts } from "@/lib/poolFinance";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import type { EspnLiveGame, EspnSport, Game, ScoringPeriod } from "@/lib/types";
+import type { EspnLiveGame, EspnScoreboardGame, EspnSport, Game, ScoringPeriod } from "@/lib/types";
 
 const ACTIVE_STATUSES = ["open", "locked", "numbers-drawn"] as const;
 const SPORT_LABELS: Record<string, string> = {
@@ -64,23 +70,32 @@ function sportLabel(sport: EspnSport): string {
   return SPORT_LABELS[sport] ?? sport.toUpperCase();
 }
 
-async function fetchEspnGameServer(
-  gameId: string,
-  sport: EspnSport
-): Promise<EspnLiveGame | null> {
-  try {
-    const config = getEspnSportConfig(sport);
-    const response = await fetch(`${config.summaryUrl}?event=${gameId}`, {
-      headers: { "User-Agent": "SquareBoards/1.0" },
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    return parseEspnSummary(data, gameId);
-  } catch {
-    return null;
+function resolveLiveState(
+  game: Game,
+  scoreboard: EspnScoreboardGame | null
+): { isLive: boolean; status: ActionGameCard["status"]; espn: EspnLiveGame | null } {
+  if (scoreboard) {
+    const espn = scoreboardToLiveGame(scoreboard, game.espnGameId);
+    const isLive = isScoreboardGameLive(scoreboard);
+    if (scoreboard.completed || espn.gameCompleted) {
+      return { isLive: false, status: "final", espn };
+    }
+    if (isLive) {
+      return { isLive: true, status: "live", espn };
+    }
+    return { isLive: false, status: "upcoming", espn };
   }
+
+  const kickoffMs = new Date(game.kickoffAt).getTime() - Date.now();
+  const isLive =
+    game.status === "live" ||
+    (kickoffMs <= 0 && kickoffMs > -5 * 60 * 60 * 1000 && game.status !== "final");
+
+  return {
+    isLive,
+    status: isLive ? "live" : game.status === "final" ? "final" : "upcoming",
+    espn: null,
+  };
 }
 
 async function batchFillStats(poolIds: string[]): Promise<Map<string, FillStats>> {
@@ -188,11 +203,17 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
 
   const supabase = getSupabaseAdmin();
   const todayStart = startOfToday();
+  const weekRange = getCurrentSportsWeekRange();
   const recentSince = hoursAgo(3);
   const purchaseSince = hoursAgo(24);
 
-  const [games, poolsRes, playersRes, winnersRes, sportStats] = await Promise.all([
-    dbListGames({ status: ["scheduled", "live"] }),
+  const [games, scoreboardByKey, poolsRes, playersRes, winnersRes, sportStats] = await Promise.all([
+    dbListGames({
+      status: ["scheduled", "live"],
+      fromKickoff: weekRange.start.toISOString(),
+      limit: 150,
+    }),
+    fetchCurrentWeekScoreboards(),
     supabase
       .from(TABLES.pools)
       .select("*")
@@ -226,19 +247,17 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
   const openPools = poolRows.filter((p) => p.status === "open");
   const fillByPool = await batchFillStats(openPools.map((p) => p.id));
 
-  const espnKeys = new Map<string, EspnSport>();
-  for (const game of games) {
-    espnKeys.set(game.espnGameId, game.espnSport);
-    if (espnKeys.size >= 20) break;
-  }
+  const weekGames = games.filter(
+    (game) => isKickoffInCurrentWeek(game.kickoffAt) || game.status === "live"
+  );
 
   const espnById = new Map<string, EspnLiveGame>();
-  await Promise.all(
-    Array.from(espnKeys.entries()).map(async ([id, sport]) => {
-      const live = await fetchEspnGameServer(id, sport);
-      if (live) espnById.set(id, live);
-    })
-  );
+  for (const game of weekGames) {
+    const scoreboard = scoreboardByKey.get(scoreboardKey(game.espnSport, game.espnGameId));
+    if (scoreboard) {
+      espnById.set(game.espnGameId, scoreboardToLiveGame(scoreboard, game.espnGameId));
+    }
+  }
 
   const poolsByGame = new Map<string, PoolRow[]>();
   for (const pool of poolRows) {
@@ -269,13 +288,13 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
 
   const gameCards: ActionGameCard[] = [];
 
-  for (const game of games) {
-    const espn = espnById.get(game.espnGameId) ?? null;
+  for (const game of weekGames) {
+    const scoreboard = scoreboardByKey.get(scoreboardKey(game.espnSport, game.espnGameId)) ?? null;
+    const { isLive, status, espn } = resolveLiveState(game, scoreboard);
     const kickoffMs = new Date(game.kickoffAt).getTime() - Date.now();
     const minutesToKickoff = Math.ceil(kickoffMs / 60000);
-    const isLive =
-      game.status === "live" ||
-      (espn ? !espn.gameCompleted && espn.period > 0 : kickoffMs <= 0 && kickoffMs > -4 * 3600000);
+
+    if (status === "final") continue;
 
     const gamePools = poolsByGame.get(game.id) ?? [];
     const openBoard =
@@ -306,14 +325,14 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
       sportLabel: sportLabel(game.espnSport),
       awayTeam: game.awayTeam,
       homeTeam: game.homeTeam,
-      kickoffAt: game.kickoffAt,
-      status: isLive ? "live" : game.status === "final" ? "final" : "upcoming",
+      kickoffAt: scoreboard?.kickoffAt ?? game.kickoffAt,
+      status,
       periodLabel: espn
         ? formatPeriodLabel(espn.period, game.espnSport, espn.statusDetail)
         : null,
-      clockLabel: espn?.statusDetail ?? null,
-      homeScore: espn?.homeScore ?? null,
-      awayScore: espn?.awayScore ?? null,
+      clockLabel: espn?.statusDetail ?? scoreboard?.status ?? null,
+      homeScore: isLive ? (espn?.homeScore ?? scoreboard?.homeScore ?? 0) : null,
+      awayScore: isLive ? (espn?.awayScore ?? scoreboard?.awayScore ?? 0) : null,
       openBoard: openBoardDto,
       totalSquaresSold: totalSold,
       recentPurchases,
@@ -325,13 +344,13 @@ export async function getActionCenterData(): Promise<ActionCenterData> {
   gameCards.sort((a, b) => b.trendingScore - a.trendingScore);
 
   const nowHappening = buildNowHappening(gameCards);
-  const countdown = buildCountdown(games, gameCards);
+  const countdown = buildCountdown(weekGames, gameCards);
   const fillingFast = buildFillingFast(openPools, fillByPool);
-  const nextPayouts = await buildNextPayouts(games, poolRows, playerRows, winnerRows, espnById);
+  const nextPayouts = await buildNextPayouts(weekGames, poolRows, playerRows, winnerRows, espnById);
   const hotGames = gameCards.filter((g) => g.hotBadge).slice(0, 8);
   const purchaseFeed = buildPurchaseFeed(playerRows, poolRows);
   const upcomingSports = buildUpcomingSports(sportStats, playerRows, poolRows);
-  const timeline = buildTimeline(poolRows, winnerRows, games);
+  const timeline = buildTimeline(poolRows, winnerRows, weekGames);
   const recommendations = buildRecommendations(gameCards, fillingFast);
   const platform = buildPlatformHealth(poolRows, playerRows, winnerRows, gameCards);
 
@@ -365,49 +384,24 @@ async function dbGetOpenBoardCached(
 }
 
 function buildNowHappening(cards: ActionGameCard[]): NowHappeningCard[] {
-  const featured: NowHappeningCard[] = [];
+  const weekCards = cards.filter((c) => c.status === "live" || c.status === "upcoming");
 
-  const live = cards.filter((c) => c.status === "live" && c.openBoard);
-  for (const card of live.slice(0, 2)) {
-    featured.push({
-      ...card,
-      featuredReason: "live",
-      ctaLabel: "Play Now",
-    });
-  }
+  weekCards.sort((a, b) => {
+    if (a.status === "live" && b.status !== "live") return -1;
+    if (b.status === "live" && a.status !== "live") return 1;
+    return new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime();
+  });
 
-  const soon = cards
-    .filter((c) => c.status === "upcoming" && c.openBoard)
-    .sort(
-      (a, b) =>
-        new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime()
-    );
-
-  for (const card of soon.slice(0, 2)) {
-    if (featured.length >= 4) break;
-    if (featured.some((f) => f.gameId === card.gameId)) continue;
-    featured.push({
-      ...card,
-      featuredReason: "kickoff_soon",
-      ctaLabel: "Play Now",
-    });
-  }
-
-  const fast = cards
-    .filter((c) => (c.openBoard?.fillPercent ?? 0) >= 75 && c.openBoard)
-    .sort((a, b) => (b.openBoard?.fillPercent ?? 0) - (a.openBoard?.fillPercent ?? 0));
-
-  for (const card of fast.slice(0, 1)) {
-    if (featured.length >= 4) break;
-    if (featured.some((f) => f.gameId === card.gameId)) continue;
-    featured.push({
-      ...card,
-      featuredReason: "filling_fast",
-      ctaLabel: "Play Now",
-    });
-  }
-
-  return featured.slice(0, 4);
+  return weekCards.slice(0, 16).map((card) => ({
+    ...card,
+    featuredReason:
+      card.status === "live"
+        ? "live"
+        : (card.openBoard?.fillPercent ?? 0) >= 75
+          ? "filling_fast"
+          : "kickoff_soon",
+    ctaLabel: card.openBoard ? "Play Now" : "Browse Boards",
+  }));
 }
 
 function buildCountdown(games: Game[], cards: ActionGameCard[]): CountdownGame[] {

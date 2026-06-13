@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import type { ActionCenterData } from "@/lib/actionCenter/types";
 
-const POLL_MS = 10_000;
+const POLL_MS = 5_000;
 
 function StickyCountdownBar({
   nextKickoff,

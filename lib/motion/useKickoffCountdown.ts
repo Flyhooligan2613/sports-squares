@@ -16,26 +16,31 @@ function formatCountdownParts(ms: number): {
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
 
   if (days > 0) {
-    return { label: "Tomorrow", isLive: false, isTomorrow: true };
+    return {
+      label: `${days}d ${hours}h ${pad(minutes)}m`,
+      isLive: false,
+      isTomorrow: days === 1 && hours < 12,
+    };
   }
   if (hours > 0) {
     return {
-      label: `${hours} hour${hours === 1 ? "" : "s"} ${minutes}m`,
+      label: `${hours}h ${pad(minutes)}m ${pad(seconds)}s`,
       isLive: false,
       isTomorrow: false,
     };
   }
   if (minutes > 0) {
     return {
-      label: `${minutes} minute${minutes === 1 ? "" : "s"}`,
+      label: `${minutes}m ${pad(seconds)}s`,
       isLive: false,
       isTomorrow: false,
     };
   }
   return {
-    label: `${seconds} second${seconds === 1 ? "" : "s"}`,
+    label: `${seconds}s`,
     isLive: false,
     isTomorrow: false,
   };
