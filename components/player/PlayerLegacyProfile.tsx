@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
+import UsernameSettings from "@/components/player/UsernameSettings";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
 import type { PlayerLegacyData } from "@/lib/player/legacyTypes";
 import { useCountUp } from "@/lib/motion/useCountUp";
@@ -279,6 +280,8 @@ export default function PlayerLegacyProfile() {
       </section>
 
       <section className="space-y-5">
+        <UsernameSettings />
+
         <LandingGlassCard className="p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2 flex items-center gap-2">
             <Grid3X3 className="w-4 h-4" />

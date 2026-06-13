@@ -15,6 +15,46 @@ const RESERVED = new Set([
   "system",
 ]);
 
+export async function getUsernameChangeEligibility(email: string) {
+  const account = await ensureEcosystemAccount(email);
+  const config = await getAdminConfig("username");
+  const supabase = getSupabaseAdmin();
+  const normalized = normalizeEmail(email);
+
+  const { data: profile } = await supabase
+    .from("player_profiles")
+    .select("username_changed_at")
+    .eq("email", normalized)
+    .maybeSingle();
+
+  const changedAtMs = profile?.username_changed_at
+    ? new Date(profile.username_changed_at as string).getTime()
+    : null;
+  const freeWindowMs = config.freeChangeDays * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  let requiresCredits = false;
+  let daysUntilFreeChange = 0;
+
+  if (changedAtMs) {
+    const elapsed = now - changedAtMs;
+    if (elapsed < freeWindowMs) {
+      requiresCredits = true;
+      daysUntilFreeChange = Math.ceil((freeWindowMs - elapsed) / (24 * 60 * 60 * 1000));
+    }
+  }
+
+  return {
+    username: account.username,
+    playerId: account.playerId,
+    requiresCredits,
+    creditCost: config.paidChangeCredits,
+    availableCredits: account.availableTierCredits,
+    freeChangeDays: config.freeChangeDays,
+    daysUntilFreeChange,
+  };
+}
+
 export async function changeUsername(input: {
   email: string;
   username: string;

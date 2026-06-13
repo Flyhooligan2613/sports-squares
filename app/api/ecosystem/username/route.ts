@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { buildPlayerCard } from "@/lib/platform/ecosystem/dashboard";
-import { changeUsername } from "@/lib/platform/ecosystem/username";
+import {
+  changeUsername,
+  getUsernameChangeEligibility,
+} from "@/lib/platform/ecosystem/username";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +22,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  return NextResponse.json(await buildPlayerCard(user.email));
+  return NextResponse.json(await getUsernameChangeEligibility(user.email));
 }
 
 export async function PATCH(request: Request) {
@@ -44,7 +46,10 @@ export async function PATCH(request: Request) {
 
   try {
     await changeUsername({ email: user.email, username: body.username });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      ...(await getUsernameChangeEligibility(user.email)),
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not update username.";
     return NextResponse.json({ error: message }, { status: 400 });

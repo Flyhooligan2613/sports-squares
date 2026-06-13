@@ -17,5 +17,9 @@ export function formatPlayerAuthError(message: string): string {
     return "We couldn't send your sign-in email. Try again in a few minutes, or open the access link on your purchase confirmation page.";
   }
 
+  if (lower.includes("invalid login credentials") || lower.includes("invalid credentials")) {
+    return "Wrong password — or no password set yet. Sign in with your email link, then set a password under Security.";
+  }
+
   return message;
 }

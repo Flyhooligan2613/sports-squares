@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
-import { signInPlayerWithMagicLink } from "@/lib/auth/playerAuthClient";
+import { signInPlayerWithMagicLink, signInPlayerWithPassword } from "@/lib/auth/playerAuthClient";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import Logo from "@/components/Logo";
 import {
@@ -32,6 +32,8 @@ export default function PlayerLoginForm() {
   const [rememberMe, setRememberMe] = useState(true);
   const [passkeyAvailable, setPasskeyAvailable] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [signInMode, setSignInMode] = useState<"password" | "email">("password");
+  const [password, setPassword] = useState("");
 
   const deviceKey = getOrCreateDeviceKey();
   const device = detectDeviceInfo(
@@ -68,6 +70,28 @@ export default function PlayerLoginForm() {
       cancelled = true;
     };
   }, [email, router]);
+
+  async function handlePasswordSignIn(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setRememberMePreference(rememberMe);
+
+    const result = await signInPlayerWithPassword(email, password, {
+      rememberMe,
+      deviceKey,
+      referralCode: referralCode || undefined,
+    });
+    setLoading(false);
+
+    if (!result.ok) {
+      setError(formatPlayerAuthError(result.error));
+      return;
+    }
+
+    markAppUnlocked(email.trim().toLowerCase());
+    router.replace("/my-games");
+  }
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault();
@@ -165,7 +189,38 @@ export default function PlayerLoginForm() {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleMagicLink} className="space-y-5">
+            <>
+              <div className="flex rounded-xl border border-white/10 p-1 mb-5">
+                <button
+                  type="button"
+                  onClick={() => setSignInMode("password")}
+                  className={[
+                    "flex-1 py-2 text-sm font-medium rounded-lg transition-colors",
+                    signInMode === "password"
+                      ? "bg-sb-purple/25 text-white"
+                      : "text-sb-muted hover:text-white",
+                  ].join(" ")}
+                >
+                  Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSignInMode("email")}
+                  className={[
+                    "flex-1 py-2 text-sm font-medium rounded-lg transition-colors",
+                    signInMode === "email"
+                      ? "bg-sb-purple/25 text-white"
+                      : "text-sb-muted hover:text-white",
+                  ].join(" ")}
+                >
+                  Email link
+                </button>
+              </div>
+
+              <form
+                onSubmit={signInMode === "password" ? handlePasswordSignIn : handleMagicLink}
+                className="space-y-5"
+              >
               <div>
                 <label
                   htmlFor="player-email"
@@ -184,6 +239,30 @@ export default function PlayerLoginForm() {
                   className="player-input w-full"
                 />
               </div>
+
+              {signInMode === "password" ? (
+                <div>
+                  <label
+                    htmlFor="player-password"
+                    className="block text-xs font-semibold uppercase tracking-wider text-sb-muted mb-2"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="player-password"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Your password"
+                    className="player-input w-full"
+                  />
+                  <p className="text-xs text-sb-muted mt-2">
+                    No password yet? Sign in with an email link, then set one under Security.
+                  </p>
+                </div>
+              ) : null}
 
               {referralCode ? (
                 <p className="text-xs text-emerald-300/90 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
@@ -226,12 +305,21 @@ export default function PlayerLoginForm() {
               <Button
                 type="submit"
                 variant={passkeyAvailable ? "secondary" : "primary"}
-                className={`w-full ${passkeyAvailable ? "" : "player-btn-glow"}`}
+                className={`w-full ${passkeyAvailable && signInMode === "email" ? "" : "player-btn-glow"}`}
                 disabled={loading}
               >
-                {loading ? "Sending link…" : passkeyAvailable ? "Email me a sign-in link" : "Continue with email"}
+                {loading
+                  ? signInMode === "password"
+                    ? "Signing in…"
+                    : "Sending link…"
+                  : signInMode === "password"
+                    ? "Sign in with password"
+                    : passkeyAvailable
+                      ? "Email me a sign-in link"
+                      : "Continue with email"}
               </Button>
             </form>
+            </>
           )}
         </LandingGlassCard>
 

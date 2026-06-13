@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import TrustedDevicesSettings from "@/components/player/TrustedDevicesSettings";
+import PasswordSettings from "@/components/player/PasswordSettings";
 import { getOrCreateDeviceKey } from "@/lib/auth/security/deviceClient";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 import { isQuickPinEnabledLocally } from "@/lib/auth/security/quickPin";
@@ -123,6 +124,8 @@ export default function SecurityCenter() {
           </ul>
         </LandingGlassCard>
       ) : null}
+
+      <PasswordSettings />
 
       <TrustedDevicesSettings />
     </div>

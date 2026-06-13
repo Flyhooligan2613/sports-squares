@@ -1,0 +1,105 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
+import { playerEmailHasPurchases } from "@/lib/auth/playerMagicLink";
+import { resolveLoginIdentifier } from "@/lib/platform/ecosystem/identifiers";
+import { completePlayerSignIn } from "@/lib/auth/security/completeSignIn";
+import {
+  resolveClientIp,
+  resolveLoginLocation,
+} from "@/lib/auth/security/securityCenter";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(request: Request) {
+  if (!isSupabaseAdminConfigured()) {
+    return NextResponse.json({ error: "Sign-in is not configured." }, { status: 503 });
+  }
+
+  try {
+    const body = (await request.json()) as {
+      email?: string;
+      identifier?: string;
+      password?: string;
+      rememberMe?: boolean;
+      deviceKey?: string;
+      referralCode?: string;
+    };
+
+    if (!body.password?.trim()) {
+      return NextResponse.json({ error: "Enter your password." }, { status: 400 });
+    }
+
+    let email = body.email?.trim().toLowerCase() ?? "";
+    if (!email && body.identifier?.trim()) {
+      const resolved = await resolveLoginIdentifier(body.identifier);
+      if (resolved) email = resolved;
+    }
+
+    if (!email || !email.includes("@")) {
+      return NextResponse.json(
+        { error: "Enter a valid email, username, phone, or Player ID." },
+        { status: 400 }
+      );
+    }
+
+    const hasPurchases = await playerEmailHasPurchases(email);
+    if (!hasPurchases) {
+      return NextResponse.json(
+        {
+          error:
+            "No boards found for this account. Use the same email from your Stripe receipt.",
+        },
+        { status: 404 }
+      );
+    }
+
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: body.password,
+    });
+
+    if (error || !data.user) {
+      return NextResponse.json(
+        {
+          error: formatPlayerAuthError(
+            error?.message ??
+              "Invalid password. Use your email link, or set a password in Security after signing in."
+          ),
+        },
+        { status: 401 }
+      );
+    }
+
+    if (body.deviceKey?.trim()) {
+      await completePlayerSignIn({
+        email,
+        authUserId: data.user.id,
+        deviceKey: body.deviceKey.trim(),
+        userAgent: request.headers.get("user-agent") ?? "unknown",
+        rememberMe: body.rememberMe ?? true,
+        lastLocation: resolveLoginLocation(request.headers),
+        lastIp: resolveClientIp(request.headers),
+      });
+    }
+
+    if (body.referralCode?.trim()) {
+      const { applyReferralCode } = await import("@/lib/platform/ecosystem/referrals");
+      await applyReferralCode({
+        refereeEmail: email,
+        referralCode: body.referralCode.trim(),
+        deviceKey: body.deviceKey,
+        ip: resolveClientIp(request.headers),
+      }).catch(() => undefined);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Sign-in failed." },
+      { status: 500 }
+    );
+  }
+}
