@@ -57,7 +57,7 @@ console.log("");
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const controller = new AbortController();
-const timeout = setTimeout(() => controller.abort(), 120_000);
+const timeout = setTimeout(() => controller.abort(), 300_000);
 
 try {
   const started = Date.now();
