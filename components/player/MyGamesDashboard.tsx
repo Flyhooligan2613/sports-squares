@@ -67,7 +67,13 @@ export default function MyGamesDashboard() {
 
   return (
     <>
-      <MyGamesHero displayName={data.displayName} stats={data.stats} />
+      <MyGamesHero
+        displayName={data.publicLabel}
+        avatarEmoji={data.avatarEmoji}
+        profileBio={data.profileBio}
+        needsUsernameSetup={data.needsUsernameSetup}
+        stats={data.stats}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
         <PlayerPayoutSetup

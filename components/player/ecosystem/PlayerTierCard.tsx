@@ -7,6 +7,8 @@ import AvatarPicker from "@/components/player/ecosystem/AvatarPicker";
 import type { TierVisual } from "@/lib/platform/ecosystem/tierVisuals";
 
 interface PlayerCardApiResponse {
+  publicLabel?: string;
+  profileBio?: string | null;
   account: {
     username: string | null;
     displayName: string;
@@ -62,7 +64,7 @@ export default function PlayerTierCard({ showAvatarPicker = false }: { showAvata
 
   const visual = data.tierVisual;
   const level = data.computedTierLevel ?? data.account.tierLevel;
-  const name = data.account.username ?? data.account.displayName;
+  const name = data.publicLabel ?? data.account.username ?? data.account.displayName;
   const legacy = data.legacy;
 
   return (

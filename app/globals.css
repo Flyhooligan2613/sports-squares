@@ -3077,6 +3077,27 @@ body {
   transform: scale(1.05);
 }
 
+.player-bio-banner {
+  border-radius: 1rem;
+  border: 1px solid rgba(123, 97, 255, 0.35);
+  background: linear-gradient(90deg, rgba(91, 76, 247, 0.12), rgba(168, 85, 247, 0.06));
+  padding: 0.875rem 1.25rem;
+  max-width: 42rem;
+}
+
+.player-bio-banner-empty {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.player-bio-banner-text {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #e9e0ff;
+  font-style: italic;
+}
+
 .player-avatar-emoji {
   font-weight: 400;
   color: inherit;

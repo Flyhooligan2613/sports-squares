@@ -3,6 +3,8 @@ import { normalizeEmail } from "@/lib/player/statsCore";
 import { getAdminConfig } from "@/lib/platform/ecosystem/adminConfig";
 import { ensureEcosystemAccount, updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
 import { spendTierCredits } from "@/lib/platform/ecosystem/credits";
+import { validateUsername } from "@/lib/platform/ecosystem/profanityFilter";
+import { getProfileBio } from "@/lib/platform/ecosystem/profileBio";
 
 const RESERVED = new Set([
   "admin",
@@ -23,7 +25,7 @@ export async function getUsernameChangeEligibility(email: string) {
 
   const { data: profile } = await supabase
     .from("player_profiles")
-    .select("username_changed_at")
+    .select("username_changed_at, username_customized, profile_bio")
     .eq("email", normalized)
     .maybeSingle();
 
@@ -44,9 +46,13 @@ export async function getUsernameChangeEligibility(email: string) {
     }
   }
 
+  const bio = await getProfileBio(email);
+
   return {
     username: account.username,
     playerId: account.playerId,
+    profileBio: bio,
+    usernameCustomized: Boolean(profile?.username_customized),
     requiresCredits,
     creditCost: config.paidChangeCredits,
     availableCredits: account.availableTierCredits,
@@ -59,11 +65,15 @@ export async function changeUsername(input: {
   email: string;
   username: string;
 }): Promise<void> {
-  const username = input.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
-  if (username.length < 3 || username.length > 20) {
-    throw new Error("Username must be 3–20 characters (letters, numbers, underscore).");
+  const validated = validateUsername(input.username);
+  if (!validated.ok || !validated.value) {
+    throw new Error(validated.reason ?? "Invalid username.");
   }
-  if (RESERVED.has(username)) {
+
+  const username = validated.value;
+  const usernameKey = username.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  if (usernameKey.length >= 3 && RESERVED.has(usernameKey)) {
     throw new Error("This username is reserved.");
   }
 
@@ -72,18 +82,19 @@ export async function changeUsername(input: {
   const supabase = getSupabaseAdmin();
   const normalized = normalizeEmail(input.email);
 
-  const { data: conflict } = await supabase
+  const { data: profiles } = await supabase
     .from("player_profiles")
-    .select("email")
-    .ilike("username", username)
-    .neq("email", normalized)
-    .maybeSingle();
+    .select("email, username")
+    .neq("email", normalized);
 
+  const conflict = (profiles ?? []).find(
+    (row) => (row.username as string)?.trim().toLowerCase() === username.toLowerCase()
+  );
   if (conflict) throw new Error("Username is already taken.");
 
   const { data: profile } = await supabase
     .from("player_profiles")
-    .select("username_changed_at")
+    .select("username_changed_at, username")
     .eq("email", normalized)
     .maybeSingle();
 
@@ -93,7 +104,7 @@ export async function changeUsername(input: {
   const freeWindowMs = config.freeChangeDays * 24 * 60 * 60 * 1000;
   const now = Date.now();
 
-  if (changedAtMs) {
+  if (changedAtMs && profile?.username && profile.username !== username) {
     const elapsed = now - changedAtMs;
     if (elapsed < freeWindowMs) {
       await spendTierCredits({
@@ -114,5 +125,6 @@ export async function changeUsername(input: {
   await updateEcosystemProfile(input.email, {
     username,
     username_changed_at: new Date().toISOString(),
+    username_customized: true,
   });
 }

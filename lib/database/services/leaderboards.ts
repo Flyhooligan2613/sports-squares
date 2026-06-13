@@ -15,6 +15,7 @@ import {
   normalizeEmail,
   playerOwnsWin,
 } from "@/lib/player/statsCore";
+import { getPlayerPublicIdentityMap } from "@/lib/player/publicIdentity";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -184,6 +185,12 @@ export async function getLeaderboards(
   }
 
   const allPlayers = Array.from(aggregates.values());
+
+  const identityMap = await getPlayerPublicIdentityMap(allPlayers.map((p) => p.email));
+  for (const player of allPlayers) {
+    const identity = identityMap.get(player.email);
+    if (identity) player.displayName = identity.publicLabel;
+  }
 
   const winningsSorted = allPlayers
     .filter((p) => p.lifetimeWinnings > 0 || p.lifetimeWins > 0)

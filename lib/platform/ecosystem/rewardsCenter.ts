@@ -4,6 +4,7 @@ import { getPlayerLegacy } from "@/lib/database/services/playerLegacy";
 import { getPlayerDashboard } from "@/lib/database/services/playerDashboard";
 import { getEcosystemDashboard } from "@/lib/platform/ecosystem/dashboard";
 import { recordDailyLogin } from "@/lib/platform/ecosystem/progression";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import { getInventorySummary } from "@/lib/platform/ecosystem/inventory";
 import { listActivePromotions } from "@/lib/platform/ecosystem/promotions";
 import { listRewardsCatalog } from "@/lib/platform/ecosystem/rewards";
@@ -15,13 +16,14 @@ export async function getRewardsCenterData(email: string) {
   const normalized = normalizeEmail(email);
   await recordDailyLogin(normalized).catch(() => null);
 
-  const [dashboard, inventory, promotions, catalog, legacy, playerDash] = await Promise.all([
+  const [dashboard, inventory, promotions, catalog, legacy, playerDash, identity] = await Promise.all([
     getEcosystemDashboard(normalized),
     getInventorySummary(normalized),
     listActivePromotions(normalized),
     listRewardsCatalog(),
     getPlayerLegacy(normalized),
     getPlayerDashboard(normalized).catch(() => null),
+    getPlayerPublicIdentity(normalized),
   ]);
 
   const supabase = getSupabaseAdmin();
@@ -71,7 +73,7 @@ export async function getRewardsCenterData(email: string) {
       pendingRewards: (pending ?? []).length,
     },
     tierCard: {
-      displayName: dashboard.account.username ?? dashboard.account.displayName,
+      displayName: identity.publicLabel,
       playerId: dashboard.account.playerId,
       tierName: dashboard.tier.displayName,
       tierSlug: dashboard.tier.slug,

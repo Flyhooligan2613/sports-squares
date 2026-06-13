@@ -3,12 +3,8 @@ import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admi
 import type { PlayerRow, PoolRow, SquareRow, WinnerRow } from "@/lib/database/types";
 import { buildAchievements, legacyHeadline } from "@/lib/player/achievements";
 import type { PlayerLegacyData } from "@/lib/player/legacyTypes";
-import {
-  calcWinStreaks,
-  displayNameFromEmail,
-  normalizeEmail,
-  playerOwnsWin,
-} from "@/lib/player/statsCore";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
+import { calcWinStreaks, normalizeEmail, playerOwnsWin } from "@/lib/player/statsCore";
 
 function seasonKey(date: Date): string {
   const month = date.getUTCMonth();
@@ -32,6 +28,7 @@ export async function getPlayerLegacy(
   if (playersError) throw playersError;
 
   if (!playerRows?.length) {
+    const identity = await getPlayerPublicIdentity(normalized);
     const stats = {
       lifetimeWinnings: 0,
       lifetimeWins: 0,
@@ -44,7 +41,7 @@ export async function getPlayerLegacy(
       longestWinStreak: 0,
     };
     return {
-      displayName: displayNameFromEmail(normalized),
+      displayName: identity.publicLabel,
       email: normalized,
       memberSince: new Date().toISOString(),
       stats,
@@ -59,9 +56,7 @@ export async function getPlayerLegacy(
   const poolIds = Array.from(new Set(players.map((p) => p.pool_id)));
   const playerIds = new Set(players.map((p) => p.id));
   const playerNames = new Set(players.map((p) => p.name.trim().toLowerCase()));
-  const displayName =
-    players.find((p) => p.name.trim())?.name.split(" ")[0] ??
-    displayNameFromEmail(normalized);
+  const identity = await getPlayerPublicIdentity(normalized);
 
   const memberSince = players.reduce((earliest, row) => {
     const at = new Date(row.created_at).getTime();
@@ -138,7 +133,7 @@ export async function getPlayerLegacy(
   };
 
   return {
-    displayName,
+    displayName: identity.publicLabel,
     email: normalized,
     memberSince: new Date(memberSince).toISOString(),
     stats,

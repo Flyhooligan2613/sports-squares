@@ -29,10 +29,18 @@ export async function resolveLoginIdentifier(identifier: string): Promise<string
     .maybeSingle();
   if (byPlayerId?.email) return normalizeEmail(byPlayerId.email as string);
 
+  const trimmed = raw.trim();
+  const { data: byUsernameExact } = await supabase
+    .from("player_profiles")
+    .select("email")
+    .eq("username", trimmed)
+    .maybeSingle();
+  if (byUsernameExact?.email) return normalizeEmail(byUsernameExact.email as string);
+
   const { data: byUsername } = await supabase
     .from("player_profiles")
     .select("email")
-    .ilike("username", raw)
+    .ilike("username", trimmed)
     .maybeSingle();
   if (byUsername?.email) return normalizeEmail(byUsername.email as string);
 

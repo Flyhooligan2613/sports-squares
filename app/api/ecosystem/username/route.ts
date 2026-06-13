@@ -5,6 +5,8 @@ import {
   changeUsername,
   getUsernameChangeEligibility,
 } from "@/lib/platform/ecosystem/username";
+import { setProfileBio } from "@/lib/platform/ecosystem/profileBio";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +24,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  return NextResponse.json(await getUsernameChangeEligibility(user.email));
+  const [eligibility, identity] = await Promise.all([
+    getUsernameChangeEligibility(user.email),
+    getPlayerPublicIdentity(user.email),
+  ]);
+
+  return NextResponse.json({ ...eligibility, publicLabel: identity.publicLabel, avatarEmoji: identity.avatarEmoji });
 }
 
 export async function PATCH(request: Request) {
@@ -39,19 +46,21 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json()) as { username?: string };
-  if (!body.username?.trim()) {
-    return NextResponse.json({ error: "Username required." }, { status: 400 });
-  }
+  const body = (await request.json()) as { username?: string; profileBio?: string };
 
   try {
-    await changeUsername({ email: user.email, username: body.username });
-    return NextResponse.json({
-      ok: true,
-      ...(await getUsernameChangeEligibility(user.email)),
-    });
+    if (body.username?.trim()) {
+      await changeUsername({ email: user.email, username: body.username });
+    }
+    if (body.profileBio !== undefined) {
+      await setProfileBio(user.email, body.profileBio);
+    }
+
+    const eligibility = await getUsernameChangeEligibility(user.email);
+    const identity = await getPlayerPublicIdentity(user.email);
+    return NextResponse.json({ ok: true, ...eligibility, publicLabel: identity.publicLabel });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not update username.";
+    const message = err instanceof Error ? err.message : "Could not update profile.";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

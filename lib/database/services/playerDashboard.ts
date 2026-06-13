@@ -17,6 +17,7 @@ import type {
 } from "@/lib/player/dashboardTypes";
 import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
 import { isStripeConnectEnabled } from "@/lib/stripe/connect";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import type { EspnLiveGame, Pool, PoolStatus, ScoringPeriod } from "@/lib/types";
 
 const ACTIVE_STATUSES: PoolStatus[] = ["open", "locked", "numbers-drawn"];
@@ -115,8 +116,15 @@ export async function getPlayerDashboard(
   if (playersError) throw playersError;
   if (!playerRows?.length) {
     const connectStatus = await getPlayerConnectStatus(normalized);
+    const identity = await getPlayerPublicIdentity(normalized);
     return {
-      displayName: displayNameFromEmail(normalized),
+      displayName: identity.publicLabel,
+      username: identity.username,
+      publicLabel: identity.publicLabel,
+      profileBio: identity.profileBio,
+      avatarEmoji: identity.avatarEmoji,
+      usernameCustomized: identity.usernameCustomized,
+      needsUsernameSetup: !identity.usernameCustomized,
       email: normalized,
       stats: {
         totalWinnings: 0,
@@ -142,6 +150,8 @@ export async function getPlayerDashboard(
   const displayName =
     players.find((p) => p.name.trim())?.name.split(" ")[0] ??
     displayNameFromEmail(normalized);
+
+  const identity = await getPlayerPublicIdentity(normalized);
 
   const [poolsRes, squaresRes, winnersRes] = await Promise.all([
     supabase.from(TABLES.pools).select("*").in("id", poolIds),
@@ -330,7 +340,13 @@ export async function getPlayerDashboard(
   const connectStatus = await getPlayerConnectStatus(normalized);
 
   return {
-    displayName,
+    displayName: identity.publicLabel,
+    username: identity.username,
+    publicLabel: identity.publicLabel,
+    profileBio: identity.profileBio,
+    avatarEmoji: identity.avatarEmoji,
+    usernameCustomized: identity.usernameCustomized,
+    needsUsernameSetup: !identity.usernameCustomized,
     email: normalized,
     stats: {
       totalWinnings: Math.round(totalWinnings),

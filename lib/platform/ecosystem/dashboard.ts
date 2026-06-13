@@ -8,6 +8,7 @@ import { listTierDefinitions, resolveTierForCredits } from "@/lib/platform/ecosy
 import { ensureWeeklyMysteryBox } from "@/lib/platform/ecosystem/mysteryBox";
 import { getTierVisual, computeTierLevel, computeXpToNextTier } from "@/lib/platform/ecosystem/tierVisuals";
 import { DEFAULT_AVATAR } from "@/lib/platform/ecosystem/avatars";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import type { EcosystemDashboard } from "@/lib/platform/ecosystem/types";
 
 export async function getEcosystemDashboard(email: string): Promise<EcosystemDashboard> {
@@ -41,7 +42,10 @@ export async function getEcosystemDashboard(email: string): Promise<EcosystemDas
 
 export async function buildPlayerCard(email: string) {
   const dashboard = await getEcosystemDashboard(email);
-  const legacy = await getPlayerLegacy(email);
+  const [legacy, identity] = await Promise.all([
+    getPlayerLegacy(email),
+    getPlayerPublicIdentity(email),
+  ]);
   const supabase = getSupabaseAdmin();
   const { data: profile } = await supabase
     .from("player_profiles")
@@ -57,7 +61,9 @@ export async function buildPlayerCard(email: string) {
 
   return {
     ...dashboard,
-    avatar: (profile?.avatar_emoji as string) ?? DEFAULT_AVATAR,
+    publicLabel: identity.publicLabel,
+    profileBio: identity.profileBio,
+    avatar: identity.avatarEmoji ?? DEFAULT_AVATAR,
     tierVisual: visual,
     computedTierLevel: tierLevel,
     xpToNext: computeXpToNextTier(dashboard.creditsToNextTier),

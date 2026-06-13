@@ -73,6 +73,12 @@ export interface PlayerNotification {
 
 export interface PlayerDashboardData {
   displayName: string;
+  username: string | null;
+  publicLabel: string;
+  profileBio: string | null;
+  avatarEmoji: string;
+  usernameCustomized: boolean;
+  needsUsernameSetup: boolean;
   email: string;
   stats: PlayerDashboardStats;
   connectStatus: PlayerConnectStatus;
