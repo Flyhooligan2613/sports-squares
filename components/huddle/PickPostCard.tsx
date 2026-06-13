@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { CREATOR_LEVEL_LABELS, type HuddlePickPost } from "@/lib/huddle/types";
@@ -13,6 +14,7 @@ interface PickPostCardProps {
 
 export default function PickPostCard({ post, onUpdate }: PickPostCardProps) {
   const tierVisual = getTierVisual(post.author.tierSlug);
+  const [following, setFollowing] = useState(false);
 
   async function toggleLike() {
     await fetch(`/api/huddle/posts/${post.id}/like`, {
@@ -41,12 +43,16 @@ export default function PickPostCard({ post, onUpdate }: PickPostCardProps) {
   }
 
   async function toggleFollow() {
-    await fetch("/api/huddle/follow", {
+    const res = await fetch("/api/huddle/follow", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: post.author.slug, action: "follow" }),
+      body: JSON.stringify({
+        slug: post.author.slug,
+        action: following ? "unfollow" : "follow",
+      }),
     });
+    if (res.ok) setFollowing(!following);
     onUpdate();
   }
 
@@ -66,7 +72,7 @@ export default function PickPostCard({ post, onUpdate }: PickPostCardProps) {
               <span className="text-[10px] uppercase tracking-wider text-sb-muted">{post.author.playerId}</span>
             </div>
             <p className="text-xs text-sb-muted">
-              {tierVisual.icon} {post.author.tierName} · {CREATOR_LEVEL_LABELS[post.author.creatorLevel]}
+              {tierVisual.icon} {post.author.tierName} · {post.author.followerCount.toLocaleString()} followers
             </p>
             {post.bioSnapshot ? (
               <p className="text-xs text-sb-muted mt-1 line-clamp-2">{post.bioSnapshot}</p>
@@ -109,10 +115,10 @@ export default function PickPostCard({ post, onUpdate }: PickPostCardProps) {
           📋 Copy Sunday Picks ({post.copyCount})
         </Button>
         <Button variant="secondary" className="text-xs" onClick={() => void toggleFollow()}>
-          + Follow
+          {following ? "Following" : "+ Follow"}
         </Button>
         <span className="text-[10px] text-sb-muted ml-auto">
-          Rep {post.author.communityReputation.toLocaleString()}
+          {CREATOR_LEVEL_LABELS[post.author.creatorLevel]} · Rep {post.author.communityReputation.toLocaleString()}
         </span>
       </div>
     </LandingGlassCard>

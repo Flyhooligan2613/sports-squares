@@ -354,3 +354,49 @@ export async function getViewerPickPost(
   const authorMap = await getHuddlePlayerSummaries([normalized]);
   return mapPostRow(data as PostRow, normalized, new Set(), new Set(), authorMap);
 }
+
+export async function listPickPostsForEmail(
+  email: string,
+  viewerEmail?: string | null,
+  limit = 20
+): Promise<HuddlePickPost[]> {
+  const normalized = normalizeEmail(email);
+  const viewer = viewerEmail ? normalizeEmail(viewerEmail) : null;
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("huddle_pick_posts")
+    .select("*")
+    .eq("email", normalized)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  const rows = (data ?? []) as PostRow[];
+  if (!rows.length) return [];
+
+  const postIds = rows.map((r) => r.id);
+  const [authorMap, likedSet, copiedSet] = await Promise.all([
+    getHuddlePlayerSummaries([normalized]),
+    viewer
+      ? supabase
+          .from("huddle_pick_post_likes")
+          .select("post_id")
+          .eq("email", viewer)
+          .in("post_id", postIds)
+          .then((r) => new Set((r.data ?? []).map((x) => x.post_id as string)))
+      : Promise.resolve(new Set<string>()),
+    viewer
+      ? supabase
+          .from("huddle_pick_copies")
+          .select("post_id")
+          .eq("copier_email", viewer)
+          .in("post_id", postIds)
+          .then((r) => new Set((r.data ?? []).map((x) => x.post_id as string)))
+      : Promise.resolve(new Set<string>()),
+  ]);
+
+  return Promise.all(
+    rows.map((row) => mapPostRow(row, viewer, likedSet, copiedSet, authorMap))
+  );
+}
