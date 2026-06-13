@@ -109,8 +109,10 @@ function FollowListModal({
 
 export default function ProfileSocialView({
   profile,
+  embedded = false,
 }: {
   profile: PublicPlayerProfile;
+  embedded?: boolean;
 }) {
   const [social, setSocial] = useState<PlayerSocialProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -171,7 +173,11 @@ export default function ProfileSocialView({
                     }
                   />
                 ) : (
-                  <Button href="/my-games/profile" variant="secondary" size="sm">
+                  <Button
+                    href={embedded ? "#settings" : "/my-games/profile"}
+                    variant="secondary"
+                    size="sm"
+                  >
                     Edit Profile
                   </Button>
                 )}
