@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "next build",
+    "build:clean": "node scripts/build-clean.mjs",
     "start": "next start",
     "lint": "next lint",
     "deploy": "node scripts/deploy-vercel.mjs",
