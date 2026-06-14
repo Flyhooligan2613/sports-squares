@@ -9,6 +9,7 @@ import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import SurvivorLiveMap from "@/components/survivor/SurvivorLiveMap";
+import SurvivorStayInGamePanel from "@/components/survivor/SurvivorStayInGamePanel";
 import SurvivorShieldActivation, {
   shieldActivationStorageKey,
 } from "@/components/survivor/SurvivorShieldActivation";
@@ -229,7 +230,17 @@ export default function SurvivorWeekClient() {
           </LandingGlassCard>
         ) : null}
 
-        {view?.entry ? (
+        {view?.entry &&
+        (view.entry.status === "eliminated" || view.entry.status === "champion") ? (
+          <SurvivorStayInGamePanel
+            variant={view.entry.status === "champion" ? "champion" : "eliminated"}
+            weeksSurvived={view.entry.weeksSurvived}
+            shieldUsedWeek={view.entry.shieldUsedWeek}
+            displayName={view.entry.displayName}
+          />
+        ) : null}
+
+        {view?.entry && view.entry.status === "active" ? (
           <LandingGlassCard className="p-5 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -299,6 +310,13 @@ export default function SurvivorWeekClient() {
 
         {view ? (
           <div className="space-y-2">
+            {view.entry?.status === "active" ? (
+              <p className="text-xs text-center text-sb-muted mb-2">Lock your team for this week</p>
+            ) : view.entry ? (
+              <p className="text-xs text-center text-sb-muted mb-2">
+                Spectator view — teams on the board this week
+              </p>
+            ) : null}
             {view.games.map((game) => {
               const disabled =
                 !view.canPick ||

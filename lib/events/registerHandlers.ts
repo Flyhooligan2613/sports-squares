@@ -4,6 +4,7 @@ import { liveCoreHandler } from "@/lib/events/handlers/liveCore";
 import {
   survivorLegacyHandler,
 } from "@/lib/events/handlers/survivorLegacy";
+import { survivorRewardsHandler } from "@/lib/events/handlers/survivorRewards";
 import {
   survivorLiveCoreHandler,
   survivorWeekLiveHandler,
@@ -41,5 +42,18 @@ export function registerDefaultEventHandlers(): void {
   });
   subscribeToPlatformEvent("survivor.week_complete", survivorWeekLiveHandler, {
     name: "SurvivorWeekLive",
+  });
+
+  subscribeToPlatformEvent("survivor.survived", survivorRewardsHandler, {
+    name: "SurvivorRewards",
+  });
+  subscribeToPlatformEvent("survivor.shield_activated", survivorRewardsHandler, {
+    name: "SurvivorRewards",
+  });
+  subscribeToPlatformEvent("survivor.eliminated", survivorRewardsHandler, {
+    name: "SurvivorRewards",
+  });
+  subscribeToPlatformEvent("survivor.champion_crowned", survivorRewardsHandler, {
+    name: "SurvivorRewards",
   });
 }
