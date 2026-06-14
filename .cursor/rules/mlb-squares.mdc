@@ -1,0 +1,31 @@
+---
+description: MLB Squares flagship build spec — Executive Directive #005
+globs: lib/espn/**,lib/engines/**,lib/platform/**,components/**/board*,app/games/**,app/**/mlb*
+alwaysApply: false
+---
+
+# MLB Squares (#005)
+
+Second **flagship** experience — not NFL copy. Daily baseball engagement, learn in <60 seconds.
+
+## Winning checkpoints
+
+End of 3rd · 5th · 7th inning + Final. Last digit of each team's score.
+
+## No Wait Line
+
+Spawn next board at **85%** capacity — never "Board Full."
+
+## Automation
+
+Daily schedule import → boards → live sync → winners → payouts → legacy/XP/activity.
+
+## Marketplace
+
+⚾ MLB Squares equal weight beside 🏈 NFL Squares.
+
+## Extend (don't fork)
+
+Inning periods via `lib/espn/sports.ts` + scoring engine. Hook stats/legacy via platform adapter.
+
+Full spec: `docs/MLB_SQUARES_EXPERIENCE.md`

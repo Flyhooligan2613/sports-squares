@@ -17,7 +17,8 @@ Think: Xbox → Halo, Steam → Counter-Strike, Netflix → Stranger Things. The
 
 ```
 SquareBoards (platform)
-├── Sports Squares (flagship)
+├── Sports Squares (flagship — NFL)
+├── MLB Squares (flagship — baseball)
 ├── Pick'em
 ├── MLB Pick'em / MLB Squares
 ├── Soccer Predictor
