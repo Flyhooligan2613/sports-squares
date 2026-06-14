@@ -1,0 +1,28 @@
+---
+description: SquareBoards platform-first brand and UI copy standards
+globs: app/**/*.tsx,components/**/*.tsx,lib/platform/**/*
+alwaysApply: false
+---
+
+# SquareBoards — platform first
+
+SquareBoards is **the platform**; Sports Squares, Pick'em, etc. are **experiences inside it**.
+
+## Copy rules
+
+- Homepage and global shell (meta, footer, nav): sell **SquareBoards the platform** first.
+- Game-specific pages: sell that **experience** after the user is in the ecosystem.
+- Never describe SquareBoards as a "sports squares website" or "squares marketplace" in primary copy.
+- Category line: **The Premium Sports Gaming Platform**.
+
+## Ecosystem hierarchy
+
+Platform → Games → Rewards (Square Drop) → Legacy (achievements) → The Huddle (community).
+
+## UI order (homepage)
+
+1. Platform hero
+2. Available games showcase
+3. Ecosystem pillars (rewards, profile, huddle, leaderboards)
+
+Full strategy: `docs/BRAND_ARCHITECTURE.md`
