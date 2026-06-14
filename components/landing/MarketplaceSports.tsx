@@ -73,6 +73,7 @@ export default function MarketplaceSports() {
     <LandingSection id="marketplace" scrollMargin variant="alt">
       <ScrollReveal>
         <LandingSectionHeader
+          className="landing-section-header-glow"
           eyebrow="Marketplace"
           title="Browse games and buy squares"
           subtitle="SquareBoards creates and manages every board automatically. Pick a sport, choose a game, and play."

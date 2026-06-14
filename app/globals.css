@@ -805,7 +805,20 @@ html.sb-splash-pending body > :not(.app-open-splash) {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.15rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(123, 97, 255, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(8, 18, 40, 0.88) 0%,
+    rgba(3, 7, 18, 0.92) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 32px rgba(91, 76, 247, 0.18),
+    0 8px 28px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   scrollbar-width: none;
 }
 
@@ -822,23 +835,31 @@ html.sb-splash-pending body > :not(.app-open-splash) {
   border-radius: 9999px;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(123, 97, 255, 0.26);
+  background: rgba(91, 76, 247, 0.12);
+  box-shadow:
+    0 0 16px rgba(91, 76, 247, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.2s ease;
 }
 
 .marketplace-sport-chip:hover {
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(196, 181, 253, 0.45);
+  background: rgba(91, 76, 247, 0.22);
+  box-shadow:
+    0 0 24px rgba(123, 97, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .marketplace-sport-chip-active {
   color: #fff;
-  border-color: rgba(123, 97, 255, 0.45);
-  background: rgba(91, 76, 247, 0.18);
-  box-shadow: 0 0 24px rgba(91, 76, 247, 0.12);
+  border-color: rgba(196, 181, 253, 0.55);
+  background: rgba(91, 76, 247, 0.28);
+  box-shadow:
+    0 0 28px rgba(123, 97, 255, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .marketplace-sport-chip-emoji {
@@ -1680,32 +1701,77 @@ html.sb-splash-pending body > :not(.app-open-splash) {
   margin-bottom: 1.5rem;
 }
 
+.hero-sport-intro {
+  max-width: 36rem;
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(123, 97, 255, 0.24);
+  background: linear-gradient(
+    145deg,
+    rgba(8, 18, 40, 0.9) 0%,
+    rgba(3, 7, 18, 0.94) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 0 28px rgba(91, 76, 247, 0.18),
+    0 8px 28px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  line-height: 1.55;
+}
+
 .hero-sport-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.7rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(123, 97, 255, 0.24);
+  background: linear-gradient(
+    145deg,
+    rgba(8, 18, 40, 0.88) 0%,
+    rgba(3, 7, 18, 0.92) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 36px rgba(91, 76, 247, 0.22),
+    0 10px 36px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .hero-sport-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.8rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(123, 97, 255, 0.32);
+  background: rgba(91, 76, 247, 0.16);
+  color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 0 18px rgba(91, 76, 247, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .hero-sport-chip:hover {
-  border-color: rgba(123, 97, 255, 0.45);
-  background: rgba(91, 76, 247, 0.16);
+  border-color: rgba(196, 181, 253, 0.55);
+  background: rgba(91, 76, 247, 0.28);
   transform: translateY(-1px);
+  box-shadow:
+    0 0 28px rgba(123, 97, 255, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .hero-ctas-v2 {
@@ -2664,6 +2730,51 @@ html.sb-splash-pending body > :not(.app-open-splash) {
   border-radius: 9999px;
   background: rgba(91, 76, 247, 0.12);
   border: 1px solid rgba(123, 97, 255, 0.22);
+}
+
+.landing-section-header-glow {
+  max-width: 42rem;
+  margin-bottom: 1.15rem;
+  padding: 1rem 1.1rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(123, 97, 255, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(8, 18, 40, 0.88) 0%,
+    rgba(3, 7, 18, 0.92) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 32px rgba(91, 76, 247, 0.18),
+    0 8px 28px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.landing-section-header-glow .landing-section-eyebrow {
+  color: #e9d5ff;
+  background: rgba(91, 76, 247, 0.22);
+  border-color: rgba(196, 181, 253, 0.38);
+  box-shadow:
+    0 0 20px rgba(123, 97, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 12px rgba(123, 97, 255, 0.35);
+}
+
+.landing-section-header-glow .landing-section-title {
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+.landing-section-header-glow .landing-section-subtitle {
+  color: rgba(255, 255, 255, 0.84);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 640px) {
+  .landing-section-header-glow {
+    margin-bottom: 1.35rem;
+    padding: 1.15rem 1.35rem 1.25rem;
+  }
 }
 
 .landing-section-title {

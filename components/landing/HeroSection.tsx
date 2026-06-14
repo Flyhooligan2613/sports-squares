@@ -65,7 +65,7 @@ export default function HeroSection() {
             <span className="block">Win Big.</span>
           </h1>
 
-          <p className="hero-subhead hero-subhead-v2 text-center mx-auto">
+          <p className="hero-subhead hero-subhead-v2 hero-sport-intro text-center mx-auto">
             Buy your lucky squares, follow live scores, and compete for every
             quarter using secure online payments.
           </p>
