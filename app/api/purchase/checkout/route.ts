@@ -1,10 +1,14 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { getAppUrl, getCheckoutMissingConfig } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
 import { PURCHASE_TYPE_SQUARES } from "@/lib/platform/core/checkoutMetadata";
 import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
 import { getSupabaseConfig } from "@/lib/supabase";
+import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
+import { normalizeEmail, displayNameFromEmail } from "@/lib/player/statsCore";
+import { getOrCreateStripeCustomer } from "@/lib/stripe/playerWallet";
 
 type CheckoutPool = {
   id: string;
@@ -51,6 +55,21 @@ export async function POST(request: Request) {
   }
 
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user?.email) {
+      return NextResponse.json(
+        { error: "Sign in and set up your cash-out account before purchasing squares." },
+        { status: 401 }
+      );
+    }
+
+    const eligibilityError = await requirePlayEligible(user.email);
+    if (eligibilityError) return eligibilityError;
+
     const body = (await request.json()) as {
       poolId?: string;
       name?: string;
@@ -60,14 +79,14 @@ export async function POST(request: Request) {
     };
 
     const poolId = body.poolId?.trim();
-    const name = body.name?.trim();
-    const email = body.email?.trim().toLowerCase();
+    const name = body.name?.trim() || displayNameFromEmail(user.email);
+    const email = normalizeEmail(user.email);
     const phone = body.phone?.trim() || undefined;
     const squaresCount = Number(body.squaresCount);
 
-    if (!poolId || !name || !email) {
+    if (!poolId || !name) {
       return NextResponse.json(
-        { error: "Name and email are required." },
+        { error: "Name is required." },
         { status: 400 }
       );
     }
@@ -149,10 +168,11 @@ export async function POST(request: Request) {
     const unitAmount = Math.round(costPerSquare * 100);
     const appUrl = getAppUrl();
     const stripe = getStripe();
+    const customerId = await getOrCreateStripeCustomer(email);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      customer_email: email,
+      customer: customerId,
       line_items: [
         {
           price_data: {
@@ -168,6 +188,9 @@ export async function POST(request: Request) {
       ],
       success_url: `${appUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pool/${poolId}`,
+      payment_intent_data: {
+        setup_future_usage: "off_session",
+      },
       metadata: {
         purchaseType: PURCHASE_TYPE_SQUARES,
         poolId,

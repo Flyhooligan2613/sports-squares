@@ -8,6 +8,7 @@ import { formatTierCents } from "@/lib/platform/core/entryTiers";
 import type { PickemEntryStatus, PickemSport } from "@/lib/pickem/types";
 import { pickemBasePath } from "@/lib/pickem/routes";
 import { pickemEntryPaidMessage } from "@/lib/pickem/copy";
+import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 
 interface PickemEntryPanelProps {
   contestLabel: string;
@@ -61,6 +62,7 @@ export default function PickemEntryPanel({
 
   return (
     <LandingGlassCard className="p-5 sm:p-6 mb-6 border border-sb-purple/20">
+      <PlayEligibilityBanner compact className="mb-4" />
       <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
         <div>
           <p className="text-xs uppercase tracking-wider text-sb-muted mb-1">
@@ -71,7 +73,8 @@ export default function PickemEntryPanel({
           </h2>
           <p className="text-sb-muted text-sm mt-1 max-w-xl">
             One {priceLabel} entry unlocks all picks for this week at the {tierLabel} tier.
-            Payouts process automatically through Stripe when the week completes.
+            SquareBoards does not hold balances — entry fees and winnings flow through Stripe
+            automatically.
           </p>
         </div>
         <div className="text-right">

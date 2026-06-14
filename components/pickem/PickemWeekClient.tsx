@@ -13,6 +13,7 @@ import PickemEntryPanel from "@/components/pickem/PickemEntryPanel";
 import PickemPoolList from "@/components/pickem/PickemPoolList";
 import PickemMyPoolStatus from "@/components/pickem/PickemMyPoolStatus";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
+import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import {
   PICKEM_CHAMPIONSHIP_BANNER,
   pickemTiebreakerSubmitMessage,
@@ -394,6 +395,7 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
       <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <PlayEligibilityBanner className="mb-6" />
         {loading && !week ? (
           <LandingGlassCard className="p-10 text-center">
             <p className="text-sb-muted">Loading this week&apos;s slate…</p>

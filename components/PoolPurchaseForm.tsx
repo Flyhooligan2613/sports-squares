@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
+import PlayEligibilityBanner, {
+  usePlayEligible,
+} from "@/components/player/PlayEligibilityBanner";
 import type { Pool } from "@/lib/types";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 
@@ -24,6 +27,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
   const [savedPaymentLabel, setSavedPaymentLabel] = useState<string | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [showFastConfirm, setShowFastConfirm] = useState(false);
+  const { eligible: playEligible, loading: eligibilityLoading } = usePlayEligible();
 
   const costPerSquare = pool.costPerSquare ?? 0;
   const count = parseInt(squaresCount, 10) || 0;
@@ -117,6 +121,14 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!authenticated) {
+      setError("Sign in and set up your cash-out account before purchasing squares.");
+      return;
+    }
+    if (playEligible === false) {
+      setError("Set up your cash-out account on My Winnings before purchasing.");
+      return;
+    }
     if (savedPaymentLabel && authenticated) {
       setShowFastConfirm(true);
       return;
@@ -166,11 +178,15 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
         <CardHeader
           title="Purchase Squares"
           subtitle={
-            savedPaymentLabel
-              ? "Confirm instantly with biometrics or use Stripe checkout."
-              : "Pay securely with Stripe. Your invite link will be emailed after payment."
+            !authenticated
+              ? "Sign in and connect your Stripe cash-out account before purchasing."
+              : savedPaymentLabel
+                ? "Confirm instantly with biometrics or use Stripe checkout."
+                : "Pay securely with Stripe after your cash-out account is connected."
           }
         />
+
+        <PlayEligibilityBanner compact className="mb-4" />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
@@ -236,7 +252,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
                 type="submit"
                 variant="primary"
                 className="w-full sm:w-auto sm:min-w-[220px]"
-                disabled={loading}
+                disabled={loading || eligibilityLoading || playEligible === false || !authenticated}
               >
                 <Zap className="w-4 h-4 mr-2" />
                 {loading ? "Processing…" : "Confirm with biometrics"}
@@ -244,7 +260,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
               <Button
                 type="button"
                 variant="ghost"
-                disabled={loading}
+                disabled={loading || eligibilityLoading || playEligible === false || !authenticated}
                 onClick={() => void startStripeCheckout()}
               >
                 <CreditCard className="w-4 h-4 mr-2" />
@@ -256,7 +272,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
               type="submit"
               variant="primary"
               className="w-full sm:w-auto sm:min-w-[220px]"
-              disabled={loading}
+              disabled={loading || eligibilityLoading || playEligible === false || !authenticated}
             >
               <CreditCard className="w-4 h-4 mr-2" />
               {loading ? "Redirecting..." : "Continue to Checkout"}

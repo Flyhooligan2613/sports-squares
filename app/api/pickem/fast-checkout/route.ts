@@ -18,6 +18,7 @@ import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
 import { notifySecurityEvent } from "@/lib/auth/security/notify";
 import { chargeSavedPaymentMethod } from "@/lib/stripe/playerWallet";
 import { getCheckoutMissingConfig } from "@/lib/stripe/config";
+import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -50,6 +51,9 @@ export async function POST(request: Request) {
   if (!stepUp.ok) {
     return NextResponse.json({ error: stepUp.error }, { status: 403 });
   }
+
+  const eligibilityError = await requirePlayEligible(user.email);
+  if (eligibilityError) return eligibilityError;
 
   try {
     const body = (await request.json()) as {

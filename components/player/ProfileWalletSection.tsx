@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
@@ -12,18 +11,26 @@ interface WalletSnapshot {
   fastCheckoutAvailable: boolean;
 }
 
+interface PlayEligibilitySnapshot {
+  eligible: boolean;
+  payoutsReady: boolean;
+  depositCardOnFile: boolean;
+}
+
 export default function ProfileWalletSection() {
   const [wallet, setWallet] = useState<WalletSnapshot | null>(null);
   const [connect, setConnect] = useState<PlayerConnectStatus | null>(null);
+  const [eligibility, setEligibility] = useState<PlayEligibilitySnapshot | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      const [walletRes, connectRes] = await Promise.all([
+      const [walletRes, connectRes, eligibilityRes] = await Promise.all([
         fetch("/api/player/wallet", { cache: "no-store" }).catch(() => null),
         fetch("/api/connect/status", { cache: "no-store" }).catch(() => null),
+        fetch("/api/player/play-eligibility", { cache: "no-store" }).catch(() => null),
       ]);
 
       if (cancelled) return;
@@ -42,6 +49,11 @@ export default function ProfileWalletSection() {
         });
       }
 
+      if (eligibilityRes?.ok) {
+        const json = (await eligibilityRes.json()) as PlayEligibilitySnapshot;
+        setEligibility(json);
+      }
+
       setLoading(false);
     }
 
@@ -55,24 +67,29 @@ export default function ProfileWalletSection() {
     <LandingGlassCard id="wallet" className="p-6">
       <h3 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2 flex items-center gap-2">
         <Wallet className="w-4 h-4" />
-        Wallet & Payouts
+        Cash-out & Deposits
       </h3>
 
       {loading ? (
-        <p className="text-sm text-sb-muted animate-pulse">Loading wallet…</p>
+        <p className="text-sm text-sb-muted animate-pulse">Loading…</p>
       ) : (
         <div className="space-y-4">
+          <p className="text-xs text-sb-muted leading-relaxed">
+            SquareBoards does not hold player balances. Connect a Stripe cash-out account before
+            playing — Stripe handles card linking, identity verification, and fraud prevention.
+          </p>
+
           <div>
             <p className="text-xs uppercase tracking-wider text-sb-muted mb-1.5">
-              Automatic payouts
+              Cash-out account {eligibility?.payoutsReady ? "· connected" : "· required to play"}
             </p>
             {connect?.ready ? (
               <p className="text-sm text-emerald-300">
-                Stripe connected — quarter wins deposit to your linked bank account.
+                Stripe connected — winnings deposit automatically to your linked account.
               </p>
             ) : (
-              <p className="text-sm text-sb-muted leading-relaxed">
-                Connect Stripe on My Winnings so quarter wins can deposit automatically.
+              <p className="text-sm text-amber-200/90 leading-relaxed">
+                Required before you can purchase squares or enter Pick&apos;em.
               </p>
             )}
           </div>
@@ -80,27 +97,21 @@ export default function ProfileWalletSection() {
           <div>
             <p className="text-xs uppercase tracking-wider text-sb-muted mb-1.5 flex items-center gap-1.5">
               <CreditCard className="w-3.5 h-3.5" />
-              Checkout card
+              Deposit card
             </p>
             {wallet?.fastCheckoutAvailable && wallet.savedPayment?.label ? (
               <p className="text-sm text-white">{wallet.savedPayment.label} on file</p>
             ) : (
               <p className="text-sm text-sb-muted leading-relaxed">
-                Save a card at checkout for faster square and Pick&apos;em purchases.
+                Saved automatically at checkout. Stripe verifies your card when you pay.
               </p>
             )}
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
             <Button href="/my-games/winnings" variant="secondary" size="sm">
-              {connect?.ready ? "Manage payouts" : "Set up payouts"}
+              {connect?.ready ? "Manage cash-out" : "Set up cash-out"}
             </Button>
-            <Link
-              href="/my-games/rewards/credits"
-              className="inline-flex items-center text-sm text-sb-glow hover:text-white transition-colors px-2 py-1"
-            >
-              View credits →
-            </Link>
           </div>
         </div>
       )}

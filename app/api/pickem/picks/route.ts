@@ -5,6 +5,7 @@ import { refreshPickemContestPlayerCount } from "@/lib/pickem/db/contests";
 import type { PickemSide } from "@/lib/pickem/types";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { isValidEntryTierCents } from "@/lib/platform/core/entryTiers";
+import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,9 @@ export async function POST(request: Request) {
   if (error || !user?.email) {
     return NextResponse.json({ error: "Sign in to save picks." }, { status: 401 });
   }
+
+  const eligibilityError = await requirePlayEligible(user.email);
+  if (eligibilityError) return eligibilityError;
 
   try {
     const body = (await request.json()) as {

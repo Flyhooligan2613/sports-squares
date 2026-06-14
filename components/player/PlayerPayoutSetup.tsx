@@ -109,22 +109,22 @@ export default function PlayerPayoutSetup({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-wider text-emerald-400/90 mb-2">
-            Automatic Payouts
+            Cash-out account
           </p>
           <h2 className="text-xl font-bold text-white mb-2">
-            {status?.ready ? "Payout account connected" : "Set up your payout account"}
+            {status?.ready ? "Cash-out account connected" : "Set up your cash-out account"}
           </h2>
           <p className="text-sm text-sb-muted leading-relaxed max-w-xl">
             {status?.ready
-              ? "Quarter wins will be sent to your bank automatically via Stripe."
-              : "Connect with Stripe so your quarter winnings can be deposited automatically — takes about 2 minutes."}
+              ? "Winnings deposit automatically via Stripe. Card linking and identity checks are handled by Stripe."
+              : "Required before you can place squares or picks. Connect through Stripe — they verify your identity and payout details."}
           </p>
           {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
         </div>
 
         {!status?.ready && (
           <Button onClick={() => startOnboarding()} disabled={starting} className="shrink-0">
-            {starting ? "Opening Stripe…" : "Set up payouts"}
+            {starting ? "Opening Stripe…" : "Set up cash-out"}
           </Button>
         )}
 

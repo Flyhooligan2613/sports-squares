@@ -16,6 +16,7 @@ import { normalizeEmail } from "@/lib/player/statsCore";
 import { getAppUrl, getCheckoutMissingConfig } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
 import { getOrCreateStripeCustomer } from "@/lib/stripe/playerWallet";
+import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -40,6 +41,9 @@ export async function POST(request: Request) {
   if (authError || !user?.email) {
     return NextResponse.json({ error: "Sign in to enter Pick'em." }, { status: 401 });
   }
+
+  const eligibilityError = await requirePlayEligible(user.email);
+  if (eligibilityError) return eligibilityError;
 
   try {
     const body = (await request.json()) as {
