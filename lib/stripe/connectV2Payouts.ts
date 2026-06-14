@@ -2,6 +2,9 @@ import type Stripe from "stripe";
 import { getAppUrl } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
 
+/** Dashboard access for winner recipients — platform owns payout UX in My Winnings. */
+export const WINNER_CONNECT_V2_DASHBOARD = "none" as const;
+
 /** Winner payout account (Accounts v2 subset used for recipient transfers). */
 export type WinnerConnectV2Account = {
   id: string;
@@ -53,6 +56,7 @@ export async function createWinnerConnectV2Account(input: {
   const account = await v2Core().accounts.create({
     display_name: input.displayName,
     contact_email: input.email,
+    dashboard: WINNER_CONNECT_V2_DASHBOARD,
     identity: {
       country: "us",
     },
@@ -95,6 +99,15 @@ export async function retrieveWinnerConnectV2Account(
   return account as unknown as WinnerConnectV2Account;
 }
 
+/** Stripe requires dashboard when recipient stripe_transfers is requested. */
+export async function ensureWinnerConnectV2Dashboard(accountId: string): Promise<void> {
+  await v2Core().accounts.update(
+    accountId,
+    { dashboard: WINNER_CONNECT_V2_DASHBOARD },
+    accountContext(accountId)
+  );
+}
+
 export async function createWinnerConnectV2AccountLink(input: {
   accountId: string;
   returnUrl?: string;
@@ -105,6 +118,8 @@ export async function createWinnerConnectV2AccountLink(input: {
     input.refreshUrl ?? `${appUrl}/my-games/winnings?connect=refresh`;
   const returnUrl =
     input.returnUrl ?? `${appUrl}/my-games/winnings?connect=complete`;
+
+  await ensureWinnerConnectV2Dashboard(input.accountId);
 
   const accountLink = await v2Core().accountLinks.create(
     {
