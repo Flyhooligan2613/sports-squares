@@ -960,6 +960,37 @@ html.sb-splash-pending body > :not(.app-open-splash):not(.signup-welcome-overlay
   background: rgba(123, 97, 255, 0.35);
 }
 
+.marketplace-sport-chip-offseason-label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.1rem 0.35rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.marketplace-sport-chip-offseason.marketplace-sport-chip-active
+  .marketplace-sport-chip-offseason-label {
+  color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(196, 181, 253, 0.25);
+}
+
+.sport-offseason-panel {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(91, 76, 247, 0.04)
+  );
+}
+
+.sport-offseason-card {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 .notification-bell-badge {
   position: absolute;
   top: 0.35rem;

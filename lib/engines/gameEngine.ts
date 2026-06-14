@@ -5,6 +5,7 @@ import {
 import { parseEspnScoreboard } from "@/lib/espn/parser";
 import { getEspnSportConfig } from "@/lib/espn/sports";
 import { MARKETPLACE_SPORTS } from "@/lib/marketplace/config";
+import { isMarketplaceOffSeason } from "@/lib/marketplace/seasonStatus";
 import type { EspnSport } from "@/lib/types";
 
 export interface GameImportResult {
@@ -70,6 +71,10 @@ export async function importGamesForSport(
 export async function importAllMarketplaceGames(): Promise<GameImportResult[]> {
   const results: GameImportResult[] = [];
   for (const sport of MARKETPLACE_SPORTS) {
+    if (isMarketplaceOffSeason(sport)) {
+      results.push({ sport, imported: 0, errors: [] });
+      continue;
+    }
     results.push(await importGamesForSport(sport));
   }
   return results;

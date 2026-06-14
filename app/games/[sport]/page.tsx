@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Footer from "@/components/Footer";
 import GameBoardRow from "@/components/marketplace/GameBoardRow";
 import SportEntryTierNav from "@/components/marketplace/SportEntryTierNav";
+import SportOffSeasonPanel from "@/components/marketplace/SportOffSeasonPanel";
 import StatusBadge from "@/components/ui/StatusBadge";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { dbListBoardsForGame } from "@/lib/database/services/boards";
@@ -12,6 +13,7 @@ import {
   formatPrizePool,
 } from "@/lib/marketplace/gameBoardStats";
 import { getEspnSportConfig, normalizeEspnSport } from "@/lib/espn/sports";
+import { isMarketplaceOffSeason } from "@/lib/marketplace/seasonStatus";
 import {
   formatTierCents,
   parseEntryTierParam,
@@ -55,6 +57,30 @@ export default async function SportGamesPage({
   const tierCents = parseEntryTierParam(searchParams.tier);
   const tierLabel = formatTierCents(tierCents);
   const config = getEspnSportConfig(sport);
+  const offSeason = isMarketplaceOffSeason(sport);
+
+  if (offSeason) {
+    return (
+      <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
+        <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12">
+          <div className="mb-8 sb-xp-hero-enter">
+            <Link
+              href="/#marketplace"
+              className="text-sm text-sb-muted hover:text-white transition-colors"
+            >
+              ← Back to marketplace
+            </Link>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mt-4 mb-2">
+              {config.label} Squares
+            </h1>
+          </div>
+          <SportOffSeasonPanel sport={sport} />
+        </main>
+        <Footer landing />
+      </div>
+    );
+  }
+
   let games: Awaited<ReturnType<typeof dbListGames>> = [];
 
   try {

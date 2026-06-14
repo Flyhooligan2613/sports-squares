@@ -1,6 +1,7 @@
 "use client";
 
 import { ESPN_SPORT_LIST } from "@/lib/espn/sports";
+import { isMarketplaceOffSeason } from "@/lib/marketplace/seasonStatus";
 import type { EspnSport, MarketplaceSportStats } from "@/lib/types";
 
 export type MarketplaceSportFilter = EspnSport | "all";
@@ -53,20 +54,23 @@ export default function MarketplaceSportBar({
       {ESPN_SPORT_LIST.map((config) => {
         const count = gameCountFor(stats, config.id);
         const active = selected === config.id;
+        const offSeason = isMarketplaceOffSeason(config.id);
         return (
           <button
             key={config.id}
             type="button"
             role="tab"
             aria-selected={active}
-            className={`marketplace-sport-chip ${active ? "marketplace-sport-chip-active" : ""}`}
+            className={`marketplace-sport-chip ${active ? "marketplace-sport-chip-active" : ""} ${offSeason ? "marketplace-sport-chip-offseason" : ""}`}
             onClick={() => onSelect(config.id)}
           >
             <span className="marketplace-sport-chip-emoji" aria-hidden>
               {SPORT_EMOJI[config.id]}
             </span>
             <span>{config.label}</span>
-            {stats && count > 0 ? (
+            {offSeason ? (
+              <span className="marketplace-sport-chip-offseason-label">Off season</span>
+            ) : stats && count > 0 ? (
               <span className="marketplace-sport-chip-count">{count}</span>
             ) : null}
           </button>
