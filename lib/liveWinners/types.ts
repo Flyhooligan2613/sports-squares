@@ -9,6 +9,7 @@ export interface LivePlatformStatus {
   automaticPayoutsToday: number;
   prizeMoneyPaidToday: number;
   gamesCurrentlyLive: number;
+  weeklyRewardDropsOpenedToday: number;
 }
 
 export interface LiveWinnersStats {

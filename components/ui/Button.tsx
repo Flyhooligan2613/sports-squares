@@ -33,7 +33,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = [
-    "sb-btn-motion inline-flex items-center justify-center font-semibold transition-all duration-300 ease-out disabled:opacity-50 disabled:pointer-events-none disabled:transform-none",
+    "sb-btn-motion sb-btn-spring inline-flex items-center justify-center font-semibold transition-all duration-300 ease-out disabled:opacity-50 disabled:pointer-events-none disabled:transform-none",
     SIZES[size],
     VARIANTS[variant],
     className,

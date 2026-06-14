@@ -190,6 +190,7 @@ function emptyData(): LiveWinnersCenterData {
       automaticPayoutsToday: 0,
       prizeMoneyPaidToday: 0,
       gamesCurrentlyLive: 0,
+      weeklyRewardDropsOpenedToday: 0,
     },
     stats: {
       todaysWinners: 0,
@@ -224,7 +225,7 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
   const streakSince = daysAgo(WIN_STREAK_WINDOW_DAYS);
   const recentSince = hoursAgo(3);
 
-  const [winnersRes, streakWinnersRes, poolsRes, playersRes, gamesRes, poolCountRes, allPlayersRes, paidWinnersRes] = await Promise.all([
+  const [winnersRes, streakWinnersRes, poolsRes, playersRes, gamesRes, poolCountRes, allPlayersRes, paidWinnersRes, weeklyDropsRes] = await Promise.all([
     supabase
       .from(TABLES.winners)
       .select("*")
@@ -251,6 +252,11 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
       .from(TABLES.winners)
       .select("payout_amount")
       .eq("payout_status", "paid"),
+    supabase
+      .from("player_mystery_boxes")
+      .select("id", { count: "exact", head: true })
+      .not("opened_at", "is", null)
+      .gte("opened_at", todayStart),
   ]);
 
   if (winnersRes.error) throw winnersRes.error;
@@ -324,6 +330,7 @@ export async function getLiveWinnersCenterData(): Promise<LiveWinnersCenterData>
     automaticPayoutsToday: todaysPaid.length,
     prizeMoneyPaidToday: Math.round(prizeMoneyPaidToday),
     gamesCurrentlyLive,
+    weeklyRewardDropsOpenedToday: weeklyDropsRes.count ?? 0,
   };
 
   const stats: LiveWinnersStats = {

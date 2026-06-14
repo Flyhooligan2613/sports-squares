@@ -59,18 +59,16 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <h1 className="hero-headline hero-headline-v2 text-center">
-            <span className="block">Pick Your Squares.</span>
-            <span className="block hero-headline-accent">Watch the Game.</span>
-            <span className="block">Win Big.</span>
+          <h1 className="hero-headline hero-headline-v2 hero-headline-premium text-center">
+            <span className="block">Own Your Lucky Squares.</span>
+            <span className="block hero-headline-accent">Win Every Quarter.</span>
           </h1>
 
-          <p className="hero-subhead hero-subhead-v2 hero-sport-intro text-center mx-auto">
-            Buy your lucky squares, follow live scores, and compete for every
-            quarter using secure online payments.
+          <p className="hero-subhead hero-subhead-v2 text-center mx-auto">
+            Buy lucky squares, watch live scores, and compete for cash prizes every quarter.
           </p>
 
-          <div className="hero-sport-bar mx-auto mb-4 sm:mb-5" role="group" aria-label="Pick a sport">
+          <div className="hero-sport-bar mx-auto mb-5 sm:mb-6" role="group" aria-label="Pick a sport">
             {ESPN_SPORT_LIST.map((sport) => (
               <button
                 key={sport.id}
@@ -84,18 +82,18 @@ export default function HeroSection() {
             ))}
           </div>
 
-          <div className="hero-ctas hero-ctas-v2 justify-center mb-0">
+          <div className="hero-ctas hero-ctas-v2 hero-ctas-spacious justify-center">
             <Button
               variant="primary"
-              className="hero-btn-premium w-full sm:w-auto min-w-[200px] group"
+              className="hero-btn-premium sb-btn-spring w-full sm:w-auto min-w-[220px] group"
               onClick={() => scrollTo("marketplace")}
             >
               Browse Games
-              <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+              <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover:translate-x-1" />
             </Button>
             <Button
               variant="secondary"
-              className="hero-btn-secondary-v2 w-full sm:w-auto min-w-[200px]"
+              className="hero-btn-secondary-v2 sb-btn-spring w-full sm:w-auto min-w-[220px]"
               onClick={() => scrollTo("join")}
             >
               Enter Invite Link

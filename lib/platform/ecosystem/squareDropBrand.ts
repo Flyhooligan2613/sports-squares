@@ -5,6 +5,12 @@ export const SQUARE_DROP_TAGLINE = "Your weekly reward ritual";
 export const SQUARE_DROP_READY = "Your Square Drop is Ready!";
 export const SQUARE_DROP_EMOJI = "🎁";
 
+/** Public-facing homepage / marketing name (internal routes may still use square-drop). */
+export const WEEKLY_REWARD_DROP_PUBLIC_NAME = "Weekly Reward Drop";
+export const WEEKLY_REWARD_DROP_EMOJI = SQUARE_DROP_EMOJI;
+export const WEEKLY_REWARD_DROP_PUBLIC_DESC =
+  "Earn rewards every week through gameplay, referrals, VIP promotions, and achievements.";
+
 export const DROP_TIER_LABELS = {
   bronze: "Bronze Drop",
   silver: "Silver Drop",

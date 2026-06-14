@@ -8,6 +8,8 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useCountUp } from "@/lib/motion/useCountUp";
 
+const MIN_PLAYERS_TO_SHOW = 25;
+
 interface StatConfig {
   value: number;
   suffix?: string;
@@ -31,7 +33,7 @@ function AnimatedStat({
     suffix;
 
   return (
-    <div className="landing-stat-block sb-glow-card">
+    <div className="landing-stat-block sb-glow-card sb-card-interactive">
       <p className="landing-stat-value font-mono">{formatted}</p>
       <p className="landing-stat-label">{label}</p>
     </div>
@@ -52,6 +54,7 @@ export default function SocialProof() {
   const [active, setActive] = useState(false);
   const { data, loading } = useLandingLive();
   const totals = data?.platformTotals;
+  const platform = data?.platform;
 
   useEffect(() => {
     const el = ref.current;
@@ -71,38 +74,37 @@ export default function SocialProof() {
     return () => observer.disconnect();
   }, []);
 
-  const stats: StatConfig[] = totals
-    ? [
-        { value: totals.totalPools, label: "Pools Created" },
-        { value: totals.totalSquaresSold, label: "Squares Sold" },
-        {
-          value: totals.totalPrizeMoney,
-          prefix: "$",
-          label: "Prize Money Awarded",
-        },
-      ]
-    : [];
+  const stats: StatConfig[] = [];
 
-  const playerLine =
-    totals && totals.totalPlayers > 0
-      ? `Join ${totals.totalPlayers.toLocaleString()} players buying squares, tracking live scores, and winning every quarter.`
-      : "Join players buying squares, tracking live scores, and winning every quarter.";
+  if (totals && platform) {
+    stats.push(
+      { value: Math.max(platform.activeGames, totals.totalPools > 0 ? 1 : 0), label: "Games Available" },
+      { value: totals.totalPools, label: "Boards Created" },
+      { value: totals.totalSquaresSold, label: "Squares Sold" },
+      { value: totals.totalPrizeMoney, prefix: "$", label: "Money Awarded" }
+    );
+
+    if (platform.playersOnline >= MIN_PLAYERS_TO_SHOW) {
+      stats.push({ value: platform.playersOnline, label: "Players Online" });
+    }
+  }
 
   return (
     <LandingSection variant="alt">
       <ScrollReveal>
         <LandingSectionHeader
-          eyebrow="Social Proof"
-          title="Trusted by sports fans nationwide"
-          subtitle={playerLine}
+          eyebrow="Trust"
+          title="Trusted by sports fans across the country"
+          subtitle="Live games. Real payouts. Every quarter."
+          align="center"
         />
       </ScrollReveal>
       <div
         ref={ref}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5"
       >
         {loading && !totals
-          ? Array.from({ length: 3 }).map((_, index) => (
+          ? Array.from({ length: 4 }).map((_, index) => (
               <ScrollReveal key={index} delay={index * 100}>
                 <StatSkeleton />
               </ScrollReveal>

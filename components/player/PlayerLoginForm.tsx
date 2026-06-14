@@ -191,15 +191,20 @@ export default function PlayerLoginForm() {
             </div>
           ) : (
             <>
-              <div className="flex rounded-xl border border-white/10 p-1 mb-5">
+              <div className="sb-tab-group relative flex rounded-xl border border-white/10 p-1 mb-5">
+                <span
+                  className="sb-tab-indicator"
+                  aria-hidden
+                  style={{
+                    transform: signInMode === "password" ? "translateX(0)" : "translateX(100%)",
+                  }}
+                />
                 <button
                   type="button"
                   onClick={() => setSignInMode("password")}
                   className={[
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-colors",
-                    signInMode === "password"
-                      ? "bg-sb-purple/25 text-white"
-                      : "text-sb-muted hover:text-white",
+                    "sb-tab-option flex-1 py-2 text-sm font-medium rounded-lg relative z-[1]",
+                    signInMode === "password" ? "text-white" : "text-sb-muted hover:text-white",
                   ].join(" ")}
                 >
                   Password
@@ -208,10 +213,8 @@ export default function PlayerLoginForm() {
                   type="button"
                   onClick={() => setSignInMode("email")}
                   className={[
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-colors",
-                    signInMode === "email"
-                      ? "bg-sb-purple/25 text-white"
-                      : "text-sb-muted hover:text-white",
+                    "sb-tab-option flex-1 py-2 text-sm font-medium rounded-lg relative z-[1]",
+                    signInMode === "email" ? "text-white" : "text-sb-muted hover:text-white",
                   ].join(" ")}
                 >
                   Email link
