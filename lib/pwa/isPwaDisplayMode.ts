@@ -11,16 +11,11 @@ export function isPwaDisplayMode(): boolean {
   );
 }
 
-/** Inline script — PWA always gets splash; browser uses sessionStorage. */
+/** Inline script — splash once per browser session (PWA + web). */
 export const APP_OPEN_SPLASH_PENDING_SCRIPT = `(function(){
   try {
     if (location.pathname.startsWith("/admin")) return;
-    var m = window.matchMedia.bind(window);
-    var isPwa = m("(display-mode: standalone)").matches
-      || m("(display-mode: fullscreen)").matches
-      || m("(display-mode: minimal-ui)").matches
-      || window.navigator.standalone === true;
-    if (isPwa || !sessionStorage.getItem("sb-app-open-splash-seen")) {
+    if (!sessionStorage.getItem("sb-app-open-splash-seen")) {
       document.documentElement.classList.add("sb-splash-pending");
     }
   } catch (e) {}

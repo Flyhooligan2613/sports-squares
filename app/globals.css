@@ -20,12 +20,21 @@ body {
   overflow-x: hidden;
 }
 
-html.sb-splash-pending body {
-  overflow: hidden;
+html.sb-splash-pending {
+  background: #030712;
 }
 
-html.sb-splash-pending body > :not(.app-open-splash):not(.signup-welcome-overlay):not(.cashout-setup-overlay) {
-  visibility: hidden;
+html.sb-splash-pending::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: #030712;
+  pointer-events: none;
+}
+
+html.sb-splash-pending body {
+  overflow: hidden;
 }
 
 .app-open-splash {

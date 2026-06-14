@@ -1,7 +1,7 @@
-const CACHE = "squareboards-shell-v4";
+const CACHE = "squareboards-shell-v5";
 const OFFLINE_URL = "/offline";
 
-/** Static shell only — never cache live HTML documents (prevents stale homepage). */
+/** Offline shell only — never cache HTML or Next.js chunks (prevents stale UI after deploys). */
 const SHELL = ["/offline", "/manifest.json", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
@@ -26,10 +26,12 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
   if (url.pathname.startsWith("/api/")) return;
 
-  if (event.request.mode === "navigate") {
+  if (
+    event.request.mode === "navigate" ||
+    event.request.destination === "document"
+  ) {
     event.respondWith(
       fetch(event.request).catch(() =>
         caches.match(OFFLINE_URL).then((offline) => offline ?? Response.error())
@@ -38,19 +40,29 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then(
-      (cached) =>
-        cached ||
-        fetch(event.request).then((response) => {
-          if (response.ok && url.pathname.startsWith("/icons/")) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-          }
-          return response;
-        })
-    )
-  );
+  if (url.pathname.startsWith("/_next/")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  const isShell =
+    SHELL.includes(url.pathname) || url.pathname.startsWith("/icons/");
+
+  if (isShell) {
+    event.respondWith(
+      caches.match(event.request).then(
+        (cached) =>
+          cached ||
+          fetch(event.request).then((response) => {
+            if (response.ok) {
+              const copy = response.clone();
+              caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+            }
+            return response;
+          })
+      )
+    );
+  }
 });
 
 self.addEventListener("push", (event) => {

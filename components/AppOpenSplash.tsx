@@ -4,7 +4,6 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
 import SignupWelcomeGate from "@/components/auth/SignupWelcomeGate";
-import { isPwaDisplayMode } from "@/lib/pwa/isPwaDisplayMode";
 import { notifySplashComplete } from "@/lib/auth/signupPrompt";
 
 export const APP_OPEN_SPLASH_KEY = "sb-app-open-splash-seen";
@@ -40,16 +39,12 @@ export default function AppOpenSplash() {
       return;
     }
 
-    const isPwa = isPwaDisplayMode();
-    let showSplash = isPwa;
-
-    if (!isPwa) {
-      try {
-        showSplash = !sessionStorage.getItem(APP_OPEN_SPLASH_KEY);
-      } catch {
-        finishSplash();
-        return;
-      }
+    let showSplash = false;
+    try {
+      showSplash = !sessionStorage.getItem(APP_OPEN_SPLASH_KEY);
+    } catch {
+      finishSplash();
+      return;
     }
 
     if (!showSplash) {
@@ -59,12 +54,10 @@ export default function AppOpenSplash() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) {
-      if (!isPwa) {
-        try {
-          sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
-        } catch {
-          /* ignore */
-        }
+      try {
+        sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
+      } catch {
+        /* ignore */
       }
       finishSplash();
       return;
@@ -75,12 +68,10 @@ export default function AppOpenSplash() {
 
     const exitTimer = window.setTimeout(() => setPhase("exit"), SHOW_MS);
     const doneTimer = window.setTimeout(() => {
-      if (!isPwa) {
-        try {
-          sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
-        } catch {
-          /* ignore */
-        }
+      try {
+        sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
+      } catch {
+        /* ignore */
       }
       finishSplash();
     }, SHOW_MS + EXIT_MS);

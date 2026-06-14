@@ -7,12 +7,21 @@ export default function PwaRegister() {
     if (!("serviceWorker" in navigator)) return;
 
     let registration: ServiceWorkerRegistration | undefined;
+    let reloadedForUpdate = false;
 
     const onVisible = () => {
       if (document.visibilityState === "visible") {
         void registration?.update();
       }
     };
+
+    const onControllerChange = () => {
+      if (reloadedForUpdate) return;
+      reloadedForUpdate = true;
+      window.location.reload();
+    };
+
+    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
 
     navigator.serviceWorker
       .register("/sw.js")
@@ -27,6 +36,10 @@ export default function PwaRegister() {
 
     return () => {
       document.removeEventListener("visibilitychange", onVisible);
+      navigator.serviceWorker.removeEventListener(
+        "controllerchange",
+        onControllerChange
+      );
     };
   }, []);
 
