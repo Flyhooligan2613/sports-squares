@@ -35,6 +35,9 @@ export const WINNER_CONNECT_V2_CONFIGURATION = {
   },
 } as const;
 
+/** Account link onboarding must include every configuration applied on the account. */
+export const WINNER_CONNECT_V2_ONBOARDING_CONFIGURATIONS = ["merchant", "recipient"] as const;
+
 /** Winner payout account (Accounts v2 subset used for recipient transfers). */
 export type WinnerConnectV2Account = {
   id: string;
@@ -215,7 +218,7 @@ export async function createWinnerConnectV2AccountLink(input: {
       use_case: {
         type: "account_onboarding",
         account_onboarding: {
-          configurations: ["recipient"],
+          configurations: [...WINNER_CONNECT_V2_ONBOARDING_CONFIGURATIONS],
           refresh_url: refreshUrl,
           return_url: returnUrl,
         },
