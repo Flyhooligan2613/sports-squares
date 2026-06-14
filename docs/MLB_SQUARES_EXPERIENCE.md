@@ -205,7 +205,7 @@ When a checkpoint completes:
 
 Celebrate **every checkpoint** — not just final.
 
-Prepare for **Highlight Squares™** extension points (grand slam, walk-off, etc.) without board redesign.
+Prepare for **Highlight Engine™** extension points — see `docs/HIGHLIGHT_ENGINE.md`.
 
 ---
 

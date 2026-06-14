@@ -92,7 +92,11 @@ Next Game Available
 
 ## Highlight Squares™
 
-A new engagement layer — **not** score-based cash prizes. Celebrates unforgettable sports moments with **platform rewards**.
+> **Full specification:** [Universal Highlight Engine™ (#006)](./HIGHLIGHT_ENGINE.md)
+
+A platform-wide engagement layer — **not** score-based cash prizes. Celebrates unforgettable sports moments with **platform rewards**. Powers every Squares board (NFL, MLB, future sports).
+
+### Summary
 
 ### Reward types (non-cash)
 
@@ -155,6 +159,7 @@ They should feel like they have entered a **living sports entertainment platform
 - **#002 — Player Legacy Experience:** `docs/PLAYER_LEGACY_EXPERIENCE.md` (profile as digital identity)
 - **#003 — Project Polish:** `docs/PROJECT_POLISH.md` (premium UX, motion, v1.0 quality bar)
 - **#005 — MLB Squares Experience:** `docs/MLB_SQUARES_EXPERIENCE.md` (second flagship game)
+- **#006 — Universal Highlight Engine™:** `docs/HIGHLIGHT_ENGINE.md` (moment-based engagement)
 
 ---
 

@@ -1,0 +1,31 @@
+---
+description: Universal Highlight Engine™ — platform-wide moment rewards (Directive #006)
+globs: lib/highlight/**,lib/espn/**,lib/engines/**,components/**/board*,components/**/pool*,lib/liveActivity/**
+alwaysApply: false
+---
+
+# Universal Highlight Engine™ (#006)
+
+Platform-wide — every Squares sport. Rewards **moments**, not scores. Never affects cash prizes.
+
+## Highlight Squares
+
+4–8 random occupied squares assigned **after** number reveal. Not purchasable. Auditable.
+
+## Registry
+
+One event registry — sports register events. No engine forks.
+
+## On activation
+
+Board darkens → glow → pulse → reward → XP/timeline/legacy/activity/Huddle. Automatic.
+
+## Discovery
+
+Tooltip only at first notice — keep mystery.
+
+## Fairness
+
+Random, transparent, immutable assignment log. Trust first.
+
+Full spec: `docs/HIGHLIGHT_ENGINE.md`
