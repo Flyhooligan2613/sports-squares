@@ -56,8 +56,8 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
   }, [sport]);
 
   return (
-    <div className="pickem-page min-h-screen relative">
-      <AmbientBackground className="pickem-ambient-green" />
+    <div className="pickem-page min-h-screen relative overflow-x-hidden">
+      <AmbientBackground className="pickem-ambient-green" fixed />
       <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10">

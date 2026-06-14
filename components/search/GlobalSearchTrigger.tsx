@@ -35,9 +35,13 @@ export default function GlobalSearchTrigger({
         🔍
       </span>
       {!compact && (
-        <span className="global-search-trigger-label">Search players & features…</span>
+        <span className="global-search-trigger-label hidden sm:inline">
+          Search players & features…
+        </span>
       )}
-      <kbd className="global-search-trigger-kbd">{shortcut}</kbd>
+      {!compact && (
+        <kbd className="global-search-trigger-kbd hidden lg:inline-flex">{shortcut}</kbd>
+      )}
     </button>
   );
 }

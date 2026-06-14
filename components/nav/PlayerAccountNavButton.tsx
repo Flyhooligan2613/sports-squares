@@ -121,16 +121,18 @@ export default function PlayerAccountNavButton() {
   }, []);
 
   const linkClassName =
-    "flex items-center gap-2 shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-1 hover:border-purple-400/40 hover:bg-purple-500/10 transition-colors min-h-[44px]";
+    "flex items-center gap-1.5 sm:gap-2 shrink-0 rounded-full border border-white/10 bg-white/5 hover:border-purple-400/40 hover:bg-purple-500/10 transition-colors min-h-[44px]";
+
+  const signedInLinkClassName = `${linkClassName} px-1.5 sm:px-2 max-w-[3.25rem] sm:max-w-none`;
 
   if (userEmail && account) {
     return (
       <Link
         href={account.href}
-        className={linkClassName}
+        className={signedInLinkClassName}
         aria-label={`Player profile · ${account.followerCount.toLocaleString()} followers`}
       >
-        <span className="text-xs font-semibold text-white tabular-nums leading-none">
+        <span className="hidden sm:inline text-xs font-semibold text-white tabular-nums leading-none">
           {formatFollowerCount(account.followerCount)}
         </span>
         <PlayerAvatar emoji={account.avatar} size="md" />

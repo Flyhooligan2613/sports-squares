@@ -31,15 +31,16 @@ export default function PlayerShell({
     <div className="player-shell min-h-screen flex flex-col">
       <AppMenuBar
         logoHref="/my-games"
+        hideMobileSearch
         rightSlot={
           <div className="flex items-center gap-0.5 sm:gap-1">
             <PlayerHeaderQuickActions />
             <Link
               href={profileHref}
-              className="flex items-center gap-2 shrink-0 rounded-full border border-white/10 bg-white/5 px-2 py-1 hover:border-purple-400/40 hover:bg-purple-500/10 transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 shrink-0 rounded-full border border-white/10 bg-white/5 px-1.5 sm:px-2 py-1 hover:border-purple-400/40 hover:bg-purple-500/10 transition-colors"
               aria-label={`Profile · ${followerCount.toLocaleString()} followers`}
             >
-              <span className="text-xs font-semibold text-white tabular-nums leading-none">
+              <span className="hidden sm:inline text-xs font-semibold text-white tabular-nums leading-none">
                 {formatFollowerCount(followerCount)}
               </span>
               <PlayerAvatar emoji={avatarEmoji} size="md" />

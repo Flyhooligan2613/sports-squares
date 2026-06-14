@@ -4,7 +4,7 @@ import Link from "next/link";
 import { CircleDollarSign, Settings } from "lucide-react";
 
 const iconLinkClass =
-  "inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-sb-muted hover:text-white hover:bg-white/5 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40";
+  "nav-header-icon inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-sb-muted hover:text-white hover:bg-white/5 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40";
 
 interface PlayerHeaderQuickActionsProps {
   className?: string;
