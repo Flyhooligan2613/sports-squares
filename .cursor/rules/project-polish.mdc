@@ -1,0 +1,35 @@
+---
+description: Project Polish — premium UX, motion, and v1.0 quality bar (Directive #003)
+globs: app/**/*.tsx,components/**/*.tsx,app/globals.css
+alwaysApply: false
+---
+
+# Project Polish (#003)
+
+Shift from features to **premium, unforgettable UX**. Standard: Apple / Xbox / Stripe / Linear.
+
+## First 5 seconds (home)
+
+Communicate trust, excitement, community, activity, premium quality.
+
+## Motion
+
+GPU-accelerated, subtle, fluid — never abrupt. Honor `prefers-reduced-motion`.
+
+## Consistency
+
+One design system: spacing, radius, typography, shadows, button heights, animation timing.
+
+## Empty states
+
+Never blank — encouraging copy + CTA to next experience.
+
+## Loading
+
+Branded messages + skeletons, not generic spinners.
+
+## v1.0 gate
+
+Would a player proudly recommend this screen to a friend?
+
+Full spec: `docs/PROJECT_POLISH.md`

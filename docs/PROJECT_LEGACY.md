@@ -153,6 +153,7 @@ They should feel like they have entered a **living sports entertainment platform
 ## Related directives
 
 - **#002 — Player Legacy Experience:** `docs/PLAYER_LEGACY_EXPERIENCE.md` (profile as digital identity)
+- **#003 — Project Polish:** `docs/PROJECT_POLISH.md` (premium UX, motion, v1.0 quality bar)
 
 ---
 
