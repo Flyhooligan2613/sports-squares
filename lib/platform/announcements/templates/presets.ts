@@ -9,6 +9,25 @@ export interface AnnouncementPreset {
 
 export const BUILTIN_ANNOUNCEMENT_PRESETS: AnnouncementPreset[] = [
   {
+    slug: "live-trial-launch",
+    name: "Live Trial Launch",
+    description: "Top banner for the first-20 public live trial.",
+    payload: {
+      title: "SquareBoards Live Trial — Now Open",
+      subtitle: "First 20 sign-ups · Real money · Start on $1 boards",
+      displayType: "top_banner",
+      category: "promotion",
+      audience: "all",
+      buttonText: "Join Trial",
+      destinationHref: "/my-games/login",
+      priorityLevel: "critical",
+      frequency: "always",
+      animationStyle: "fade",
+      dismissible: true,
+      active: true,
+    },
+  },
+  {
     slug: "nfl-week-open",
     name: "NFL Week Opens",
     description: "Full-screen promo when a new NFL Pick'em week goes live.",
