@@ -114,12 +114,33 @@ export async function syncAllPoolWinners(): Promise<WinnerSyncResult> {
 
         const { isPlatformOwnedWinningSquare, routePlatformWinToGrowthFund } =
           await import("@/lib/platform/core/guaranteedPlayEngine");
-        const { logPlatformAudit } = await import("@/lib/platform/core/auditLog");
+        const { publishPlatformEvent } = await import("@/lib/events/engine");
 
         const platformWin = await isPlatformOwnedWinningSquare(
           poolRow.id,
           stamped.squareId
         );
+
+        const winSummary = platformWin
+          ? `Platform-owned square won ${stamped.quarter} — routed to Growth Fund`
+          : `Payout queued for ${stamped.ownerName} (${stamped.quarter})`;
+
+        await publishPlatformEvent({
+          type: "game.player_won",
+          priority: "high",
+          summary: winSummary,
+          gameType: "squareboards",
+          entityType: "pool",
+          entityId: poolRow.id,
+          payload: {
+            quarter: stamped.quarter,
+            winnerName: stamped.ownerName,
+            squareId: stamped.squareId,
+            payoutAmount: stamped.payoutAmount ?? null,
+            platformOwned: platformWin,
+          },
+          idempotencyKey: `${poolRow.id}:${stamped.quarter}:player_won`,
+        });
 
         if (platformWin && stamped.payoutAmount) {
           await routePlatformWinToGrowthFund({
@@ -128,25 +149,26 @@ export async function syncAllPoolWinners(): Promise<WinnerSyncResult> {
             amountCents: Math.round(stamped.payoutAmount * 100),
             quarter: stamped.quarter,
           });
-          await logPlatformAudit({
-            eventType: "board.quarter_winner",
-            summary: `Platform-owned square won ${stamped.quarter} — routed to Growth Fund`,
-            gameType: "squareboards",
-            entityType: "pool",
-            entityId: poolRow.id,
-          });
         } else {
           await enqueuePayoutJob({
             poolId: poolRow.id,
             winnerId,
             result: stamped,
           });
-          await logPlatformAudit({
-            eventType: "payout.queued",
+          await publishPlatformEvent({
+            type: "game.payout_queued",
+            priority: "high",
             summary: `Payout queued for ${stamped.ownerName} (${stamped.quarter})`,
             gameType: "squareboards",
             entityType: "pool",
             entityId: poolRow.id,
+            payload: {
+              quarter: stamped.quarter,
+              winnerName: stamped.ownerName,
+              winnerId,
+              amountCents: Math.round((stamped.payoutAmount ?? 0) * 100),
+            },
+            idempotencyKey: `${poolRow.id}:${stamped.quarter}:payout_queued`,
           });
         }
         result.winnersRecorded += 1;

@@ -289,8 +289,9 @@ Build EventEngine™ as if it will power SquareBoards for **the next ten years**
 
 | Capability | Status | Notes |
 |------------|--------|-------|
-| Central EventEngine / pub-sub | ❌ | Not built |
-| `platform_audit_log` | ⚠️ Partial | `lib/platform/core/auditLog.ts` — **write-only log**, not bus |
+| Central EventEngine / pub-sub | ✅ Phase 1 | `lib/events/` — publish, subscribe, persist |
+| `platform_events` table | ✅ Migration 042 | Run in Supabase before production |
+| `platform_audit_log` | ✅ Via legacy handler | All `logPlatformAudit` routes through EventEngine |
 | Security events | ⚠️ Isolated | `notifySecurityEvent` — separate from platform events |
 | Announcement analytics events | ⚠️ Isolated | Own event table |
 | Stripe webhooks | ⚠️ Direct handlers | Should publish to EventEngine |
@@ -299,12 +300,12 @@ Build EventEngine™ as if it will power SquareBoards for **the next ten years**
 
 ### Migration strategy
 
-1. **Define event catalog** — unify audit types + new types  
-2. **Implement publish + in-process subscribers** (sync handlers first)  
-3. **Persist all events** — extend `platform_audit_log` or `platform_events` table  
-4. **Refactor hot paths** — winner sync, checkout, highlight (when built) to publish only  
+1. ~~**Define event catalog**~~ ✅ `lib/events/types.ts`  
+2. ~~**Implement publish + in-process subscribers**~~ ✅ `lib/events/engine.ts`  
+3. ~~**Persist all events**~~ ✅ `platform_events` (migration `042_platform_events.sql`)  
+4. **Refactor hot paths** — winner sync + payouts wired; checkout/highlight next  
 5. **Add async queue** — background priority, retries, DLQ  
-6. **Wire Analytics + NotificationCenter** as subscribers  
+6. **Wire Analytics + NotificationCenter** as full subscribers  
 
 ### Related directives
 

@@ -41,7 +41,8 @@ export interface PlatformAuditInput {
 
 const TABLE = "platform_audit_log";
 
-export async function logPlatformAudit(input: PlatformAuditInput): Promise<void> {
+/** Direct audit row insert — used by EventEngine legacy handler only. */
+export async function insertPlatformAuditRow(input: PlatformAuditInput): Promise<void> {
   try {
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from(TABLE).insert({
@@ -59,6 +60,35 @@ export async function logPlatformAudit(input: PlatformAuditInput): Promise<void>
   } catch (err) {
     console.error("[platform_audit]", err);
   }
+}
+
+/** Routes through EventEngine™ — prefer publishPlatformEvent for new code. */
+export async function logPlatformAudit(input: PlatformAuditInput): Promise<void> {
+  const { auditTypeToPlatformEventType, priorityForAuditEvent } = await import(
+    "@/lib/events/auditBridge"
+  );
+  const { publishPlatformEvent } = await import("@/lib/events/engine");
+
+  const idempotencyKey =
+    typeof input.metadata?.idempotencyKey === "string"
+      ? input.metadata.idempotencyKey
+      : undefined;
+
+  await publishPlatformEvent({
+    type: auditTypeToPlatformEventType(input.eventType),
+    priority: priorityForAuditEvent(input.eventType),
+    summary: input.summary,
+    gameType: input.gameType ?? null,
+    entityType: input.entityType ?? null,
+    entityId: input.entityId ?? null,
+    actorEmail: input.actorEmail ?? null,
+    actorRole: input.actorRole ?? "system",
+    payload: input.metadata ?? {},
+    metadata: {
+      legacyAuditType: input.eventType,
+    },
+    idempotencyKey,
+  });
 }
 
 export interface PlatformAuditEntry {

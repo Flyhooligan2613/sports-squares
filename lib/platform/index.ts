@@ -53,9 +53,18 @@ export {
 
 export {
   logPlatformAudit,
+  insertPlatformAuditRow,
   listPlatformAuditLog,
   type PlatformAuditEventType,
 } from "@/lib/platform/core/auditLog";
+
+export {
+  EventEngine,
+  publishPlatformEvent,
+  subscribeToPlatformEvent,
+  registerSportEventDefinition,
+  sportPlatformEventType,
+} from "@/lib/events";
 
 export {
   creditGrowthFund,

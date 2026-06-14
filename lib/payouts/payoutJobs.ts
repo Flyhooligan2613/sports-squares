@@ -224,6 +224,25 @@ export async function processPayoutJobs(limit = 20): Promise<PayoutWorkerResult>
           raw.quarter as ScoringPeriod,
           "paid"
         );
+
+        const { publishPlatformEvent } = await import("@/lib/events/engine");
+        await publishPlatformEvent({
+          type: "game.payout_completed",
+          priority: "critical",
+          summary: `Payout completed for ${raw.winning_player} (${raw.quarter})`,
+          gameType: "squareboards",
+          entityType: "pool",
+          entityId: raw.pool_id,
+          payload: {
+            quarter: raw.quarter,
+            winningPlayer: raw.winning_player,
+            amountCents: raw.amount_cents,
+            stripeTransferId: transfer.transferId,
+            jobId: raw.id,
+          },
+          idempotencyKey: `${raw.pool_id}:${raw.quarter}:payout_completed`,
+        });
+
         result.completed += 1;
         continue;
       }
