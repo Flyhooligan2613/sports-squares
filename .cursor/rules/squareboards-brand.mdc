@@ -1,28 +1,28 @@
 ---
-description: SquareBoards platform-first brand and UI copy standards
+description: SquareBoards platform-first product direction (Executive Directive #001)
 globs: app/**/*.tsx,components/**/*.tsx,lib/platform/**/*
 alwaysApply: false
 ---
 
-# SquareBoards — platform first
+# SquareBoards — Project Legacy (#001)
 
-SquareBoards is **the platform**; Sports Squares, Pick'em, etc. are **experiences inside it**.
+**The Premium Sports Gaming Platform.** Sports Squares is a flagship experience inside it — not the product.
 
-## Copy rules
+## Principles
 
-- Homepage and global shell (meta, footer, nav): sell **SquareBoards the platform** first.
-- Game-specific pages: sell that **experience** after the user is in the ecosystem.
-- Never describe SquareBoards as a "sports squares website" or "squares marketplace" in primary copy.
-- Category line: **The Premium Sports Gaming Platform**.
+- Every Fan Has A Chance · No Wait Line · Somewhere You Belong
+- Platform is the destination; games, rewards, legacy, and community are one ecosystem
+- No dead ends — every action leads to the next (rewards → achievements → next game)
 
-## Ecosystem hierarchy
+## Build standards
 
-Platform → Games → Rewards (Square Drop) → Legacy (achievements) → The Huddle (community).
+- Homepage sells **platform + community + experiences + rewards + legacy** — not squares alone
+- Premium intentional UI: Apple / Xbox / PlayStation / Arc / Linear — not generic patterns
+- Highlight Squares™ = moment-based platform rewards (not cash), with live board celebration UX
 
-## UI order (homepage)
+## Copy
 
-1. Platform hero
-2. Available games showcase
-3. Ecosystem pillars (rewards, profile, huddle, leaderboards)
+- Category: **The Premium Sports Gaming Platform**
+- Never lead with "sports squares website" or "squares marketplace"
 
-Full strategy: `docs/BRAND_ARCHITECTURE.md`
+Full directives: `docs/PROJECT_LEGACY.md` · `docs/BRAND_ARCHITECTURE.md`

@@ -1,5 +1,8 @@
 # SquareBoards Brand Architecture
 
+> **Executive Product Directive #001 — Project Legacy**  
+> Full product direction: `docs/PROJECT_LEGACY.md`
+
 ## Strategic shift
 
 SquareBoards is **the platform** — not a single game. Sports Squares is one experience inside it.
@@ -14,12 +17,13 @@ Think: Xbox → Halo, Steam → Counter-Strike, Netflix → Stranger Things. The
 
 ```
 SquareBoards (platform)
-├── Sports Squares
+├── Sports Squares (flagship)
 ├── Pick'em
-├── MLB Pick'em
+├── MLB Pick'em / MLB Squares
 ├── Soccer Predictor
 ├── Survivor
 ├── Bracket Battles
+├── Highlight Squares™ (engagement layer)
 └── Future experiences
 ```
 
@@ -31,6 +35,15 @@ SquareBoards (platform)
 | **Legacy / Achievements** | Identity |
 | **The Huddle** | Community |
 | **Player profiles & leaderboards** | Social proof |
+| **Highlight Squares™** | Live-moment engagement (platform rewards) |
+
+---
+
+## Company philosophy
+
+- **Every Fan Has A Chance**
+- **There's No Wait Line**
+- **Somewhere You Belong**
 
 ---
 
