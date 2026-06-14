@@ -26,6 +26,7 @@ export type ConnectV2DiagnosticReport = {
     feesCollector: string | null;
     lossesCollector: string | null;
     transfersStatus: string | null;
+    cardPaymentsStatus: string | null;
     requirementsStatus: string | null;
     detailsSubmitted: boolean;
     payoutsEnabled: boolean;
@@ -65,6 +66,8 @@ export async function diagnoseWinnerConnectV2Account(input: {
   const transfersStatus =
     account.configuration?.recipient?.capabilities?.stripe_balance?.stripe_transfers
       ?.status ?? null;
+  const cardPaymentsStatus =
+    account.configuration?.merchant?.capabilities?.card_payments?.status ?? null;
   const requirementsStatus =
     account.requirements?.summary?.minimum_deadline?.status ?? null;
 
@@ -99,6 +102,17 @@ export async function diagnoseWinnerConnectV2Account(input: {
         WINNER_CONNECT_V2_RESPONSIBILITIES.losses_collector,
         lossesCollector,
         "Platform must be the losses collector for this account configuration."
+      )
+    );
+  }
+
+  if (!cardPaymentsStatus) {
+    issues.push(
+      issue(
+        "configuration.merchant.capabilities.card_payments",
+        "requested or active",
+        cardPaymentsStatus,
+        "Merchant card_payments capability is missing — required before stripe_transfers.",
       )
     );
   }
@@ -149,6 +163,7 @@ export async function diagnoseWinnerConnectV2Account(input: {
       feesCollector,
       lossesCollector,
       transfersStatus,
+      cardPaymentsStatus,
       requirementsStatus,
       detailsSubmitted: flags.detailsSubmitted,
       payoutsEnabled: flags.payoutsEnabled,

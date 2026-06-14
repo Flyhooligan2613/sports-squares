@@ -12,6 +12,29 @@ export const WINNER_CONNECT_V2_RESPONSIBILITIES = {
   losses_collector: "application",
 } as const;
 
+/**
+ * Stripe requires merchant.card_payments to be requested before recipient stripe_transfers
+ * on many platform configurations (including SquareBoards live).
+ */
+export const WINNER_CONNECT_V2_CONFIGURATION = {
+  merchant: {
+    capabilities: {
+      card_payments: {
+        requested: true,
+      },
+    },
+  },
+  recipient: {
+    capabilities: {
+      stripe_balance: {
+        stripe_transfers: {
+          requested: true,
+        },
+      },
+    },
+  },
+} as const;
+
 /** Winner payout account (Accounts v2 subset used for recipient transfers). */
 export type WinnerConnectV2Account = {
   id: string;
@@ -32,6 +55,13 @@ export type WinnerConnectV2Account = {
     };
   };
   configuration?: {
+    merchant?: {
+      capabilities?: {
+        card_payments?: {
+          status?: string;
+        };
+      };
+    };
     recipient?: {
       capabilities?: {
         stripe_balance?: {
@@ -92,7 +122,7 @@ function buildWinnerConnectIdentityPayload(
 
 /**
  * Create a V2 connected account configured to receive platform transfers (winner payouts).
- * No top-level type field — uses recipient configuration, not merchant card_payments.
+ * Requests merchant.card_payments (required by Stripe) plus recipient stripe_transfers.
  */
 export async function createWinnerConnectV2Account(input: {
   email: string;
@@ -112,17 +142,7 @@ export async function createWinnerConnectV2Account(input: {
     defaults: {
       responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
     },
-    configuration: {
-      recipient: {
-        capabilities: {
-          stripe_balance: {
-            stripe_transfers: {
-              requested: true,
-            },
-          },
-        },
-      },
-    },
+    configuration: WINNER_CONNECT_V2_CONFIGURATION,
     metadata: {
       email: input.email.trim().toLowerCase(),
       platform: "squareboards",
@@ -145,7 +165,7 @@ export async function retrieveWinnerConnectV2AccountDetailed(
   const account = await v2Core().accounts.retrieve(
     accountId,
     {
-      include: ["defaults", "identity", "configuration.recipient", "requirements"],
+      include: ["defaults", "identity", "configuration.merchant", "configuration.recipient", "requirements"],
     },
     accountContext(accountId)
   );
@@ -163,6 +183,7 @@ export async function ensureWinnerConnectV2AccountReady(
     defaults: {
       responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
     },
+    configuration: WINNER_CONNECT_V2_CONFIGURATION,
   };
 
   if (prefill) {

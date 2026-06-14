@@ -21,6 +21,7 @@ type DiagnosticReport = {
     dashboard: string | null;
     feesCollector: string | null;
     lossesCollector: string | null;
+    cardPaymentsStatus: string | null;
     transfersStatus: string | null;
     requirementsStatus: string | null;
     detailsSubmitted: boolean;
@@ -117,7 +118,8 @@ export default function AdminConnectDiagnosticsClient() {
         </div>
         <p className="text-xs text-sb-muted leading-relaxed">
           This replaces manual Stripe curl checks. Errors about{" "}
-          <span className="text-white">dashboard</span> or{" "}
+          <span className="text-white">dashboard</span>,{" "}
+          <span className="text-white">card_payments</span>, or{" "}
           <span className="text-white">fees_collector / losses_collector</span> are fixed by{" "}
           <strong className="text-white font-medium">Repair configuration</strong> or when the player taps{" "}
           <strong className="text-white font-medium">Set up cash-out</strong> after deploy.
@@ -164,6 +166,7 @@ export default function AdminConnectDiagnosticsClient() {
                 <Row label="dashboard" value={report.stripe.dashboard} expected={report.expected.dashboard} />
                 <Row label="fees_collector" value={report.stripe.feesCollector} expected={report.expected.feesCollector} />
                 <Row label="losses_collector" value={report.stripe.lossesCollector} expected={report.expected.lossesCollector} />
+                <Row label="card_payments" value={report.stripe.cardPaymentsStatus} />
                 <Row label="stripe_transfers" value={report.stripe.transfersStatus} />
                 <Row label="requirements" value={report.stripe.requirementsStatus} />
                 <Row label="payouts ready" value={report.stripe.payoutsEnabled ? "yes" : "no"} />
