@@ -141,6 +141,7 @@ interface HighlightEventDefinition {
 Central registry: `lib/highlight/registry.ts`  
 Detection adapters per sport: `lib/highlight/detectors/`  
 Moment ingestion: ESPN play-by-play / summary webhooks / cron sync  
+**Publish:** `highlight.activated` via [EventEngine™](./EVENT_ENGINE.md)  
 
 ---
 
@@ -219,7 +220,9 @@ See [Project Polish (#003)](./PROJECT_POLISH.md).
 - Golden Highlight Events  
 - Community / Sponsored / Tournament highlights  
 
-Extension points: registry tiers · reward profiles · board theme layer · celebration presets.
+See also: [EventEngine™](./EVENT_ENGINE.md) — sport events publish here; Highlight Engine subscribes.
+
+Extension points: registry tiers · reward profiles · board theme layer · celebration presets · **EventEngine.publish()**.
 
 ---
 

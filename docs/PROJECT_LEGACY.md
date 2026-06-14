@@ -161,6 +161,10 @@ They should feel like they have entered a **living sports entertainment platform
 - **#005 — MLB Squares Experience:** `docs/MLB_SQUARES_EXPERIENCE.md` (second flagship game)
 - **#006 — Universal Highlight Engine™:** `docs/HIGHLIGHT_ENGINE.md` (moment-based engagement)
 
+### Architecture directives
+
+- **Architecture #002 — EventEngine™:** `docs/EVENT_ENGINE.md` (central event bus — powers all engines)
+
 ---
 
 *Executive Product Directive #001 — Project Legacy*

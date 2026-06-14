@@ -1,0 +1,26 @@
+---
+description: EventEngine™ central event bus — Architecture Directive #002
+globs: lib/events/**,lib/platform/core/**,lib/engines/**,app/api/webhooks/**
+alwaysApply: false
+---
+
+# EventEngine™ (Architecture #002)
+
+Central nervous system. **Everything is an event.** No feature calls another feature directly.
+
+## Rules
+
+- Publish once via `EventEngine.publish()` — subscribers react
+- Sport-agnostic: NFL/MLB/NBA register event types, engine does not know rules
+- Idempotent event IDs · audit trail · retries/DLQ for reliability
+- Priorities: critical → high → normal → background
+
+## Engines (subscribe only)
+
+RewardCore · LegacyCore · LiveCore · CommunityCore · HighlightEngine · NotificationCenter · Analytics
+
+## Adding a feature
+
+Register event type → publish at action site → add subscriber(s) → done
+
+Full spec: `docs/EVENT_ENGINE.md`
