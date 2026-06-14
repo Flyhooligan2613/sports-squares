@@ -1,4 +1,4 @@
--- Survivor Shields™ — Executive Directive #008
+-- Survivor Shields - Executive Directive 008
 
 -- Every entry starts with one shield per season (auto-deploy on first loss).
 alter table public.survivor_entries
@@ -36,7 +36,7 @@ create index if not exists survivor_shield_uses_entry_idx
 create index if not exists survivor_shield_uses_week_idx
   on public.survivor_shield_uses (league_id, week_number);
 
--- LegacyCore™ career tracking for shields.
+-- LegacyCore career tracking for shields.
 alter table public.survivor_career_stats
   add column if not exists shield_saves_lifetime integer not null default 0
     check (shield_saves_lifetime >= 0),
