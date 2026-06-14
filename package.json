@@ -26,6 +26,7 @@
     "connect-sample:verify": "node scripts/verify-connect-sample-setup.mjs",
     "connect-sample:setup": "node scripts/setup-connect-sample.mjs",
     "stripe:set-test-key": "node scripts/set-stripe-test-key.mjs",
+    "stripe:verify-live": "node scripts/verify-live-stripe-setup.mjs",
     "stripe:enable-vercel": "node scripts/enable-stripe-connect-vercel.mjs",
     "resend:sync-vercel": "node scripts/sync-resend-key-to-vercel.mjs",
     "resend:setup-domain": "node scripts/setup-resend-domain.mjs"

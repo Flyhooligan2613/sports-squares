@@ -7,6 +7,7 @@ const vercelBin = join(root, "node_modules", "vercel", "dist", "index.js");
 
 const keys = [
   { key: "STRIPE_CONNECT_ENABLED", value: "true" },
+  { key: "STRIPE_CONNECT_V2_PAYOUTS", value: "true" },
 ];
 
 console.log("Enabling Stripe Connect on Vercel production...");

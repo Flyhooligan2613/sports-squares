@@ -12,7 +12,12 @@ import {
   PURCHASE_TYPE_PICKEM_ENTRY,
   resolvePurchaseType,
 } from "@/lib/platform/core/checkoutMetadata";
-import { syncConnectAccountFromStripe } from "@/lib/database/services/stripeConnect";
+import {
+  syncConnectAccountFromStripe,
+  syncConnectAccountFromStripeV2,
+} from "@/lib/database/services/stripeConnect";
+import { isStripeConnectV2PayoutsEnabled } from "@/lib/stripe/connect";
+import { retrieveWinnerConnectV2Account } from "@/lib/stripe/connectV2Payouts";
 import { syncPlayerWalletFromCheckoutSession } from "@/lib/stripe/playerWallet";
 import { getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
@@ -138,7 +143,20 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
 async function handleAccountUpdated(account: Stripe.Account) {
   const rawEmail = account.metadata?.email;
   if (!rawEmail?.trim()) return;
-  await syncConnectAccountFromStripe(normalizeEmail(rawEmail), account);
+
+  const email = normalizeEmail(rawEmail);
+
+  if (isStripeConnectV2PayoutsEnabled()) {
+    try {
+      const v2Account = await retrieveWinnerConnectV2Account(account.id);
+      await syncConnectAccountFromStripeV2(email, v2Account);
+      return;
+    } catch (v2Err) {
+      console.warn("[stripe/webhook] V2 account sync failed, trying Express:", v2Err);
+    }
+  }
+
+  await syncConnectAccountFromStripe(email, account);
 }
 
 export async function POST(request: Request) {
