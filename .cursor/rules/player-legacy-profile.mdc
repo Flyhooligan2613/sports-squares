@@ -1,0 +1,31 @@
+---
+description: Player Profile as digital identity — Executive Directive #002
+globs: components/player/**/*.tsx,app/my-games/**/profile/**,lib/player/**,lib/database/services/playerLegacy.ts
+alwaysApply: false
+---
+
+# Player Legacy Experience (#002)
+
+Profile is **digital identity** — Xbox/Steam-tier gaming profile, not a sportsbook account.
+
+## Feel
+
+"I've built something." Identity · reputation · accomplishment · belonging.
+
+## Required sections (target)
+
+Header (avatar, tier, streaks, share) → Legacy dashboard → Trophy case → Timeline → Sport stats
+
+## Tiers
+
+Bronze → Immortal. Unlock frames, badges, drops, animations, recognition.
+
+## Reputation
+
+Earned via games, picks, followers, referrals, achievements — not chat votes.
+
+## Future-ready
+
+New games must feed legacy/stats/reputation via platform stats adapter — no profile redesign per game.
+
+Full spec: `docs/PLAYER_LEGACY_EXPERIENCE.md`
