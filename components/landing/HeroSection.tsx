@@ -1,35 +1,27 @@
 "use client";
 
 import { useRef, type CSSProperties } from "react";
-import { useRouter } from "next/navigation";
-import { ChevronRight, Radio } from "lucide-react";
+import { ChevronRight, Sparkles } from "lucide-react";
 import Logo from "@/components/Logo";
 import HeroBackground from "@/components/landing/hero/HeroBackground";
 import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
 import { Button } from "@/components/ui/Button";
-import { ESPN_SPORT_LIST } from "@/lib/espn/sports";
-import type { EspnSport } from "@/lib/types";
 import { useHeroParallax } from "@/lib/motion/useHeroParallax";
 
-const HERO_SPORT_EMOJI: Record<EspnSport, string> = {
-  nfl: "🏈",
-  ncaaf: "🏈",
-  nba: "🏀",
-  ncaab: "🏀",
-};
+const ECOSYSTEM_HIGHLIGHTS = [
+  "Play live Sports Squares",
+  "Build winning Pick'em streaks",
+  "Unlock weekly rewards",
+  "Compete with friends",
+  "Level up your profile",
+];
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const router = useRouter();
   useHeroParallax(sectionRef);
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  function pickSport(sport: EspnSport) {
-    router.replace(`/?sport=${sport}#marketplace`, { scroll: false });
-    scrollTo("marketplace");
   }
 
   return (
@@ -47,40 +39,27 @@ export default function HeroSection() {
             <GlobalSearchTrigger variant="hero" className="w-full" />
           </div>
 
-          <div className="hero-logo-glow flex justify-center mb-5 sm:mb-6">
+          <div className="hero-logo-glow flex justify-center mb-4 sm:mb-5">
             <Logo href="/" className="text-xl sm:text-2xl hero-logo-breathe" />
           </div>
 
           <div className="flex justify-center mb-4 sm:mb-5">
-            <div className="hero-live-pill">
-              <Radio className="w-3.5 h-3.5 text-sb-success" strokeWidth={2.5} />
-              <span>Live Sports Squares</span>
-              <span className="hero-live-pill-dot" aria-hidden />
+            <div className="hero-live-pill hero-platform-pill">
+              <Sparkles className="w-3.5 h-3.5 text-sb-glow" strokeWidth={2.5} />
+              <span>The Premium Sports Gaming Platform</span>
             </div>
           </div>
 
           <h1 className="hero-headline hero-headline-v2 hero-headline-premium text-center">
-            <span className="block">Own Your Lucky Squares.</span>
-            <span className="block hero-headline-accent">Win Every Quarter.</span>
+            <span className="block">One Platform.</span>
+            <span className="block hero-headline-accent">Every Way To Play.</span>
           </h1>
 
-          <p className="hero-subhead hero-subhead-v2 text-center mx-auto">
-            Buy lucky squares, watch live scores, and compete for cash prizes every quarter.
-          </p>
-
-          <div className="hero-sport-bar mx-auto mb-5 sm:mb-6" role="group" aria-label="Pick a sport">
-            {ESPN_SPORT_LIST.map((sport) => (
-              <button
-                key={sport.id}
-                type="button"
-                className="hero-sport-chip"
-                onClick={() => pickSport(sport.id)}
-              >
-                <span aria-hidden>{HERO_SPORT_EMOJI[sport.id]}</span>
-                {sport.label}
-              </button>
+          <ul className="hero-ecosystem-list mx-auto">
+            {ECOSYSTEM_HIGHLIGHTS.map((line) => (
+              <li key={line}>{line}</li>
             ))}
-          </div>
+          </ul>
 
           <div className="hero-ctas hero-ctas-v2 hero-ctas-spacious justify-center">
             <Button

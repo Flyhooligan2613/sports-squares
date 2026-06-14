@@ -17,7 +17,7 @@ export interface NavSection {
 export const NAV_SECTIONS: NavSection[] = [
   {
     id: "main",
-    title: "Main",
+    title: "Play",
     renderGames: "available",
     items: [
       { href: "/", label: "Home", icon: "🏠" },
@@ -31,12 +31,12 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "player",
     title: "Player",
     items: [
-      { href: "/my-games/profile", label: "My Profile", icon: "👤", requiresAuth: true },
-      { href: "/my-games/rewards", label: "Rewards", icon: "🎁", requiresAuth: true },
+      { href: "/my-games/profile", label: "Player Hub", icon: "👤", requiresAuth: true },
+      { href: "/my-games/rewards", label: "Rewards Center", icon: "🎁", requiresAuth: true },
       { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐", requiresAuth: true },
       { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎", requiresAuth: true },
       { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒", requiresAuth: true },
-      { href: "/my-games/rewards/square-drop", label: "Square Drop", icon: "🎁", requiresAuth: true },
+      { href: "/my-games/rewards/square-drop", label: "Weekly Reward Drop", icon: "🎁", requiresAuth: true },
       { href: "/my-games/referrals", label: "Invite Friends", icon: "👥", requiresAuth: true },
       { href: "/my-games/winnings", label: "My Winnings", icon: "💰", requiresAuth: true },
       { href: "/my-games/history", label: "Win History", icon: "📜", requiresAuth: true },

@@ -17,7 +17,9 @@ import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import FeaturedPools from "@/components/landing/FeaturedPools";
 import HeroSection from "@/components/landing/HeroSection";
 import HomeBrowseGamesStrip from "@/components/landing/HomeBrowseGamesStrip";
+import HomeEcosystemSection from "@/components/landing/HomeEcosystemSection";
 import HomeHappeningNow from "@/components/landing/HomeHappeningNow";
+import HomePlatformValueSection from "@/components/landing/HomePlatformValueSection";
 import HomeWeeklyRewardSection from "@/components/landing/HomeWeeklyRewardSection";
 import JoinPoolSection from "@/components/landing/JoinPoolSection";
 import MarketplaceSports from "@/components/landing/MarketplaceSports";
@@ -26,29 +28,28 @@ import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
 import { LandingLiveProvider } from "@/components/landing/LandingLiveProvider";
-import MoreWaysToPlaySection from "@/components/platform/MoreWaysToPlaySection";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 const PLAYER_STEPS = [
   {
-    title: "Choose Your Game",
+    title: "Create Your Account",
     description:
-      "Browse NFL, NBA, college, and more — every game has open boards ready to play.",
+      "One SquareBoards profile unlocks every game, reward, and feature on the platform.",
   },
   {
-    title: "Purchase Squares Securely",
+    title: "Pick Your Game",
     description:
-      "Pay with Stripe and get your personal access link instantly.",
+      "Sports Squares, Pick'em, MLB Pick'em, and more — all from a single dashboard.",
   },
   {
-    title: "Choose Your Lucky Squares",
+    title: "Compete & Progress",
     description:
-      "Pick your spots on the board before kickoff locks the numbers.",
+      "Earn XP, unlock achievements, climb leaderboards, and collect weekly rewards.",
   },
   {
-    title: "Watch Live and Win",
+    title: "Win & Get Paid",
     description:
-      "Track live scores with automatic winner updates every quarter.",
+      "Live scoring, automatic payouts, and a public profile that grows with every win.",
   },
 ];
 
@@ -77,34 +78,33 @@ const SPORTS: { name: string; icon: LucideIcon; description: string }[] = [
 
 const WHY_PLAY: { title: string; description: string; icon: LucideIcon }[] = [
   {
+    title: "One Platform Account",
+    description: "Every game, reward, and profile feature lives under one login.",
+    icon: Sparkles,
+  },
+  {
     title: "Secure Payments",
     description: "Checkout powered by Stripe — fast, safe, and familiar.",
     icon: Shield,
   },
   {
-    title: "Instant Invite Links",
-    description:
-      "Get your personal link right after purchase to claim squares.",
+    title: "Automatic Payouts",
+    description: "Winners paid automatically — no spreadsheets, no chasing.",
     icon: Zap,
   },
   {
-    title: "Automatic Scoring",
-    description: "Live ESPN score sync keeps the board up to date.",
+    title: "Live Sports Data",
+    description: "ESPN score sync powers live boards, stats, and standings.",
     icon: BarChart3,
   },
   {
-    title: "Mobile Friendly",
-    description: "Buy, pick, and track winners from any phone.",
+    title: "Mobile First",
+    description: "Play, track, and celebrate wins from any phone.",
     icon: Smartphone,
   },
   {
-    title: "No Spreadsheet Required",
-    description: "Everything runs online — no manual tracking needed.",
-    icon: Sparkles,
-  },
-  {
-    title: "Automatic Winner Tracking",
-    description: "Quarter winners calculated and recorded for you.",
+    title: "Built To Grow",
+    description: "New games and seasonal events added to the same ecosystem.",
     icon: Trophy,
   },
 ];
@@ -115,6 +115,8 @@ export default function HomePage() {
       <div className="landing-page landing-page-enter min-h-[calc(100vh-3.5rem)] flex flex-col overflow-x-hidden">
         <main className="flex-1">
           <HeroSection />
+          <HomeEcosystemSection />
+          <HomePlatformValueSection />
           <AnnouncementHomeHeroSlot />
           <HomeHappeningNow />
           <HomeBrowseGamesStrip />
@@ -125,7 +127,6 @@ export default function HomePage() {
 
           <SocialProof />
           <HomeWeeklyRewardSection />
-          <MoreWaysToPlaySection />
 
           <FeaturedPools />
           <JoinPoolSection />
@@ -134,8 +135,8 @@ export default function HomePage() {
             <ScrollReveal>
               <LandingSectionHeader
                 eyebrow="How It Works"
-                title="From invite to winning square"
-                subtitle="Four simple steps to play sports squares online."
+                title="Join the platform in four steps"
+                subtitle="From sign-up to your first win — one account powers everything."
               />
             </ScrollReveal>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -158,9 +159,9 @@ export default function HomePage() {
           <LandingSection variant="alt">
             <ScrollReveal>
               <LandingSectionHeader
-                eyebrow="Sports"
+                eyebrow="Sports Squares"
                 title="Supported leagues"
-                subtitle="SquareBoards creates boards for every major game automatically."
+                subtitle="Classic squares boards for every major game — one part of the full SquareBoards platform."
               />
             </ScrollReveal>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -185,9 +186,9 @@ export default function HomePage() {
           <LandingSection variant="glow">
             <ScrollReveal>
               <LandingSectionHeader
-                eyebrow="Why SquareBoards"
-                title="Built for players who expect more"
-                subtitle="A premium squares experience with secure checkout, live scores, and zero spreadsheets."
+                eyebrow="Platform"
+                title="Built for the long game"
+                subtitle="A premium sports gaming ecosystem — not just another squares pool."
               />
             </ScrollReveal>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">

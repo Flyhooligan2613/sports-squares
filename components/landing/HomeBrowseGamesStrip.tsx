@@ -14,10 +14,10 @@ export default function HomeBrowseGamesStrip() {
       <ScrollReveal>
         <div className="home-browse-strip-inner">
           <div className="home-browse-strip-copy">
-            <p className="home-browse-strip-kicker">Ready to play</p>
-            <h2 className="home-browse-strip-title">Browse live boards</h2>
+            <p className="home-browse-strip-kicker">Start playing</p>
+            <h2 className="home-browse-strip-title">Explore the platform</h2>
             <p className="home-browse-strip-sub">
-              NFL, NBA, college, and more — pick your squares before kickoff.
+              Sports Squares, Pick&apos;em, MLB Pick&apos;em, and more — one account, every game.
             </p>
           </div>
           <div className="home-browse-strip-actions">
