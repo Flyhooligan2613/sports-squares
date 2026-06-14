@@ -20,8 +20,8 @@ export default function SurvivorLeaguesClient() {
           <ScrollReveal>
             <LandingSectionHeader
               eyebrow="Leagues"
-              title="Global Survivor opens soon"
-              subtitle="The first SquareBoards Global Survivor league launches with Phase 2 — weekly picks, live eliminations, and automatic legacy tracking."
+              title="Global Survivor is live"
+              subtitle="Join the flagship SquareBoards Survivor X™ league — free entry, one pick per week, last standing wins."
             />
           </ScrollReveal>
 
@@ -29,13 +29,13 @@ export default function SurvivorLeaguesClient() {
             <p className="text-4xl mb-4" aria-hidden>
               🌎
             </p>
-            <h2 className="text-xl font-bold text-white mb-2">Get ready for kickoff</h2>
+            <h2 className="text-xl font-bold text-white mb-2">Classic Global Survivor</h2>
             <p className="text-sm text-sb-muted leading-relaxed mb-6">
-              Join the flagship Global Classic league when Week 1 opens. Private leagues with
-              custom fees and invite codes follow in Phase 4.
+              Double Life, Turbo, and Private leagues arrive in a future phase. For now, everyone
+              plays in the Global Classic pool.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Button href={survivorPath("learn")}>Learn the rules</Button>
+              <Button href={survivorPath("week")}>Play This Week</Button>
               <Button href={survivorPath()} variant="secondary">
                 Back to hub
               </Button>

@@ -25,10 +25,10 @@ export default function SurvivorModeCards() {
           <p className="text-sm text-sb-muted leading-relaxed flex-1 mb-4">{mode.description}</p>
           {mode.available ? (
             <Link
-              href="/survivor/leagues"
+              href="/survivor/week"
               className="inline-flex items-center gap-1 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
             >
-              Explore leagues
+              Play Global Survivor
               <ChevronRight className="w-4 h-4" />
             </Link>
           ) : (

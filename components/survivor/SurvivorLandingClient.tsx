@@ -40,13 +40,13 @@ export default function SurvivorLandingClient() {
             badgeVariant="live"
             title={SURVIVOR_X_PUBLIC_NAME}
             subtitle="Survive the entire NFL season. Build your legacy. One pick per week — never the same team twice."
-            cta={{ label: "Learn How to Play", href: survivorPath("learn") }}
+            cta={{ label: "Play This Week", href: survivorPath("week") }}
           />
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            <Button href={survivorPath("learn")}>How to Play</Button>
-            <Button href={survivorPath("leagues")} variant="secondary">
-              Browse Leagues
+            <Button href={survivorPath("week")}>Play This Week</Button>
+            <Button href={survivorPath("learn")} variant="secondary">
+              How to Play
             </Button>
             <Button href={survivorPath("hall-of-fame")} variant="secondary">
               Hall of Fame
@@ -54,8 +54,7 @@ export default function SurvivorLandingClient() {
           </div>
 
           <p className="text-center text-xs text-sb-muted mt-4 max-w-xl mx-auto">
-            Phase 1 is live — tutorial, leagues hub, and Hall of Fame shell. Weekly picks and
-            the Live Survival Map arrive in Phase 2.
+            Global Classic is live — lock one NFL team each week. Never pick the same team twice.
           </p>
 
           <PlatformTrustStrip className="mt-8 px-4" />

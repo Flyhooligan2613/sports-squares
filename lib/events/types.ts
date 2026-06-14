@@ -57,6 +57,7 @@ export type PlatformEventType =
   | "survivor.week_complete"
   | "survivor.champion_crowned"
   | "survivor.league_joined"
+  | "survivor.week_complete"
   | "system.push_notification"
   | "system.email_notification"
   | "system.sms_notification"

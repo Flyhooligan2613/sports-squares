@@ -35,7 +35,14 @@ async function runPickemSync(request: Request) {
     } catch (announcementErr) {
       console.error("[pickem-sync] announcement automation", announcementErr);
     }
-    return NextResponse.json({ ok: true, result, mlbResult, announcements });
+    let survivorResult = null;
+    try {
+      const { syncAllSurvivorLeagues } = await import("@/lib/survivor/engine/syncLeague");
+      survivorResult = await syncAllSurvivorLeagues();
+    } catch (survivorErr) {
+      console.error("[pickem-sync] survivor", survivorErr);
+    }
+    return NextResponse.json({ ok: true, result, mlbResult, announcements, survivorResult });
   } catch (err) {
     console.error("[pickem-sync]", err);
     const message =

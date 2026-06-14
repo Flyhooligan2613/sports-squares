@@ -51,3 +51,51 @@ export interface SurvivorLiveMapStats {
   upsetRiskTeam: string | null;
   survivorRatePct: number;
 }
+
+export interface SurvivorGameOption {
+  espnGameId: string;
+  awayTeam: string;
+  homeTeam: string;
+  teamAbbr: string;
+  teamName: string;
+  kickoffAt: string;
+  status: string;
+  awayScore: number;
+  homeScore: number;
+  picksLocked: boolean;
+  isSelected: boolean;
+  isUsedTeam: boolean;
+}
+
+export interface SurvivorWeekView {
+  league: {
+    id: string;
+    name: string;
+    seasonYear: number;
+    status: SurvivorLeagueStatus;
+    currentWeek: number;
+  };
+  week: {
+    id: string;
+    weekNumber: number;
+    label: string;
+    status: SurvivorWeekStatus;
+    locksAt: string | null;
+  };
+  entry: {
+    id: string;
+    status: SurvivorEntryStatus;
+    livesRemaining: number;
+    weeksSurvived: number;
+    displayName: string;
+  } | null;
+  games: SurvivorGameOption[];
+  usedTeams: string[];
+  myPick: {
+    teamAbbr: string;
+    teamName: string;
+    result: SurvivorPickResult;
+  } | null;
+  liveMap: SurvivorLiveMapStats;
+  canPick: boolean;
+}
