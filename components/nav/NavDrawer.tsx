@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
 import NavGamesSection from "@/components/platform/NavGamesSection";
+import { useGlobalSearchSafe } from "@/components/search/GlobalSearchProvider";
 import { isNavItemActive, NAV_SECTIONS, type NavItem } from "@/lib/navigation";
 import { useNavDrawer } from "./NavDrawerProvider";
 
@@ -23,6 +24,7 @@ function badgeForItem(
 
 export default function NavDrawer() {
   const pathname = usePathname();
+  const globalSearch = useGlobalSearchSafe();
   const { isOpen, close, userEmail, activeBoards, unreadMessages, unreadNotifications } =
     useNavDrawer();
 
@@ -75,6 +77,19 @@ export default function NavDrawer() {
               Sign in to My Games
             </Link>
           )}
+          <button
+            type="button"
+            className="global-search-trigger w-full mt-4"
+            onClick={() => {
+              close();
+              globalSearch?.open();
+            }}
+          >
+            <span className="global-search-trigger-icon" aria-hidden>
+              🔍
+            </span>
+            <span className="global-search-trigger-label">Search players & features</span>
+          </button>
         </div>
 
         <nav className="nav-drawer-scroll flex-1 overflow-y-auto">
