@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import LiveActivityTickerSlot from "@/components/liveActivity/LiveActivityTickerSlot";
 
 export default function NavbarGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,6 +27,7 @@ export default function NavbarGate({ children }: { children: React.ReactNode }) 
   return (
     <>
       <Navbar />
+      <LiveActivityTickerSlot />
       {children}
     </>
   );
