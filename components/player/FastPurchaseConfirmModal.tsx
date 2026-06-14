@@ -15,11 +15,17 @@ import {
 import { confirmFastAction } from "@/lib/auth/security/fastConfirm";
 import { isQuickPinEnabledLocally } from "@/lib/auth/security/quickPin";
 
+import type { StepUpPurpose } from "@/lib/auth/security/stepUp";
+
 interface FastPurchaseConfirmModalProps {
   open: boolean;
   email: string;
+  purpose?: StepUpPurpose;
   title?: string;
   subtitle?: string;
+  kicker?: string;
+  pinTitle?: string;
+  pinSubtitle?: string;
   amountLabel?: string;
   onClose: () => void;
   onConfirmed: (stepUpToken: string) => void | Promise<void>;
@@ -28,8 +34,12 @@ interface FastPurchaseConfirmModalProps {
 export default function FastPurchaseConfirmModal({
   open,
   email,
+  purpose = "purchase",
   title = "Confirm purchase",
   subtitle = "Verify with biometrics or Quick PIN",
+  kicker = "Fast checkout",
+  pinTitle = "Confirm purchase",
+  pinSubtitle = "Enter your Quick PIN to complete payment",
   amountLabel,
   onClose,
   onConfirmed,
@@ -56,7 +66,7 @@ export default function FastPurchaseConfirmModal({
     setLoading(true);
     setError(null);
     try {
-      const token = await confirmFastAction("purchase", email);
+      const token = await confirmFastAction(purpose, email);
       await complete(token);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Confirmation failed.");
@@ -64,7 +74,7 @@ export default function FastPurchaseConfirmModal({
     } finally {
       setLoading(false);
     }
-  }, [complete, email]);
+  }, [complete, email, purpose]);
 
   useEffect(() => {
     if (!open) {
@@ -92,7 +102,7 @@ export default function FastPurchaseConfirmModal({
     setLoading(true);
     setError(null);
     try {
-      const token = await confirmFastAction("purchase", email, pin);
+      const token = await confirmFastAction(purpose, email, pin);
       await complete(token);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Incorrect PIN.");
@@ -106,7 +116,7 @@ export default function FastPurchaseConfirmModal({
       <LandingGlassCard className="w-full max-w-md p-6 sm:p-8">
         {!showPin ? (
           <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.2em] text-sb-purple-light mb-2">Fast checkout</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-sb-purple-light mb-2">{kicker}</p>
             <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
             <p className="text-sm text-sb-muted mb-2">{subtitle}</p>
             {amountLabel ? (
@@ -132,8 +142,8 @@ export default function FastPurchaseConfirmModal({
         ) : (
           <>
             <QuickPinPad
-              title="Confirm purchase"
-              subtitle="Enter your Quick PIN to complete payment"
+              title={pinTitle}
+              subtitle={pinSubtitle}
               disabled={loading}
               error={error}
               onComplete={handlePin}

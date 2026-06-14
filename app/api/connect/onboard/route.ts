@@ -51,15 +51,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const email = normalizeEmail(user.email);
+  const existingStatus = await getPlayerConnectStatus(email);
+  const isFirstTimeSetup = !existingStatus.accountId;
+
   const stepUp = await requireStepUpFromRequest(request, "payout_change");
   const hasPasskey = await emailHasPasskey(user.email);
-  if (hasPasskey && !stepUp.ok) {
+  // First-time Stripe Connect onboarding is already identity-gated by Stripe — do not block on WebAuthn.
+  if (hasPasskey && !stepUp.ok && !isFirstTimeSetup) {
     return NextResponse.json({ error: stepUp.error, requiresStepUp: true }, { status: 403 });
   }
 
   try {
-    const email = normalizeEmail(user.email);
-    let status = await getPlayerConnectStatus(email);
+    let status = existingStatus;
     let accountId = status.accountId;
     const useV2 = isStripeConnectV2PayoutsEnabled();
 
