@@ -4008,6 +4008,27 @@ html.sb-splash-pending body > :not(.app-open-splash) {
   padding: 0.45rem 0.55rem;
 }
 
+.global-search-trigger-hero {
+  width: 100%;
+  max-width: none;
+  padding: 0.65rem 0.85rem;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(3, 7, 18, 0.55);
+  backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+}
+
+.global-search-trigger-hero:hover {
+  border-color: rgba(123, 97, 255, 0.42);
+  background: rgba(91, 76, 247, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.hero-search-bar {
+  pointer-events: auto;
+}
+
 .global-search-trigger-icon {
   font-size: 0.95rem;
   line-height: 1;

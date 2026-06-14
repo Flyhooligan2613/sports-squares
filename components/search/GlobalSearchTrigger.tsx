@@ -4,10 +4,13 @@ import { useGlobalSearchSafe } from "@/components/search/GlobalSearchProvider";
 
 export default function GlobalSearchTrigger({
   compact = false,
+  variant = "default",
   className = "",
 }: {
   /** Icon-only on very small screens when false */
   compact?: boolean;
+  /** Hero placement — always show label, full-width bar */
+  variant?: "default" | "hero";
   className?: string;
 }) {
   const search = useGlobalSearchSafe();
@@ -17,6 +20,8 @@ export default function GlobalSearchTrigger({
     typeof navigator !== "undefined" &&
     navigator.platform.toLowerCase().includes("mac");
   const shortcut = isMac ? "⌘K" : "Ctrl K";
+  const isHero = variant === "hero";
+  const showLabel = isHero || !compact;
 
   return (
     <button
@@ -25,6 +30,7 @@ export default function GlobalSearchTrigger({
       className={[
         "global-search-trigger",
         compact ? "global-search-trigger-compact" : "",
+        isHero ? "global-search-trigger-hero" : "",
         className,
       ]
         .filter(Boolean)
@@ -34,14 +40,30 @@ export default function GlobalSearchTrigger({
       <span className="global-search-trigger-icon" aria-hidden>
         🔍
       </span>
-      {!compact && (
-        <span className="global-search-trigger-label hidden sm:inline">
+      {showLabel ? (
+        <span
+          className={[
+            "global-search-trigger-label",
+            isHero ? "" : "hidden sm:inline",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           Search players & features…
         </span>
-      )}
-      {!compact && (
-        <kbd className="global-search-trigger-kbd hidden lg:inline-flex">{shortcut}</kbd>
-      )}
+      ) : null}
+      {showLabel ? (
+        <kbd
+          className={[
+            "global-search-trigger-kbd",
+            isHero ? "hidden sm:inline-flex" : "hidden lg:inline-flex",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {shortcut}
+        </kbd>
+      ) : null}
     </button>
   );
 }

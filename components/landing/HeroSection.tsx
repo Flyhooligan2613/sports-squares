@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, Radio } from "lucide-react";
 import Logo from "@/components/Logo";
 import HeroBackground from "@/components/landing/hero/HeroBackground";
+import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
 import { Button } from "@/components/ui/Button";
 import { ESPN_SPORT_LIST } from "@/lib/espn/sports";
 import type { EspnSport } from "@/lib/types";
@@ -40,8 +41,12 @@ export default function HeroSection() {
     >
       <HeroBackground />
 
-      <div className="hero-showcase-overlay relative z-10 w-full px-4 sm:px-6 pt-8 sm:pt-10 lg:pt-12 pb-6">
+      <div className="hero-showcase-overlay relative z-10 w-full px-4 sm:px-6 pt-4 sm:pt-6 lg:pt-8 pb-6">
         <div className="hero-v2-copy hero-v2-copy-over-art landing-fade-up mx-auto">
+          <div className="hero-search-bar mx-auto mb-5 sm:mb-6 w-full max-w-lg">
+            <GlobalSearchTrigger variant="hero" className="w-full" />
+          </div>
+
           <div className="hero-logo-glow flex justify-center mb-5 sm:mb-6">
             <Logo href="/" className="text-xl sm:text-2xl hero-logo-breathe" />
           </div>
