@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import {
   ShieldHalf,
   GraduationCap,
@@ -128,7 +129,9 @@ export default function HomePage() {
           </ScrollReveal>
         </LandingSection>
 
-        <MarketplaceSports />
+        <Suspense fallback={null}>
+          <MarketplaceSports />
+        </Suspense>
         <MoreWaysToPlaySection />
         <FeaturedPools />
         <JoinPoolSection />

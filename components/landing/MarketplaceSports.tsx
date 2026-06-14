@@ -1,20 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, Grid3X3, Radio } from "lucide-react";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
+import MarketplaceSportBar, {
+  type MarketplaceSportFilter,
+} from "@/components/marketplace/MarketplaceSportBar";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import type { MarketplaceSportStats } from "@/lib/types";
+import { getEspnSportConfig } from "@/lib/espn/sports";
+import type { EspnSport, MarketplaceSportStats } from "@/lib/types";
+import { Button } from "@/components/ui/Button";
 
 function formatCount(value: number): string {
   return value.toLocaleString("en-US");
 }
 
+function parseSportParam(value: string | null): MarketplaceSportFilter {
+  if (value === "nfl" || value === "ncaaf" || value === "nba" || value === "ncaab") {
+    return value;
+  }
+  return "all";
+}
+
 export default function MarketplaceSports() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [stats, setStats] = useState<MarketplaceSportStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSport, setSelectedSport] = useState<MarketplaceSportFilter>(() =>
+    parseSportParam(searchParams.get("sport"))
+  );
 
   useEffect(() => {
     fetch("/api/marketplace/stats")
@@ -23,6 +41,33 @@ export default function MarketplaceSports() {
       .catch(() => setStats([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    setSelectedSport(parseSportParam(searchParams.get("sport")));
+  }, [searchParams]);
+
+  const selectSport = useCallback(
+    (sport: MarketplaceSportFilter) => {
+      setSelectedSport(sport);
+      const params = new URLSearchParams(searchParams.toString());
+      if (sport === "all") {
+        params.delete("sport");
+      } else {
+        params.set("sport", sport);
+      }
+      const query = params.toString();
+      router.replace(query ? `/?${query}#marketplace` : "/#marketplace", { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  const visibleStats = useMemo(() => {
+    if (selectedSport === "all") return stats;
+    return stats.filter((row) => row.sport === selectedSport);
+  }, [stats, selectedSport]);
+
+  const selectedConfig =
+    selectedSport !== "all" ? getEspnSportConfig(selectedSport as EspnSport) : null;
 
   return (
     <LandingSection id="marketplace" scrollMargin variant="alt">
@@ -34,15 +79,62 @@ export default function MarketplaceSports() {
         />
       </ScrollReveal>
 
+      <ScrollReveal delay={40}>
+        <MarketplaceSportBar
+          selected={selectedSport}
+          onSelect={selectSport}
+          stats={loading ? undefined : stats}
+          className="mb-6 sm:mb-8"
+        />
+      </ScrollReveal>
+
+      {selectedConfig ? (
+        <ScrollReveal delay={60}>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="text-sm text-sb-muted">
+              Showing <span className="text-white font-semibold">{selectedConfig.label}</span>{" "}
+              boards and open games.
+            </p>
+            <Button href={`/games/${selectedSport}`} variant="secondary" className="shrink-0">
+              Browse all {selectedConfig.label} games
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </ScrollReveal>
+      ) : null}
+
       {loading ? (
         <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-40 landing-skeleton" />
           ))}
         </div>
+      ) : visibleStats.length === 0 ? (
+        <div className="landing-glass-card text-center py-14 px-6">
+          <p className="text-white font-semibold text-lg mb-2">No games listed yet</p>
+          <p className="text-sb-muted text-sm max-w-md mx-auto mb-5">
+            {selectedConfig
+              ? `${selectedConfig.label} games sync automatically from live schedules. Try another sport or check back soon.`
+              : "Games sync automatically from live schedules. Check back soon."}
+          </p>
+          {selectedSport !== "all" ? (
+            <button
+              type="button"
+              className="text-sm font-semibold text-sb-glow hover:text-white transition-colors"
+              onClick={() => selectSport("all")}
+            >
+              View all sports
+            </button>
+          ) : null}
+        </div>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
-          {stats.map((sport, index) => (
+        <div
+          className={[
+            "grid gap-4 sm:gap-5",
+            visibleStats.length === 1 ? "grid-cols-1 max-w-2xl" : "sm:grid-cols-2",
+          ].join(" ")}
+        >
+          {visibleStats.map((sport, index) => (
             <ScrollReveal key={sport.sport} delay={index * 60}>
               <Link
                 href={`/games/${sport.sport}`}

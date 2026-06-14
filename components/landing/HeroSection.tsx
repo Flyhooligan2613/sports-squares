@@ -1,18 +1,34 @@
 "use client";
 
 import { useRef, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronRight, Radio } from "lucide-react";
 import Logo from "@/components/Logo";
 import HeroBackground from "@/components/landing/hero/HeroBackground";
 import { Button } from "@/components/ui/Button";
+import { ESPN_SPORT_LIST } from "@/lib/espn/sports";
+import type { EspnSport } from "@/lib/types";
 import { useHeroParallax } from "@/lib/motion/useHeroParallax";
+
+const HERO_SPORT_EMOJI: Record<EspnSport, string> = {
+  nfl: "🏈",
+  ncaaf: "🏈",
+  nba: "🏀",
+  ncaab: "🏀",
+};
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const router = useRouter();
   useHeroParallax(sectionRef);
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function pickSport(sport: EspnSport) {
+    router.replace(`/?sport=${sport}#marketplace`, { scroll: false });
+    scrollTo("marketplace");
   }
 
   return (
@@ -48,6 +64,20 @@ export default function HeroSection() {
             Buy your lucky squares, follow live scores, and compete for every
             quarter using secure online payments.
           </p>
+
+          <div className="hero-sport-bar mx-auto mb-4 sm:mb-5" role="group" aria-label="Pick a sport">
+            {ESPN_SPORT_LIST.map((sport) => (
+              <button
+                key={sport.id}
+                type="button"
+                className="hero-sport-chip"
+                onClick={() => pickSport(sport.id)}
+              >
+                <span aria-hidden>{HERO_SPORT_EMOJI[sport.id]}</span>
+                {sport.label}
+              </button>
+            ))}
+          </div>
 
           <div className="hero-ctas hero-ctas-v2 justify-center mb-0">
             <Button
