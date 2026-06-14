@@ -16,6 +16,13 @@ export type WinnerConnectV2Account = {
   id: string;
   contact_email?: string;
   display_name?: string | { default?: string };
+  dashboard?: string | null;
+  defaults?: {
+    responsibilities?: {
+      fees_collector?: string | null;
+      losses_collector?: string | null;
+    };
+  };
   requirements?: {
     summary?: {
       minimum_deadline?: {
@@ -93,9 +100,17 @@ export async function createWinnerConnectV2Account(input: {
 export async function retrieveWinnerConnectV2Account(
   accountId: string
 ): Promise<WinnerConnectV2Account> {
+  return retrieveWinnerConnectV2AccountDetailed(accountId);
+}
+
+export async function retrieveWinnerConnectV2AccountDetailed(
+  accountId: string
+): Promise<WinnerConnectV2Account> {
   const account = await v2Core().accounts.retrieve(
     accountId,
-    { include: ["configuration.recipient", "requirements"] },
+    {
+      include: ["defaults", "identity", "configuration.recipient", "requirements"],
+    },
     accountContext(accountId)
   );
 

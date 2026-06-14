@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   Database,
   LayoutDashboard,
+  Link2,
   LogOut,
   Rocket,
   ScrollText,
@@ -25,6 +26,7 @@ const NAV = [
   { href: "/admin", label: "Dashboard", exact: true, icon: LayoutDashboard },
   { href: "/admin/pools", label: "Pools", exact: false, icon: Trophy },
   { href: "/admin/financial", label: "Financial", exact: false, icon: Wallet },
+  { href: "/admin/connect", label: "Cash-out", exact: false, icon: Link2 },
   { href: "/admin/support", label: "Support", exact: false, icon: MessageSquare },
   { href: "/admin/ecosystem", label: "Ecosystem", exact: false, icon: Sparkles },
   { href: "/admin/security", label: "Security", exact: false, icon: Shield },

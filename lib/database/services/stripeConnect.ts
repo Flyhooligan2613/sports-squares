@@ -189,6 +189,29 @@ export async function getConnectAccountIdForEmail(
   return profile.stripe_connect_account_id;
 }
 
+export async function getConnectProfileForAccountId(
+  accountId: string
+): Promise<(ConnectProfileRow & { accountId: string }) | null> {
+  if (!isSupabaseAdminConfigured()) return null;
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLES.playerProfiles)
+    .select(
+      "email, stripe_connect_account_id, stripe_connect_details_submitted, stripe_connect_payouts_enabled, stripe_connect_onboarded_at"
+    )
+    .eq("stripe_connect_account_id", accountId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data?.stripe_connect_account_id) return null;
+
+  return {
+    ...(data as ConnectProfileRow),
+    accountId: data.stripe_connect_account_id,
+  };
+}
+
 async function loadConnectProfile(
   email: string
 ): Promise<ConnectProfileRow | null> {
