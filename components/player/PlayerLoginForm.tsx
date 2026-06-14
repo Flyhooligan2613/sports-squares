@@ -327,7 +327,7 @@ export default function PlayerLoginForm() {
           )}
         </LandingGlassCard>
 
-        <p className="text-center text-sb-muted text-xs mt-6">
+        <p className="text-center text-sb-muted text-xs mt-6 leading-relaxed max-w-sm mx-auto">
           New here?{" "}
           <button
             type="button"
@@ -340,6 +340,10 @@ export default function PlayerLoginForm() {
           <a href="/games/nfl" className="text-sb-glow hover:underline">
             Browse live boards
           </a>
+          <span className="block mt-2 text-[11px] text-sb-muted/90">
+            After sign-up you&apos;ll connect a free Stripe cash-out profile (~2 min) — required
+            to buy squares and receive winnings.
+          </span>
         </p>
       </div>
     </div>

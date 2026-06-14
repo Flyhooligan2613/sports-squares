@@ -15,6 +15,10 @@ import {
   markDeviceHasAuthenticated,
   markSignupDismissed,
 } from "@/lib/auth/signupPrompt";
+import {
+  CASHOUT_SETUP_PATH,
+  markCashOutPromptPending,
+} from "@/lib/auth/cashOutPrompt";
 import { signUpPlayer } from "@/lib/auth/playerAuthClient";
 
 type SignupStep = 1 | 2 | 3;
@@ -121,8 +125,9 @@ export default function SignupWelcomeModal({
 
     markDeviceHasAuthenticated(deviceKey);
     markAppUnlocked(email.trim().toLowerCase());
+    markCashOutPromptPending();
     onClose();
-    window.location.href = "/my-games/profile#settings";
+    window.location.href = CASHOUT_SETUP_PATH;
   }
 
   return (
@@ -144,7 +149,7 @@ export default function SignupWelcomeModal({
           </h2>
           <p className="signup-welcome-subtitle">
             {step === 1
-              ? "Set up a free player profile — browse boards, track wins, and play pick’ems."
+              ? "Set up a free player profile — then connect a cash-out account (about 2 min) so you can buy squares and receive winnings."
               : step === 2
                 ? "Used for payouts and account verification when you win."
                 : "Your avatar shows on leaderboards and your player card."}
@@ -240,6 +245,13 @@ export default function SignupWelcomeModal({
                   minLength={8}
                   required
                 />
+              </div>
+              <div className="signup-cashout-callout">
+                <p>
+                  <strong>After sign-up:</strong> you&apos;ll connect a free Stripe cash-out profile
+                  (~2 minutes). Required to purchase squares and receive winnings — we&apos;ll walk
+                  you through it right away.
+                </p>
               </div>
             </div>
           ) : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
 import { Button } from "@/components/ui/Button";
@@ -24,6 +24,7 @@ export default function PlayerPayoutSetup({
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [showStepUp, setShowStepUp] = useState(false);
+  const autostartedRef = useRef(false);
 
   useEffect(() => {
     async function load() {
@@ -83,6 +84,28 @@ export default function PlayerPayoutSetup({
 
     void refreshAfterReturn();
   }, []);
+
+  useEffect(() => {
+    if (loading || autostartedRef.current || status?.ready) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("setup") !== "cashout" || params.get("autostart") !== "1") return;
+
+    autostartedRef.current = true;
+    params.delete("autostart");
+    const next = params.toString();
+    window.history.replaceState(
+      {},
+      "",
+      next ? `${window.location.pathname}?${next}` : window.location.pathname
+    );
+
+    const timer = window.setTimeout(() => {
+      void startOnboarding();
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [loading, status?.ready]);
 
   async function openStripeOnboarding(stepUpToken?: string) {
     const headers: Record<string, string> = {};
