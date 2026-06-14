@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import Logo from "@/components/Logo";
 import NavGamesSection from "@/components/platform/NavGamesSection";
 import { useGlobalSearchSafe } from "@/components/search/GlobalSearchProvider";
+import { signOutPlayer } from "@/lib/auth/playerAuthClient";
 import { isNavItemActive, NAV_SECTIONS, type NavItem } from "@/lib/navigation";
 import { useNavDrawer } from "./NavDrawerProvider";
 
@@ -24,9 +27,24 @@ function badgeForItem(
 
 export default function NavDrawer() {
   const pathname = usePathname();
+  const router = useRouter();
   const globalSearch = useGlobalSearchSafe();
+  const [signingOut, setSigningOut] = useState(false);
   const { isOpen, close, userEmail, activeBoards, unreadMessages, unreadNotifications } =
     useNavDrawer();
+
+  async function handleSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOutPlayer();
+      close();
+      router.push("/my-games/login");
+      router.refresh();
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   return (
     <div
@@ -148,6 +166,17 @@ export default function NavDrawer() {
         </nav>
 
         <div className="nav-drawer-footer">
+          {userEmail ? (
+            <button
+              type="button"
+              className="nav-drawer-signout"
+              onClick={() => void handleSignOut()}
+              disabled={signingOut}
+            >
+              <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.75} aria-hidden />
+              {signingOut ? "Signing out…" : "Log out"}
+            </button>
+          ) : null}
           <p className="text-[10px] uppercase tracking-[0.2em] text-sb-muted text-center">
             SquareBoards · Premium Multi-Game Platform
           </p>

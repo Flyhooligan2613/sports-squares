@@ -43,23 +43,25 @@ export default function HeroSection() {
             <Logo href="/" className="text-xl sm:text-2xl hero-logo-breathe" />
           </div>
 
-          <div className="flex justify-center mb-4 sm:mb-5">
-            <div className="hero-live-pill hero-platform-pill">
-              <Sparkles className="w-3.5 h-3.5 text-sb-glow" strokeWidth={2.5} />
-              <span>The Premium Sports Gaming Platform</span>
+          <div className="hero-copy-glow-panel">
+            <div className="flex justify-center mb-4 sm:mb-5">
+              <div className="hero-live-pill hero-platform-pill">
+                <Sparkles className="w-3.5 h-3.5 text-sb-glow" strokeWidth={2.5} />
+                <span>The Premium Sports Gaming Platform</span>
+              </div>
             </div>
+
+            <h1 className="hero-headline hero-headline-v2 hero-headline-premium text-center">
+              <span className="block">One Platform.</span>
+              <span className="block hero-headline-accent">Every Way To Play.</span>
+            </h1>
+
+            <ul className="hero-ecosystem-list mx-auto">
+              {ECOSYSTEM_HIGHLIGHTS.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
           </div>
-
-          <h1 className="hero-headline hero-headline-v2 hero-headline-premium text-center">
-            <span className="block">One Platform.</span>
-            <span className="block hero-headline-accent">Every Way To Play.</span>
-          </h1>
-
-          <ul className="hero-ecosystem-list mx-auto">
-            {ECOSYSTEM_HIGHLIGHTS.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
 
           <div className="hero-ctas hero-ctas-v2 hero-ctas-spacious justify-center">
             <Button

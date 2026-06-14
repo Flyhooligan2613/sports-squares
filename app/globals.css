@@ -4529,6 +4529,36 @@ html.sb-splash-pending body > :not(.app-open-splash):not(.signup-welcome-overlay
 .nav-drawer-footer {
   padding: 1rem 1.25rem 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.nav-drawer-signout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-drawer-signout:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fecaca;
+}
+
+.nav-drawer-signout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ── Platform game cards (nav + homepage) ── */
@@ -7731,6 +7761,41 @@ html.sb-splash-pending body > :not(.app-open-splash):not(.signup-welcome-overlay
 }
 
 /* ── Homepage ecosystem platform positioning ── */
+.hero-copy-glow-panel {
+  margin: 0 auto 1.5rem;
+  max-width: 36rem;
+  padding: 1.25rem 1.35rem 1.35rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(123, 97, 255, 0.28);
+  background: linear-gradient(
+    165deg,
+    rgba(8, 18, 40, 0.92) 0%,
+    rgba(3, 7, 18, 0.96) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 0 48px rgba(91, 76, 247, 0.28),
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.hero-copy-glow-panel .hero-headline,
+.hero-copy-glow-panel .hero-headline-accent {
+  text-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.9),
+    0 0 32px rgba(91, 76, 247, 0.35);
+}
+
+.hero-copy-glow-panel .hero-ecosystem-list {
+  margin-bottom: 0;
+}
+
+.hero-copy-glow-panel .hero-ecosystem-list li {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.75);
+}
+
 .hero-platform-pill {
   border-color: rgba(167, 139, 250, 0.35);
   background: rgba(91, 76, 247, 0.12);
