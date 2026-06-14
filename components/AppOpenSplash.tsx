@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
+import SignupWelcomeGate from "@/components/auth/SignupWelcomeGate";
 import { isPwaDisplayMode } from "@/lib/pwa/isPwaDisplayMode";
+import { notifySplashComplete } from "@/lib/auth/signupPrompt";
 
 export const APP_OPEN_SPLASH_KEY = "sb-app-open-splash-seen";
 
@@ -19,15 +21,22 @@ type SplashPhase = "hidden" | "enter" | "exit" | "done";
 export default function AppOpenSplash() {
   const pathname = usePathname();
   const [phase, setPhase] = useState<SplashPhase>("hidden");
+  const [splashReady, setSplashReady] = useState(false);
   const startedRef = useRef(false);
+
+  function finishSplash() {
+    document.documentElement.classList.remove("sb-splash-pending");
+    notifySplashComplete();
+    setPhase("done");
+    setSplashReady(true);
+  }
 
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
 
     if (shouldSkipSplash(pathname)) {
-      document.documentElement.classList.remove("sb-splash-pending");
-      setPhase("done");
+      finishSplash();
       return;
     }
 
@@ -38,15 +47,13 @@ export default function AppOpenSplash() {
       try {
         showSplash = !sessionStorage.getItem(APP_OPEN_SPLASH_KEY);
       } catch {
-        document.documentElement.classList.remove("sb-splash-pending");
-        setPhase("done");
+        finishSplash();
         return;
       }
     }
 
     if (!showSplash) {
-      document.documentElement.classList.remove("sb-splash-pending");
-      setPhase("done");
+      finishSplash();
       return;
     }
 
@@ -59,8 +66,7 @@ export default function AppOpenSplash() {
           /* ignore */
         }
       }
-      document.documentElement.classList.remove("sb-splash-pending");
-      setPhase("done");
+      finishSplash();
       return;
     }
 
@@ -76,8 +82,7 @@ export default function AppOpenSplash() {
           /* ignore */
         }
       }
-      document.documentElement.classList.remove("sb-splash-pending");
-      setPhase("done");
+      finishSplash();
     }, SHOW_MS + EXIT_MS);
 
     return () => {
@@ -87,34 +92,42 @@ export default function AppOpenSplash() {
     };
   }, [pathname]);
 
-  if (phase === "hidden" || phase === "done") return null;
-
   return (
-    <div
-      className={[
-        "app-open-splash",
-        phase === "enter" ? "app-open-splash-enter" : "",
-        phase === "exit" ? "app-open-splash-exit" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      aria-hidden="true"
-      role="presentation"
-    >
-      <div className="app-open-splash-glow" aria-hidden />
-      <div className="app-open-splash-grid" aria-hidden>
-        {[0, 1, 2, 3].map((index) => (
-          <span
-            key={index}
-            className="app-open-splash-cell"
-            style={{ animationDelay: `${index * 90}ms` }}
-          />
-        ))}
-      </div>
-      <div className="app-open-splash-brand">
-        <Logo href={false} className="app-open-splash-logo text-xl sm:text-2xl" />
-        <p className="app-open-splash-tagline">Pick your squares. Watch the game.</p>
-      </div>
-    </div>
+    <>
+      {phase === "enter" || phase === "exit" ? (
+        <div
+          className={[
+            "app-open-splash",
+            phase === "enter" ? "app-open-splash-enter" : "",
+            phase === "exit" ? "app-open-splash-exit" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          aria-hidden="true"
+          role="presentation"
+        >
+          <div className="app-open-splash-glow" aria-hidden />
+          <div className="app-open-splash-grid" aria-hidden>
+            {[0, 1, 2, 3].map((index) => (
+              <span
+                key={index}
+                className="app-open-splash-cell"
+                style={{ animationDelay: `${index * 90}ms` }}
+              />
+            ))}
+          </div>
+          <div className="app-open-splash-brand">
+            <Logo href={false} className="app-open-splash-logo text-xl sm:text-2xl" />
+            <p className="app-open-splash-tagline">Pick your squares. Watch the game.</p>
+          </div>
+        </div>
+      ) : null}
+
+      {splashReady ? (
+        <Suspense fallback={null}>
+          <SignupWelcomeGate />
+        </Suspense>
+      ) : null}
+    </>
   );
 }

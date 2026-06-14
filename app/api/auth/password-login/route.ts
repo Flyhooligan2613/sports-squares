@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
-import { playerEmailHasPurchases } from "@/lib/auth/playerMagicLink";
+import { playerEmailCanSignIn } from "@/lib/auth/playerAccess";
 import { resolveLoginIdentifier } from "@/lib/platform/ecosystem/identifiers";
 import { completePlayerSignIn } from "@/lib/auth/security/completeSignIn";
 import {
@@ -44,12 +44,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const hasPurchases = await playerEmailHasPurchases(email);
-    if (!hasPurchases) {
+    const canSignIn = await playerEmailCanSignIn(email);
+    if (!canSignIn) {
       return NextResponse.json(
         {
           error:
-            "No boards found for this account. Use the same email from your Stripe receipt.",
+            "No account found for this email. Create a free account or use the email from your Stripe receipt.",
         },
         { status: 404 }
       );

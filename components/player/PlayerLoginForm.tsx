@@ -6,6 +6,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { signInPlayerWithMagicLink, signInPlayerWithPassword } from "@/lib/auth/playerAuthClient";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
+import { openSignupPrompt } from "@/lib/auth/signupPrompt";
 import Logo from "@/components/Logo";
 import {
   biometricLabel,
@@ -325,6 +326,14 @@ export default function PlayerLoginForm() {
 
         <p className="text-center text-sb-muted text-xs mt-6">
           New here?{" "}
+          <button
+            type="button"
+            onClick={() => openSignupPrompt()}
+            className="text-sb-glow hover:underline font-medium"
+          >
+            Create a free account
+          </button>
+          {" · "}
           <a href="/games/nfl" className="text-sb-glow hover:underline">
             Browse live boards
           </a>

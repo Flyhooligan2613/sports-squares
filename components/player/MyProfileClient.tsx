@@ -5,6 +5,8 @@ import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import UsernameSettings from "@/components/player/UsernameSettings";
+import AvatarSettings from "@/components/player/AvatarSettings";
+import ProfileIdentitySettings from "@/components/player/ProfileIdentitySettings";
 import ProfileWalletSection from "@/components/player/ProfileWalletSection";
 import ProfileSocialView from "@/components/player/social/ProfileSocialView";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
@@ -77,6 +79,10 @@ export default function MyProfileClient({ profile, email }: MyProfileClientProps
         </div>
 
         <UsernameSettings />
+
+        <AvatarSettings />
+
+        <ProfileIdentitySettings />
 
         <LandingGlassCard className="p-6">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2 flex items-center gap-2">

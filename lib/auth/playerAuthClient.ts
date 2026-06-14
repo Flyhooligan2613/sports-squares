@@ -71,6 +71,46 @@ export async function signOutPlayer() {
   clearAppUnlock();
 }
 
+export interface SignUpPlayerInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  avatarEmoji?: string;
+  deviceKey?: string;
+  rememberMe?: boolean;
+  referralCode?: string;
+}
+
+export async function signUpPlayer(input: SignUpPlayerInput) {
+  const response = await fetch("/api/auth/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(input),
+  });
+
+  const payload = (await response.json().catch(() => ({}))) as {
+    error?: string;
+    slug?: string;
+  };
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: payload.error ?? "Could not create account.",
+    };
+  }
+
+  return { ok: true as const, slug: payload.slug };
+}
+
 export async function getPlayerSessionUser() {
   const supabase = createClient();
   const {
