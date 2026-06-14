@@ -39,8 +39,8 @@ const GAME_CARD_OVERRIDES: Record<
   },
   survivor: {
     emoji: "🏆",
-    title: "Survivor",
-    bullets: ["One strike and you're out", "Last player wins", "High-stakes drama"],
+    title: "Survivor X™",
+    bullets: ["One pick per week", "Live survival map", "Hall of Fame legacy"],
   },
   brackets: {
     emoji: "🏀",
@@ -136,6 +136,7 @@ const AVAILABLE_GAME_ORDER: PlatformGameId[] = [
   "squareboards",
   "mlb-squares",
   "pickem",
+  "survivor",
   "baseball-pickem",
 ];
 

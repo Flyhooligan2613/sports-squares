@@ -71,14 +71,15 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   },
   {
     id: "survivor",
-    name: "Survivor",
+    name: "Survivor X™",
     description:
-      "One wrong pick and you're out. Last player standing takes the pot.",
+      "Survive the entire NFL season — one pick per week, never the same team twice. Legacy, live eliminations, and Hall of Fame glory.",
     icon: "🏆",
-    status: "coming_soon",
-    href: null,
+    status: "available",
+    href: "/survivor",
     accent: "#f59e0b",
-    statKeys: ["survivorWeeksSurvived"],
+    navBadge: "new",
+    statKeys: ["survivorWeeksSurvived", "survivorChampionships", "longestSurvivalStreak"],
   },
   {
     id: "brackets",
@@ -149,6 +150,10 @@ export function isSquareBoardsRoute(pathname: string): boolean {
   );
 }
 
+export function isSurvivorRoute(pathname: string): boolean {
+  return pathname === "/survivor" || pathname.startsWith("/survivor/");
+}
+
 export function isPlatformGameNavActive(
   game: PlatformGameDefinition,
   pathname: string
@@ -159,6 +164,7 @@ export function isPlatformGameNavActive(
     return pathname.startsWith("/games/mlb") || pathname.startsWith("/learn/mlb-squares");
   }
   if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname);
+  if (game.id === "survivor") return isSurvivorRoute(pathname);
   if (game.id === "baseball-pickem") return isBaseballPickemRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);
 }

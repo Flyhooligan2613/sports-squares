@@ -1,0 +1,31 @@
+---
+description: Survivor X™ flagship build spec — Executive Directive #007
+globs: lib/survivor/**,app/survivor/**,components/survivor/**,supabase/migrations/*survivor*
+alwaysApply: false
+---
+
+# Survivor X™ (#007)
+
+Third **flagship** — reinvent Survivor, don't clone office pools.
+
+## Core rules
+
+One NFL team per week · Win = survive · Loss = out · **Never reuse a team** · Last standing wins.
+
+## Modes
+
+Classic · Double Life · Turbo · Global · Private (invite + custom fees).
+
+## Weekly loop
+
+Tue open → lock before kickoff → live survival map → MNF final survivors.
+
+## Platform
+
+Publish via EventEngine — never call Reward/Legacy/Live directly from pick handlers.
+
+## Eliminated players
+
+Always route to side XP, drops, Squares, Pick'em — never dead-end.
+
+Full spec: `docs/SURVIVOR_X.md`
