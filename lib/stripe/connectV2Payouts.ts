@@ -5,6 +5,12 @@ import { getStripe } from "@/lib/stripe/client";
 /** Dashboard access for winner recipients — platform owns payout UX in My Winnings. */
 export const WINNER_CONNECT_V2_DASHBOARD = "none" as const;
 
+/** Marketplace-style recipient accounts: platform collects fees and covers losses. */
+export const WINNER_CONNECT_V2_RESPONSIBILITIES = {
+  fees_collector: "application",
+  losses_collector: "application",
+} as const;
+
 /** Winner payout account (Accounts v2 subset used for recipient transfers). */
 export type WinnerConnectV2Account = {
   id: string;
@@ -61,10 +67,7 @@ export async function createWinnerConnectV2Account(input: {
       country: "us",
     },
     defaults: {
-      responsibilities: {
-        fees_collector: "stripe",
-        losses_collector: "stripe",
-      },
+      responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
     },
     configuration: {
       recipient: {
@@ -99,11 +102,16 @@ export async function retrieveWinnerConnectV2Account(
   return account as unknown as WinnerConnectV2Account;
 }
 
-/** Stripe requires dashboard when recipient stripe_transfers is requested. */
-export async function ensureWinnerConnectV2Dashboard(accountId: string): Promise<void> {
+/** Stripe requires dashboard + application collectors for recipient stripe_transfers. */
+export async function ensureWinnerConnectV2AccountReady(accountId: string): Promise<void> {
   await v2Core().accounts.update(
     accountId,
-    { dashboard: WINNER_CONNECT_V2_DASHBOARD },
+    {
+      dashboard: WINNER_CONNECT_V2_DASHBOARD,
+      defaults: {
+        responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
+      },
+    },
     accountContext(accountId)
   );
 }
@@ -119,7 +127,7 @@ export async function createWinnerConnectV2AccountLink(input: {
   const returnUrl =
     input.returnUrl ?? `${appUrl}/my-games/winnings?connect=complete`;
 
-  await ensureWinnerConnectV2Dashboard(input.accountId);
+  await ensureWinnerConnectV2AccountReady(input.accountId);
 
   const accountLink = await v2Core().accountLinks.create(
     {
