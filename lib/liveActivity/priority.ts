@@ -26,6 +26,7 @@ const CATEGORY_BY_TYPE: Record<LiveActivityEventType, LiveActivityCategory> = {
   payouts_processed: "platform",
   game_live: "platform",
   pickem_streak: "winners",
+  survivor_shield: "community",
 };
 
 const BASE_PRIORITY: Partial<Record<LiveActivityEventType, number>> = {
@@ -40,6 +41,7 @@ const BASE_PRIORITY: Partial<Record<LiveActivityEventType, number>> = {
   board_filled: 70,
   game_live: 68,
   pickem_streak: 65,
+  survivor_shield: 92,
   achievement: 62,
   new_user: 58,
   pick_card: 55,

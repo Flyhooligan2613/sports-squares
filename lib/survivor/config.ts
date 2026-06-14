@@ -2,6 +2,12 @@ import type { SurvivorModeDefinition } from "@/lib/survivor/types";
 
 export const SURVIVOR_X_PUBLIC_NAME = "Survivor X™";
 
+/** One shield per player per season — never purchasable. */
+export const SURVIVOR_SHIELDS_PER_SEASON = 1;
+
+/** Default shield visual design id (future seasonal variants extend this). */
+export const SURVIVOR_SHIELD_DESIGN_DEFAULT = "classic";
+
 export const SURVIVOR_DEFAULT_SPORT = "nfl" as const;
 
 export const SURVIVOR_MODES: SurvivorModeDefinition[] = [
@@ -66,8 +72,8 @@ export const SURVIVOR_TUTORIAL_STEPS = [
   {
     step: 3,
     title: "Lose = eliminated",
-    body: "A loss ends your run — unless you're in Double Life mode with a spare life.",
-    emoji: "💀",
+    body: "A loss ends your run — unless your Survivor Shield™ auto-saves you once per season.",
+    emoji: "🛡️",
   },
   {
     step: 4,

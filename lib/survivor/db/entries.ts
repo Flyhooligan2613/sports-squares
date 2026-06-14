@@ -5,6 +5,8 @@ import type { SurvivorEntryStatus } from "@/lib/survivor/types";
 
 const TABLE = "survivor_entries";
 
+export type SurvivorLossOutcome = "shield_consumed" | "life_consumed" | "eliminated";
+
 export interface SurvivorEntry {
   id: string;
   leagueId: string;
@@ -14,6 +16,8 @@ export interface SurvivorEntry {
   status: SurvivorEntryStatus;
   eliminatedWeek: number | null;
   weeksSurvived: number;
+  shieldAvailable: boolean;
+  shieldUsedWeek: number | null;
 }
 
 interface EntryRow {
@@ -25,6 +29,8 @@ interface EntryRow {
   status: SurvivorEntryStatus;
   eliminated_week: number | null;
   weeks_survived: number;
+  shield_available?: boolean;
+  shield_used_week?: number | null;
 }
 
 function mapEntry(row: EntryRow): SurvivorEntry {
@@ -37,6 +43,8 @@ function mapEntry(row: EntryRow): SurvivorEntry {
     status: row.status,
     eliminatedWeek: row.eliminated_week,
     weeksSurvived: row.weeks_survived,
+    shieldAvailable: row.shield_available ?? true,
+    shieldUsedWeek: row.shield_used_week ?? null,
   };
 }
 
@@ -78,6 +86,7 @@ export async function joinSurvivorLeague(input: {
       display_name: name,
       lives_remaining: input.livesPerPlayer ?? 1,
       status: "active",
+      shield_available: true,
     })
     .select("*")
     .single();
@@ -103,21 +112,41 @@ export async function countEntriesByStatus(
   return count ?? 0;
 }
 
-export async function eliminateSurvivorEntry(input: {
+/**
+ * Process a loss — shield auto-deploys first (pick losses only), then lives, then elimination.
+ */
+export async function processSurvivorLoss(input: {
   entryId: string;
   weekNumber: number;
-}): Promise<void> {
+  allowShield?: boolean;
+}): Promise<SurvivorLossOutcome> {
   const supabase = getSupabaseAdmin();
   const now = new Date().toISOString();
+  const allowShield = input.allowShield !== false;
 
   const { data: entry, error: fetchError } = await supabase
     .from(TABLE)
-    .select("lives_remaining")
+    .select("lives_remaining, shield_available, status")
     .eq("id", input.entryId)
     .maybeSingle();
 
   if (fetchError) throw fetchError;
-  if (!entry) return;
+  if (!entry || entry.status !== "active") return "eliminated";
+
+  if (allowShield && entry.shield_available === true) {
+    const { error } = await supabase
+      .from(TABLE)
+      .update({
+        shield_available: false,
+        shield_used_week: input.weekNumber,
+        shield_used_at: now,
+        updated_at: now,
+      })
+      .eq("id", input.entryId);
+
+    if (error) throw error;
+    return "shield_consumed";
+  }
 
   const livesRemaining = Math.max(0, (entry.lives_remaining as number) - 1);
   const status: SurvivorEntryStatus =
@@ -135,6 +164,19 @@ export async function eliminateSurvivorEntry(input: {
     .eq("id", input.entryId);
 
   if (error) throw error;
+  return status === "eliminated" ? "eliminated" : "life_consumed";
+}
+
+/** @deprecated Use processSurvivorLoss — kept for no-pick penalties (no shield). */
+export async function eliminateSurvivorEntry(input: {
+  entryId: string;
+  weekNumber: number;
+}): Promise<void> {
+  await processSurvivorLoss({
+    entryId: input.entryId,
+    weekNumber: input.weekNumber,
+    allowShield: false,
+  });
 }
 
 export async function markSurvivorWeekSurvived(entryId: string): Promise<void> {
@@ -159,15 +201,27 @@ export async function markSurvivorWeekSurvived(entryId: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function crownSurvivorChampion(entryId: string): Promise<void> {
+export async function crownSurvivorChampion(entryId: string): Promise<SurvivorEntry | null> {
   const supabase = getSupabaseAdmin();
-  const { error } = await supabase
+  const { data: before, error: fetchError } = await supabase
+    .from(TABLE)
+    .select("*")
+    .eq("id", entryId)
+    .maybeSingle();
+
+  if (fetchError) throw fetchError;
+  if (!before) return null;
+
+  const { data, error } = await supabase
     .from(TABLE)
     .update({
       status: "champion",
       updated_at: new Date().toISOString(),
     })
-    .eq("id", entryId);
+    .eq("id", entryId)
+    .select("*")
+    .single();
 
   if (error) throw error;
+  return mapEntry(data as EntryRow);
 }

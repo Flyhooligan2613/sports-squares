@@ -23,7 +23,12 @@ export type SurvivorWeekStatus =
   | "scoring"
   | "complete";
 
-export type SurvivorPickResult = "pending" | "survived" | "eliminated" | "push";
+export type SurvivorPickResult =
+  | "pending"
+  | "survived"
+  | "eliminated"
+  | "push"
+  | "shield_saved";
 
 export type SurvivorHofCategory =
   | "perfect_season"
@@ -31,7 +36,9 @@ export type SurvivorHofCategory =
   | "champion"
   | "fastest_champion"
   | "community_favorite"
-  | "most_seasons";
+  | "most_seasons"
+  | "shield_savior"
+  | "untouchable";
 
 export interface SurvivorModeDefinition {
   id: SurvivorMode;
@@ -50,6 +57,7 @@ export interface SurvivorLiveMapStats {
   mostPopularPick: string | null;
   upsetRiskTeam: string | null;
   survivorRatePct: number;
+  shieldsActivated: number;
 }
 
 export interface SurvivorGameOption {
@@ -88,6 +96,8 @@ export interface SurvivorWeekView {
     livesRemaining: number;
     weeksSurvived: number;
     displayName: string;
+    shieldAvailable: boolean;
+    shieldUsedWeek: number | null;
   } | null;
   games: SurvivorGameOption[];
   usedTeams: string[];

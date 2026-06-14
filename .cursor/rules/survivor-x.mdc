@@ -10,7 +10,7 @@ Third **flagship** — reinvent Survivor, don't clone office pools.
 
 ## Core rules
 
-One NFL team per week · Win = survive · Loss = out · **Never reuse a team** · Last standing wins.
+One NFL team per week · Win = survive · Loss = out (unless **Survivor Shield™** auto-saves once) · **Never reuse a team** · Last standing wins.
 
 ## Modes
 
@@ -28,4 +28,4 @@ Publish via EventEngine — never call Reward/Legacy/Live directly from pick han
 
 Always route to side XP, drops, Squares, Pick'em — never dead-end.
 
-Full spec: `docs/SURVIVOR_X.md`
+Full spec: `docs/SURVIVOR_X.md` · Shields: `docs/SURVIVOR_SHIELDS.md`

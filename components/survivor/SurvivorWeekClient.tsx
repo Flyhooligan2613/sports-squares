@@ -9,6 +9,10 @@ import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import SurvivorLiveMap from "@/components/survivor/SurvivorLiveMap";
+import SurvivorShieldActivation, {
+  shieldActivationStorageKey,
+} from "@/components/survivor/SurvivorShieldActivation";
+import SurvivorShieldBadge from "@/components/survivor/SurvivorShieldBadge";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
 import type { SurvivorWeekView } from "@/lib/survivor/types";
@@ -30,6 +34,32 @@ export default function SurvivorWeekClient() {
   const [error, setError] = useState<string | null>(null);
   const [authRequired, setAuthRequired] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [showShieldActivation, setShowShieldActivation] = useState(false);
+
+  const dismissShieldActivation = useCallback(() => {
+    if (view?.entry && view.myPick?.result === "shield_saved") {
+      sessionStorage.setItem(
+        shieldActivationStorageKey(view.entry.id, view.week.weekNumber),
+        "1"
+      );
+    }
+    setShowShieldActivation(false);
+  }, [view]);
+
+  useEffect(() => {
+    if (!view?.entry || view.myPick?.result !== "shield_saved") {
+      setShowShieldActivation(false);
+      return;
+    }
+
+    const key = shieldActivationStorageKey(view.entry.id, view.week.weekNumber);
+    if (sessionStorage.getItem(key)) {
+      setShowShieldActivation(false);
+      return;
+    }
+
+    setShowShieldActivation(true);
+  }, [view]);
 
   const loadWeeks = useCallback(async () => {
     const res = await fetch(survivorApiUrl("weeks"), { cache: "no-store" });
@@ -132,8 +162,8 @@ export default function SurvivorWeekClient() {
           title={view?.week.label ?? "Loading week…"}
           subtitle={
             view
-              ? `${view.league.name} · Pick one team to survive`
-              : "Global Classic — one loss and you're out"
+              ? `${view.league.name} · One pick per week · One shield per season`
+              : "Global Classic — your Survivor Shield™ is your second chance"
           }
         />
 
@@ -191,7 +221,7 @@ export default function SurvivorWeekClient() {
           <LandingGlassCard className="p-6 text-center mb-6">
             <p className="text-white font-semibold mb-2">Join Global Survivor</p>
             <p className="text-sm text-sb-muted mb-4">
-              Free entry for Phase 2 — lock one NFL team each week.
+              Free entry — lock one NFL team each week. Every player starts with one Survivor Shield™.
             </p>
             <Button onClick={() => void handleJoin()} disabled={joining}>
               {joining ? "Joining…" : "Join & Play"}
@@ -206,7 +236,11 @@ export default function SurvivorWeekClient() {
                 <p className="text-xs uppercase tracking-wider text-sb-muted">Your status</p>
                 <p className="text-lg font-bold text-white">{view.entry.displayName}</p>
               </div>
-              <div className="flex gap-4 text-center">
+              <div className="flex gap-4 text-center items-end flex-wrap justify-end">
+                <SurvivorShieldBadge
+                  available={view.entry.shieldAvailable}
+                  usedWeek={view.entry.shieldUsedWeek}
+                />
                 <div>
                   <p className="text-[10px] uppercase text-sb-muted">Status</p>
                   <p className="font-bold text-amber-400 capitalize">{view.entry.status}</p>
@@ -226,7 +260,17 @@ export default function SurvivorWeekClient() {
                 Locked pick:{" "}
                 <span className="text-white font-semibold">{view.myPick.teamName}</span>
                 {" · "}
-                <span className="capitalize">{view.myPick.result}</span>
+                <span
+                  className={
+                    view.myPick.result === "shield_saved"
+                      ? "text-violet-300 font-semibold capitalize"
+                      : "capitalize"
+                  }
+                >
+                  {view.myPick.result === "shield_saved"
+                    ? "shield saved you"
+                    : view.myPick.result}
+                </span>
               </p>
             ) : view.canPick ? (
               <p className="text-sm text-amber-400/90 mt-3">
@@ -234,6 +278,15 @@ export default function SurvivorWeekClient() {
               </p>
             ) : null}
           </LandingGlassCard>
+        ) : null}
+
+        {showShieldActivation && view?.entry && view.myPick ? (
+          <SurvivorShieldActivation
+            displayName={view.entry.displayName}
+            teamName={view.myPick.teamName}
+            weekNumber={view.week.weekNumber}
+            onComplete={dismissShieldActivation}
+          />
         ) : null}
 
         {view ? <SurvivorLiveMap stats={view.liveMap} /> : null}

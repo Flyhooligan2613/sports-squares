@@ -3,9 +3,10 @@ import type { PickemScheduleGame } from "@/lib/pickem/types";
 import {
   countEntriesByStatus,
   crownSurvivorChampion,
-  eliminateSurvivorEntry,
   markSurvivorWeekSurvived,
+  processSurvivorLoss,
 } from "@/lib/survivor/db/entries";
+import { recordShieldUse } from "@/lib/survivor/db/shields";
 import {
   listActiveSurvivorLeagues,
   updateSurvivorLeagueFields,
@@ -56,10 +57,12 @@ async function resolveWeekPicks(
   league: SurvivorLeague,
   week: SurvivorWeek,
   games: PickemScheduleGame[]
-): Promise<{ eliminated: number; survived: number }> {
+): Promise<{ eliminated: number; survived: number; shieldsActivated: number }> {
+  const supabase = (await import("@/lib/supabase/admin")).getSupabaseAdmin();
   const picks = await listPicksForWeek(week.id);
   let eliminated = 0;
   let survived = 0;
+  let shieldsActivated = 0;
 
   for (const pick of picks) {
     if (pick.result !== "pending") continue;
@@ -82,6 +85,7 @@ async function resolveWeekPicks(
         gameType: "survivor",
         entityType: "survivor_entry",
         entityId: pick.entryId,
+        actorEmail: pick.email,
         payload: {
           weekNumber: week.weekNumber,
           teamAbbr: pick.teamAbbr,
@@ -89,32 +93,88 @@ async function resolveWeekPicks(
         idempotencyKey: `${pick.id}:survived`,
       }).catch(() => undefined);
     } else {
-      await resolveSurvivorPick(pick.id, "eliminated");
-      await eliminateSurvivorEntry({
+      const outcome = await processSurvivorLoss({
         entryId: pick.entryId,
         weekNumber: week.weekNumber,
+        allowShield: true,
       });
-      eliminated += 1;
 
-      await publishPlatformEvent({
-        type: "survivor.eliminated",
-        priority: "high",
-        summary: `Eliminated on ${pick.teamName} (Week ${week.weekNumber})`,
-        gameType: "survivor",
-        entityType: "survivor_entry",
-        entityId: pick.entryId,
-        payload: {
+      if (outcome === "shield_consumed") {
+        await resolveSurvivorPick(pick.id, "shield_saved");
+        await markSurvivorWeekSurvived(pick.entryId);
+        await recordShieldUse({
+          entryId: pick.entryId,
+          leagueId: week.leagueId,
+          weekId: week.id,
+          pickId: pick.id,
+          email: pick.email,
           weekNumber: week.weekNumber,
           teamAbbr: pick.teamAbbr,
-        },
-        idempotencyKey: `${pick.id}:eliminated`,
-      }).catch(() => undefined);
+          teamName: pick.teamName,
+        });
+        survived += 1;
+        shieldsActivated += 1;
+
+        const { data: entryRow } = await supabase
+          .from("survivor_entries")
+          .select("display_name")
+          .eq("id", pick.entryId)
+          .maybeSingle();
+        const displayName = (entryRow?.display_name as string) ?? pick.email;
+
+        await publishPlatformEvent({
+          type: "survivor.shield_activated",
+          priority: "critical",
+          summary: `🛡️ ${displayName}'s Survivor Shield activated!`,
+          gameType: "survivor",
+          entityType: "survivor_entry",
+          entityId: pick.entryId,
+          actorEmail: pick.email,
+          payload: {
+            weekNumber: week.weekNumber,
+            teamAbbr: pick.teamAbbr,
+            teamName: pick.teamName,
+            pickId: pick.id,
+            displayName,
+          },
+          idempotencyKey: `${pick.id}:shield`,
+        }).catch(() => undefined);
+
+        await publishPlatformEvent({
+          type: "survivor.shield_depleted",
+          priority: "normal",
+          summary: `Survivor Shield consumed — no second chances remain`,
+          gameType: "survivor",
+          entityType: "survivor_entry",
+          entityId: pick.entryId,
+          actorEmail: pick.email,
+          payload: { weekNumber: week.weekNumber },
+          idempotencyKey: `${pick.entryId}:shield_depleted`,
+        }).catch(() => undefined);
+      } else {
+        await resolveSurvivorPick(pick.id, "eliminated");
+        eliminated += 1;
+
+        await publishPlatformEvent({
+          type: "survivor.eliminated",
+          priority: "high",
+          summary: `Eliminated on ${pick.teamName} (Week ${week.weekNumber})`,
+          gameType: "survivor",
+          entityType: "survivor_entry",
+          entityId: pick.entryId,
+          actorEmail: pick.email,
+          payload: {
+            weekNumber: week.weekNumber,
+            teamAbbr: pick.teamAbbr,
+          },
+          idempotencyKey: `${pick.id}:eliminated`,
+        }).catch(() => undefined);
+      }
     }
   }
 
   void league;
 
-  const supabase = (await import("@/lib/supabase/admin")).getSupabaseAdmin();
   const { data: activeEntries } = await supabase
     .from("survivor_entries")
     .select("id")
@@ -125,11 +185,15 @@ async function resolveWeekPicks(
   for (const row of activeEntries ?? []) {
     const entryId = row.id as string;
     if (pickedEntryIds.has(entryId)) continue;
-    await eliminateSurvivorEntry({ entryId, weekNumber: week.weekNumber });
+    await processSurvivorLoss({
+      entryId,
+      weekNumber: week.weekNumber,
+      allowShield: false,
+    });
     eliminated += 1;
   }
 
-  return { eliminated, survived };
+  return { eliminated, survived, shieldsActivated };
 }
 
 export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
@@ -182,15 +246,15 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
 
     if (activeRemaining === 1) {
       const supabase = (await import("@/lib/supabase/admin")).getSupabaseAdmin();
-      const { data: champion } = await supabase
+      const { data: championRow } = await supabase
         .from("survivor_entries")
-        .select("id")
+        .select("*")
         .eq("league_id", league.id)
         .eq("status", "active")
         .maybeSingle();
 
-      if (champion?.id) {
-        await crownSurvivorChampion(champion.id as string);
+      if (championRow?.id) {
+        const champion = await crownSurvivorChampion(championRow.id as string);
         await updateSurvivorLeagueFields(league.id, { status: "complete" });
 
         await publishPlatformEvent({
@@ -200,7 +264,11 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
           gameType: "survivor",
           entityType: "survivor_league",
           entityId: league.id,
-          payload: { seasonYear: league.seasonYear },
+          actorEmail: champion?.email ?? null,
+          payload: {
+            seasonYear: league.seasonYear,
+            shieldWasUsed: champion?.shieldUsedWeek != null,
+          },
           idempotencyKey: `${league.id}:champion`,
         }).catch(() => undefined);
       }
@@ -230,6 +298,7 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
           weekNumber: week.weekNumber,
           playersRemaining: activeRemaining,
           eliminated: result.eliminated,
+          shieldsActivated: result.shieldsActivated,
         },
         idempotencyKey: `${week.id}:complete`,
       }).catch(() => undefined);

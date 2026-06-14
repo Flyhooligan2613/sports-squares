@@ -33,6 +33,8 @@ function defaultEmoji(type: LiveActivityInput["type"], tier?: string): string {
     case "trending_pick":
     case "pickem_streak":
       return "🎯";
+    case "survivor_shield":
+      return "🛡️";
     case "board_filled":
     case "new_board":
     case "game_starting":
@@ -99,6 +101,8 @@ function defaultMessage(input: LiveActivityInput): string {
       return `${input.game ?? "A matchup"} is live now`;
     case "pickem_streak":
       return `${user} hit ${input.amount ?? "6"} straight Pick'em wins`;
+    case "survivor_shield":
+      return input.message ?? `${user}'s Survivor Shield activated!`;
     case "xp":
       return `${user} earned ${tier ?? "XP"} rewards`;
     default:

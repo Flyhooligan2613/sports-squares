@@ -1,6 +1,13 @@
 import { legacyAuditHandler } from "@/lib/events/handlers/legacyAudit";
 import { analyticsHandler } from "@/lib/events/handlers/analytics";
 import { liveCoreHandler } from "@/lib/events/handlers/liveCore";
+import {
+  survivorLegacyHandler,
+} from "@/lib/events/handlers/survivorLegacy";
+import {
+  survivorLiveCoreHandler,
+  survivorWeekLiveHandler,
+} from "@/lib/events/handlers/survivorLiveCore";
 import { subscribeToPlatformEvent } from "@/lib/events/engine";
 
 let registered = false;
@@ -21,4 +28,18 @@ export function registerDefaultEventHandlers(): void {
   subscribeToPlatformEvent("highlight.activated", liveCoreHandler, { name: "LiveCore" });
   subscribeToPlatformEvent("reward.earned", liveCoreHandler, { name: "LiveCore" });
   subscribeToPlatformEvent("system.leaderboard_refresh", liveCoreHandler, { name: "LiveCore" });
+
+  subscribeToPlatformEvent("survivor.shield_activated", survivorLegacyHandler, {
+    name: "SurvivorLegacy",
+  });
+  subscribeToPlatformEvent("survivor.champion_crowned", survivorLegacyHandler, {
+    name: "SurvivorLegacy",
+  });
+  subscribeToPlatformEvent("survivor.shield_activated", survivorLiveCoreHandler, {
+    name: "SurvivorLiveCore",
+    priorities: ["critical", "high"],
+  });
+  subscribeToPlatformEvent("survivor.week_complete", survivorWeekLiveHandler, {
+    name: "SurvivorWeekLive",
+  });
 }

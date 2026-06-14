@@ -30,7 +30,8 @@ export type LiveActivityEventType =
   | "squares_sold"
   | "payouts_processed"
   | "game_live"
-  | "pickem_streak";
+  | "pickem_streak"
+  | "survivor_shield";
 
 export interface LiveActivityCelebration {
   headline: string;

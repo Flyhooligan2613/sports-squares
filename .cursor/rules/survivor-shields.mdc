@@ -1,0 +1,35 @@
+---
+description: Survivor Shields™ build spec — Executive Directive #008
+globs: lib/survivor/**,components/survivor/**,supabase/migrations/*shield*,supabase/migrations/045*
+alwaysApply: false
+---
+
+# Survivor Shields™ (#008)
+
+Signature emotional mechanic for Survivor X™ — one earned second chance per season.
+
+## Core rules
+
+- **One shield per player per season** — never purchasable
+- **Auto-activate on pick loss** — no manual deploy button
+- **No shield on no-pick elimination**
+- Consume shield **before** `lives_remaining`
+- Pick result: `shield_saved` when shield deploys
+
+## Implementation
+
+- DB: `045_survivor_shields.sql`
+- Engine: `processSurvivorLoss()` → `syncLeague.resolveWeekPicks()`
+- Events: `survivor.shield_activated`, `survivor.shield_depleted`
+- UI: `SurvivorShieldBadge`, `SurvivorShieldActivation`
+- Legacy: `lib/survivor/db/careerStats.ts` via EventEngine subscribers
+
+## Platform
+
+Publish via EventEngine only — subscribers handle LegacyCore™, LiveCore™, RewardCore™.
+
+## Accessibility
+
+Full animation ceremony + reduced-motion static panel. GPU transforms only.
+
+Full spec: `docs/SURVIVOR_SHIELDS.md`

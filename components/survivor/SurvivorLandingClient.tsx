@@ -14,8 +14,12 @@ import { survivorPath } from "@/lib/survivor/routes";
 
 const PILLARS = [
   {
+    title: "Survivor Shields™",
+    body: "Every player starts with one shield — an automatic second chance when your pick loses.",
+  },
+  {
     title: "Live Survival Map",
-    body: "Track eliminations, popular picks, and upset risk all weekend long.",
+    body: "Track eliminations, popular picks, upset risk, and shields activated all weekend.",
   },
   {
     title: "Legacy & Hall of Fame",
@@ -54,7 +58,7 @@ export default function SurvivorLandingClient() {
           </div>
 
           <p className="text-center text-xs text-sb-muted mt-4 max-w-xl mx-auto">
-            Global Classic is live — lock one NFL team each week. Never pick the same team twice.
+            Global Classic is live — one pick per week, one Survivor Shield™ per season. Never pick the same team twice.
           </p>
 
           <PlatformTrustStrip className="mt-8 px-4" />

@@ -11,6 +11,7 @@ import {
   getSurvivorWeek,
   type SurvivorWeek,
 } from "@/lib/survivor/db/weeks";
+import { countShieldUsesForWeek } from "@/lib/survivor/db/shields";
 import { espnMetaForSurvivorWeekNumber } from "@/lib/survivor/nflWeeks";
 import type {
   SurvivorGameOption,
@@ -68,7 +69,8 @@ function buildGameOptions(
 function buildLiveMap(
   week: SurvivorWeek,
   picks: Awaited<ReturnType<typeof listPicksForWeek>>,
-  games: PickemScheduleGame[]
+  games: PickemScheduleGame[],
+  shieldsActivated: number
 ): SurvivorLiveMapStats {
   const counts = new Map<string, number>();
   for (const pick of picks) {
@@ -108,7 +110,9 @@ function buildLiveMap(
     total > 0 ? Math.round((week.playersRemaining / total) * 100) : 0;
 
   const eliminatedToday = picks.filter((p) => p.result === "eliminated").length;
-  const perfectRemaining = picks.filter((p) => p.result === "survived").length;
+  const perfectRemaining = picks.filter(
+    (p) => p.result === "survived" || p.result === "shield_saved"
+  ).length;
 
   return {
     playersRemaining: week.playersRemaining,
@@ -117,6 +121,7 @@ function buildLiveMap(
     mostPopularPick,
     upsetRiskTeam,
     survivorRatePct,
+    shieldsActivated,
   };
 }
 
@@ -150,6 +155,7 @@ export async function buildSurvivorWeekView(input: {
 
   const myPick = entry ? await getPickForWeek(entry.id, week.id) : null;
   const weekPicks = await listPicksForWeek(week.id);
+  const shieldsActivated = await countShieldUsesForWeek(input.league.id, week.weekNumber);
 
   const canPick =
     Boolean(entry) &&
@@ -179,6 +185,8 @@ export async function buildSurvivorWeekView(input: {
           livesRemaining: entry.livesRemaining,
           weeksSurvived: entry.weeksSurvived,
           displayName: entry.displayName,
+          shieldAvailable: entry.shieldAvailable,
+          shieldUsedWeek: entry.shieldUsedWeek,
         }
       : null,
     games: buildGameOptions(games, usedTeams, myPick?.teamAbbr ?? null),
@@ -190,7 +198,7 @@ export async function buildSurvivorWeekView(input: {
           result: myPick.result,
         }
       : null,
-    liveMap: buildLiveMap(week, weekPicks, games),
+    liveMap: buildLiveMap(week, weekPicks, games, shieldsActivated),
     canPick,
   };
 }

@@ -13,6 +13,11 @@ export default function SurvivorLiveMap({ stats }: { stats: SurvivorLiveMapStats
       value: stats.mostPopularPick ?? "—",
     },
     {
+      label: "Shields Activated",
+      value: stats.shieldsActivated,
+      shield: true,
+    },
+    {
       label: "Upset Risk",
       value: stats.upsetRiskTeam ?? "—",
       warn: Boolean(stats.upsetRiskTeam),
@@ -44,7 +49,13 @@ export default function SurvivorLiveMap({ stats }: { stats: SurvivorLiveMapStats
             </p>
             <p
               className={`text-lg sm:text-xl font-bold font-mono tabular-nums ${
-                tile.warn ? "text-red-400" : tile.accent ? "text-amber-400" : "text-white"
+                tile.warn
+                  ? "text-red-400"
+                  : tile.shield
+                    ? "text-violet-300"
+                    : tile.accent
+                      ? "text-amber-400"
+                      : "text-white"
               }`}
             >
               {tile.value}
