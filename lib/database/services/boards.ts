@@ -204,6 +204,15 @@ export async function dbLockAndDrawBoard(poolId: string): Promise<void> {
   await dbUpdatePoolFields(poolId, {
     status: "numbers-drawn",
   });
+
+  try {
+    const { assignHighlightSquaresForPool } = await import(
+      "@/lib/highlight/assign"
+    );
+    await assignHighlightSquaresForPool(poolId);
+  } catch {
+    // Best-effort — migration may be pending.
+  }
 }
 
 export async function dbCountClaimedSquares(poolId: string): Promise<number> {

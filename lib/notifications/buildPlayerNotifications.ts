@@ -8,6 +8,9 @@ function periodLabel(period: string): string {
   if (period === "FINAL") return "Final";
   if (period === "1H") return "Half 1";
   if (period === "2H") return "Half 2";
+  if (period === "INN3") return "Inning 3";
+  if (period === "INN5") return "Inning 5";
+  if (period === "INN7") return "Inning 7";
   return `Quarter ${period.slice(1)}`;
 }
 

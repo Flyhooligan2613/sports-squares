@@ -254,6 +254,72 @@ html.sb-splash-pending body > :not(.app-open-splash):not(.signup-welcome-overlay
   animation: winner-glow 1.5s ease-in-out infinite;
 }
 
+.highlight-square-glow {
+  border-color: #fbbf24 !important;
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.45),
+    0 0 14px rgba(251, 191, 36, 0.35);
+  animation: highlight-pulse 2.4s ease-in-out infinite;
+}
+
+.highlight-square-activated {
+  border-color: #34d399 !important;
+  box-shadow:
+    0 0 0 1px rgba(52, 211, 153, 0.5),
+    0 0 16px rgba(52, 211, 153, 0.4);
+}
+
+.highlight-star-badge {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.55);
+  animation: highlight-star-shimmer 2s ease-in-out infinite;
+}
+
+.highlight-star-activated {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.55);
+}
+
+.highlight-intro-banner {
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.08),
+    rgba(91, 76, 247, 0.06)
+  );
+}
+
+.highlight-legend-star {
+  display: inline-flex;
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+}
+
+@keyframes highlight-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.45),
+      0 0 12px rgba(251, 191, 36, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.65),
+      0 0 20px rgba(251, 191, 36, 0.5);
+  }
+}
+
+@keyframes highlight-star-shimmer {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
 .winner-trophy-bounce {
   animation: winner-trophy-bounce 1.2s ease-in-out infinite;
 }

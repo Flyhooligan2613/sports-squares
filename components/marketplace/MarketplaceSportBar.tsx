@@ -10,6 +10,7 @@ const SPORT_EMOJI: Record<EspnSport, string> = {
   ncaaf: "🏈",
   nba: "🏀",
   ncaab: "🏀",
+  mlb: "⚾",
 };
 
 interface MarketplaceSportBarProps {

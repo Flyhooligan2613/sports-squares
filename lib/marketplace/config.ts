@@ -1,6 +1,12 @@
 import type { EspnSport } from "@/lib/types";
 
-export const MARKETPLACE_SPORTS: EspnSport[] = ["nfl", "ncaaf", "nba", "ncaab"];
+export const MARKETPLACE_SPORTS: EspnSport[] = [
+  "nfl",
+  "ncaaf",
+  "nba",
+  "ncaab",
+  "mlb",
+];
 
 /** Default square price when auto-creating marketplace boards. */
 export const DEFAULT_COST_PER_SQUARE: Record<EspnSport, number> = {
@@ -8,6 +14,7 @@ export const DEFAULT_COST_PER_SQUARE: Record<EspnSport, number> = {
   ncaaf: 5,
   nba: 10,
   ncaab: 5,
+  mlb: 5,
 };
 
 export function isMarketplaceMode(): boolean {

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import HighlightSquareLegend from "@/components/highlight/HighlightSquareLegend";
 import Board from "@/components/Board";
 import NumberDrawModal from "@/components/NumberDrawModal";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
@@ -30,6 +31,7 @@ import type {
   WinnerHistory,
   WinnerResult,
 } from "@/lib/types";
+import type { PoolHighlightSquare } from "@/lib/highlight/types";
 import { loadWinnerHistory, saveWinnerHistory } from "@/lib/winnerStorage";
 import { attachPayoutToWinner, poolHasFinancials } from "@/lib/poolFinance";
 import {
@@ -51,6 +53,7 @@ export default function PoolPage() {
   const [showDrawModal, setShowDrawModal] = useState(false);
   const [activeQuarter, setActiveQuarter] = useState<ScoringPeriod>("Q1");
   const [winnerHistory, setWinnerHistory] = useState<WinnerHistory>({});
+  const [highlights, setHighlights] = useState<PoolHighlightSquare[]>([]);
   const skipWinnerSave = useRef(true);
   const { isAdmin } = useIsAdmin();
 
@@ -64,6 +67,21 @@ export default function PoolPage() {
     setWinnerHistory(history);
   }, [poolId]);
 
+  const refreshHighlights = useCallback(async () => {
+    if (!numbersDrawn) return;
+    try {
+      const res = await fetch(`/api/pool/${poolId}/highlights`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+      if (Array.isArray(data.highlights)) {
+        setHighlights(data.highlights);
+      }
+    } catch {
+      // Best-effort
+    }
+  }, [poolId, numbersDrawn]);
+
   const handleWinnersSynced = useCallback(
     async (results: WinnerResult[]) => {
       setWinnerHistory((prev) => {
@@ -74,8 +92,9 @@ export default function PoolPage() {
         return next;
       });
       await refreshWinnerHistory();
+      await refreshHighlights();
     },
-    [refreshWinnerHistory]
+    [refreshWinnerHistory, refreshHighlights]
   );
 
   const scoringPeriods = getScoringPeriods(pool?.espnSport);
@@ -154,6 +173,21 @@ export default function PoolPage() {
     }
     saveWinnerHistory(poolId, winnerHistory);
   }, [winnerHistory, poolId]);
+
+  const highlightSquareIds = useMemo(
+    () => highlights.map((h) => h.squareNumber),
+    [highlights]
+  );
+
+  const activatedHighlightSquareIds = useMemo(
+    () =>
+      highlights.filter((h) => h.activatedAt).map((h) => h.squareNumber),
+    [highlights]
+  );
+
+  useEffect(() => {
+    void refreshHighlights();
+  }, [refreshHighlights]);
 
   const featuredWinningSquareId =
     winnerHistory[activeQuarter]?.squareId;
@@ -265,9 +299,10 @@ export default function PoolPage() {
     if (updated) {
       setPool(updated);
       setSquares(updated.squares.map((s) => ({ ...s, selected: false })));
+      await refreshHighlights();
     }
     setShowDrawModal(false);
-  }, [poolId]);
+  }, [poolId, refreshHighlights]);
 
   function handleWinnerCalculated(result: WinnerResult) {
     const stamped = withRecordedAt(result);
@@ -417,6 +452,13 @@ export default function PoolPage() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 min-w-0">
+          {numbersDrawn && highlights.length > 0 ? (
+            <HighlightSquareLegend
+              highlights={highlights}
+              className="mb-4"
+            />
+          ) : null}
+
           <Board
             squares={squares}
             onSquareClick={handleSquareClick}
@@ -427,6 +469,12 @@ export default function PoolPage() {
             locked={!isOpen}
             featuredWinningSquareId={featuredWinningSquareId}
             pastWinningSquareIds={pastWinningSquareIds}
+            highlightSquareIds={
+              numbersDrawn ? highlightSquareIds : undefined
+            }
+            activatedHighlightSquareIds={
+              numbersDrawn ? activatedHighlightSquareIds : undefined
+            }
           />
 
           {numbersDrawn &&

@@ -21,6 +21,11 @@ export function formatPeriodLabel(
     if (period === 2) return "2nd Half";
     return statusDetail ?? "Live";
   }
+  if (sport === "mlb") {
+    if (period <= 0) return statusDetail ?? "Pre-game";
+    if (statusDetail?.toLowerCase().includes("final")) return "Final";
+    return `Inning ${period}`;
+  }
   if (period === 1) return "1st Quarter";
   if (period === 2) return "2nd Quarter";
   if (period === 3) return "3rd Quarter";
@@ -51,6 +56,9 @@ export function periodDisplayLabel(period: ScoringPeriod, sport: EspnSport): str
   if (period === "FINAL") return "Final Winner";
   if (period === "1H") return "Half 1 Winner";
   if (period === "2H") return "Halftime Winner";
+  if (period === "INN3") return "Inning 3 Winner";
+  if (period === "INN5") return "Inning 5 Winner";
+  if (period === "INN7") return "Inning 7 Winner";
   if (period === "Q1") return "Quarter 1";
   if (period === "Q2") return "Quarter 2";
   if (period === "Q3") return "Quarter 3";
@@ -77,7 +85,8 @@ export function estimateMinutesToPayout(
   sport: EspnSport
 ): number {
   if (isLive) {
-    const avgPeriodMinutes = sport === "ncaab" ? 20 : 15;
+    const avgPeriodMinutes =
+      sport === "ncaab" ? 20 : sport === "mlb" ? 18 : 15;
     const periods = getScoringPeriods(sport).filter((p) => p !== "FINAL");
     const remaining = Math.max(periods.length - periodIndex, 1);
     return remaining * avgPeriodMinutes;
@@ -85,5 +94,5 @@ export function estimateMinutesToPayout(
 
   const kickoffMs = new Date(kickoffAt).getTime() - Date.now();
   const kickoffMinutes = Math.max(Math.ceil(kickoffMs / 60000), 0);
-  return kickoffMinutes + (sport === "ncaab" ? 20 : 15);
+  return kickoffMinutes + (sport === "ncaab" ? 20 : sport === "mlb" ? 18 : 15);
 }

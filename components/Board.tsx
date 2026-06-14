@@ -10,6 +10,8 @@ interface BoardProps {
   locked?: boolean;
   featuredWinningSquareId?: number;
   pastWinningSquareIds?: number[];
+  highlightSquareIds?: number[];
+  activatedHighlightSquareIds?: number[];
 }
 
 export default function Board({
@@ -22,6 +24,8 @@ export default function Board({
   locked = false,
   featuredWinningSquareId,
   pastWinningSquareIds = [],
+  highlightSquareIds = [],
+  activatedHighlightSquareIds = [],
 }: BoardProps) {
   const showNumbers =
     topNumbers?.length === 10 && sideNumbers?.length === 10;
@@ -72,6 +76,8 @@ export default function Board({
             locked={locked}
             featuredWinningSquareId={featuredWinningSquareId}
             pastWinningSquareIds={pastWinningSquareIds}
+            highlightSquareIds={highlightSquareIds}
+            activatedHighlightSquareIds={activatedHighlightSquareIds}
           />
         ))}
       </div>
@@ -97,6 +103,8 @@ function Row({
   locked,
   featuredWinningSquareId,
   pastWinningSquareIds,
+  highlightSquareIds,
+  activatedHighlightSquareIds,
 }: {
   row: number;
   squares: BoardSquare[];
@@ -106,6 +114,8 @@ function Row({
   locked: boolean;
   featuredWinningSquareId?: number;
   pastWinningSquareIds: number[];
+  highlightSquareIds: number[];
+  activatedHighlightSquareIds: number[];
 }) {
   return (
     <>
@@ -128,6 +138,11 @@ function Row({
         const isFeatured = featuredWinningSquareId === square.id;
         const isPastWinner =
           !isFeatured && pastWinningSquareIds.includes(square.id);
+        const isHighlight = highlightSquareIds.includes(square.id);
+        const isHighlightActivated = activatedHighlightSquareIds.includes(
+          square.id
+        );
+        const showHighlightBadge = isHighlight && !isFeatured;
 
         return (
           <button
@@ -141,22 +156,36 @@ function Row({
                 ? "winner-square-glow border-amber-400 text-white z-10"
                 : isPastWinner
                   ? "sb-board-square-past-winner text-white"
-                  : square.claimed
-                    ? "cursor-default border-transparent text-white sb-board-square-claimed"
-                    : locked
-                      ? "sb-board-square-locked"
-                      : isSelected
-                        ? "sb-board-square-selected"
-                        : "sb-board-square-available",
+                  : isHighlightActivated
+                    ? "highlight-square-activated text-white z-[1]"
+                    : isHighlight
+                      ? "highlight-square-glow text-white z-[1]"
+                      : square.claimed
+                        ? "cursor-default border-transparent text-white sb-board-square-claimed"
+                        : locked
+                          ? "sb-board-square-locked"
+                          : isSelected
+                            ? "sb-board-square-selected"
+                            : "sb-board-square-available",
             ].join(" ")}
             style={
               square.claimed && owner && !isFeatured
                 ? { backgroundColor: owner.color ?? "#5B4CF7" }
                 : isFeatured && owner
                   ? { backgroundColor: owner.color ?? "#5B4CF7" }
-                  : undefined
+                  : isHighlight && owner
+                    ? { backgroundColor: owner.color ?? "#5B4CF7" }
+                    : undefined
             }
-            title={owner ? owner.name : `Square ${square.id + 1}`}
+            title={
+              isHighlight
+                ? isHighlightActivated
+                  ? `Highlight Square™ activated — ${owner?.name ?? "Bonus square"}`
+                  : `Highlight Square™ — mystery bonus if this square wins a checkpoint`
+                : owner
+                  ? owner.name
+                  : `Square ${square.id + 1}`
+            }
           >
             {isFeatured && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/50 winner-trophy-bounce">
@@ -167,6 +196,18 @@ function Row({
                 >
                   <path d="M5 3h14v2H5V3zm2 2v2c0 2.5 1.5 4.7 3.7 5.7L9 17H8v2h8v-2h-1l-.7-4.3c2.2-1 3.7-3.2 3.7-5.7V5h2V3H5v2h2zm2 0h8v2c0 2.2-1.4 4.1-3.5 4.8L12 11.5l-1.5-1.7C8.4 9.1 7 7.2 7 5z" />
                 </svg>
+              </span>
+            )}
+            {showHighlightBadge && (
+              <span
+                className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] shadow-lg ${
+                  isHighlightActivated
+                    ? "highlight-star-activated"
+                    : "highlight-star-badge"
+                }`}
+                aria-hidden
+              >
+                ⭐
               </span>
             )}
             {owner?.initials ?? (isSelected ? "✓" : "")}

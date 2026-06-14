@@ -34,11 +34,15 @@ export default function LiveScoreBanner({
         : game.period === 2
           ? "2nd Half"
           : "Final"
-      : game.period > 4
-        ? `OT (P${game.period})`
-        : game.period > 0
-          ? `Q${game.period}`
-          : "Pre-game";
+      : sport === "mlb"
+        ? game.period > 0
+          ? `Inning ${game.period}`
+          : "Pre-game"
+        : game.period > 4
+          ? `OT (P${game.period})`
+          : game.period > 0
+            ? `Q${game.period}`
+            : "Pre-game";
   const activePeriod = getActivePeriodFromGame(game, sport);
 
   return (

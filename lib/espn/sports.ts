@@ -50,6 +50,16 @@ export const ESPN_SPORTS: Record<EspnSport, EspnSportConfig> = {
     scoringPeriods: ["1H", "2H", "FINAL"],
     browseLabel: "Browse NCAA Basketball Games",
   },
+  mlb: {
+    id: "mlb",
+    label: "MLB",
+    scoreboardUrl:
+      "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard",
+    summaryUrl:
+      "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/summary",
+    scoringPeriods: ["INN3", "INN5", "INN7", "FINAL"],
+    browseLabel: "Browse MLB Games",
+  },
 };
 
 export const ESPN_SPORT_LIST = Object.values(ESPN_SPORTS);

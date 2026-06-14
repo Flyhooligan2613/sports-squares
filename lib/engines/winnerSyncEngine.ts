@@ -112,6 +112,25 @@ export async function syncAllPoolWinners(): Promise<WinnerSyncResult> {
         stamped = attachPayoutToWinner(stamped, pool, scoringPeriods);
         const winnerId = await dbUpsertWinner(poolRow.id, stamped);
 
+        const ownerParticipant = pool.participants.find(
+          (p) => p.name === stamped.ownerName
+        );
+
+        try {
+          const { tryActivateHighlightForWin } = await import(
+            "@/lib/highlight/activate"
+          );
+          await tryActivateHighlightForWin({
+            poolId: poolRow.id,
+            squareId: stamped.squareId,
+            period: stamped.quarter,
+            ownerName: stamped.ownerName,
+            ownerEmail: ownerParticipant?.email,
+          });
+        } catch {
+          // Best-effort — highlight table may not exist yet.
+        }
+
         const { isPlatformOwnedWinningSquare, routePlatformWinToGrowthFund } =
           await import("@/lib/platform/core/guaranteedPlayEngine");
         const { publishPlatformEvent } = await import("@/lib/events/engine");

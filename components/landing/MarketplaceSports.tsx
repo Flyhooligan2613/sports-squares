@@ -19,7 +19,13 @@ function formatCount(value: number): string {
 }
 
 function parseSportParam(value: string | null): MarketplaceSportFilter {
-  if (value === "nfl" || value === "ncaaf" || value === "nba" || value === "ncaab") {
+  if (
+    value === "nfl" ||
+    value === "ncaaf" ||
+    value === "nba" ||
+    value === "ncaab" ||
+    value === "mlb"
+  ) {
     return value;
   }
   return "all";

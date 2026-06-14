@@ -19,6 +19,9 @@ export type ScoringPeriod =
   | "Q4"
   | "1H"
   | "2H"
+  | "INN3"
+  | "INN5"
+  | "INN7"
   | "FINAL";
 
 /** @deprecated Use ScoringPeriod — kept for compatibility */
@@ -26,7 +29,7 @@ export type Quarter = ScoringPeriod;
 
 export const QUARTERS: ScoringPeriod[] = ["Q1", "Q2", "Q3", "Q4", "FINAL"];
 
-export type EspnSport = "nfl" | "ncaaf" | "nba" | "ncaab";
+export type EspnSport = "nfl" | "ncaaf" | "nba" | "ncaab" | "mlb";
 
 export type PaymentStatus = "paid" | "unpaid" | "partial";
 export type PayoutStatus = "pending" | "paid" | "unpaid";

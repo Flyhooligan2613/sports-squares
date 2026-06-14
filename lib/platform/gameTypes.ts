@@ -6,6 +6,7 @@
 
 export type PlatformGameId =
   | "squareboards"
+  | "mlb-squares"
   | "pickem"
   | "survivor"
   | "brackets"
@@ -37,11 +38,23 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
     id: "squareboards",
     name: "SquareBoards",
     description:
-      "Classic 10×10 sports squares with live scores, automatic winners, and instant payouts.",
+      "Classic 10×10 sports squares with live scores, Highlight Squares™, automatic winners, and instant payouts.",
     icon: "🎲",
     status: "available",
     href: "/games/nfl",
     accent: "#7b61ff",
+    statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
+  },
+  {
+    id: "mlb-squares",
+    name: "MLB Squares",
+    description:
+      "Baseball squares with inning checkpoints at the 3rd, 5th, 7th, and final — plus Highlight Squares™ bonus rewards.",
+    icon: "⚾",
+    status: "available",
+    href: "/games/mlb",
+    accent: "#dc2626",
+    navBadge: "new",
     statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
   },
   {
@@ -142,6 +155,9 @@ export function isPlatformGameNavActive(
 ): boolean {
   if (game.status !== "available" || !game.href) return false;
   if (game.id === "squareboards") return isSquareBoardsRoute(pathname);
+  if (game.id === "mlb-squares") {
+    return pathname.startsWith("/games/mlb") || pathname.startsWith("/learn/mlb-squares");
+  }
   if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname);
   if (game.id === "baseball-pickem") return isBaseballPickemRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);

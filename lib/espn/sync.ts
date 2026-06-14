@@ -49,6 +49,15 @@ function getPeriodRules(sport: EspnSport): PeriodRule[] {
     ];
   }
 
+  if (sport === "mlb") {
+    return [
+      { period: "INN3", minPeriod: 3, lineScoreCount: 3 },
+      { period: "INN5", minPeriod: 5, lineScoreCount: 5 },
+      { period: "INN7", minPeriod: 7, lineScoreCount: 7 },
+      { period: "FINAL", minPeriod: 99, lineScoreCount: 0 },
+    ];
+  }
+
   return [
     { period: "Q1", minPeriod: 1, lineScoreCount: 1 },
     { period: "Q2", minPeriod: 2, lineScoreCount: 2 },
@@ -116,6 +125,13 @@ export function getActivePeriodFromGame(
   if (resolvedSport === "ncaab") {
     if (game.period <= 1) return "1H";
     if (game.period === 2) return "2H";
+    return "FINAL";
+  }
+
+  if (resolvedSport === "mlb") {
+    if (game.period <= 3) return "INN3";
+    if (game.period <= 5) return "INN5";
+    if (game.period <= 7) return "INN7";
     return "FINAL";
   }
 

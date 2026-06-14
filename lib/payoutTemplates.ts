@@ -34,13 +34,27 @@ const THREE_PERIOD_TEMPLATES: Record<
   heavy_final: { "1H": 10, "2H": 10, FINAL: 80 },
 };
 
+/** Four-period templates (MLB — innings 3, 5, 7, final). */
+const FOUR_PERIOD_TEMPLATES: Record<
+  Exclude<PayoutTemplate, "custom">,
+  PayoutPercentages
+> = {
+  equal: { INN3: 25, INN5: 25, INN7: 25, FINAL: 25 },
+  standard: { INN3: 16.67, INN5: 16.67, INN7: 16.67, FINAL: 50.01 },
+  heavy_final: { INN3: 10, INN5: 10, INN7: 10, FINAL: 70 },
+};
+
 export function getTemplatePercentages(
   template: Exclude<PayoutTemplate, "custom">,
   sport?: EspnSport | null
 ): PayoutPercentages {
   const periods = getScoringPeriods(sport);
   const source =
-    periods.length === 3 ? THREE_PERIOD_TEMPLATES : FIVE_PERIOD_TEMPLATES;
+    periods.length === 3
+      ? THREE_PERIOD_TEMPLATES
+      : periods.length === 4
+        ? FOUR_PERIOD_TEMPLATES
+        : FIVE_PERIOD_TEMPLATES;
   const raw = source[template];
   return pickPercentagesForPeriods(raw, periods);
 }

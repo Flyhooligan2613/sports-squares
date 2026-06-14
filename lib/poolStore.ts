@@ -339,7 +339,7 @@ export const poolStore = {
   },
 
   async finalizeNumberDraw(poolId: string): Promise<Pool | undefined> {
-    return poolStore.mutateStatus(poolId, "numbers-drawn", (pool) => {
+    const updated = await poolStore.mutateStatus(poolId, "numbers-drawn", (pool) => {
       if (
         pool.status !== "locked" ||
         !pool.topNumbers?.length ||
@@ -349,6 +349,19 @@ export const poolStore = {
       }
       return true;
     });
+
+    if (updated) {
+      try {
+        const { assignHighlightSquaresForPool } = await import(
+          "@/lib/highlight/assign"
+        );
+        await assignHighlightSquaresForPool(poolId);
+      } catch {
+        // Best-effort — migration may be pending.
+      }
+    }
+
+    return updated;
   },
 
   async updateEspnGameId(

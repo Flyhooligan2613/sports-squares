@@ -5,6 +5,7 @@ const SPORT_LABELS: Record<EspnSport, string> = {
   ncaaf: "NCAA Football",
   nba: "NBA",
   ncaab: "NCAA Basketball",
+  mlb: "MLB",
 };
 
 export function getSportLabel(sport?: EspnSport): string {
