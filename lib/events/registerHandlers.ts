@@ -36,6 +36,12 @@ export function registerDefaultEventHandlers(): void {
   subscribeToPlatformEvent("survivor.champion_crowned", survivorLegacyHandler, {
     name: "SurvivorLegacy",
   });
+  subscribeToPlatformEvent("survivor.survived", survivorLegacyHandler, {
+    name: "SurvivorLegacy",
+  });
+  subscribeToPlatformEvent("survivor.eliminated", survivorLegacyHandler, {
+    name: "SurvivorLegacy",
+  });
   subscribeToPlatformEvent("survivor.shield_activated", survivorLiveCoreHandler, {
     name: "SurvivorLiveCore",
     priorities: ["critical", "high"],

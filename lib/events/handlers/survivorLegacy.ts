@@ -2,40 +2,71 @@ import type { PlatformEvent, PlatformEventHandler } from "@/lib/events/types";
 import {
   recordChampionShieldLegacy,
   recordShieldSaveLegacy,
+  recordSurvivorChampionLegacy,
+  recordSurvivorEliminatedLegacy,
+  recordSurvivorWeekSurvivedLegacy,
 } from "@/lib/survivor/db/careerStats";
 
 /**
- * LegacyCore™ subscriber for Survivor Shields™ — career stats and achievement badges.
+ * LegacyCore subscriber for Survivor X — career stats, badges, and Hall of Fame.
  */
 export const survivorLegacyHandler: PlatformEventHandler = async (event) => {
-  if (event.type === "survivor.shield_activated") {
-    const email =
-      event.actorEmail ??
-      (typeof event.payload?.email === "string" ? event.payload.email : null);
+  const email =
+    event.actorEmail ??
+    (typeof event.payload?.email === "string" ? event.payload.email : null);
 
-    if (email) {
-      await recordShieldSaveLegacy({ email }).catch((err) => {
-        console.error("[SurvivorLegacy:shield]", err);
-      });
+  if (!email) return;
+
+  try {
+    if (event.type === "survivor.survived") {
+      await recordSurvivorWeekSurvivedLegacy({ email });
+      return;
     }
-    return;
-  }
 
-  if (event.type === "survivor.champion_crowned") {
-    const shieldWasUsed = event.payload?.shieldWasUsed === true;
-    const email = event.actorEmail;
-
-    if (email) {
-      await recordChampionShieldLegacy({ email, shieldWasUsed }).catch((err) => {
-        console.error("[SurvivorLegacy:champion]", err);
-      });
+    if (event.type === "survivor.eliminated") {
+      await recordSurvivorEliminatedLegacy({ email });
+      return;
     }
-    return;
+
+    if (event.type === "survivor.shield_activated") {
+      await recordShieldSaveLegacy({ email });
+      return;
+    }
+
+    if (event.type === "survivor.champion_crowned") {
+      const payload = event.payload ?? {};
+      const seasonYear =
+        typeof payload.seasonYear === "number"
+          ? payload.seasonYear
+          : new Date().getFullYear();
+      const leagueId = String(payload.leagueId ?? event.entityId ?? "");
+      const displayName = String(payload.displayName ?? email);
+      const weeksSurvived =
+        typeof payload.weeksSurvived === "number" ? payload.weeksSurvived : 0;
+      const shieldWasUsed = payload.shieldWasUsed === true;
+
+      if (leagueId && displayName) {
+        await recordSurvivorChampionLegacy({
+          email,
+          displayName,
+          seasonYear,
+          leagueId,
+          weeksSurvived,
+          shieldWasUsed,
+        });
+      } else {
+        await recordChampionShieldLegacy({ email, shieldWasUsed });
+      }
+    }
+  } catch (err) {
+    console.error("[SurvivorLegacy]", event.type, err);
   }
 };
 
 export function isSurvivorLegacyEvent(event: PlatformEvent): boolean {
   return (
+    event.type === "survivor.survived" ||
+    event.type === "survivor.eliminated" ||
     event.type === "survivor.shield_activated" ||
     event.type === "survivor.champion_crowned"
   );

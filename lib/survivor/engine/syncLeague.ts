@@ -267,6 +267,9 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
           actorEmail: champion?.email ?? null,
           payload: {
             seasonYear: league.seasonYear,
+            leagueId: league.id,
+            displayName: champion?.displayName ?? champion?.email,
+            weeksSurvived: champion?.weeksSurvived ?? 0,
             shieldWasUsed: champion?.shieldUsedWeek != null,
           },
           idempotencyKey: `${league.id}:champion`,

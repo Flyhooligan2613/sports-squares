@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/Button";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import SurvivorLiveMap from "@/components/survivor/SurvivorLiveMap";
 import SurvivorStayInGamePanel from "@/components/survivor/SurvivorStayInGamePanel";
+import SurvivorEliminationMoment, {
+  eliminationStorageKey,
+} from "@/components/survivor/SurvivorEliminationMoment";
 import SurvivorShieldActivation, {
   shieldActivationStorageKey,
 } from "@/components/survivor/SurvivorShieldActivation";
@@ -36,6 +39,7 @@ export default function SurvivorWeekClient() {
   const [authRequired, setAuthRequired] = useState(false);
   const [joining, setJoining] = useState(false);
   const [showShieldActivation, setShowShieldActivation] = useState(false);
+  const [showEliminationMoment, setShowEliminationMoment] = useState(false);
 
   const dismissShieldActivation = useCallback(() => {
     if (view?.entry && view.myPick?.result === "shield_saved") {
@@ -60,6 +64,35 @@ export default function SurvivorWeekClient() {
     }
 
     setShowShieldActivation(true);
+  }, [view]);
+
+  const dismissEliminationMoment = useCallback(() => {
+    if (view?.entry && view.entry.status === "eliminated") {
+      sessionStorage.setItem(
+        eliminationStorageKey(view.entry.id, view.week.weekNumber),
+        "1"
+      );
+    }
+    setShowEliminationMoment(false);
+  }, [view]);
+
+  useEffect(() => {
+    if (!view?.entry || view.entry.status !== "eliminated") {
+      setShowEliminationMoment(false);
+      return;
+    }
+    if (view.myPick?.result !== "eliminated") {
+      setShowEliminationMoment(false);
+      return;
+    }
+
+    const key = eliminationStorageKey(view.entry.id, view.week.weekNumber);
+    if (sessionStorage.getItem(key)) {
+      setShowEliminationMoment(false);
+      return;
+    }
+
+    setShowEliminationMoment(true);
   }, [view]);
 
   const loadWeeks = useCallback(async () => {
@@ -297,6 +330,16 @@ export default function SurvivorWeekClient() {
             teamName={view.myPick.teamName}
             weekNumber={view.week.weekNumber}
             onComplete={dismissShieldActivation}
+          />
+        ) : null}
+
+        {showEliminationMoment && view?.entry && view.myPick ? (
+          <SurvivorEliminationMoment
+            displayName={view.entry.displayName}
+            teamName={view.myPick.teamName}
+            weekNumber={view.week.weekNumber}
+            weeksSurvived={view.entry.weeksSurvived}
+            onComplete={dismissEliminationMoment}
           />
         ) : null}
 

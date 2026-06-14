@@ -14,6 +14,14 @@ export type SurvivorShieldBadge =
 interface CareerRow {
   email: string;
   sport: string;
+  seasons_played: number;
+  championships: number;
+  longest_survival_streak: number;
+  current_survival_streak: number;
+  perfect_seasons: number;
+  total_weeks_survived: number;
+  lifetime_eliminations: number;
+  hof_score: number;
   shield_saves_lifetime: number;
   seasons_without_shield: number;
   perfect_seasons_without_shield: number;
@@ -26,7 +34,7 @@ async function ensureCareerRow(email: string, sport: SurvivorSport = "nfl"): Pro
 
   const { data: existing, error: fetchError } = await supabase
     .from(TABLE)
-    .select("email, sport, shield_saves_lifetime, seasons_without_shield, perfect_seasons_without_shield, badges")
+    .select("*")
     .eq("email", normalized)
     .eq("sport", sport)
     .maybeSingle();
@@ -37,7 +45,7 @@ async function ensureCareerRow(email: string, sport: SurvivorSport = "nfl"): Pro
   const { data, error } = await supabase
     .from(TABLE)
     .insert({ email: normalized, sport })
-    .select("email, sport, shield_saves_lifetime, seasons_without_shield, perfect_seasons_without_shield, badges")
+    .select("*")
     .single();
 
   if (error) throw error;
@@ -91,6 +99,128 @@ export async function recordShieldSaveLegacy(input: {
 
   if (error) throw error;
   await appendBadge(input.email, "guardian", sport);
+}
+
+/** LegacyCore — increment streaks when a week is survived. */
+export async function recordSurvivorWeekSurvivedLegacy(input: {
+  email: string;
+  sport?: SurvivorSport;
+}): Promise<void> {
+  const sport = input.sport ?? "nfl";
+  const row = await ensureCareerRow(input.email, sport);
+  const streak = row.current_survival_streak + 1;
+  const longest = Math.max(row.longest_survival_streak, streak);
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from(TABLE)
+    .update({
+      current_survival_streak: streak,
+      longest_survival_streak: longest,
+      total_weeks_survived: row.total_weeks_survived + 1,
+      hof_score: row.hof_score + 10,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("email", normalizeEmail(input.email))
+    .eq("sport", sport);
+
+  if (error) throw error;
+}
+
+/** LegacyCore — record elimination and reset streak. */
+export async function recordSurvivorEliminatedLegacy(input: {
+  email: string;
+  sport?: SurvivorSport;
+}): Promise<void> {
+  const sport = input.sport ?? "nfl";
+  const row = await ensureCareerRow(input.email, sport);
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from(TABLE)
+    .update({
+      current_survival_streak: 0,
+      lifetime_eliminations: row.lifetime_eliminations + 1,
+      seasons_played: row.seasons_played + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("email", normalizeEmail(input.email))
+    .eq("sport", sport);
+
+  if (error) throw error;
+}
+
+/** LegacyCore — champion crowned with HOF induction. */
+export async function recordSurvivorChampionLegacy(input: {
+  email: string;
+  displayName: string;
+  seasonYear: number;
+  leagueId: string;
+  weeksSurvived: number;
+  shieldWasUsed: boolean;
+  sport?: SurvivorSport;
+}): Promise<void> {
+  const sport = input.sport ?? "nfl";
+  await recordChampionShieldLegacy({
+    email: input.email,
+    shieldWasUsed: input.shieldWasUsed,
+    sport,
+  });
+
+  const row = await ensureCareerRow(input.email, sport);
+  const supabase = getSupabaseAdmin();
+  const perfect = !input.shieldWasUsed;
+
+  const { error } = await supabase
+    .from(TABLE)
+    .update({
+      championships: row.championships + 1,
+      seasons_played: row.seasons_played + 1,
+      perfect_seasons: perfect ? row.perfect_seasons + 1 : row.perfect_seasons,
+      hof_score: row.hof_score + 200,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("email", normalizeEmail(input.email))
+    .eq("sport", sport);
+
+  if (error) throw error;
+
+  const { inductSurvivorHofEntry } = await import("@/lib/survivor/db/hof");
+  await inductSurvivorHofEntry({
+    email: input.email,
+    sport,
+    seasonYear: input.seasonYear,
+    leagueId: input.leagueId,
+    category: "champion",
+    headline: `${input.displayName} — Survivor X champion`,
+    detail: `${input.weeksSurvived} weeks survived in ${input.seasonYear}.`,
+    statValue: input.weeksSurvived,
+  });
+
+  if (perfect) {
+    await inductSurvivorHofEntry({
+      email: input.email,
+      sport,
+      seasonYear: input.seasonYear,
+      leagueId: input.leagueId,
+      category: "untouchable",
+      headline: `${input.displayName} — Untouchable`,
+      detail: "Won without using a Survivor Shield.",
+      statValue: input.weeksSurvived,
+    });
+  }
+
+  if (input.weeksSurvived >= 5) {
+    await inductSurvivorHofEntry({
+      email: input.email,
+      sport,
+      seasonYear: input.seasonYear,
+      leagueId: input.leagueId,
+      category: "longest_streak",
+      headline: `${input.displayName} — ${input.weeksSurvived} week run`,
+      statValue: input.weeksSurvived,
+    });
+  }
 }
 
 /** LegacyCore™ — champion achievements tied to shield usage. */
