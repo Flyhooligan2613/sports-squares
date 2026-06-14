@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import NavbarGate from "@/components/NavbarGate";
@@ -7,6 +8,8 @@ import InstallPrompt from "@/components/InstallPrompt";
 import GlobalStaffPortalHint from "@/components/GlobalStaffPortalHint";
 import { AnnouncementProvider } from "@/components/announcements/AnnouncementProvider";
 import PwaRegister from "@/components/PwaRegister";
+import AppOpenSplash from "@/components/AppOpenSplash";
+import { APP_OPEN_SPLASH_PENDING_SCRIPT } from "@/lib/pwa/isPwaDisplayMode";
 import { BRAND_NAME } from "@/lib/brand";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -46,6 +49,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${jakarta.variable}`}>
       <body className="font-sans bg-sb-bg text-white antialiased min-h-screen flex flex-col sb-app-bg">
+        <Script id="app-open-splash-pending" strategy="beforeInteractive">
+          {APP_OPEN_SPLASH_PENDING_SCRIPT}
+        </Script>
+        <AppOpenSplash />
         <NavShell>
           <AnnouncementProvider>
             <NavbarGate>

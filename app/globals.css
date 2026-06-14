@@ -15,6 +15,152 @@ body {
   overflow-x: hidden;
 }
 
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+html.sb-splash-pending body {
+  overflow: hidden;
+}
+
+html.sb-splash-pending body > :not(.app-open-splash) {
+  visibility: hidden;
+}
+
+.app-open-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(91, 76, 247, 0.16) 0%,
+    rgba(3, 7, 18, 0.98) 52%,
+    #030712 100%
+  );
+  opacity: 0;
+  pointer-events: auto;
+}
+
+.app-open-splash-enter {
+  animation: app-open-splash-in 0.45s ease-out forwards;
+}
+
+.app-open-splash-exit {
+  animation: app-open-splash-out 0.48s ease-in forwards;
+  pointer-events: none;
+}
+
+.app-open-splash-glow {
+  position: absolute;
+  width: min(72vw, 22rem);
+  height: min(72vw, 22rem);
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(123, 97, 255, 0.28) 0%,
+    rgba(91, 76, 247, 0.08) 45%,
+    transparent 70%
+  );
+  animation: app-open-splash-glow 2.1s ease-in-out infinite;
+}
+
+.app-open-splash-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 2.35rem);
+  gap: 0.45rem;
+}
+
+.app-open-splash-cell {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(196, 181, 253, 0.35);
+  background: linear-gradient(145deg, rgba(123, 97, 255, 0.55), rgba(91, 76, 247, 0.28));
+  box-shadow: 0 0 24px rgba(91, 76, 247, 0.25);
+  opacity: 0;
+  transform: scale(0.35) rotate(-8deg);
+  animation: app-open-splash-cell 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.app-open-splash-brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: app-open-splash-brand 0.65s ease-out 0.38s forwards;
+}
+
+.app-open-splash-logo .sb-logo-mark {
+  box-shadow:
+    0 0 32px rgba(91, 76, 247, 0.45),
+    0 0 64px rgba(123, 97, 255, 0.18);
+}
+
+.app-open-splash-tagline {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.58);
+  text-align: center;
+}
+
+@keyframes app-open-splash-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-open-splash-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes app-open-splash-glow {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes app-open-splash-cell {
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes app-open-splash-brand {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes number-draw-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.02); }
