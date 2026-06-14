@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   connectErrorMessage,
   ensureConnectAccountId,
+  getPlayerConnectIdentityPrefill,
   getPlayerConnectStatus,
   refreshPlayerConnectStatus,
   syncConnectAccountFromStripeV2,
@@ -66,12 +67,14 @@ export async function POST(request: Request) {
     let status = existingStatus;
     let accountId = status.accountId;
     const useV2 = isStripeConnectV2PayoutsEnabled();
+    const prefill = await getPlayerConnectIdentityPrefill(email);
 
     if (!accountId) {
       if (useV2) {
         const account = await createWinnerConnectV2Account({
           email,
-          displayName: displayNameFromEmail(email),
+          displayName: prefill.displayName,
+          prefill,
         });
         accountId = account.id;
         await ensureConnectAccountId(email, accountId);
@@ -97,7 +100,7 @@ export async function POST(request: Request) {
     }
 
     if (useV2) {
-      const url = await createWinnerConnectV2AccountLink({ accountId });
+      const url = await createWinnerConnectV2AccountLink({ accountId, prefill });
       return NextResponse.json({ url });
     }
 

@@ -212,6 +212,68 @@ export async function getConnectProfileForAccountId(
   };
 }
 
+export type PlayerConnectIdentityPrefill = {
+  email: string;
+  displayName: string;
+  firstName?: string;
+  lastName?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+};
+
+export async function getPlayerConnectIdentityPrefill(
+  email: string
+): Promise<PlayerConnectIdentityPrefill> {
+  const normalized = normalizeEmail(email);
+  const displayName = displayNameFromEmail(normalized);
+
+  if (!isSupabaseAdminConfigured()) {
+    return { email: normalized, displayName };
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLES.playerProfiles)
+    .select(
+      "display_name, first_name, last_name, address_line1, address_line2, city, state, postal_code"
+    )
+    .eq("email", normalized)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  const row = data as {
+    display_name?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    address_line1?: string | null;
+    address_line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postal_code?: string | null;
+  } | null;
+
+  const firstName = row?.first_name?.trim() || undefined;
+  const lastName = row?.last_name?.trim() || undefined;
+  const nameFromParts =
+    firstName && lastName ? `${firstName} ${lastName}`.trim() : undefined;
+
+  return {
+    email: normalized,
+    displayName: nameFromParts ?? row?.display_name?.trim() ?? displayName,
+    firstName,
+    lastName,
+    addressLine1: row?.address_line1?.trim() || undefined,
+    addressLine2: row?.address_line2?.trim() || undefined,
+    city: row?.city?.trim() || undefined,
+    state: row?.state?.trim() || undefined,
+    postalCode: row?.postal_code?.trim() || undefined,
+  };
+}
+
 async function loadConnectProfile(
   email: string
 ): Promise<ConnectProfileRow | null> {

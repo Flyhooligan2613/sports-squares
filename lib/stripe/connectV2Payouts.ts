@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import { getAppUrl } from "@/lib/stripe/config";
 import { getStripe } from "@/lib/stripe/client";
+import type { PlayerConnectIdentityPrefill } from "@/lib/database/services/stripeConnect";
 
 /** Dashboard access for winner recipients — platform owns payout UX in My Winnings. */
 export const WINNER_CONNECT_V2_DASHBOARD = "none" as const;
@@ -58,6 +59,37 @@ function accountContext(accountId: string): Stripe.RequestOptions {
   return { stripeContext: accountId };
 }
 
+function buildWinnerConnectIdentityPayload(
+  prefill: PlayerConnectIdentityPrefill
+): Record<string, unknown> {
+  const identity: Record<string, unknown> = {
+    country: "us",
+    entity_type: "individual",
+  };
+
+  const individual: Record<string, unknown> = {};
+
+  if (prefill.firstName) individual.given_name = prefill.firstName;
+  if (prefill.lastName) individual.surname = prefill.lastName;
+
+  if (prefill.addressLine1) {
+    individual.address = {
+      country: "US",
+      line1: prefill.addressLine1,
+      ...(prefill.addressLine2 ? { line2: prefill.addressLine2 } : {}),
+      ...(prefill.city ? { city: prefill.city } : {}),
+      ...(prefill.state ? { state: prefill.state } : {}),
+      ...(prefill.postalCode ? { postal_code: prefill.postalCode } : {}),
+    };
+  }
+
+  if (Object.keys(individual).length > 0) {
+    identity.individual = individual;
+  }
+
+  return identity;
+}
+
 /**
  * Create a V2 connected account configured to receive platform transfers (winner payouts).
  * No top-level type field — uses recipient configuration, not merchant card_payments.
@@ -65,14 +97,18 @@ function accountContext(accountId: string): Stripe.RequestOptions {
 export async function createWinnerConnectV2Account(input: {
   email: string;
   displayName: string;
+  prefill?: PlayerConnectIdentityPrefill;
 }): Promise<WinnerConnectV2Account> {
+  const prefill = input.prefill ?? {
+    email: input.email,
+    displayName: input.displayName,
+  };
+
   const account = await v2Core().accounts.create({
-    display_name: input.displayName,
+    display_name: prefill.displayName || input.displayName,
     contact_email: input.email,
     dashboard: WINNER_CONNECT_V2_DASHBOARD,
-    identity: {
-      country: "us",
-    },
+    identity: buildWinnerConnectIdentityPayload(prefill),
     defaults: {
       responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
     },
@@ -118,23 +154,31 @@ export async function retrieveWinnerConnectV2AccountDetailed(
 }
 
 /** Stripe requires dashboard + application collectors for recipient stripe_transfers. */
-export async function ensureWinnerConnectV2AccountReady(accountId: string): Promise<void> {
-  await v2Core().accounts.update(
-    accountId,
-    {
-      dashboard: WINNER_CONNECT_V2_DASHBOARD,
-      defaults: {
-        responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
-      },
+export async function ensureWinnerConnectV2AccountReady(
+  accountId: string,
+  prefill?: PlayerConnectIdentityPrefill
+): Promise<void> {
+  const patch: Record<string, unknown> = {
+    dashboard: WINNER_CONNECT_V2_DASHBOARD,
+    defaults: {
+      responsibilities: WINNER_CONNECT_V2_RESPONSIBILITIES,
     },
-    accountContext(accountId)
-  );
+  };
+
+  if (prefill) {
+    patch.display_name = prefill.displayName;
+    patch.contact_email = prefill.email;
+    patch.identity = buildWinnerConnectIdentityPayload(prefill);
+  }
+
+  await v2Core().accounts.update(accountId, patch, accountContext(accountId));
 }
 
 export async function createWinnerConnectV2AccountLink(input: {
   accountId: string;
   returnUrl?: string;
   refreshUrl?: string;
+  prefill?: PlayerConnectIdentityPrefill;
 }): Promise<string> {
   const appUrl = getAppUrl();
   const refreshUrl =
@@ -142,7 +186,7 @@ export async function createWinnerConnectV2AccountLink(input: {
   const returnUrl =
     input.returnUrl ?? `${appUrl}/my-games/winnings?connect=complete`;
 
-  await ensureWinnerConnectV2AccountReady(input.accountId);
+  await ensureWinnerConnectV2AccountReady(input.accountId, input.prefill);
 
   const accountLink = await v2Core().accountLinks.create(
     {

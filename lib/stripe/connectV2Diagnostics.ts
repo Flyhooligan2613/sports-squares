@@ -5,6 +5,7 @@ import {
   readWinnerV2ConnectFlags,
   retrieveWinnerConnectV2AccountDetailed,
 } from "@/lib/stripe/connectV2Payouts";
+import type { PlayerConnectIdentityPrefill } from "@/lib/database/services/stripeConnect";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
 
 export type ConnectV2DiagnosticIssue = {
@@ -165,8 +166,9 @@ export async function diagnoseWinnerConnectV2Account(input: {
 }
 
 export async function repairWinnerConnectV2Account(
-  accountId: string
+  accountId: string,
+  prefill?: PlayerConnectIdentityPrefill
 ): Promise<ConnectV2DiagnosticReport> {
-  await ensureWinnerConnectV2AccountReady(accountId);
+  await ensureWinnerConnectV2AccountReady(accountId, prefill);
   return diagnoseWinnerConnectV2Account({ accountId });
 }

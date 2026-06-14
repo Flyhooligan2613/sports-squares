@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthorizedAdminUser } from "@/lib/auth/adminAuth";
 import {
   getConnectProfileForAccountId,
+  getPlayerConnectIdentityPrefill,
   getPlayerConnectStatus,
   refreshPlayerConnectStatus,
   connectErrorMessage,
@@ -136,7 +137,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, action: "sync", ...report });
     }
 
-    const report = await repairWinnerConnectV2Account(lookup.accountId);
+    const report = await repairWinnerConnectV2Account(
+      lookup.accountId,
+      lookup.playerEmail
+        ? await getPlayerConnectIdentityPrefill(lookup.playerEmail)
+        : undefined
+    );
     let dbStatus = lookup.dbStatus;
 
     if (lookup.playerEmail) {

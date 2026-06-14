@@ -177,7 +177,7 @@ export default function PlayerPayoutSetup({
             <p className="text-sm text-sb-muted leading-relaxed max-w-xl">
               {status?.ready
                 ? "Winnings deposit automatically via Stripe. Card linking and identity checks are handled by Stripe."
-                : "Required before you can place squares or picks. Connect through Stripe — they verify your identity and payout details."}
+                : "Required before you can place squares or picks. Tap below — Stripe opens in your browser to verify identity and link your bank. Use the same name and address from sign-up."}
             </p>
             {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
           </div>
