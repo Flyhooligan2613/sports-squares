@@ -19,6 +19,7 @@
     "supabase:migrate:pickem": "node scripts/open-pickem-migration.mjs",
     "pickem:sync": "node scripts/trigger-pickem-sync.mjs",
     "pickem:verify-migration": "node scripts/verify-pickem-migration.mjs",
+    "push:generate-vapid": "node scripts/generate-vapid-keys.mjs",
     "announcements:debug": "node scripts/debug-announcements.mjs",
     "admin:create-user": "node scripts/create-admin-user.mjs",
     "platform:verify-migration": "node scripts/verify-platform-migration.mjs",
@@ -39,7 +40,8 @@
     "react": "^18",
     "react-dom": "^18",
     "sharp": "^0.35.1",
-    "stripe": "^22.2.0"
+    "stripe": "^22.2.0",
+    "web-push": "^3.6.7"
   },
   "overrides": {
     "stripe": "^22.2.0"

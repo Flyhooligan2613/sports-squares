@@ -1,5 +1,6 @@
 import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
 import QuickUnlockGate from "@/components/player/QuickUnlockGate";
+import PushNotificationPrompt from "@/components/player/PushNotificationPrompt";
 import PlayerShell from "@/components/player/PlayerShell";
 import { createClient } from "@/lib/supabase/server";
 import { ensureEcosystemAccount } from "@/lib/platform/ecosystem/account";
@@ -41,6 +42,7 @@ export default async function MyGamesDashboardLayout({
     >
       <PlayerAuthBootstrap />
       <QuickUnlockGate>{children}</QuickUnlockGate>
+      <PushNotificationPrompt />
     </PlayerShell>
   );
 }

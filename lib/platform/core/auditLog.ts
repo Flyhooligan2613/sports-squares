@@ -24,7 +24,9 @@ export type PlatformAuditEventType =
   | "player.suspended"
   | "announcement.published"
   | "announcement.updated"
-  | "announcement.deleted";
+  | "announcement.deleted"
+  | "push.daily_digest"
+  | "push.manual_send";
 
 export interface PlatformAuditInput {
   eventType: PlatformAuditEventType;

@@ -16,6 +16,7 @@ import {
   Megaphone,
   Shield,
   Sparkles,
+  Bell,
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import { signOutAdmin } from "@/lib/auth/adminAuthClient";
@@ -28,6 +29,7 @@ const NAV = [
   { href: "/admin/ecosystem", label: "Ecosystem", exact: false, icon: Sparkles },
   { href: "/admin/security", label: "Security", exact: false, icon: Shield },
   { href: "/admin/announcements", label: "Announcements", exact: false, icon: Megaphone },
+  { href: "/admin/push-notifications", label: "Push Alerts", exact: false, icon: Bell },
   { href: "/admin/audit-log", label: "Audit Log", exact: false, icon: ScrollText },
   { href: "/admin/launch", label: "Launch", exact: false, icon: Rocket },
   {
