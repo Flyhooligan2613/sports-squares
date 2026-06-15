@@ -1,0 +1,39 @@
+---
+description: Project Legacy — mandatory Universal Build Specification format for all Platform Build Sprints
+alwaysApply: true
+---
+
+# Project Legacy — Platform Build Specification Standard
+
+**Mandatory** for every future Platform Build Specification, sprint, feature, module, engine, and experience.
+
+Full template: `docs/project-legacy/PLATFORM_ENGINEERING_STANDARD.md`  
+Manifesto: `docs/PROJECT_LEGACY.md`
+
+## Before writing code — Engineering Execution Requirements (15)
+
+1. Analyze existing architecture
+2. Reuse existing components
+3. Never duplicate business logic
+4. Build reusable, modular components
+5. Follow the design system
+6. Respect design tokens
+7. Preserve responsive layouts
+8. Preserve accessibility
+9. Preserve backwards compatibility
+10. Never introduce breaking changes
+11. Never hardcode configurable values
+12. Production-ready code only
+13. Design for future expansion
+14. Separate business logic from presentation
+15. Maintainability before complexity
+
+## Required spec sections (19)
+
+1. Executive Vision · 2. Player Emotion · 3. Product Philosophy · 4. Engineering Objectives · 5. Information Architecture · 6. Component Architecture · 7. User Flow · 8. Business Rules · 9. Data Model · 10. API Requirements · 11. UI/UX Requirements · 12. Animation Requirements · 13. Accessibility · 14. Performance Requirements · 15. Platform Integration · 16. Non-Goals · 17. Testing Requirements · 18. Definition of Done · 19. Future Expansion
+
+## Before marking done
+
+Pass **The Apple Test™** (premium interaction quality) and **The SquareBoards Test™** (strengthens Competition, Community, Progression, Identity, Trust, Emotion, or Legacy).
+
+Do not ship isolated features — build connected platform architecture.
