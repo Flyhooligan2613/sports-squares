@@ -23,7 +23,8 @@ import {
   type SurvivorWeek,
 } from "@/lib/survivor/db/weeks";
 import { seedSurvivorSeason } from "@/lib/survivor/engine/seedSeason";
-import { espnMetaForSurvivorWeekNumber } from "@/lib/survivor/nflWeeks";
+import { espnMetaForSurvivorWeekNumber } from "@/lib/survivor/weekSpecs";
+import { survivorSportToPickem } from "@/lib/survivor/sports";
 import { publishPlatformEvent } from "@/lib/events/engine";
 
 function teamWon(game: PickemScheduleGame, teamAbbr: string): boolean | null {
@@ -296,12 +297,15 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
     return { weekNumber: 0, weekStatus: "none", eliminated: 0, errors: ["No weeks"] };
   }
 
-  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber, { mode: league.mode });
+  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber, {
+    mode: league.mode,
+    sport: league.sport,
+  });
 
   let games: PickemScheduleGame[] = [];
   try {
     const board = await fetchPickemScoreboard({
-      sport: "nfl",
+      sport: survivorSportToPickem(league.sport),
       week: espnMeta.espnWeekNumber,
       seasonType: espnMeta.seasonType,
       seasonYear: league.seasonYear,
@@ -312,7 +316,8 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
   }
 
   const nextStatus = deriveWeekStatus(games, week.status, {
-    keepScheduledWithoutGames: league.mode === "turbo" && week.status === "scheduled",
+    keepScheduledWithoutGames:
+      league.mode === "turbo" && league.sport === "nfl" && week.status === "scheduled",
   });
   if (nextStatus !== week.status) {
     const extra: Record<string, string> = {};
@@ -407,7 +412,8 @@ export async function syncAllSurvivorLeagues(): Promise<{
   synced: number;
   results: Awaited<ReturnType<typeof syncSurvivorLeague>>[];
 }> {
-  await seedSurvivorSeason();
+  await seedSurvivorSeason("nfl");
+  await seedSurvivorSeason("mlb");
   const leagues = await listActiveSurvivorLeagues();
   const results: Awaited<ReturnType<typeof syncSurvivorLeague>>[] = [];
 

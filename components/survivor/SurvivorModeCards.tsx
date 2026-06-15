@@ -3,13 +3,19 @@ import { ChevronRight } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { SURVIVOR_MODES } from "@/lib/survivor/config";
 import { survivorPath } from "@/lib/survivor/routes";
+import type { SurvivorSport } from "@/lib/survivor/types";
 
-const MODE_HREF: Record<string, string> = {
-  classic: survivorPath("week"),
-  global: survivorPath("week"),
-  double_life: survivorPath("leagues"),
-  turbo: survivorPath("leagues"),
-  private: survivorPath("private"),
+function modeHref(segment: string, sport: SurvivorSport): string {
+  const base = survivorPath(segment);
+  return sport === "nfl" ? base : `${base}?sport=${sport}`;
+}
+
+const MODE_SEGMENT: Record<string, string> = {
+  classic: "week",
+  global: "week",
+  double_life: "leagues",
+  turbo: "leagues",
+  private: "private",
 };
 
 const MODE_CTA: Record<string, string> = {
@@ -20,7 +26,7 @@ const MODE_CTA: Record<string, string> = {
   private: "Create or Join Private",
 };
 
-export default function SurvivorModeCards() {
+export default function SurvivorModeCards({ activeSport = "nfl" }: { activeSport?: SurvivorSport }) {
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
       {SURVIVOR_MODES.map((mode) => (
@@ -42,10 +48,12 @@ export default function SurvivorModeCards() {
           <p className="text-sm text-sb-muted leading-relaxed flex-1 mb-4">{mode.description}</p>
           {mode.available ? (
             <Link
-              href={MODE_HREF[mode.id] ?? survivorPath("leagues")}
+              href={modeHref(MODE_SEGMENT[mode.id] ?? "leagues", activeSport)}
               className="inline-flex items-center gap-1 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
             >
-              {MODE_CTA[mode.id] ?? "Play Survivor"}
+              {mode.id === "turbo" && activeSport !== "nfl"
+                ? "NFL Turbo only"
+                : MODE_CTA[mode.id] ?? "Play Survivor"}
               <ChevronRight className="w-4 h-4" />
             </Link>
           ) : (

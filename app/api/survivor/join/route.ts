@@ -5,6 +5,7 @@ import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 import { ensureSurvivorSeason } from "@/lib/survivor/engine/seedSeason";
 import { getSurvivorLeagueById, getSurvivorLeagueByInviteCode } from "@/lib/survivor/db/leagues";
 import { countEntriesByStatus, getSurvivorEntry, joinSurvivorLeague } from "@/lib/survivor/db/entries";
+import { parseSurvivorSport } from "@/lib/survivor/sports";
 import { publishPlatformEvent } from "@/lib/events/engine";
 
 export const dynamic = "force-dynamic";
@@ -27,8 +28,10 @@ export async function POST(request: Request) {
     const body = (await request.json().catch(() => ({}))) as {
       leagueId?: string;
       inviteCode?: string;
+      sport?: string;
     };
-    const { leagueId: defaultLeagueId } = await ensureSurvivorSeason();
+    const sport = parseSurvivorSport(body.sport);
+    const { leagueId: defaultLeagueId } = await ensureSurvivorSeason(sport);
 
     const email = normalizeEmail(user.email);
 

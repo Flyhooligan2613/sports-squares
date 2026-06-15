@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SurvivorLeaguesClient from "@/components/survivor/SurvivorLeaguesClient";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 
@@ -7,5 +8,9 @@ export const metadata = {
 };
 
 export default function SurvivorLeaguesPage() {
-  return <SurvivorLeaguesClient />;
+  return (
+    <Suspense fallback={null}>
+      <SurvivorLeaguesClient />
+    </Suspense>
+  );
 }

@@ -19,8 +19,10 @@ export function survivorApiUrl(
   return qs ? `${base}?${qs}` : base;
 }
 
-export function survivorWeekHref(leagueId?: string): string {
-  return leagueId
-    ? `${SURVIVOR_BASE_PATH}/week?leagueId=${encodeURIComponent(leagueId)}`
-    : `${SURVIVOR_BASE_PATH}/week`;
+export function survivorWeekHref(leagueId?: string, sport?: string): string {
+  const params = new URLSearchParams();
+  if (leagueId) params.set("leagueId", leagueId);
+  if (sport && sport !== "nfl") params.set("sport", sport);
+  const qs = params.toString();
+  return qs ? `${SURVIVOR_BASE_PATH}/week?${qs}` : `${SURVIVOR_BASE_PATH}/week`;
 }

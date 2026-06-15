@@ -5,34 +5,35 @@ import {
   upsertTurboLeague,
 } from "@/lib/survivor/db/leagues";
 import { upsertSurvivorWeek } from "@/lib/survivor/db/weeks";
-import { survivorWeekSpecsForMode } from "@/lib/survivor/nflWeeks";
-import type { SurvivorMode } from "@/lib/survivor/types";
+import { SURVIVOR_DEFAULT_SPORT } from "@/lib/survivor/config";
+import { survivorSportToPickem } from "@/lib/survivor/sports";
+import { survivorWeekSpecsForMode } from "@/lib/survivor/weekSpecs";
+import type { SurvivorMode, SurvivorSport } from "@/lib/survivor/types";
 
 export interface SurvivorSeasonSeedResult {
+  sport: SurvivorSport;
   seasonYear: number;
   leagueId: string;
   doubleLifeLeagueId: string;
-  turboLeagueId: string;
+  turboLeagueId: string | null;
   weeksCreated: number;
 }
 
 export async function seedWeeksForLeague(
   leagueId: string,
-  options?: { mode?: SurvivorMode }
+  options?: { mode?: SurvivorMode; sport?: SurvivorSport }
 ): Promise<number> {
-  const specs = survivorWeekSpecsForMode(options?.mode);
+  const sport = options?.sport ?? "nfl";
+  const specs = survivorWeekSpecsForMode(options?.mode, sport);
   let weeksCreated = 0;
-  const isTurbo = options?.mode === "turbo";
+  const isTurbo = options?.mode === "turbo" && sport === "nfl";
 
   for (const spec of specs) {
     await upsertSurvivorWeek({
       leagueId,
       weekNumber: spec.weekNumber,
       label: spec.label,
-      status:
-        spec.weekNumber === 1 && !isTurbo
-          ? "open"
-          : "scheduled",
+      status: spec.weekNumber === 1 && !isTurbo ? "open" : "scheduled",
     });
     weeksCreated += 1;
   }
@@ -40,42 +41,56 @@ export async function seedWeeksForLeague(
   return weeksCreated;
 }
 
-export async function seedSurvivorSeason(seasonYear?: number): Promise<SurvivorSeasonSeedResult> {
+export async function seedSurvivorSeason(
+  sport: SurvivorSport = SURVIVOR_DEFAULT_SPORT,
+  seasonYear?: number
+): Promise<SurvivorSeasonSeedResult> {
+  const pickemSport = survivorSportToPickem(sport);
   let year = seasonYear;
   if (year == null) {
-    const { meta } = await fetchPickemScoreboard({ sport: "nfl" });
+    const { meta } = await fetchPickemScoreboard({ sport: pickemSport });
     year = meta.seasonYear;
   }
 
-  const [classic, doubleLife, turbo] = await Promise.all([
-    upsertGlobalClassicLeague(year),
-    upsertDoubleLifeLeague(year),
-    upsertTurboLeague(year),
+  const [classic, doubleLife] = await Promise.all([
+    upsertGlobalClassicLeague(year, sport),
+    upsertDoubleLifeLeague(year, sport),
   ]);
 
-  const weeksCreated =
-    (await seedWeeksForLeague(classic.id)) +
-    (await seedWeeksForLeague(doubleLife.id)) +
-    (await seedWeeksForLeague(turbo.id, { mode: "turbo" }));
+  const turbo = sport === "nfl" ? await upsertTurboLeague(year) : null;
+
+  let weeksCreated =
+    (await seedWeeksForLeague(classic.id, { sport })) +
+    (await seedWeeksForLeague(doubleLife.id, { sport }));
+
+  if (turbo) {
+    weeksCreated += await seedWeeksForLeague(turbo.id, { mode: "turbo", sport: "nfl" });
+  }
 
   return {
+    sport,
     seasonYear: year,
     leagueId: classic.id,
     doubleLifeLeagueId: doubleLife.id,
-    turboLeagueId: turbo.id,
+    turboLeagueId: turbo?.id ?? null,
     weeksCreated,
   };
 }
 
-export async function ensureSurvivorSeason(): Promise<{
+export async function ensureSurvivorSeason(
+  sport: SurvivorSport = SURVIVOR_DEFAULT_SPORT
+): Promise<{
+  sport: SurvivorSport;
   leagueId: string;
   seasonYear: number;
   doubleLifeLeagueId: string;
-  turboLeagueId: string;
+  turboLeagueId: string | null;
 }> {
-  const { meta } = await fetchPickemScoreboard({ sport: "nfl" });
-  const seed = await seedSurvivorSeason(meta.seasonYear);
+  const pickemSport = survivorSportToPickem(sport);
+  const { meta } = await fetchPickemScoreboard({ sport: pickemSport });
+  const seed = await seedSurvivorSeason(sport, meta.seasonYear);
   return {
+    sport: seed.sport,
     leagueId: seed.leagueId,
     seasonYear: seed.seasonYear,
     doubleLifeLeagueId: seed.doubleLifeLeagueId,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
@@ -8,7 +9,9 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/Button";
+import SurvivorSportSwitcher from "@/components/survivor/SurvivorSportSwitcher";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
+import { parseSurvivorSport } from "@/lib/survivor/sports";
 import { survivorApiUrl, survivorPath, survivorWeekHref } from "@/lib/survivor/routes";
 
 interface LeagueRow {
@@ -27,6 +30,9 @@ interface LeagueRow {
 }
 
 export default function SurvivorLeaguesClient() {
+  const searchParams = useSearchParams();
+  const sport = parseSurvivorSport(searchParams.get("sport"));
+
   const [leagues, setLeagues] = useState<LeagueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [joiningId, setJoiningId] = useState<string | null>(null);
@@ -35,7 +41,7 @@ export default function SurvivorLeaguesClient() {
   useEffect(() => {
     void (async () => {
       try {
-        const res = await fetch(survivorApiUrl("leagues"), { cache: "no-store" });
+        const res = await fetch(survivorApiUrl("leagues", { sport }), { cache: "no-store" });
         if (!res.ok) throw new Error("Could not load leagues.");
         const data = (await res.json()) as { leagues: LeagueRow[] };
         setLeagues(data.leagues ?? []);
@@ -45,7 +51,7 @@ export default function SurvivorLeaguesClient() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [sport]);
 
   async function handleJoin(leagueId: string) {
     setJoiningId(leagueId);
@@ -54,7 +60,7 @@ export default function SurvivorLeaguesClient() {
       const res = await fetch(survivorApiUrl("join"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leagueId }),
+        body: JSON.stringify({ leagueId, sport }),
         credentials: "include",
       });
       const json = (await res.json()) as { error?: string };
@@ -91,9 +97,13 @@ export default function SurvivorLeaguesClient() {
             <LandingSectionHeader
               eyebrow="Leagues"
               title="Choose your Survivor"
-              subtitle="Global Classic, Double Life, and Turbo playoffs sprint — pick your format."
+              subtitle="Global Classic, Double Life, and Turbo (NFL) — pick your format."
             />
           </ScrollReveal>
+
+          <div className="flex justify-center mb-6">
+            <SurvivorSportSwitcher activeSport={sport} basePath="leagues" />
+          </div>
 
           {loading ? (
             <p className="text-center text-sb-muted py-12">Loading leagues…</p>
@@ -121,7 +131,7 @@ export default function SurvivorLeaguesClient() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {league.entry ? (
-                    <Button href={survivorWeekHref(league.id)}>Play This Week</Button>
+                    <Button href={survivorWeekHref(league.id, sport)}>Play This Week</Button>
                   ) : (
                     <Button
                       disabled={joiningId === league.id}

@@ -83,6 +83,7 @@ export interface SurvivorWeekView {
     status: SurvivorLeagueStatus;
     currentWeek: number;
     mode: SurvivorMode;
+    sport: SurvivorSport;
     livesPerPlayer: number;
   };
   week: {

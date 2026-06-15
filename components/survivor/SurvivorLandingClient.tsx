@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
@@ -9,7 +10,9 @@ import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import SurvivorModeCards from "@/components/survivor/SurvivorModeCards";
+import SurvivorSportSwitcher from "@/components/survivor/SurvivorSportSwitcher";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
+import { getSurvivorSportDefinition, parseSurvivorSport } from "@/lib/survivor/sports";
 import { survivorPath } from "@/lib/survivor/routes";
 
 const PILLARS = [
@@ -32,6 +35,12 @@ const PILLARS = [
 ];
 
 export default function SurvivorLandingClient() {
+  const searchParams = useSearchParams();
+  const sport = parseSurvivorSport(searchParams.get("sport"));
+  const sportDef = getSurvivorSportDefinition(sport);
+  const weekHref =
+    sport === "nfl" ? survivorPath("week") : `${survivorPath("week")}?sport=${sport}`;
+
   return (
     <div className="survivor-page min-h-screen relative overflow-x-hidden">
       <AmbientBackground className="survivor-ambient-amber" fixed />
@@ -39,16 +48,19 @@ export default function SurvivorLandingClient() {
 
       <div className="relative z-10">
         <LandingSection variant="glow" className="pt-8 sm:pt-12">
+          <div className="flex justify-center mb-6">
+            <SurvivorSportSwitcher activeSport={sport} />
+          </div>
           <ExperienceHero
             badgeLabel="Flagship Game #3"
             badgeVariant="live"
             title={SURVIVOR_X_PUBLIC_NAME}
-            subtitle="Survive the entire NFL season. Build your legacy. One pick per week — never the same team twice."
-            cta={{ label: "Play This Week", href: survivorPath("week") }}
+            subtitle={`Survive the entire ${sportDef.label} season. Build your legacy. One pick per week — never the same team twice.`}
+            cta={{ label: "Play This Week", href: weekHref }}
           />
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            <Button href={survivorPath("week")}>Play This Week</Button>
+            <Button href={weekHref}>Play This Week</Button>
             <Button href={survivorPath("learn")} variant="secondary">
               How to Play
             </Button>
@@ -58,7 +70,7 @@ export default function SurvivorLandingClient() {
           </div>
 
           <p className="text-center text-xs text-sb-muted mt-4 max-w-xl mx-auto">
-            Global Classic is live — one pick per week, one Survivor Shield™ per season. Never pick the same team twice.
+            {sportDef.emoji} Global {sportDef.label} Classic is live — one pick per week, one Survivor Shield™ per season.
           </p>
 
           <PlatformTrustStrip className="mt-8 px-4" />
@@ -69,11 +81,11 @@ export default function SurvivorLandingClient() {
             <LandingSectionHeader
               eyebrow="Game modes"
               title="Choose your Survivor journey"
-              subtitle="Classic and Global launch first. Double Life, Turbo, and Private leagues follow."
+              subtitle="Global Classic, Double Life, and Turbo (NFL) — pick your format."
             />
           </ScrollReveal>
           <ScrollReveal delay={40}>
-            <SurvivorModeCards />
+            <SurvivorModeCards activeSport={sport} />
           </ScrollReveal>
         </LandingSection>
 

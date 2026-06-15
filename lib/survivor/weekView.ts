@@ -12,7 +12,8 @@ import {
   type SurvivorWeek,
 } from "@/lib/survivor/db/weeks";
 import { countShieldUsesForWeek } from "@/lib/survivor/db/shields";
-import { espnMetaForSurvivorWeekNumber } from "@/lib/survivor/nflWeeks";
+import { espnMetaForSurvivorWeekNumber } from "@/lib/survivor/weekSpecs";
+import { survivorSportToPickem } from "@/lib/survivor/sports";
 import type {
   SurvivorGameOption,
   SurvivorLiveMapStats,
@@ -137,9 +138,12 @@ export async function buildSurvivorWeekView(input: {
     throw new Error("Week not found.");
   }
 
-  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber, { mode: input.league.mode });
+  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber, {
+    mode: input.league.mode,
+    sport: input.league.sport,
+  });
   const { games } = await fetchPickemScoreboard({
-    sport: "nfl",
+    sport: survivorSportToPickem(input.league.sport),
     week: espnMeta.espnWeekNumber,
     seasonType: espnMeta.seasonType,
     seasonYear: input.league.seasonYear,
@@ -171,6 +175,7 @@ export async function buildSurvivorWeekView(input: {
       status: input.league.status,
       currentWeek: input.league.currentWeek,
       mode: input.league.mode,
+      sport: input.league.sport,
       livesPerPlayer: input.league.livesPerPlayer,
     },
     week: {

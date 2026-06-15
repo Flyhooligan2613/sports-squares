@@ -11,6 +11,7 @@ import {
   listPublicSurvivorLeagues,
 } from "@/lib/survivor/db/leagues";
 import { countEntriesByStatus, getSurvivorEntry, joinSurvivorLeague } from "@/lib/survivor/db/entries";
+import { parseSurvivorSport } from "@/lib/survivor/sports";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ function mapLeagueResponse(
     id: league.id,
     name: league.name,
     description: league.description,
+    sport: league.sport,
     mode: league.mode,
     visibility: league.visibility,
     livesPerPlayer: league.livesPerPlayer,
@@ -43,12 +45,14 @@ function mapLeagueResponse(
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   noStore();
+  const { searchParams } = new URL(request.url);
 
   try {
-    const { seasonYear } = await ensureSurvivorSeason();
-    const leagues = await listPublicSurvivorLeagues(seasonYear);
+    const sport = parseSurvivorSport(searchParams.get("sport"));
+    const { seasonYear } = await ensureSurvivorSeason(sport);
+    const leagues = await listPublicSurvivorLeagues(seasonYear, sport);
 
     const supabase = await createClient();
     const {
@@ -87,6 +91,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
+      sport,
       seasonYear,
       leagues: leagues.map((league) =>
         mapLeagueResponse(league, joinedByLeague[league.id] ?? null)
@@ -120,6 +125,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       name?: string;
       description?: string;
+      sport?: string;
       livesPerPlayer?: number;
       maxPlayers?: number | null;
     };
@@ -128,19 +134,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "League name is required." }, { status: 400 });
     }
 
-    const { seasonYear } = await ensureSurvivorSeason();
+    const sport = parseSurvivorSport(body.sport);
+    const { seasonYear } = await ensureSurvivorSeason(sport);
     const email = normalizeEmail(user.email);
 
     const league = await createPrivateSurvivorLeague({
       seasonYear,
       creatorEmail: email,
       name: body.name,
+      sport,
       description: body.description,
       livesPerPlayer: body.livesPerPlayer,
       maxPlayers: body.maxPlayers,
     });
 
-    await seedWeeksForLeague(league.id);
+    await seedWeeksForLeague(league.id, {
+      sport: league.sport,
+      mode: league.livesPerPlayer > 1 ? "double_life" : "classic",
+    });
 
     const entry = await joinSurvivorLeague({
       leagueId: league.id,

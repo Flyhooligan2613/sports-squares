@@ -24,7 +24,9 @@ import SurvivorChampionMoment, {
   championStorageKey,
 } from "@/components/survivor/SurvivorChampionMoment";
 import SurvivorShieldBadge from "@/components/survivor/SurvivorShieldBadge";
+import SurvivorSportSwitcher from "@/components/survivor/SurvivorSportSwitcher";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
+import { parseSurvivorSport } from "@/lib/survivor/sports";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
 import type { SurvivorWeekView } from "@/lib/survivor/types";
 
@@ -39,6 +41,8 @@ interface WeekOption {
 export default function SurvivorWeekClient() {
   const searchParams = useSearchParams();
   const leagueIdParam = searchParams.get("leagueId") ?? undefined;
+  const sport = parseSurvivorSport(searchParams.get("sport"));
+  const sportQuery = sport !== "nfl" ? { sport } : {};
 
   const [view, setView] = useState<SurvivorWeekView | null>(null);
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
@@ -187,7 +191,10 @@ export default function SurvivorWeekClient() {
 
   const loadWeeks = useCallback(async () => {
     const res = await fetch(
-      survivorApiUrl("weeks", leagueIdParam ? { leagueId: leagueIdParam } : undefined),
+      survivorApiUrl("weeks", {
+        ...sportQuery,
+        ...(leagueIdParam ? { leagueId: leagueIdParam } : {}),
+      }),
       { cache: "no-store" }
     );
     if (!res.ok) return;
@@ -195,7 +202,7 @@ export default function SurvivorWeekClient() {
     setWeeks(data.weeks ?? []);
     const current = data.weeks?.find((w: WeekOption) => w.isCurrent);
     if (current) setSelectedWeek(current.weekNumber);
-  }, [leagueIdParam]);
+  }, [leagueIdParam, sport]);
 
   const loadWeek = useCallback(async (weekNumber: number) => {
     setLoading(true);
@@ -204,6 +211,7 @@ export default function SurvivorWeekClient() {
       const res = await fetch(
         survivorApiUrl("week", {
           weekNumber,
+          ...sportQuery,
           ...(leagueIdParam ? { leagueId: leagueIdParam } : {}),
         }),
         { cache: "no-store" }
@@ -219,7 +227,7 @@ export default function SurvivorWeekClient() {
     } finally {
       setLoading(false);
     }
-  }, [leagueIdParam]);
+  }, [leagueIdParam, sport]);
 
   useEffect(() => {
     void loadWeeks();
@@ -240,6 +248,7 @@ export default function SurvivorWeekClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           leagueId: leagueIdParam ?? view?.league.id,
+          sport: view?.league.sport ?? sport,
         }),
       });
       const json = await res.json();
@@ -292,6 +301,9 @@ export default function SurvivorWeekClient() {
       <AppMenuBar logoHref={survivorPath()} />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div className="flex justify-center mb-4">
+          <SurvivorSportSwitcher activeSport={view?.league.sport ?? sport} basePath="week" />
+        </div>
         <ExperienceHero
           badgeLabel={SURVIVOR_X_PUBLIC_NAME}
           badgeVariant="live"
