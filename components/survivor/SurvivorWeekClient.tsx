@@ -20,6 +20,9 @@ import SurvivorShieldActivation, {
 import SurvivorLifeLostMoment, {
   lifeLostStorageKey,
 } from "@/components/survivor/SurvivorLifeLostMoment";
+import SurvivorChampionMoment, {
+  championStorageKey,
+} from "@/components/survivor/SurvivorChampionMoment";
 import SurvivorShieldBadge from "@/components/survivor/SurvivorShieldBadge";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
@@ -48,6 +51,7 @@ export default function SurvivorWeekClient() {
   const [showShieldActivation, setShowShieldActivation] = useState(false);
   const [showLifeLostMoment, setShowLifeLostMoment] = useState(false);
   const [showEliminationMoment, setShowEliminationMoment] = useState(false);
+  const [showChampionMoment, setShowChampionMoment] = useState(false);
   const [sharingToHuddle, setSharingToHuddle] = useState(false);
   const [huddleMessage, setHuddleMessage] = useState<string | null>(null);
 
@@ -134,6 +138,28 @@ export default function SurvivorWeekClient() {
     }
 
     setShowEliminationMoment(true);
+  }, [view]);
+
+  const dismissChampionMoment = useCallback(() => {
+    if (view?.entry?.status === "champion") {
+      sessionStorage.setItem(championStorageKey(view.entry.id), "1");
+    }
+    setShowChampionMoment(false);
+  }, [view]);
+
+  useEffect(() => {
+    if (!view?.entry || view.entry.status !== "champion") {
+      setShowChampionMoment(false);
+      return;
+    }
+
+    const key = championStorageKey(view.entry.id);
+    if (sessionStorage.getItem(key)) {
+      setShowChampionMoment(false);
+      return;
+    }
+
+    setShowChampionMoment(true);
   }, [view]);
 
   const canShareToHuddle = Boolean(
@@ -475,7 +501,20 @@ export default function SurvivorWeekClient() {
           />
         ) : null}
 
-        {view ? <SurvivorLiveMap stats={view.liveMap} /> : null}
+        {showChampionMoment && view?.entry ? (
+          <SurvivorChampionMoment
+            displayName={view.entry.displayName}
+            weeksSurvived={view.entry.weeksSurvived}
+            leagueName={view.league.name}
+            leagueMode={view.league.mode}
+            shieldUsedWeek={view.entry.shieldUsedWeek}
+            onComplete={dismissChampionMoment}
+          />
+        ) : null}
+
+        {view ? (
+          <SurvivorLiveMap stats={view.liveMap} weekStatus={view.week.status} />
+        ) : null}
 
         {view && view.usedTeams.length > 0 ? (
           <p className="text-xs text-sb-muted mb-4 text-center">

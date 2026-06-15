@@ -29,7 +29,7 @@ export default function SurvivorStayInGamePanel({
     <LandingGlassCard
       className={`p-6 sm:p-8 mb-6 ${
         isChampion
-          ? "border-amber-400/40 ring-1 ring-amber-400/20"
+          ? "border-amber-400/40 ring-1 ring-amber-400/20 survivor-stay-champion-glow"
           : "border-violet-400/25"
       }`}
     >
