@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PublicPlayerView from "@/components/player/PublicPlayerView";
-import { getPublicPlayerProfile } from "@/lib/database/services/playerProfiles";
+import { buildCompetitorCardBySlug } from "@/lib/competitorCard/buildCompetitorCard";
+import { getEmailForPlayerSlug } from "@/lib/database/services/playerProfiles";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND_NAME } from "@/lib/brand";
+import { PLAYER_TERMS } from "@/lib/platform/language";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +14,15 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const profile = await getPublicPlayerProfile(params.slug).catch(() => null);
+  const card = await buildCompetitorCardBySlug(params.slug).catch(() => null);
 
-  if (!profile) {
-    return { title: `Player | ${BRAND_NAME}` };
+  if (!card) {
+    return { title: `${PLAYER_TERMS.competitorProfile} | ${BRAND_NAME}` };
   }
 
   return {
-    title: `${profile.displayName} | ${BRAND_NAME} Legacy`,
-    description: profile.headline,
+    title: `${card.identity.displayName} · ${PLAYER_TERMS.competitorCard} | ${BRAND_NAME}`,
+    description: card.identity.headline,
   };
 }
 
@@ -30,10 +32,21 @@ export default async function PublicPlayerPage({ params }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const profile = await getPublicPlayerProfile(params.slug, user?.email).catch(
-    () => null
-  );
-  if (!profile) notFound();
+  const email = await getEmailForPlayerSlug(params.slug).catch(() => null);
+  if (!email) notFound();
 
-  return <PublicPlayerView profile={profile} />;
+  const competitorCard = await buildCompetitorCardBySlug(
+    params.slug,
+    user?.email,
+    "public"
+  ).catch(() => null);
+
+  if (!competitorCard) notFound();
+
+  return (
+    <PublicPlayerView
+      slug={params.slug}
+      initialCompetitorCard={competitorCard}
+    />
+  );
 }
