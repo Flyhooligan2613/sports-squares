@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
@@ -59,6 +60,12 @@ function HomeStagger({
 }
 
 export default function HomeExperience() {
+  const searchParams = useSearchParams();
+  const viewMode = searchParams.get("mode");
+  const isHomeFocus = viewMode === "home";
+  const isGameDayFocus = viewMode === "gameday";
+  const showAll = !isHomeFocus && !isGameDayFocus;
+
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +78,10 @@ export default function HomeExperience() {
     setWelcomeActive(pending);
     if (!pending) setHomeRevealed(true);
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [viewMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,6 +166,8 @@ export default function HomeExperience() {
   }));
 
   const stagger = homeRevealed;
+  const showHomeSections = isHomeFocus || showAll;
+  const showGameDaySections = isGameDayFocus || showAll;
 
   return (
     <LiveActivityProvider>
@@ -179,9 +192,11 @@ export default function HomeExperience() {
           </HomeStagger>
 
           <HomeStagger delay={160} revealed={stagger}>
-            <DailyStoryCard story={data.dailyStory} />
+            {showHomeSections ? <DailyStoryCard story={data.dailyStory} /> : null}
           </HomeStagger>
 
+          {showGameDaySections ? (
+            <>
           <HomeStagger delay={220} revealed={stagger}>
             <GameDayAtmosphereBanner
               emoji={data.atmosphere.emoji}
@@ -213,7 +228,11 @@ export default function HomeExperience() {
           <HomeStagger delay={540} revealed={stagger}>
             <GameDaySnapshotGrid cards={data.snapshotCards} />
           </HomeStagger>
+            </>
+          ) : null}
 
+          {showHomeSections ? (
+            <>
           <HomeStagger delay={620} revealed={stagger}>
             <HomeFriendsPanel data={data.friendsPlaying} />
           </HomeStagger>
@@ -222,6 +241,18 @@ export default function HomeExperience() {
             <HomeProgressionCenter progress={data.progressCenter} />
           </HomeStagger>
 
+          {isHomeFocus ? (
+          <HomeStagger delay={740} revealed={stagger}>
+            <GameDayContinuePanel
+              items={continueItems}
+              glowRewardDrop={rewardDropGlow}
+            />
+          </HomeStagger>
+          ) : null}
+            </>
+          ) : null}
+
+          {showGameDaySections ? (
           <HomeStagger delay={780} revealed={stagger}>
             <div className="grid xl:grid-cols-[1fr_340px] gap-8 xl:gap-10">
               <div>
@@ -242,6 +273,7 @@ export default function HomeExperience() {
               </aside>
             </div>
           </HomeStagger>
+          ) : null}
         </div>
       </div>
     </LiveActivityProvider>

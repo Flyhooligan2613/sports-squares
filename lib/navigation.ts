@@ -24,6 +24,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: "/huddle", label: "The Huddle", icon: "👥" },
       { href: "/stats-hub", label: "Stats Hub", icon: "📊" },
       { href: "/my-games", label: "Home", icon: "🏠", requiresAuth: true },
+      { href: "/my-games?mode=gameday", label: "Game Day", icon: "🏈", requiresAuth: true },
       { href: "/live-tv", label: "Live TV", icon: "📺", badgeKey: "live" },
     ],
   },
@@ -97,8 +98,11 @@ export const NAV_SECTIONS: NavSection[] = [
 
 export function isNavItemActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
-  if (href === "/my-games") {
+  if (href === "/my-games" || href === "/my-games?mode=home") {
     return pathname === "/my-games" || pathname === "/home";
+  }
+  if (href === "/my-games?mode=gameday") {
+    return pathname === "/game-day";
   }
   if (href === "/my-games/rewards") {
     return pathname === href;

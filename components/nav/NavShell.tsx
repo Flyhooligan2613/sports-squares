@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { GlobalSearchProvider } from "@/components/search/GlobalSearchProvider";
 import { LiveActivityProvider } from "@/components/liveActivity/LiveActivityProvider";
 import CashOutSetupGate from "@/components/auth/CashOutSetupGate";
@@ -13,7 +14,9 @@ export default function NavShell({ children }: { children: React.ReactNode }) {
         <LiveActivityProvider>
           {children}
           <CashOutSetupGate />
-          <NavDrawer />
+          <Suspense fallback={null}>
+            <NavDrawer />
+          </Suspense>
         </LiveActivityProvider>
       </GlobalSearchProvider>
     </NavDrawerProvider>

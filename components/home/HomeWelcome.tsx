@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
+import HomeModeSwitcher from "@/components/home/HomeModeSwitcher";
+import { Suspense } from "react";
 
 export default function HomeWelcome({
   greeting,
@@ -22,13 +24,10 @@ export default function HomeWelcome({
         <PlayerAvatar emoji={avatarEmoji} size="lg" className="home-welcome-avatar shrink-0" />
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="home-badge">Home</span>
-            {isGameDay ? (
-              <span className="home-badge home-badge-live">Game Day Live</span>
-            ) : (
-              <span className="home-badge home-badge-calm">{atmosphereLabel}</span>
-            )}
+          <div className="mb-3">
+            <Suspense fallback={null}>
+              <HomeModeSwitcher isGameDay={isGameDay} atmosphereLabel={atmosphereLabel} />
+            </Suspense>
           </div>
           <h1 className="home-greeting">{greeting}</h1>
           <p className="text-sb-muted text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">

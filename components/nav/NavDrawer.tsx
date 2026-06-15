@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LogOut } from "lucide-react";
 import Logo from "@/components/Logo";
 import NavGamesSection from "@/components/platform/NavGamesSection";
@@ -27,6 +27,8 @@ function badgeForItem(
 
 export default function NavDrawer() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const viewMode = searchParams.get("mode");
   const router = useRouter();
   const globalSearch = useGlobalSearchSafe();
   const [signingOut, setSigningOut] = useState(false);
@@ -112,9 +114,11 @@ export default function NavDrawer() {
 
         <nav className="nav-drawer-scroll flex-1 overflow-y-auto">
           {NAV_SECTIONS.map((section) => {
-            const visibleItems = section.items.filter(
-              (item) => !item.requiresAuth || userEmail
-            );
+            const visibleItems = section.items.filter((item) => {
+              if (item.requiresAuth && !userEmail) return false;
+              if (item.href === "/" && userEmail) return false;
+              return !item.requiresAuth || userEmail;
+            });
             const hasGames = section.renderGames != null;
             if (visibleItems.length === 0 && !hasGames) return null;
 
@@ -127,7 +131,14 @@ export default function NavDrawer() {
                 {visibleItems.length > 0 ? (
                   <ul className="space-y-1">
                     {visibleItems.map((item) => {
-                      const active = isNavItemActive(pathname, item.href);
+                      let active = isNavItemActive(pathname, item.href);
+                      if (item.href === "/my-games?mode=gameday") {
+                        active = pathname === "/my-games" && viewMode === "gameday";
+                      } else if (item.href === "/my-games") {
+                        active =
+                          (pathname === "/my-games" || pathname === "/home") &&
+                          viewMode !== "gameday";
+                      }
                       const badge = badgeForItem(
                         item,
                         unreadMessages,

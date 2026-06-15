@@ -2,6 +2,7 @@ import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
 import QuickUnlockGate from "@/components/player/QuickUnlockGate";
 import PushNotificationPrompt from "@/components/player/PushNotificationPrompt";
 import PlayerShell from "@/components/player/PlayerShell";
+import PlayerHomeNav from "@/components/home/PlayerHomeNav";
 import { createClient } from "@/lib/supabase/server";
 import { ensureEcosystemAccount } from "@/lib/platform/ecosystem/account";
 import { getPlayerAvatar } from "@/lib/platform/ecosystem/progression";
@@ -41,6 +42,7 @@ export default async function MyGamesDashboardLayout({
       followerCount={followerCount}
     >
       <PlayerAuthBootstrap />
+      <PlayerHomeNav />
       <QuickUnlockGate>{children}</QuickUnlockGate>
       <PushNotificationPrompt />
     </PlayerShell>

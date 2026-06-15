@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import HomeExperience from "@/components/home/HomeExperience";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function MyGamesPage() {
-  return <HomeExperience />;
+  return (
+    <Suspense fallback={null}>
+      <HomeExperience />
+    </Suspense>
+  );
 }
