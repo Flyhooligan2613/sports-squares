@@ -91,7 +91,7 @@ export default function SurvivorLeaguesClient() {
             <LandingSectionHeader
               eyebrow="Leagues"
               title="Choose your Survivor"
-              subtitle="Classic is one-and-done. Double Life gives you two strikes — same rules, more strategy."
+              subtitle="Global Classic, Double Life, and Turbo playoffs sprint — pick your format."
             />
           </ScrollReveal>
 
@@ -105,11 +105,11 @@ export default function SurvivorLeaguesClient() {
             </p>
           ) : null}
 
-          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto mt-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto mt-8">
             {leagues.map((league) => (
               <LandingGlassCard key={league.id} className="p-6 flex flex-col h-full">
                 <p className="text-3xl mb-3" aria-hidden>
-                  {league.mode === "double_life" ? "🔥" : "🌎"}
+                  {league.mode === "double_life" ? "🔥" : league.mode === "turbo" ? "⚡" : "🌎"}
                 </p>
                 <h2 className="text-lg font-bold text-white mb-2">{league.name}</h2>
                 <p className="text-sm text-sb-muted leading-relaxed flex-1 mb-4">

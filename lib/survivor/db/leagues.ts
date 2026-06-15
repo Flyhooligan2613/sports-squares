@@ -126,11 +126,54 @@ export async function upsertDoubleLifeLeague(seasonYear: number): Promise<Surviv
   return mapLeague(data as SurvivorLeagueRow);
 }
 
+export async function getTurboLeague(seasonYear: number): Promise<SurvivorLeague | null> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*")
+    .eq("sport", "nfl")
+    .eq("season_year", seasonYear)
+    .eq("mode", "turbo")
+    .eq("visibility", "global")
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? mapLeague(data as SurvivorLeagueRow) : null;
+}
+
+export async function upsertTurboLeague(seasonYear: number): Promise<SurvivorLeague> {
+  const existing = await getTurboLeague(seasonYear);
+  if (existing) return existing;
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert({
+      sport: "nfl",
+      season_year: seasonYear,
+      mode: "turbo",
+      visibility: "global",
+      name: `Survivor X™ Turbo ${seasonYear}`,
+      description:
+        "Four-week NFL playoffs sprint — Wild Card through Super Bowl. Join late and chase a fast championship.",
+      entry_fee_cents: 0,
+      lives_per_player: 1,
+      current_week: 1,
+      status: "open",
+    })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return mapLeague(data as SurvivorLeagueRow);
+}
+
 export async function listPublicSurvivorLeagues(
   seasonYear: number
 ): Promise<SurvivorLeague[]> {
   await upsertGlobalClassicLeague(seasonYear);
   await upsertDoubleLifeLeague(seasonYear);
+  await upsertTurboLeague(seasonYear);
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from(TABLE)
@@ -138,7 +181,7 @@ export async function listPublicSurvivorLeagues(
     .eq("sport", "nfl")
     .eq("season_year", seasonYear)
     .eq("visibility", "global")
-    .in("mode", ["global", "double_life"])
+    .in("mode", ["global", "double_life", "turbo"])
     .in("status", ["open", "active", "complete"]);
 
   if (error) throw error;

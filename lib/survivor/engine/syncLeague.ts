@@ -38,9 +38,13 @@ function teamWon(game: PickemScheduleGame, teamAbbr: string): boolean | null {
 
 function deriveWeekStatus(
   games: PickemScheduleGame[],
-  current: SurvivorWeek["status"]
+  current: SurvivorWeek["status"],
+  options?: { keepScheduledWithoutGames?: boolean }
 ): SurvivorWeek["status"] {
-  if (games.length === 0) return current === "scheduled" ? "open" : current;
+  if (games.length === 0) {
+    if (options?.keepScheduledWithoutGames) return current;
+    return current === "scheduled" ? "open" : current;
+  }
 
   const now = Date.now();
   const anyStarted = games.some((g) => new Date(g.kickoffAt).getTime() <= now);
@@ -226,6 +230,58 @@ async function resolveWeekPicks(
   return { eliminated, survived, shieldsActivated };
 }
 
+async function publishSurvivorChampionEvent(
+  league: SurvivorLeague,
+  champion: Awaited<ReturnType<typeof crownSurvivorChampion>>,
+  idempotencySuffix: string
+): Promise<void> {
+  if (!champion) return;
+
+  const isTurbo = league.mode === "turbo";
+  await publishPlatformEvent({
+    type: "survivor.champion_crowned",
+    priority: "critical",
+    summary: isTurbo
+      ? `Survivor X™ Turbo ${league.seasonYear} champion crowned`
+      : `Survivor X™ ${league.seasonYear} champion crowned`,
+    gameType: "survivor",
+    entityType: "survivor_league",
+    entityId: league.id,
+    actorEmail: champion.email,
+    payload: {
+      seasonYear: league.seasonYear,
+      leagueId: league.id,
+      leagueMode: league.mode,
+      displayName: champion.displayName ?? champion.email,
+      weeksSurvived: champion.weeksSurvived ?? 0,
+      shieldWasUsed: champion.shieldUsedWeek != null,
+    },
+    idempotencyKey: `${league.id}:champion:${idempotencySuffix}`,
+  }).catch(() => undefined);
+}
+
+async function crownRemainingSurvivors(league: SurvivorLeague): Promise<number> {
+  const supabase = (await import("@/lib/supabase/admin")).getSupabaseAdmin();
+  const { data: rows } = await supabase
+    .from("survivor_entries")
+    .select("id")
+    .eq("league_id", league.id)
+    .eq("status", "active");
+
+  let crowned = 0;
+  for (const row of rows ?? []) {
+    const champion = await crownSurvivorChampion(row.id as string);
+    await publishSurvivorChampionEvent(league, champion, row.id as string);
+    crowned += 1;
+  }
+
+  if (crowned > 0) {
+    await updateSurvivorLeagueFields(league.id, { status: "complete" });
+  }
+
+  return crowned;
+}
+
 export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
   weekNumber: number;
   weekStatus: string;
@@ -240,7 +296,7 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
     return { weekNumber: 0, weekStatus: "none", eliminated: 0, errors: ["No weeks"] };
   }
 
-  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber);
+  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber, { mode: league.mode });
 
   let games: PickemScheduleGame[] = [];
   try {
@@ -255,7 +311,9 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
     errors.push(err instanceof Error ? err.message : "ESPN fetch failed");
   }
 
-  const nextStatus = deriveWeekStatus(games, week.status);
+  const nextStatus = deriveWeekStatus(games, week.status, {
+    keepScheduledWithoutGames: league.mode === "turbo" && week.status === "scheduled",
+  });
   if (nextStatus !== week.status) {
     const extra: Record<string, string> = {};
     if (nextStatus === "locked") extra.locks_at = new Date().toISOString();
@@ -286,55 +344,48 @@ export async function syncSurvivorLeague(league: SurvivorLeague): Promise<{
       if (championRow?.id) {
         const champion = await crownSurvivorChampion(championRow.id as string);
         await updateSurvivorLeagueFields(league.id, { status: "complete" });
-
-        await publishPlatformEvent({
-          type: "survivor.champion_crowned",
-          priority: "critical",
-          summary: `Survivor X™ ${league.seasonYear} champion crowned`,
-          gameType: "survivor",
-          entityType: "survivor_league",
-          entityId: league.id,
-          actorEmail: champion?.email ?? null,
-          payload: {
-            seasonYear: league.seasonYear,
-            leagueId: league.id,
-            displayName: champion?.displayName ?? champion?.email,
-            weeksSurvived: champion?.weeksSurvived ?? 0,
-            shieldWasUsed: champion?.shieldUsedWeek != null,
-          },
-          idempotencyKey: `${league.id}:champion`,
-        }).catch(() => undefined);
+        await publishSurvivorChampionEvent(league, champion, championRow.id as string);
       }
     } else {
-      await updateSurvivorLeagueFields(league.id, {
-        status: "active",
-        current_week: week.weekNumber + 1,
-      });
-
       const nextWeekNumber = week.weekNumber + 1;
       const { getSurvivorWeek, updateSurvivorWeekStatus: openNext } = await import(
         "@/lib/survivor/db/weeks"
       );
       const next = await getSurvivorWeek(league.id, nextWeekNumber);
-      if (next && next.status === "scheduled") {
-        await openNext(next.id, "open", { opens_at: new Date().toISOString() });
-      }
 
-      await publishPlatformEvent({
-        type: "survivor.week_complete",
-        priority: "normal",
-        summary: `Survivor Week ${week.weekNumber} complete — ${activeRemaining} remain`,
-        gameType: "survivor",
-        entityType: "survivor_week",
-        entityId: week.id,
-        payload: {
-          weekNumber: week.weekNumber,
-          playersRemaining: activeRemaining,
-          eliminated: result.eliminated,
-          shieldsActivated: result.shieldsActivated,
-        },
-        idempotencyKey: `${week.id}:complete`,
-      }).catch(() => undefined);
+      if (!next) {
+        if (activeRemaining > 0) {
+          await crownRemainingSurvivors(league);
+        } else {
+          await updateSurvivorLeagueFields(league.id, { status: "complete" });
+        }
+      } else {
+        await updateSurvivorLeagueFields(league.id, {
+          status: "active",
+          current_week: nextWeekNumber,
+        });
+
+        if (next.status === "scheduled") {
+          await openNext(next.id, "open", { opens_at: new Date().toISOString() });
+        }
+
+        await publishPlatformEvent({
+          type: "survivor.week_complete",
+          priority: "normal",
+          summary: `Survivor Week ${week.weekNumber} complete — ${activeRemaining} remain`,
+          gameType: "survivor",
+          entityType: "survivor_week",
+          entityId: week.id,
+          payload: {
+            weekNumber: week.weekNumber,
+            playersRemaining: activeRemaining,
+            eliminated: result.eliminated,
+            shieldsActivated: result.shieldsActivated,
+            leagueMode: league.mode,
+          },
+          idempotencyKey: `${week.id}:complete`,
+        }).catch(() => undefined);
+      }
     }
   } else {
     const activeRemaining = await countEntriesByStatus(league.id, "active");

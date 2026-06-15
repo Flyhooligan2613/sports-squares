@@ -8,6 +8,7 @@ const MODE_HREF: Record<string, string> = {
   classic: survivorPath("week"),
   global: survivorPath("week"),
   double_life: survivorPath("leagues"),
+  turbo: survivorPath("leagues"),
   private: survivorPath("private"),
 };
 
@@ -15,8 +16,8 @@ const MODE_CTA: Record<string, string> = {
   classic: "Play Classic",
   global: "Play Global Survivor",
   double_life: "Join Double Life",
+  turbo: "Join Turbo Sprint",
   private: "Create or Join Private",
-  turbo: "Play Turbo Survivor",
 };
 
 export default function SurvivorModeCards() {

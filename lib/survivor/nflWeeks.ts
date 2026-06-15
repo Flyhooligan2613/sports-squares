@@ -1,9 +1,11 @@
 import {
   formatPickemWeekLabel,
+  NFL_PLAYOFF_LABELS,
   nflSeasonWeekSpecs,
   PICKEM_SEASON_TYPE_PLAYOFFS,
   PICKEM_SEASON_TYPE_REGULAR,
 } from "@/lib/pickem/config";
+import type { SurvivorMode } from "@/lib/survivor/types";
 
 export interface SurvivorNflWeekSpec {
   weekNumber: number;
@@ -21,17 +23,38 @@ export function survivorNflWeekSpecs(): SurvivorNflWeekSpec[] {
   }));
 }
 
-export function espnMetaForSurvivorWeekNumber(weekNumber: number): {
+export function survivorTurboWeekSpecs(): SurvivorNflWeekSpec[] {
+  return NFL_PLAYOFF_LABELS.map((label, index) => ({
+    weekNumber: index + 1,
+    label,
+    seasonType: PICKEM_SEASON_TYPE_PLAYOFFS,
+    espnWeekNumber: index + 1,
+  }));
+}
+
+export function survivorWeekSpecsForMode(mode?: SurvivorMode): SurvivorNflWeekSpec[] {
+  return mode === "turbo" ? survivorTurboWeekSpecs() : survivorNflWeekSpecs();
+}
+
+export function espnMetaForSurvivorWeekNumber(
+  weekNumber: number,
+  options?: { mode?: SurvivorMode }
+): {
   seasonType: number;
   espnWeekNumber: number;
   label: string;
 } {
-  const spec = survivorNflWeekSpecs().find((w) => w.weekNumber === weekNumber);
+  const specs = survivorWeekSpecsForMode(options?.mode);
+  const spec = specs.find((w) => w.weekNumber === weekNumber);
   if (!spec) {
+    const fallbackSeasonType =
+      options?.mode === "turbo"
+        ? PICKEM_SEASON_TYPE_PLAYOFFS
+        : PICKEM_SEASON_TYPE_REGULAR;
     return {
-      seasonType: PICKEM_SEASON_TYPE_REGULAR,
+      seasonType: fallbackSeasonType,
       espnWeekNumber: weekNumber,
-      label: formatPickemWeekLabel(weekNumber, PICKEM_SEASON_TYPE_REGULAR, "nfl"),
+      label: formatPickemWeekLabel(weekNumber, fallbackSeasonType, "nfl"),
     };
   }
   return {

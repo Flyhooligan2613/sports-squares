@@ -137,7 +137,7 @@ export async function buildSurvivorWeekView(input: {
     throw new Error("Week not found.");
   }
 
-  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber);
+  const espnMeta = espnMetaForSurvivorWeekNumber(week.weekNumber, { mode: input.league.mode });
   const { games } = await fetchPickemScoreboard({
     sport: "nfl",
     week: espnMeta.espnWeekNumber,

@@ -5,6 +5,7 @@ export const SURVIVOR_REWARD_CREDITS = {
   lifeLostConsolation: 8,
   eliminatedConsolation: 15,
   champion: 100,
+  turboChampion: 50,
 } as const;
 
 export function survivorRewardSource(

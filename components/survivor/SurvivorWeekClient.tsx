@@ -275,7 +275,9 @@ export default function SurvivorWeekClient() {
               ? `${view.league.name} · One pick per week · One shield per season${
                   view.league.livesPerPlayer > 1
                     ? ` · ${view.league.livesPerPlayer} lives`
-                    : ""
+                    : view.league.mode === "turbo"
+                      ? " · 4-week playoffs sprint"
+                      : ""
                 }`
               : "Global Classic — your Survivor Shield™ is your second chance"
           }
@@ -432,6 +434,10 @@ export default function SurvivorWeekClient() {
                   <span className="text-xs text-emerald-300">{huddleMessage}</span>
                 ) : null}
               </div>
+            ) : view.league.mode === "turbo" && view.week.status === "scheduled" ? (
+              <p className="text-sm text-amber-400/90 mt-3">
+                Turbo Sprint opens at Wild Card weekend — picks unlock when the NFL playoffs begin.
+              </p>
             ) : view.canPick ? (
               <p className="text-sm text-amber-400/90 mt-3">
                 Choose one team below — you cannot reuse a team this season.

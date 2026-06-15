@@ -126,13 +126,16 @@ export const survivorRewardsHandler: PlatformEventHandler = async (event) => {
     }
 
     if (event.type === "survivor.champion_crowned") {
+      const isTurbo = payload.leagueMode === "turbo";
+      const kind = isTurbo ? "turboChampion" : "champion";
+      const amount = SURVIVOR_REWARD_CREDITS[kind];
       await grantSurvivorCredits({
         email,
-        amount: SURVIVOR_REWARD_CREDITS.champion,
-        kind: "champion",
+        amount,
+        kind,
         idempotencyKey: `${entryId}:champion`,
-        summary: `+${SURVIVOR_REWARD_CREDITS.champion} tier credits — Survivor X™ champion`,
-        metadata: { entryId, seasonYear: payload.seasonYear },
+        summary: `+${amount} tier credits — Survivor X™ ${isTurbo ? "Turbo " : ""}champion`,
+        metadata: { entryId, seasonYear: payload.seasonYear, leagueMode: payload.leagueMode },
       });
     }
   } catch (err) {

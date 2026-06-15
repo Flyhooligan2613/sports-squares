@@ -31,10 +31,9 @@ export const SURVIVOR_MODES: SurvivorModeDefinition[] = [
     id: "turbo",
     emoji: "⚡",
     title: "Turbo Survivor",
-    description: "Shorter seasonal sprints. Jump in late and chase a fast championship.",
+    description: "Four-week NFL playoffs sprint — join late and chase a fast championship.",
     lives: 1,
-    badge: "Coming soon",
-    available: false,
+    available: true,
   },
   {
     id: "global",
