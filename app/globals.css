@@ -9236,3 +9236,175 @@ html.sb-splash-pending body {
   text-decoration: underline;
 }
 
+/* Player Game Day Hub (#010) */
+.gd-player-hub {
+  position: relative;
+}
+
+.gd-player-welcome {
+  animation: admin-stat-enter 0.5s ease both;
+}
+
+.gd-player-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.gd-player-badge-calm {
+  color: #7dd3fc;
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.gd-player-greeting {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.gd-player-cta {
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7dd3fc;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(56, 189, 248, 0.08);
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.gd-player-cta:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(56, 189, 248, 0.14);
+  color: #fff;
+}
+
+.gd-snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .gd-snapshot-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .gd-snapshot-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.gd-snapshot-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem;
+  min-height: 7.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+}
+
+.gd-snapshot-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.07);
+  transform: translateY(-2px);
+}
+
+.gd-snapshot-card-highlight {
+  border-color: rgba(250, 204, 21, 0.4);
+  background: linear-gradient(145deg, rgba(250, 204, 21, 0.1), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 0 28px rgba(250, 204, 21, 0.08);
+}
+
+.gd-snapshot-emoji {
+  font-size: 1.5rem;
+}
+
+.gd-snapshot-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+}
+
+.gd-snapshot-subtitle {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.4;
+}
+
+.gd-continue-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.gd-continue-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.gd-continue-card-urgent {
+  border-color: rgba(250, 204, 21, 0.35);
+  background: rgba(250, 204, 21, 0.06);
+}
+
+.gd-progress-card {
+  border-color: rgba(168, 85, 247, 0.25);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.gd-progress-bar-wrap {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.gd-progress-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #a855f7, #38bdf8, #22c55e);
+  transition: width 600ms ease;
+}
+
+.gd-progress-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7dd3fc;
+}
+
+.gd-progress-link:hover {
+  color: #fff;
+}
+
+.gd-empty-games {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+

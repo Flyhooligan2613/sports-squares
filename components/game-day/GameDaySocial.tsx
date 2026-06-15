@@ -57,7 +57,7 @@ export function GameDayFriendsFeed({ items }: { items: GameDayFriendActivity[] }
 
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">Friends & Following</h2>
+      <h2 className="gd-section-title">Friends &amp; Community</h2>
       <LandingGlassCard className="p-4 sm:p-5 divide-y divide-white/5">
         {items.map((item) => (
           <div key={item.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">

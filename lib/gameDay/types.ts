@@ -1,5 +1,6 @@
 import type { TimelineEvent, ActionGameCard } from "@/lib/actionCenter/types";
 import type { LiveActivityEvent } from "@/lib/liveActivity/types";
+import type { PlayerActiveGame, PlayerUpcomingGame } from "@/lib/player/dashboardTypes";
 import type { PlayerTierSlug } from "@/lib/platform/ecosystem/types";
 
 export type GameDayPhase = "morning" | "afternoon" | "evening" | "night";
@@ -97,6 +98,48 @@ export interface GameDayTimelineSection {
   active: boolean;
 }
 
+export interface GameDaySnapshotCard {
+  id: string;
+  emoji: string;
+  title: string;
+  subtitle?: string;
+  href: string;
+  highlight?: boolean;
+}
+
+export interface GameDayContinueItem {
+  id: string;
+  emoji: string;
+  title: string;
+  detail: string;
+  href: string;
+  urgent?: boolean;
+}
+
+export interface GameDayProgressCenter {
+  tierSlug: PlayerTierSlug;
+  tierLabel: string;
+  tierProgressPct: number;
+  creditsToNextTier: number;
+  nextTierLabel: string | null;
+  lifetimeWins: number;
+  lifetimeWinnings: number;
+  currentWinStreak: number;
+  longestWinStreak: number;
+  achievementsUnlocked: number;
+  achievementsTotal: number;
+  achievementNear: string | null;
+  weeklyXpEarned: number;
+  loginStreakDays: number;
+  legacyHeadline: string;
+  boardsPlayed: number;
+}
+
+export interface GameDayTodaysGames {
+  active: PlayerActiveGame[];
+  upcoming: PlayerUpcomingGame[];
+}
+
 export interface GameDayHubData {
   updatedAt: string;
   displayName: string;
@@ -121,4 +164,8 @@ export interface GameDayHubData {
     label: string;
     progressPct: number;
   };
+  snapshotCards: GameDaySnapshotCard[];
+  continuePlaying: GameDayContinueItem[];
+  todaysGames: GameDayTodaysGames;
+  progressCenter: GameDayProgressCenter;
 }

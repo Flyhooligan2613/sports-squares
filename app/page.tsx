@@ -29,6 +29,8 @@ import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import SocialProof from "@/components/landing/SocialProof";
 import { LandingLiveProvider } from "@/components/landing/LandingLiveProvider";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 const PLAYER_STEPS = [
   {
@@ -109,7 +111,16 @@ const WHY_PLAY: { title: string; description: string; icon: LucideIcon }[] = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/my-games");
+  }
+
   return (
     <LandingLiveProvider>
       <div className="landing-page landing-page-enter min-h-[calc(100vh-3.5rem)] flex flex-col overflow-x-hidden">

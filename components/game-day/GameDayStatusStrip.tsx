@@ -7,7 +7,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 export default function GameDayStatusStrip({ items }: { items: GameDayStatusItem[] }) {
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">Today You Have</h2>
+      <h2 className="gd-section-title">Today&apos;s Activity</h2>
       <ul className="gd-status-grid">
         {items.map((item, index) => (
           <li key={item.id}>

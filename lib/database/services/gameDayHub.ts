@@ -10,7 +10,10 @@ import {
   buildTierPushNotification,
   toEmotionalNotifications,
 } from "@/lib/gameDay/notifications";
-import { isGameDaySurface, phaseLabel, resolveGameDayPhase } from "@/lib/gameDay/phases";
+import { buildContinuePlaying } from "@/lib/gameDay/continuePlaying";
+import { buildWelcomeGreeting } from "@/lib/gameDay/greeting";
+import { buildSnapshotCards } from "@/lib/gameDay/snapshot";
+import { isGameDaySurface, resolveGameDayPhase } from "@/lib/gameDay/phases";
 import type {
   GameDayCommunityMoment,
   GameDayFriendActivity,
@@ -189,6 +192,15 @@ function buildTimelineSections(
   });
 }
 
+function startOfWeek(): string {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
 function buildStatusItems(input: {
   activeSquares: number;
   pickemSubmitted: number;
@@ -201,6 +213,9 @@ function buildStatusItems(input: {
   tierLabel: string;
   newFollowers: number;
   achievementNear: string | null;
+  legacyBoardsPlayed: number;
+  currentWinStreak: number;
+  notificationCount: number;
 }): GameDayStatusItem[] {
   const items: GameDayStatusItem[] = [
     {
@@ -258,7 +273,36 @@ function buildStatusItems(input: {
       value: `${input.tierProgressPct}%`,
       href: "/my-games/rewards/tier",
     },
+    {
+      id: "legacy",
+      emoji: "📈",
+      label: "Legacy Progress",
+      value: `${input.legacyBoardsPlayed} boards played`,
+      href: "/my-games/profile",
+    },
+    {
+      id: "streak",
+      emoji: "🔥",
+      label: "Win Streak",
+      value:
+        input.currentWinStreak > 0
+          ? `${input.currentWinStreak} in a row`
+          : "Start a streak",
+      href: "/my-games/profile",
+      highlight: input.currentWinStreak >= 3,
+    },
   ];
+
+  if (input.notificationCount > 0) {
+    items.push({
+      id: "notifications",
+      emoji: "🔔",
+      label: "Community Notifications",
+      value: String(input.notificationCount),
+      href: "/my-games",
+      highlight: true,
+    });
+  }
 
   if (input.newFollowers > 0) {
     items.push({
@@ -435,6 +479,16 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     lifetimeTierCredits: ecosystem.account.lifetimeTierCredits,
   };
 
+  const supabase = getSupabaseAdmin();
+  const { data: profileRow } = await supabase
+    .from("player_profiles")
+    .select("login_streak_days")
+    .eq("email", normalized)
+    .maybeSingle();
+
+  const loginStreakDays = Number(profileRow?.login_streak_days ?? 0);
+  achievementCtx.loginStreakDays = loginStreakDays;
+
   const achievements = evaluateAchievements(achievementCtx);
   const nearUnlock = achievements
     .filter((a) => !a.unlocked && a.progress)
@@ -460,6 +514,9 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     tierLabel: ecosystem.tier.displayName,
     newFollowers,
     achievementNear,
+    legacyBoardsPlayed: legacy?.stats.boardsPlayed ?? 0,
+    currentWinStreak: legacy?.stats.currentWinStreak ?? 0,
+    notificationCount: dashboard?.notifications.length ?? 0,
   });
 
   const missions = buildGameDayMissions({
@@ -577,11 +634,48 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     rewardsCents: rewardsCentsToday,
   });
 
+  const weeklyXpEarned = ecosystem.recentCreditActivity
+    .filter(
+      (a) =>
+        a.createdAt >= startOfWeek() &&
+        a.entryType === "earn" &&
+        a.creditKind === "tier"
+    )
+    .reduce((sum, a) => sum + a.amount, 0);
+
+  const achievementsUnlocked = achievements.filter((a) => a.unlocked).length;
+
+  const snapshotCards = buildSnapshotCards({
+    pickemRemaining,
+    pickemEntered,
+    survivorPickWaiting,
+    weeklyDropAvailable: weeklyDrop?.hasUnopenedDrop ?? false,
+    highlightSquares,
+    activeSquares,
+    upcomingGames: dashboard?.upcomingGames.length ?? 0,
+    tierProgressPct: ecosystem.tierProgressPct,
+    creditsToNextTier: ecosystem.creditsToNextTier,
+    liveGamesCount: actionCenter?.nowHappening.length ?? 0,
+  });
+
+  const continuePlaying = buildContinuePlaying({
+    survivorPickWaiting,
+    weeklyDropAvailable: weeklyDrop?.hasUnopenedDrop ?? false,
+    notificationCount: dashboard?.notifications.length ?? 0,
+    missionsIncomplete: missions.filter((m) => !m.completed).length,
+    pendingReferrals: ecosystem.referral.pendingReferrals,
+    pickemRemaining,
+    pickemEntered,
+    unopenedMysteryBox: ecosystem.unopenedMysteryBox,
+  });
+
+  const firstName = displayName.split(" ")[0] ?? displayName;
+
   return {
     updatedAt: now.toISOString(),
     displayName,
     avatarEmoji,
-    greeting: phaseLabel(phase, displayName.split(" ")[0] ?? displayName),
+    greeting: buildWelcomeGreeting(phase, firstName, atmosphere.emoji),
     phase,
     phaseLabel: PHASE_TIMELINE_HINTS[phase].label,
     atmosphere,
@@ -600,6 +694,30 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
       slug: ecosystem.tier.slug,
       label: ecosystem.tier.displayName,
       progressPct: ecosystem.tierProgressPct,
+    },
+    snapshotCards,
+    continuePlaying,
+    todaysGames: {
+      active: dashboard?.activeGames ?? [],
+      upcoming: dashboard?.upcomingGames ?? [],
+    },
+    progressCenter: {
+      tierSlug: ecosystem.tier.slug,
+      tierLabel: ecosystem.tier.displayName,
+      tierProgressPct: ecosystem.tierProgressPct,
+      creditsToNextTier: ecosystem.creditsToNextTier,
+      nextTierLabel: ecosystem.nextTier?.displayName ?? null,
+      lifetimeWins: legacy?.stats.lifetimeWins ?? 0,
+      lifetimeWinnings: legacy?.stats.lifetimeWinnings ?? 0,
+      currentWinStreak: legacy?.stats.currentWinStreak ?? 0,
+      longestWinStreak: legacy?.stats.longestWinStreak ?? 0,
+      achievementsUnlocked,
+      achievementsTotal: achievements.length,
+      achievementNear,
+      weeklyXpEarned,
+      loginStreakDays,
+      legacyHeadline: legacy?.headline ?? "Your legacy is just getting started.",
+      boardsPlayed: legacy?.stats.boardsPlayed ?? 0,
     },
   };
 }
