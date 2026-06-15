@@ -1,10 +1,16 @@
 import type { BoardSquare } from "@/lib/types";
+import {
+  formatSquareDisplayLabel,
+  getSquareDisplayNumber,
+  hasInnerSquareNumbers,
+} from "@/lib/engines/squareDisplay";
 
 interface BoardProps {
   squares: BoardSquare[];
   onSquareClick: (id: number) => void;
   topNumbers?: number[];
   sideNumbers?: number[];
+  innerNumbers?: number[];
   homeTeam: string;
   awayTeam: string;
   locked?: boolean;
@@ -19,6 +25,7 @@ export default function Board({
   onSquareClick,
   topNumbers,
   sideNumbers,
+  innerNumbers,
   homeTeam,
   awayTeam,
   locked = false,
@@ -29,6 +36,7 @@ export default function Board({
 }: BoardProps) {
   const showNumbers =
     topNumbers?.length === 10 && sideNumbers?.length === 10;
+  const showInnerNumbers = showNumbers && hasInnerSquareNumbers(innerNumbers);
 
   return (
     <div
@@ -71,6 +79,7 @@ export default function Board({
             row={row}
             squares={squares.slice(row * 10, row * 10 + 10)}
             sideNumber={showNumbers ? sideNumbers![row] : undefined}
+            innerNumbers={showInnerNumbers ? innerNumbers : undefined}
             awayTeam={awayTeam}
             onSquareClick={onSquareClick}
             locked={locked}
@@ -98,6 +107,7 @@ function Row({
   row,
   squares,
   sideNumber,
+  innerNumbers,
   awayTeam,
   onSquareClick,
   locked,
@@ -109,6 +119,7 @@ function Row({
   row: number;
   squares: BoardSquare[];
   sideNumber?: number;
+  innerNumbers?: number[];
   awayTeam: string;
   onSquareClick: (id: number) => void;
   locked: boolean;
@@ -143,6 +154,8 @@ function Row({
           square.id
         );
         const showHighlightBadge = isHighlight && !isFeatured;
+        const displayNumber = getSquareDisplayNumber(square.id, innerNumbers);
+        const squareLabel = formatSquareDisplayLabel(square.id, innerNumbers);
 
         return (
           <button
@@ -184,7 +197,12 @@ function Row({
                   : `Highlight Square™ — mystery bonus if this square wins a checkpoint`
                 : owner
                   ? owner.name
-                  : `Square ${square.id + 1}`
+                  : squareLabel
+            }
+            aria-label={
+              owner
+                ? `${owner.name}${displayNumber != null ? `, square ${displayNumber}` : ""}`
+                : squareLabel
             }
           >
             {isFeatured && (
@@ -210,7 +228,8 @@ function Row({
                 ⭐
               </span>
             )}
-            {owner?.initials ?? (isSelected ? "✓" : "")}
+            {owner?.initials ??
+              (isSelected ? "✓" : displayNumber != null ? String(displayNumber) : "")}
           </button>
         );
       })}

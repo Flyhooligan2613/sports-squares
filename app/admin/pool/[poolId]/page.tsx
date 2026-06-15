@@ -516,6 +516,7 @@ export default function AdminPoolControlPage() {
         onSquareClick={() => {}}
         topNumbers={numbersDrawn ? pool.topNumbers : undefined}
         sideNumbers={numbersDrawn ? pool.sideNumbers : undefined}
+        innerNumbers={numbersDrawn ? pool.innerNumbers : undefined}
         homeTeam={pool.homeTeam}
         awayTeam={pool.awayTeam}
         locked
@@ -531,6 +532,7 @@ export default function AdminPoolControlPage() {
               awayTeam={pool.awayTeam}
               topNumbers={pool.topNumbers}
               sideNumbers={pool.sideNumbers}
+              innerNumbers={pool.innerNumbers}
               squares={squares}
               winnerHistory={winnerHistory}
               onWinnerCalculated={handleWinnerCalculated}
@@ -548,6 +550,7 @@ export default function AdminPoolControlPage() {
             activeQuarter={activeQuarter}
             onSelectQuarter={setActiveQuarter}
             financialsEnabled={poolHasFinancials(pool)}
+            innerNumbers={pool.innerNumbers}
             adminMode
           />
         </>

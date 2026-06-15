@@ -155,6 +155,7 @@ export interface Pool {
   squares: Square[];
   topNumbers?: number[];
   sideNumbers?: number[];
+  innerNumbers?: number[];
   costPerSquare?: number;
   serviceFeePercent?: number;
   payoutTemplate?: PayoutTemplate;

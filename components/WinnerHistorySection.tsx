@@ -13,6 +13,7 @@ import type {
   WinnerHistory,
   WinnerResult,
 } from "@/lib/types";
+import { formatSquareDisplayLabel } from "@/lib/engines/squareDisplay";
 
 interface WinnerHistorySectionProps {
   winnerHistory: WinnerHistory;
@@ -28,6 +29,7 @@ interface WinnerHistorySectionProps {
     quarter: ScoringPeriod,
     status: PayoutStatus
   ) => void;
+  innerNumbers?: number[];
 }
 
 export default function WinnerHistorySection({
@@ -41,6 +43,7 @@ export default function WinnerHistorySection({
   financialsEnabled = false,
   adminMode = false,
   onMarkPayoutStatus,
+  innerNumbers,
 }: WinnerHistorySectionProps) {
   const newestPeriod = useMemo(
     () => getNewestWinnerPeriod(winnerHistory, scoringPeriods),
@@ -95,6 +98,7 @@ export default function WinnerHistorySection({
                 onMarkPayoutStatus={onMarkPayoutStatus}
                 colSpan={pendingColSpan}
                 variant="table"
+                innerNumbers={innerNumbers}
               />
             ))}
           </tbody>
@@ -117,6 +121,7 @@ export default function WinnerHistorySection({
             adminMode={adminMode}
             onMarkPayoutStatus={onMarkPayoutStatus}
             variant="card"
+            innerNumbers={innerNumbers}
           />
         ))}
       </div>
@@ -152,6 +157,7 @@ function HistoryRow({
   onMarkPayoutStatus,
   colSpan = 5,
   variant,
+  innerNumbers,
 }: {
   period: ScoringPeriod;
   winner?: WinnerResult;
@@ -168,6 +174,7 @@ function HistoryRow({
   ) => void;
   colSpan?: number;
   variant: "table" | "card";
+  innerNumbers?: number[];
 }) {
   const pending = !winner;
   const recorded = formatRecordedAt(winner?.recordedAt);
@@ -197,6 +204,7 @@ function HistoryRow({
       onMarkPayoutStatus={onMarkPayoutStatus}
       variant={variant}
       isNewest={isNewest}
+      innerNumbers={innerNumbers}
     />
   );
 
@@ -261,6 +269,7 @@ function WinnerContent({
   onMarkPayoutStatus,
   variant,
   isNewest,
+  innerNumbers,
 }: {
   period: ScoringPeriod;
   winner: WinnerResult;
@@ -275,6 +284,7 @@ function WinnerContent({
   ) => void;
   variant: "table" | "card";
   isNewest: boolean;
+  innerNumbers?: number[];
 }) {
   const score = formatWinnerScore(
     awayTeam,
@@ -292,7 +302,7 @@ function WinnerContent({
         </Td>
         <Td mono>{score}</Td>
         <Td mono>{digits}</Td>
-        <Td mono>#{winner.squareId}</Td>
+        <Td mono>{formatSquareDisplayLabel(winner.squareId, innerNumbers)}</Td>
         <Td>
           <WinnerIdentity winner={winner} />
         </Td>
@@ -333,7 +343,11 @@ function WinnerContent({
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
         <MobileField label="Score" value={score} mono />
         <MobileField label="Digits" value={digits} mono />
-        <MobileField label="Square" value={`#${winner.squareId}`} mono />
+        <MobileField
+          label="Square"
+          value={formatSquareDisplayLabel(winner.squareId, innerNumbers)}
+          mono
+        />
         {displayPayouts && (
           <MobileField
             label="Payout"

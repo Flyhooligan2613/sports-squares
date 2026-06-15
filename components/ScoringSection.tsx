@@ -19,6 +19,7 @@ interface ScoringSectionProps {
   scoringPeriods?: ScoringPeriod[];
   readOnly?: boolean;
   espnSyncActive?: boolean;
+  innerNumbers?: number[];
 }
 
 export default function ScoringSection({
@@ -34,6 +35,7 @@ export default function ScoringSection({
   scoringPeriods = QUARTERS,
   readOnly = false,
   espnSyncActive = false,
+  innerNumbers,
 }: ScoringSectionProps) {
   const existing = winnerHistory[activeQuarter];
   const [homeScore, setHomeScore] = useState(
@@ -165,6 +167,7 @@ export default function ScoringSection({
           result={activeWinner}
           homeTeam={homeTeam}
           awayTeam={awayTeam}
+          innerNumbers={innerNumbers}
         />
       )}
 

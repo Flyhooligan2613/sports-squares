@@ -17,6 +17,7 @@ import { isPhase2Read } from "@/lib/database/config";
 import { dbSyncSquaresFromPool } from "@/lib/database/services/squares";
 import { buildPayoutConfig } from "@/lib/payoutTemplates";
 import { applyPayoutsToHistory, poolHasFinancials } from "@/lib/poolFinance";
+import { shuffleInnerSquareNumbers } from "@/lib/utils";
 import type { PoolLoadOptions } from "@/lib/database/services/pools";
 import {
   dbCreatePlayer,
@@ -314,11 +315,17 @@ export const poolStore = {
     const current = await readPool(poolId);
     if (!current || current.status !== "locked") return undefined;
 
+    const innerNumbers =
+      current.innerNumbers?.length === 100
+        ? current.innerNumbers
+        : shuffleInnerSquareNumbers();
+
     if (isDatabaseConfigured()) {
       try {
         await dbUpdatePoolFields(poolId, {
           top_numbers: topNumbers,
           side_numbers: sideNumbers,
+          inner_numbers: innerNumbers,
         });
         await dbSyncSquareDigits(poolId, topNumbers, sideNumbers);
         const refreshed = await dbGetPool(poolId);
@@ -331,7 +338,12 @@ export const poolStore = {
       }
     }
 
-    const updated = mockDB.storePendingNumbers(poolId, topNumbers, sideNumbers);
+    const updated = mockDB.storePendingNumbers(
+      poolId,
+      topNumbers,
+      sideNumbers,
+      innerNumbers
+    );
     if (updated && isDatabaseConfigured()) {
       await persistPool(updated).catch(() => undefined);
     }
@@ -339,11 +351,26 @@ export const poolStore = {
   },
 
   async finalizeNumberDraw(poolId: string): Promise<Pool | undefined> {
+    const current = await readPool(poolId);
+    if (
+      current?.status === "locked" &&
+      current.topNumbers?.length === 10 &&
+      current.sideNumbers?.length === 10 &&
+      current.innerNumbers?.length !== 100
+    ) {
+      await poolStore.storePendingNumbers(
+        poolId,
+        current.topNumbers,
+        current.sideNumbers
+      );
+    }
+
     const updated = await poolStore.mutateStatus(poolId, "numbers-drawn", (pool) => {
       if (
         pool.status !== "locked" ||
         !pool.topNumbers?.length ||
-        !pool.sideNumbers?.length
+        !pool.sideNumbers?.length ||
+        pool.innerNumbers?.length !== 100
       ) {
         return false;
       }

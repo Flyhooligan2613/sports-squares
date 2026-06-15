@@ -52,6 +52,7 @@ export interface LiveTvBoardSquare {
   claimed: boolean;
   color: string | null;
   initials: string | null;
+  displayNumber: number | null;
   recentlyPurchased: boolean;
 }
 
@@ -62,6 +63,7 @@ export interface LiveTvBoardData {
   boardIndex: number;
   topNumbers: number[] | null;
   sideNumbers: number[] | null;
+  innerNumbers: number[] | null;
   squares: LiveTvBoardSquare[];
   featuredWinningSquareId: number | null;
   pastWinningSquareIds: number[];

@@ -116,6 +116,7 @@ export async function dbCreatePool(data: {
     status: "open",
     top_numbers: null,
     side_numbers: null,
+    inner_numbers: null,
     espn_game_id: null,
     espn_sport: "nfl",
     cost_per_square: 0,
@@ -156,6 +157,7 @@ export async function dbDuplicatePool(sourcePoolId: string): Promise<Pool | null
     status: "open",
     top_numbers: null,
     side_numbers: null,
+    inner_numbers: null,
     espn_game_id: source.espnGameId ?? null,
     espn_sport: normalizeEspnSport(source.espnSport),
     cost_per_square: source.costPerSquare ?? 0,
@@ -190,6 +192,7 @@ export async function dbUpdatePoolFields(
       | "status"
       | "top_numbers"
       | "side_numbers"
+      | "inner_numbers"
       | "espn_game_id"
       | "espn_sport"
       | "cost_per_square"

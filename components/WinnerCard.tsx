@@ -1,15 +1,18 @@
 import type { WinnerResult } from "@/lib/types";
+import { formatSquareDisplayLabel } from "@/lib/engines/squareDisplay";
 
 interface WinnerCardProps {
   result: WinnerResult;
   homeTeam: string;
   awayTeam: string;
+  innerNumbers?: number[];
 }
 
 export default function WinnerCard({
   result,
   homeTeam,
   awayTeam,
+  innerNumbers,
 }: WinnerCardProps) {
   return (
     <div className="winner-card relative overflow-hidden rounded-xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 p-5">
@@ -37,7 +40,10 @@ export default function WinnerCard({
               value={`${result.awayDigit} × ${result.homeDigit}`}
               hint={`${awayTeam} × ${homeTeam}`}
             />
-            <Stat label="Square" value={`#${result.squareId + 1}`} />
+            <Stat
+              label="Square"
+              value={formatSquareDisplayLabel(result.squareId, innerNumbers)}
+            />
             <Stat
               label="Score"
               value={`${result.awayScore}–${result.homeScore}`}

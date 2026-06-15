@@ -2,6 +2,7 @@ import { getActionCenterData } from "@/lib/database/services/actionCenter";
 import { getLiveWinnersCenterData } from "@/lib/database/services/liveWinnersCenter";
 import { TABLES } from "@/lib/database/config";
 import { assemblePool } from "@/lib/database/mappers";
+import { getSquareDisplayNumber, hasInnerSquareNumbers } from "@/lib/engines/squareDisplay";
 import { calcPoolSummary } from "@/lib/poolFinance";
 import { resolvePoolHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -100,6 +101,9 @@ async function loadFeaturedBoard(
     boardIndex: pool.boardIndex ?? 1,
     topNumbers: pool.topNumbers?.length === 10 ? pool.topNumbers : null,
     sideNumbers: pool.sideNumbers?.length === 10 ? pool.sideNumbers : null,
+    innerNumbers: hasInnerSquareNumbers(pool.innerNumbers)
+      ? pool.innerNumbers
+      : null,
     squares: pool.squares.map((square) => {
       const owner = square.owner;
       return {
@@ -107,6 +111,7 @@ async function loadFeaturedBoard(
         claimed: square.claimed,
         color: owner?.color ?? null,
         initials: owner?.initials ?? null,
+        displayNumber: getSquareDisplayNumber(square.id, pool.innerNumbers),
         recentlyPurchased: owner?.id ? recentPlayerIds.has(owner.id) : false,
       };
     }),

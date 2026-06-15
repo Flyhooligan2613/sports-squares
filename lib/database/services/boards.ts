@@ -116,6 +116,7 @@ export async function dbCreateMarketplaceBoard(
     status: "open",
     top_numbers: null,
     side_numbers: null,
+    inner_numbers: null,
     espn_game_id: game.espnGameId,
     espn_sport: game.espnSport,
     cost_per_square: cost,
@@ -183,14 +184,14 @@ export async function dbLockAndDrawBoard(poolId: string): Promise<void> {
   const supabase = getSupabaseAdmin();
   const { data: pool, error: poolError } = await supabase
     .from(TABLES.pools)
-    .select("status")
+    .select("status, espn_game_id, espn_sport, home_team, away_team")
     .eq("id", poolId)
     .maybeSingle();
 
   if (poolError) throw poolError;
   if (!pool || pool.status !== "open") return;
 
-  const { topNumbers, sideNumbers } = generateBoardNumbers();
+  const { topNumbers, sideNumbers, innerNumbers } = generateBoardNumbers();
   const lockedAt = new Date().toISOString();
 
   await dbUpdatePoolFields(poolId, {
@@ -198,6 +199,7 @@ export async function dbLockAndDrawBoard(poolId: string): Promise<void> {
     locked_at: lockedAt,
     top_numbers: topNumbers,
     side_numbers: sideNumbers,
+    inner_numbers: innerNumbers,
   });
 
   await dbSyncSquareDigits(poolId, topNumbers, sideNumbers);
@@ -213,6 +215,25 @@ export async function dbLockAndDrawBoard(poolId: string): Promise<void> {
     await assignHighlightSquaresForPool(poolId);
   } catch {
     // Best-effort — migration may be pending.
+  }
+
+  try {
+    const { publishPlatformEvent } = await import("@/lib/events/engine");
+    await publishPlatformEvent({
+      type: "game.started",
+      priority: "high",
+      summary: `Board locked and numbers drawn — ${pool.away_team} @ ${pool.home_team}`,
+      gameType: "squareboards",
+      entityType: "pool",
+      entityId: poolId,
+      payload: {
+        espnGameId: pool.espn_game_id,
+        espnSport: pool.espn_sport,
+      },
+      idempotencyKey: `${poolId}:game_started`,
+    });
+  } catch {
+    // Event publish is best-effort.
   }
 }
 

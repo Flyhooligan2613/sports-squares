@@ -33,6 +33,7 @@ export interface PoolRow {
   status: PoolStatus;
   top_numbers: number[] | null;
   side_numbers: number[] | null;
+  inner_numbers: number[] | null;
   espn_game_id: string | null;
   espn_sport: EspnSport;
   cost_per_square: number;

@@ -19,6 +19,7 @@ import {
   getDuplicatePoolName,
   getInitials,
   pickColor,
+  shuffleInnerSquareNumbers,
 } from "./utils";
 
 const STORAGE_KEY = "sports-squares-pools";
@@ -347,12 +348,19 @@ export const mockDB = {
   storePendingNumbers(
     poolId: string,
     topNumbers: number[],
-    sideNumbers: number[]
+    sideNumbers: number[],
+    innerNumbers?: number[]
   ): Pool | undefined {
     return mutatePool(poolId, (pool) => {
       if (pool.status !== "locked") return;
       pool.topNumbers = topNumbers;
       pool.sideNumbers = sideNumbers;
+      pool.innerNumbers =
+        innerNumbers?.length === 100
+          ? innerNumbers
+          : pool.innerNumbers?.length === 100
+            ? pool.innerNumbers
+            : shuffleInnerSquareNumbers();
     });
   },
 
@@ -361,7 +369,8 @@ export const mockDB = {
       if (
         pool.status !== "locked" ||
         !pool.topNumbers ||
-        !pool.sideNumbers
+        !pool.sideNumbers ||
+        pool.innerNumbers?.length !== 100
       ) {
         return;
       }

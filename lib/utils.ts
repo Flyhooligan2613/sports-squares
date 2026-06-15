@@ -66,6 +66,16 @@ export function shuffleDigits(): number[] {
   return digits;
 }
 
+/** Shuffled 1–100 display labels indexed by grid position (square_number 0–99). */
+export function shuffleInnerSquareNumbers(): number[] {
+  const numbers = Array.from({ length: 100 }, (_, i) => i + 1);
+  for (let i = numbers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  }
+  return numbers;
+}
+
 const COPY_NUMBERED_SUFFIX = /^(.*?)\s*\(Copy\s+(\d+)\)\s*$/i;
 const COPY_LEGACY_SUFFIX = /^(.*?)\s+Copy\s*$/i;
 

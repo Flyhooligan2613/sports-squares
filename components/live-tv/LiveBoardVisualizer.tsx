@@ -3,6 +3,7 @@
 import { Fragment } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { formatCurrency } from "@/lib/liveWinners/format";
+import { hasInnerSquareNumbers } from "@/lib/engines/squareDisplay";
 import type { LiveTvBoardData } from "@/lib/liveTv/types";
 
 interface LiveBoardVisualizerProps {
@@ -23,6 +24,8 @@ export default function LiveBoardVisualizer({ board }: LiveBoardVisualizerProps)
 
   const showNumbers =
     board.topNumbers?.length === 10 && board.sideNumbers?.length === 10;
+  const showInnerNumbers =
+    showNumbers && hasInnerSquareNumbers(board.innerNumbers);
 
   return (
     <section>
@@ -96,7 +99,10 @@ export default function LiveBoardVisualizer({ board }: LiveBoardVisualizerProps)
                         : undefined
                     }
                   >
-                    {square.initials ?? ""}
+                    {square.initials ??
+                      (!square.claimed && showInnerNumbers
+                        ? String(square.displayNumber ?? "")
+                        : "")}
                   </div>
                 );
               })}

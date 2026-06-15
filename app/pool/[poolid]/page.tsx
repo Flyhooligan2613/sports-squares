@@ -469,6 +469,7 @@ export default function PoolPage() {
             onSquareClick={handleSquareClick}
             topNumbers={numbersDrawn ? pool.topNumbers : undefined}
             sideNumbers={numbersDrawn ? pool.sideNumbers : undefined}
+            innerNumbers={numbersDrawn ? pool.innerNumbers : undefined}
             homeTeam={pool.homeTeam}
             awayTeam={pool.awayTeam}
             locked={!isOpen}
@@ -491,6 +492,7 @@ export default function PoolPage() {
                   awayTeam={pool.awayTeam}
                   topNumbers={pool.topNumbers}
                   sideNumbers={pool.sideNumbers}
+                  innerNumbers={pool.innerNumbers}
                   squares={squares}
                   winnerHistory={winnerHistory}
                   onWinnerCalculated={
@@ -510,6 +512,7 @@ export default function PoolPage() {
                   activeQuarter={activeQuarter}
                   onSelectQuarter={setActiveQuarter}
                   financialsEnabled={poolHasFinancials(pool)}
+                  innerNumbers={pool.innerNumbers}
                 />
               </>
             )}
