@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import HighlightSquareLegend from "@/components/highlight/HighlightSquareLegend";
+import HighlightSquareIntroPopup from "@/components/highlight/HighlightSquareIntroPopup";
 import Board from "@/components/Board";
 import NumberDrawModal from "@/components/NumberDrawModal";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
@@ -32,6 +33,7 @@ import type {
   WinnerResult,
 } from "@/lib/types";
 import type { PoolHighlightSquare } from "@/lib/highlight/types";
+import { learnHowToPlayHref } from "@/lib/highlight/learnLinks";
 import { loadWinnerHistory, saveWinnerHistory } from "@/lib/winnerStorage";
 import { attachPayoutToWinner, poolHasFinancials } from "@/lib/poolFinance";
 import {
@@ -331,6 +333,9 @@ export default function PoolPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 overflow-x-hidden">
+      <HighlightSquareIntroPopup
+        learnHref={learnHowToPlayHref(pool.espnSport ?? "nfl")}
+      />
       <NumberDrawModal
         isOpen={showDrawModal}
         homeTeam={pool.homeTeam}

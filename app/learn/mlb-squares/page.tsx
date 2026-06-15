@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import LearnShell, { LearnCard } from "@/components/learn/LearnShell";
 import { Button } from "@/components/ui/Button";
 import { BRAND_NAME } from "@/lib/brand";
+import {
+  HIGHLIGHT_PLACEMENT_EXPLAINER,
+  highlightRewardLabel,
+  highlightSquareCountLabel,
+} from "@/lib/highlight/copy";
 
 export const metadata: Metadata = {
   title: `How to Play MLB Squares | ${BRAND_NAME}`,
@@ -31,11 +36,17 @@ export default function MlbSquaresHowToPlayPage() {
           determines the winning square.
         </p>
       </LearnCard>
-      <LearnCard step={3} title="Highlight Squares™">
+      <LearnCard step={3} title="Highlight Squares™ — How They&apos;re Placed">
         <p>
-          When the board locks, a handful of occupied squares are secretly marked
-          as Highlight Squares™ (look for the gold ⭐). Win a checkpoint on a
-          highlight square and unlock bonus tier credits on top of your payout.
+          Every MLB board includes a Highlight Mystery Box layer — {highlightSquareCountLabel()}{" "}
+          are chosen automatically when numbers are drawn.
+        </p>
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[0]}</p>
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[1]}</p>
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[2]}</p>
+        <p>
+          Win the 3rd, 5th, 7th, or final checkpoint on a ⭐ square and the mystery
+          box opens: {highlightRewardLabel()} land in your account on top of your cash payout.
         </p>
       </LearnCard>
       <LearnCard step={4} title="Automatic Payouts">

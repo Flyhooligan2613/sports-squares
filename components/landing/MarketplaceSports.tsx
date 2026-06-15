@@ -12,6 +12,7 @@ import MarketplaceSportBar, {
 import SportOffSeasonPanel from "@/components/marketplace/SportOffSeasonPanel";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { getEspnSportConfig } from "@/lib/espn/sports";
+import { learnHowToPlayHref } from "@/lib/highlight/learnLinks";
 import {
   getMarketplaceSeasonStatus,
   isMarketplaceOffSeason,
@@ -110,8 +111,8 @@ export default function MarketplaceSports() {
 
       {selectedConfig ? (
         <ScrollReveal delay={60}>
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-sm text-sb-muted">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
+            <p className="text-sm text-sb-muted sm:flex-1 sm:mr-auto">
               {selectedOffSeason ? (
                 <>
                   <span className="text-white font-semibold">{selectedConfig.label}</span>
@@ -126,12 +127,21 @@ export default function MarketplaceSports() {
                 </>
               )}
             </p>
+            <div className="flex flex-wrap gap-2 shrink-0">
             <Button href={`/games/${selectedSport}`} variant="secondary" className="shrink-0">
               {selectedOffSeason
                 ? `Visit ${selectedConfig.label} Squares`
                 : `Browse all ${selectedConfig.label} games`}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
+            <Button
+              href={learnHowToPlayHref(selectedSport as EspnSport)}
+              variant="secondary"
+              className="shrink-0"
+            >
+              How to Play
+            </Button>
+            </div>
           </div>
         </ScrollReveal>
       ) : null}

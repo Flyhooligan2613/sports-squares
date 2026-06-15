@@ -25,7 +25,15 @@ export default function PlatformGameCard({
     animationDelay: `${index * 60}ms`,
   } as CSSProperties;
 
-  const inner = (
+  const className = [
+    "platform-game-card",
+    variant === "compact" ? "platform-game-card-compact" : "",
+    isAvailable ? "platform-game-card-active" : "platform-game-card-soon-state",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const body = (
     <>
       <div
         className="platform-game-card-glow"
@@ -57,25 +65,24 @@ export default function PlatformGameCard({
     </>
   );
 
-  const className = [
-    "platform-game-card",
-    variant === "compact" ? "platform-game-card-compact" : "",
-    isAvailable ? "platform-game-card-active" : "platform-game-card-soon-state",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   if (isAvailable && game.href) {
     return (
-      <Link href={game.href} className={className} style={cardStyle}>
-        {inner}
-      </Link>
+      <div className={className} style={cardStyle}>
+        <Link href={game.href} className="platform-game-card-main-link">
+          {body}
+        </Link>
+        {game.learnHref ? (
+          <Link href={game.learnHref} className="platform-game-card-learn">
+            How to Play
+          </Link>
+        ) : null}
+      </div>
     );
   }
 
   return (
     <div className={className} style={cardStyle} aria-disabled="true">
-      {inner}
+      {body}
     </div>
   );
 }

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import LearnShell, { LearnCard } from "@/components/learn/LearnShell";
 import { BRAND_NAME } from "@/lib/brand";
+import {
+  HIGHLIGHT_PLACEMENT_EXPLAINER,
+  highlightRewardLabel,
+} from "@/lib/highlight/copy";
 
 export const metadata: Metadata = {
   title: `Sports Squares Rules | ${BRAND_NAME}`,
@@ -26,6 +30,15 @@ export default function RulesPage() {
       </LearnCard>
       <LearnCard title="Prize Periods">
         <p>Most football boards pay out after Q1, Q2, Q3, and the final score. Prize splits vary by board.</p>
+      </LearnCard>
+      <LearnCard title="Highlight Squares™">
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[0]}</p>
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[1]}</p>
+        <p>
+          Activated Highlight Squares pay {highlightRewardLabel()} in addition to the standard
+          checkpoint prize. MLB boards use inning checkpoints instead of quarters — the same
+          Highlight rules apply.
+        </p>
       </LearnCard>
     </LearnShell>
   );

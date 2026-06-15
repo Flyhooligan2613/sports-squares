@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import type { PoolHighlightSquare } from "@/lib/highlight/types";
-
-const INTRO_STORAGE_KEY = "sb-highlight-intro-seen";
+import {
+  HIGHLIGHT_INTRO_STORAGE_KEY,
+  HIGHLIGHT_SHORT_TOOLTIP,
+  highlightRewardLabel,
+} from "@/lib/highlight/copy";
 
 interface HighlightSquareLegendProps {
   highlights: PoolHighlightSquare[];
@@ -19,7 +22,7 @@ export default function HighlightSquareLegend({
   useEffect(() => {
     if (highlights.length === 0) return;
     try {
-      const seen = localStorage.getItem(INTRO_STORAGE_KEY);
+      const seen = localStorage.getItem(HIGHLIGHT_INTRO_STORAGE_KEY);
       if (!seen) setShowIntro(true);
     } catch {
       setShowIntro(true);
@@ -34,7 +37,7 @@ export default function HighlightSquareLegend({
   function dismissIntro() {
     setShowIntro(false);
     try {
-      localStorage.setItem(INTRO_STORAGE_KEY, "1");
+      localStorage.setItem(HIGHLIGHT_INTRO_STORAGE_KEY, "1");
     } catch {
       // ignore
     }
@@ -43,18 +46,18 @@ export default function HighlightSquareLegend({
   return (
     <div className={`highlight-legend ${className}`.trim()}>
       {showIntro ? (
-        <div className="highlight-intro-banner mb-3">
+        <div className="highlight-intro-banner mb-3 highlight-intro-banner-flash">
           <div className="flex items-start gap-3">
-            <span className="text-lg shrink-0" aria-hidden>
+            <span className="highlight-intro-popup-star text-lg shrink-0" aria-hidden>
               ⭐
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-amber-200">
-                Highlight Squares™ are live
+                Highlight Mystery Box activated
               </p>
               <p className="text-xs text-sb-muted mt-0.5 leading-relaxed">
-                Gold-star squares are mystery bonus spots. Win a checkpoint on one
-                and unlock extra tier credits — on top of your payout.
+                {HIGHLIGHT_SHORT_TOOLTIP} Win a checkpoint on ⭐ for {highlightRewardLabel()}{" "}
+                on top of your payout.
               </p>
             </div>
             <button

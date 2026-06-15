@@ -3,9 +3,11 @@ import { Suspense } from "react";
 import Footer from "@/components/Footer";
 import GameBoardRow from "@/components/marketplace/GameBoardRow";
 import SportEntryTierNav from "@/components/marketplace/SportEntryTierNav";
+import SportGamesIntro from "@/components/marketplace/SportGamesIntro";
 import SportOffSeasonPanel from "@/components/marketplace/SportOffSeasonPanel";
 import StatusBadge from "@/components/ui/StatusBadge";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import { Button } from "@/components/ui/Button";
 import { dbListBoardsForGame } from "@/lib/database/services/boards";
 import { dbListGames } from "@/lib/database/services/games";
 import {
@@ -19,6 +21,7 @@ import {
   parseEntryTierParam,
 } from "@/lib/platform/core/entryTiers";
 import type { EspnSport } from "@/lib/types";
+import { learnHowToPlayHref } from "@/lib/highlight/learnLinks";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { TABLES } from "@/lib/database/config";
 import { notFound } from "next/navigation";
@@ -70,9 +73,14 @@ export default async function SportGamesPage({
             >
               ← Back to marketplace
             </Link>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mt-4 mb-2">
-              {config.label} Squares
-            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-4">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white">
+                {config.label} Squares
+              </h1>
+              <Button href={learnHowToPlayHref(sport)} variant="secondary" className="shrink-0">
+                How to Play
+              </Button>
+            </div>
           </div>
           <SportOffSeasonPanel sport={sport} />
         </main>
@@ -118,6 +126,7 @@ export default async function SportGamesPage({
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
+      <SportGamesIntro sport={sport} />
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12">
         <div className="mb-8 sb-xp-hero-enter">
           <Link
@@ -126,13 +135,20 @@ export default async function SportGamesPage({
           >
             ← Back to marketplace
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mt-4 mb-2">
-            {config.label}
-          </h1>
-          <p className="text-sb-muted max-w-2xl">
-            Choose a buy-in level, pick a game, and lock in squares. Every tier runs
-            automatically — when a board fills, the next opens until kickoff.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+                {config.label}
+              </h1>
+              <p className="text-sb-muted max-w-2xl">
+                Choose a buy-in level, pick a game, and lock in squares. Every tier runs
+                automatically — when a board fills, the next opens until kickoff.
+              </p>
+            </div>
+            <Button href={learnHowToPlayHref(sport)} variant="secondary" className="shrink-0">
+              How to Play
+            </Button>
+          </div>
         </div>
 
         <LandingGlassCard className="p-5 sm:p-6 mb-8">

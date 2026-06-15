@@ -26,6 +26,8 @@ export interface PlatformGameDefinition {
   status: PlatformGameStatus;
   /** Playable route — null when coming soon */
   href: string | null;
+  /** Optional how-to-play guide */
+  learnHref?: string | null;
   /** Accent for card gradients (CSS color) */
   accent: string;
   /** Stat keys this game contributes to on player profiles */
@@ -66,6 +68,7 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
     icon: "⚾",
     status: "available",
     href: "/games/mlb",
+    learnHref: "/learn/mlb-squares",
     accent: "#dc2626",
     navBadge: "new",
     statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],

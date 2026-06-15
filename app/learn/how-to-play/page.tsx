@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import LearnShell, { LearnCard } from "@/components/learn/LearnShell";
 import { Button } from "@/components/ui/Button";
 import { BRAND_NAME } from "@/lib/brand";
+import {
+  HIGHLIGHT_PLACEMENT_EXPLAINER,
+  highlightRewardLabel,
+} from "@/lib/highlight/copy";
 
 export const metadata: Metadata = {
   title: `How to Play | ${BRAND_NAME}`,
@@ -28,20 +32,29 @@ export default function HowToPlayPage() {
           combination for every quarter.
         </p>
       </LearnCard>
-      <LearnCard step={3} title="How Winners Are Determined">
+      <LearnCard step={3} title="Highlight Squares™ — The Mystery Box">
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[0]}</p>
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[1]}</p>
+        <p>{HIGHLIGHT_PLACEMENT_EXPLAINER[2]}</p>
+        <p>
+          {HIGHLIGHT_PLACEMENT_EXPLAINER[3]} Think of each ⭐ as a mini mystery box
+          waiting to open when you win a checkpoint.
+        </p>
+      </LearnCard>
+      <LearnCard step={4} title="How Winners Are Determined">
         <p>
           At the end of each quarter (and often the final score), we look at the last
           digit of each team&apos;s score. The square at that intersection wins that
-          period&apos;s prize.
+          period&apos;s prize. Highlight wins also pay {highlightRewardLabel()} automatically.
         </p>
       </LearnCard>
-      <LearnCard step={4} title="How Automatic Payouts Work">
+      <LearnCard step={5} title="How Automatic Payouts Work">
         <p>
           Winnings are calculated from the prize pool automatically. Payouts deposit to
           the payment method on file — no host required, no manual collection.
         </p>
       </LearnCard>
-      <LearnCard step={5} title="How to Access My Games">
+      <LearnCard step={6} title="How to Access My Games">
         <p>
           After purchase, use the email from checkout to sign in at My Games. You&apos;ll
           see live scores, your squares, upcoming kickoffs, and your win history.
