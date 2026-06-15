@@ -3,20 +3,29 @@
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { resolveNavBackTarget } from "@/lib/navigation/back";
+import { consumePreviousNav, formatNavHref } from "@/lib/navigation/historyStack";
 
 export default function NavBackButton() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const currentHref = formatNavHref(pathname, searchParams);
   const target = resolveNavBackTarget(pathname, searchParams);
 
   if (!target.show) return null;
 
   function handleBack() {
+    const previous = consumePreviousNav(currentHref);
+    if (previous && previous !== currentHref) {
+      router.push(previous);
+      return;
+    }
+
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
       return;
     }
+
     router.push(target.fallbackHref);
   }
 
