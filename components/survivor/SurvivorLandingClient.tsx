@@ -6,6 +6,7 @@ import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
+import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
 import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
@@ -56,11 +57,11 @@ export default function SurvivorLandingClient() {
             badgeVariant="live"
             title={SURVIVOR_X_PUBLIC_NAME}
             subtitle={`Survive the entire ${sportDef.label} season. Build your legacy. One pick per week — never the same team twice.`}
-            cta={{ label: "Play This Week", href: weekHref }}
+            cta={{ label: CONTEST_CTA_LABELS["survivor-x"], href: weekHref }}
           />
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            <Button href={weekHref}>Play This Week</Button>
+            <Button href={weekHref}>{CONTEST_CTA_LABELS["survivor-x"]}</Button>
             <Button href={survivorPath("learn")} variant="secondary">
               How to Play
             </Button>

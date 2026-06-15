@@ -7,6 +7,7 @@ import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
@@ -89,7 +90,7 @@ export default function SurvivorHallOfFameClient() {
           </ScrollReveal>
 
           {loading ? (
-            <p className="text-center text-sb-muted py-12">Loading legacy board…</p>
+            <BrandedLoadingLabel context="survivor" />
           ) : null}
 
           {error ? (

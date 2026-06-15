@@ -135,7 +135,7 @@ export default function LeaderboardsCenter() {
             <ExperiencePageSkeleton variant="live-winners" />
           ) : error || !data ? (
             <LandingGlassCard className="p-8 text-center mt-8">
-              <p className="text-sb-muted">{error ?? "Unavailable"}</p>
+              <p className="text-sb-muted">{error ?? COMMUNITY_LABELS.rankingsUnavailable}</p>
             </LandingGlassCard>
           ) : (
             <>

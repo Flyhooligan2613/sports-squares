@@ -1,7 +1,9 @@
 import PickemLeaderboardsClient from "@/components/pickem/PickemLeaderboardsClient";
+import { COMMUNITY_LABELS } from "@/lib/platform/language";
 
 export const metadata = {
-  title: "Leaderboards | Football Pick'em Royale™",
+  title: `${COMMUNITY_LABELS.competitionRankings} | Football Pick'em Royale™`,
+  description: "Weekly, season, and all-time football Pick'em competition rankings.",
 };
 
 export default function SoccerPredictorLeaderboardsPage() {

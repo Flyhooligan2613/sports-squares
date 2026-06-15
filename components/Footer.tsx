@@ -3,10 +3,11 @@ import { Share2, MessageCircle, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import StaffPortalLink from "@/components/StaffPortalLink";
 import { BRAND_NAME } from "@/lib/brand";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 
 const LINKS = {
   product: [
-    { href: "/#marketplace", label: "Browse Games" },
+    { href: "/#marketplace", label: CONTEST_CTAS.browseContests },
     { href: "/#pools", label: "Open Boards" },
     { href: "/#join", label: "Invite Link" },
     { href: "/support", label: "Support" },

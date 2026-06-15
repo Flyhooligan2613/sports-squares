@@ -15,6 +15,7 @@ import {
 import { confirmFastAction } from "@/lib/auth/security/fastConfirm";
 import { isQuickPinEnabledLocally } from "@/lib/auth/security/quickPin";
 
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import type { StepUpPurpose } from "@/lib/auth/security/stepUp";
 
 interface FastPurchaseConfirmModalProps {
@@ -35,10 +36,10 @@ export default function FastPurchaseConfirmModal({
   open,
   email,
   purpose = "purchase",
-  title = "Confirm purchase",
+  title = CONTEST_CTAS.lockInYourContest,
   subtitle = "Verify with biometrics or Quick PIN",
   kicker = "Fast checkout",
-  pinTitle = "Confirm purchase",
+  pinTitle = CONTEST_CTAS.lockInYourContest,
   pinSubtitle = "Enter your Quick PIN to complete payment",
   amountLabel,
   onClose,

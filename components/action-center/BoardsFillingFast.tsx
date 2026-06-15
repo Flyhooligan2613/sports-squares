@@ -6,6 +6,7 @@ import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { FillingFastBoard } from "@/lib/actionCenter/types";
 import { resolveSquaresBoardCta } from "@/lib/contestCenter/cta";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 
 interface BoardsFillingFastProps {
   boards: FillingFastBoard[];
@@ -21,7 +22,7 @@ export default function BoardsFillingFast({ boards }: BoardsFillingFastProps) {
             emoji="📋"
             title="Boards are opening"
             description="Open boards appear here as they fill — grab squares before they're gone."
-            actionLabel="Browse Games"
+            actionLabel={CONTEST_CTAS.browseContests}
             actionHref="/games/nfl"
             compact
           />

@@ -7,7 +7,9 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { CONTEST_CTAS, getLoadingMessageAt } from "@/lib/platform/language";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import SurvivorLiveMap from "@/components/survivor/SurvivorLiveMap";
 import SurvivorStayInGamePanel from "@/components/survivor/SurvivorStayInGamePanel";
@@ -316,7 +318,7 @@ export default function SurvivorWeekClient() {
         <ExperienceHero
           badgeLabel={SURVIVOR_X_PUBLIC_NAME}
           badgeVariant="live"
-          title={view?.week.label ?? "Loading week…"}
+          title={view?.week.label ?? getLoadingMessageAt("survivor", 1)}
           subtitle={
             view
               ? `${view.league.name} · One pick per week · One shield per season${
@@ -364,7 +366,7 @@ export default function SurvivorWeekClient() {
         ) : null}
 
         {loading && !view ? (
-          <p className="text-center text-sb-muted py-12">Loading survival board…</p>
+          <BrandedLoadingLabel context="survivor" />
         ) : null}
 
         {error ? (
@@ -382,7 +384,7 @@ export default function SurvivorWeekClient() {
 
         {view && !view.entry && !authRequired ? (
           <LandingGlassCard className="p-6 text-center mb-6">
-            <p className="text-white font-semibold mb-2">Join Global Survivor</p>
+            <p className="text-white font-semibold mb-2">{CONTEST_CTAS.joinTheContest}</p>
             <p className="text-sm text-sb-muted mb-4">
               Free entry — lock one NFL team each week. Every player starts with one Survivor Shield™
               {view?.league.livesPerPlayer && view.league.livesPerPlayer > 1
@@ -390,7 +392,7 @@ export default function SurvivorWeekClient() {
                 : "."}
             </p>
             <Button onClick={() => void handleJoin()} disabled={joining}>
-              {joining ? "Joining…" : "Join & Play"}
+              {joining ? "Joining…" : CONTEST_CTAS.joinTheContest}
             </Button>
           </LandingGlassCard>
         ) : null}

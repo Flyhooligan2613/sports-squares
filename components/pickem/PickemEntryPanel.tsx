@@ -9,6 +9,7 @@ import type { PickemEntryStatus, PickemSport } from "@/lib/pickem/types";
 import { pickemBasePath } from "@/lib/pickem/routes";
 import { pickemEntryPaidMessage } from "@/lib/pickem/copy";
 import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import PlatformHostingFeeNote from "@/components/platform/PlatformHostingFeeNote";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 
@@ -71,7 +72,7 @@ export default function PickemEntryPanel({
             Weekly entry
           </p>
           <h2 className="text-white font-semibold text-lg">
-            Enter {contestLabel} — {tierLabel}
+            {CONTEST_CTAS.lockInYourContest} · {contestLabel} — {tierLabel}
           </h2>
           <p className="text-sb-muted text-sm mt-1 max-w-xl">
             One {priceLabel} entry unlocks all picks for this week at the {tierLabel} tier.
@@ -112,7 +113,7 @@ export default function PickemEntryPanel({
       ) : (
         <Button onClick={onCheckout} disabled={loading} className="inline-flex items-center gap-2">
           <CreditCard className="w-4 h-4" />
-          {loading ? "Redirecting…" : `Pay ${priceLabel} & Enter`}
+          {loading ? "Redirecting…" : `${CONTEST_CTAS.lockInYourContest} · ${priceLabel}`}
         </Button>
       )}
 

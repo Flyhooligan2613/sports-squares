@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
@@ -26,7 +27,7 @@ export default function HomeBrowseGamesStrip() {
               className="hero-btn-premium sb-btn-spring min-w-[220px] group"
               onClick={scrollToMarketplace}
             >
-              Browse Games
+              {CONTEST_CTAS.browseContests}
               <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover:translate-x-1" />
             </Button>
             <Button

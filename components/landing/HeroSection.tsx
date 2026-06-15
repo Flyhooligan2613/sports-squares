@@ -5,6 +5,7 @@ import { ChevronRight, Sparkles } from "lucide-react";
 import Logo from "@/components/Logo";
 import HeroBackground from "@/components/landing/hero/HeroBackground";
 import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import { Button } from "@/components/ui/Button";
 import { useHeroParallax } from "@/lib/motion/useHeroParallax";
 
@@ -69,7 +70,7 @@ export default function HeroSection() {
               className="hero-btn-premium sb-btn-spring w-full sm:w-auto min-w-[220px] group"
               onClick={() => scrollTo("marketplace")}
             >
-              Browse Games
+              {CONTEST_CTAS.browseContests}
               <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover:translate-x-1" />
             </Button>
             <Button

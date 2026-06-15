@@ -6,8 +6,9 @@ import {
   getTiebreakerEntryForPlayer,
   getTiebreakerForLeague,
 } from "@/lib/pickem/db/tiebreakers";
-import { PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE } from "@/lib/pickem/copy";
+import { NOTIFICATION_TEMPLATES } from "@/lib/platform/language";
 import type { PlayerNotification } from "@/lib/player/dashboardTypes";
+import { PICKEM_CHAMPIONSHIP_TIEBREAKER_TITLE } from "@/lib/pickem/copy";
 
 export async function buildPickemNotifications(
   email: string
@@ -34,7 +35,7 @@ export async function buildPickemNotifications(
     notifications.push({
       id: `pickem-week-open-${contest.id}`,
       type: "pickem_week_open",
-      title: "🏈 Pick'em week is open",
+      title: `🏈 ${NOTIFICATION_TEMPLATES.pickemWeekOpen}`,
       detail: `${contest.label} — enter any tier and make your picks before kickoff.`,
       at: new Date().toISOString(),
     });
@@ -61,7 +62,7 @@ export async function buildPickemNotifications(
       notifications.push({
         id: `pickem-pool-almost-${leagueId}`,
         type: "pickem_pool_almost_full",
-        title: "🔥 Pool almost full",
+        title: `🔥 ${NOTIFICATION_TEMPLATES.poolAlmostFull}`,
         detail: `${contest.label} · $${tier} · Pool #${league.league_number} · ${remaining} spots left`,
         at: new Date().toISOString(),
       });
@@ -71,7 +72,7 @@ export async function buildPickemNotifications(
       notifications.push({
         id: `pickem-pool-full-${leagueId}`,
         type: "pickem_pool_full",
-        title: "✅ Pool at capacity",
+        title: `✅ ${NOTIFICATION_TEMPLATES.poolAtCapacity}`,
         detail: `${contest.label} · $${tier} · Pool #${league.league_number} · 1,000 players joined`,
         at: new Date().toISOString(),
       });
@@ -87,7 +88,7 @@ export async function buildPickemNotifications(
       notifications.push({
         id: `pickem-eliminated-${leagueId}`,
         type: "pickem_sunday_complete",
-        title: "Sunday slate complete",
+        title: NOTIFICATION_TEMPLATES.pickemSundayComplete,
         detail: `${contest.label} · Record ${weekResult.sundayRecord} · You did not advance`,
         at: new Date().toISOString(),
       });
@@ -113,7 +114,7 @@ export async function buildPickemNotifications(
           notifications.push({
             id: `pickem-prediction-due-${tb.id}`,
             type: "pickem_prediction_due",
-            title: "⏱ Monday prediction due",
+            title: `⏱ ${NOTIFICATION_TEMPLATES.mondayPredictionDue}`,
             detail: "Enter combined MNF points to stay in the championship tiebreaker",
             at: new Date().toISOString(),
           });
@@ -123,7 +124,7 @@ export async function buildPickemNotifications(
           notifications.push({
             id: `pickem-prediction-locked-${tb.id}`,
             type: "pickem_prediction_locked",
-            title: "🔒 Prediction locked",
+            title: `🔒 ${NOTIFICATION_TEMPLATES.predictionLocked}`,
             detail: "MNF kickoff passed — standings finalize automatically",
             at: new Date().toISOString(),
           });
@@ -137,8 +138,8 @@ export async function buildPickemNotifications(
         type: "pickem_winner",
         title:
           weekResult.status === "prize_split"
-            ? "🤝 Championship tie — prize split"
-            : "🏆 Pick'em pool winner",
+            ? `🤝 ${NOTIFICATION_TEMPLATES.pickemChampionSplit}`
+            : `🏆 ${NOTIFICATION_TEMPLATES.pickemPoolChampion}`,
         detail: `${contest.label} · Pool #${league.league_number}`,
         at: new Date().toISOString(),
       });
@@ -157,7 +158,7 @@ export async function buildPickemNotifications(
       notifications.push({
         id: `pickem-payout-${payout.id}`,
         type: "pickem_payout",
-        title: "💰 Pick'em payout sent",
+        title: `💰 ${NOTIFICATION_TEMPLATES.pickemPayoutSent}`,
         detail: `$${((payout.amount_cents as number) / 100).toFixed(2)} via Stripe`,
         at: (payout.updated_at as string) ?? new Date().toISOString(),
       });
@@ -176,7 +177,7 @@ export async function buildPickemNotifications(
     notifications.push({
       id: `pickem-streak-${contest.seasonYear}`,
       type: "pickem_streak",
-      title: "🔥 Win streak active",
+      title: `🔥 ${NOTIFICATION_TEMPLATES.pickemWinStreak}`,
       detail: `${stats.current_streak as number} picks in a row — keep it going`,
       at: new Date().toISOString(),
     });
@@ -197,7 +198,7 @@ export async function buildPickemNotifications(
       notifications.push({
         id: `pickem-perfect-${row.week_label}`,
         type: "pickem_achievement",
-        title: "⭐ Perfect week",
+        title: `⭐ ${NOTIFICATION_TEMPLATES.pickemPerfectWeek}`,
         detail: `${row.week_label as string} · ${record} — flawless picks`,
         at: new Date().toISOString(),
       });
@@ -217,7 +218,7 @@ export async function buildPickemNotifications(
     notifications.push({
       id: `pickem-rank-${history[0].week_label}`,
       type: "pickem_rank_up",
-      title: "📈 Leaderboard promotion",
+      title: `📈 ${NOTIFICATION_TEMPLATES.leaderboardPromotion}`,
       detail: `#1 finish — ${history[0].week_label as string}`,
       at: new Date().toISOString(),
     });

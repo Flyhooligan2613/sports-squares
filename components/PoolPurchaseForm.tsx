@@ -6,6 +6,7 @@ import Alert from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
 import PlayEligibilityBanner, {
   usePlayEligible,
@@ -305,7 +306,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
       <FastPurchaseConfirmModal
         open={showFastConfirm}
         email={email}
-        title="Purchase squares"
+        title={CONTEST_CTAS.lockInYourContest}
         subtitle="Confirm with biometrics or Quick PIN"
         amountLabel={`$${total.toFixed(2)}`}
         onClose={() => setShowFastConfirm(false)}

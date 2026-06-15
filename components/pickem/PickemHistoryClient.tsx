@@ -5,7 +5,9 @@ import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { PROFILE_LABELS } from "@/lib/platform/language";
 import type { PickemWeekHistoryEntry, PickemSport } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath } from "@/lib/pickem/routes";
 import { pickemTiebreakerHistoryLabel } from "@/lib/pickem/copy";
@@ -99,14 +101,16 @@ export default function PickemHistoryClient({ sport = "nfl" }: { sport?: PickemS
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <LandingGlassCard className="p-6 sm:p-8 mb-6">
-          <h1 className="text-2xl font-bold text-white mb-1">Pick&apos;em History</h1>
+          <h1 className="text-2xl font-bold text-white mb-1">{PROFILE_LABELS.competitionHistory}</h1>
           <p className="text-sb-muted text-sm">
             Every week saved permanently — records, finishes, and earnings.
           </p>
         </LandingGlassCard>
 
         {loading ? (
-          <LandingGlassCard className="p-8 text-center text-sb-muted">Loading…</LandingGlassCard>
+          <LandingGlassCard className="p-8">
+            <BrandedLoadingLabel context="pickem" className="text-center text-sb-muted" />
+          </LandingGlassCard>
         ) : null}
 
         {error ? (

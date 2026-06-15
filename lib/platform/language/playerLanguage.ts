@@ -41,6 +41,8 @@ export const COMMUNITY_LABELS = {
   worldwideRankings: "Worldwide rankings",
   noRankingsYet: "No rankings yet",
   beFirstOnBoard: "Be the first on the board — join a contest and start building your legacy.",
+  rankingsUnavailable: "Competition rankings unavailable right now.",
+  standingsUnavailable: "Standings unavailable right now.",
 } as const;
 
 export type PlayerTermKey = keyof typeof PLAYER_TERMS;

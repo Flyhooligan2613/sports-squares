@@ -7,6 +7,8 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
+import { PROFILE_LABELS } from "@/lib/platform/language";
 import type { PickemSeasonArchive, PickemSeasonStanding, PickemSport } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
 import { pickemHallOfFameEmptyMessage, pickemHallOfFameSubtitle } from "@/lib/pickem/copy";
@@ -81,7 +83,9 @@ export default function PickemHallOfFameClient({ sport = "nfl" }: { sport?: Pick
         />
 
         {loading ? (
-          <LandingGlassCard className="p-8 text-center text-sb-muted">Loading…</LandingGlassCard>
+          <LandingGlassCard className="p-8">
+            <BrandedLoadingLabel context="winners" className="text-center text-sb-muted" />
+          </LandingGlassCard>
         ) : seasons.length === 0 ? (
           <LandingGlassCard className="p-8 text-center">
             <Trophy className="w-10 h-10 text-sb-muted mx-auto mb-3 opacity-60" />
@@ -185,7 +189,7 @@ export default function PickemHallOfFameClient({ sport = "nfl" }: { sport?: Pick
             ← Pick&apos;em Home
           </Link>
           <Link href={`${basePath}/history`} className="text-sm text-sb-muted hover:text-white">
-            My History
+            {PROFILE_LABELS.competitionHistory}
           </Link>
         </div>
       </div>

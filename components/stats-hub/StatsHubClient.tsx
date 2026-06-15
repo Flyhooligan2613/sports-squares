@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import { COMMUNITY_LABELS } from "@/lib/platform/language";
 import type { StatsHubSport, TeamStandingRow } from "@/lib/statsHub/standings";
 
 const SPORTS: { id: StatsHubSport; label: string; emoji: string }[] = [
@@ -61,9 +63,9 @@ export default function StatsHubClient() {
       </div>
 
       {loading ? (
-        <p className="text-center text-sb-muted py-16 animate-pulse">Loading standings…</p>
+        <BrandedLoadingLabel context="leaderboard" className="text-center text-sb-muted py-16 animate-pulse" />
       ) : !standings.length ? (
-        <LandingGlassCard className="p-8 text-center text-sb-muted">Standings unavailable right now.</LandingGlassCard>
+        <LandingGlassCard className="p-8 text-center text-sb-muted">{COMMUNITY_LABELS.standingsUnavailable}</LandingGlassCard>
       ) : (
         Object.entries(grouped).map(([group, rows]) => (
           <LandingGlassCard key={group} className="p-4 overflow-x-auto">

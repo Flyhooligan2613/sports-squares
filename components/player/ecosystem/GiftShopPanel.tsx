@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import { Button } from "@/components/ui/Button";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
 
@@ -196,14 +198,14 @@ function UseItemLink({ itemType }: { itemType: string }) {
   if (itemType === "reward_token" || itemType === "square_credit") {
     return (
       <Button href="/games/nfl" size="sm" variant="secondary">
-        Browse boards
+        {CONTEST_CTAS.browseLiveContests}
       </Button>
     );
   }
   if (itemType === "pickem_entry") {
     return (
       <Button href="/pickem/week" size="sm" variant="secondary">
-        Enter Pick&apos;em
+        {CONTEST_CTA_LABELS["nfl-pickem"]}
       </Button>
     );
   }

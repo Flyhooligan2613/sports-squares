@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatDropCountdown } from "@/lib/platform/ecosystem/weeklyDropSchedule";
 import type { WeeklyDropSchedule } from "@/lib/gameDay/types";
+import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import { SQUARE_DROP_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
 
 export default function WeeklyDropCountdownBanner({
@@ -60,10 +62,10 @@ export default function WeeklyDropCountdownBanner({
           </p>
           <div className="weekly-drop-banner-links">
             <Link href="/games/nfl" className="weekly-drop-banner-link">
-              Browse boards
+              {CONTEST_CTAS.browseLiveContests}
             </Link>
             <Link href="/pickem/week" className="weekly-drop-banner-link">
-              Enter Pick&apos;em
+              {CONTEST_CTA_LABELS["nfl-pickem"]}
             </Link>
           </div>
         </div>

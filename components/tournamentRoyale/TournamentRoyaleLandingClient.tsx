@@ -7,6 +7,7 @@ import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
+import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
 import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
@@ -64,11 +65,11 @@ function LandingContent() {
             badgeVariant="live"
             title={TOURNAMENT_ROYALE_PUBLIC_NAME}
             subtitle={`${def.emoji} ${def.description} Predict. Progress. Never get eliminated after one miss.`}
-            cta={{ label: "Enter Tournament Hub", href: hubHref }}
+            cta={{ label: CONTEST_CTA_LABELS["tournament-royale"], href: hubHref }}
           />
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            <Button href={hubHref}>Enter Tournament Hub</Button>
+            <Button href={hubHref}>{CONTEST_CTA_LABELS["tournament-royale"]}</Button>
             <Button href={tournamentRoyalePath("learn")} variant="secondary">
               How to Play
             </Button>

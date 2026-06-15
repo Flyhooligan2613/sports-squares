@@ -3,6 +3,7 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { BRAND_NAME } from "@/lib/brand";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 
 export const metadata: Metadata = {
   title: `Favorites | ${BRAND_NAME}`,
@@ -22,7 +23,7 @@ export default function FavoritesPage() {
           <p className="text-sb-muted text-sm mb-6">
             Save your favorite matchups and boards for quick access on game day.
           </p>
-          <Button href="/games/nfl" variant="secondary">Browse Games</Button>
+          <Button href="/games/nfl" variant="secondary">{CONTEST_CTAS.browseContests}</Button>
         </LandingGlassCard>
       </main>
     </div>

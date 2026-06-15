@@ -6,7 +6,9 @@ import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import {
   parseTournamentKey,
@@ -195,7 +197,7 @@ function BracketContent() {
         )}
 
         {loading && !view && (
-          <p className="text-center text-sb-muted mt-8">Loading bracket…</p>
+          <BrandedLoadingLabel context="tournament" className="text-center text-sb-muted mt-8" />
         )}
 
         {view && (
@@ -225,7 +227,7 @@ function BracketContent() {
             {!view.entry && (
               <LandingGlassCard className="p-6 text-center">
                 <p className="text-sb-muted mb-4">Join the global bracket to start picking.</p>
-                <Button href={hubHref}>Go to Tournament Hub</Button>
+                <Button href={hubHref}>{CONTEST_CTA_LABELS["tournament-royale"]}</Button>
               </LandingGlassCard>
             )}
           </div>

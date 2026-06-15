@@ -28,7 +28,7 @@ export const LOADING_CONTEXTS = {
     "Loading your Competitor Profile…",
     "Building your legacy dashboard…",
     "Gathering competition history…",
-  },
+  ],
   leaderboard: [
     "Loading competition rankings…",
     "Calculating top competitors…",

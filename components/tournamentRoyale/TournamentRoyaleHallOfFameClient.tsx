@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
 import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
 import { tournamentRoyaleApiUrl, tournamentRoyalePath } from "@/lib/tournamentRoyale/routes";
 
@@ -44,7 +46,7 @@ export default function TournamentRoyaleHallOfFameClient() {
           Champions, Cinderella Kings, and Combo Legends — forever on SquareBoards.
         </p>
 
-        {loading && <p className="text-center text-sb-muted">Loading…</p>}
+        {loading && <BrandedLoadingLabel context="tournament" className="text-center text-sb-muted" />}
 
         {!loading && entries.length === 0 && (
           <LandingGlassCard className="p-8 text-center">
@@ -52,7 +54,7 @@ export default function TournamentRoyaleHallOfFameClient() {
               Hall of Fame inductees will appear here as tournaments complete.
             </p>
             <Button href={tournamentRoyalePath("hub")} className="mt-4">
-              Enter Tournament Hub
+              {CONTEST_CTA_LABELS["tournament-royale"]}
             </Button>
           </LandingGlassCard>
         )}

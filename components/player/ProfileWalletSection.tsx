@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
@@ -71,7 +72,7 @@ export default function ProfileWalletSection() {
       </h3>
 
       {loading ? (
-        <p className="text-sm text-sb-muted animate-pulse">Loading…</p>
+        <BrandedLoadingLabel context="profile" className="text-sm text-sb-muted animate-pulse" />
       ) : (
         <div className="space-y-4">
           <p className="text-xs text-sb-muted leading-relaxed">

@@ -1,6 +1,7 @@
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import type { PlayerRecentWin } from "@/lib/player/dashboardTypes";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 
 interface RecentWinsTimelineProps {
   wins: PlayerRecentWin[];
@@ -20,7 +21,7 @@ export default function RecentWinsTimeline({ wins }: RecentWinsTimelineProps) {
           emoji="🏆"
           title="No wins yet"
           description="The next winner could be you. Browse today's live boards."
-          actionLabel="Browse Games"
+          actionLabel={CONTEST_CTAS.browseContests}
           actionHref="/games/nfl"
         />
       </LandingGlassCard>

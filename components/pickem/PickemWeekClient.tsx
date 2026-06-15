@@ -27,6 +27,7 @@ import { isDocumentVisible } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
+import { COMMUNITY_LABELS, CONTEST_CTAS, PROFILE_LABELS } from "@/lib/platform/language";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -558,10 +559,10 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button href={`${basePath}/leaderboards`} variant="secondary">
-                View Leaderboards
+                {COMMUNITY_LABELS.competitionRankings}
               </Button>
               <Button href={`${basePath}/history`} variant="secondary">
-                My History
+                {PROFILE_LABELS.competitionHistory}
               </Button>
               <Link href={basePath} className="text-sm text-sb-muted hover:text-white">
                 ← Pick&apos;em Home
@@ -574,7 +575,7 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
       <FastPurchaseConfirmModal
         open={showFastConfirm}
         email={playerEmail}
-        title="Enter Pick'em"
+        title={CONTEST_CTAS.lockInYourContest}
         subtitle="Confirm with biometrics or Quick PIN to charge your saved card"
         amountLabel={week ? formatTierCents(entryTierCents) : undefined}
         onClose={() => setShowFastConfirm(false)}

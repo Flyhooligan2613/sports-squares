@@ -9,6 +9,7 @@ import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Alert from "@/components/ui/Alert";
@@ -308,7 +309,7 @@ export default function SurvivorPrivateClient() {
               <div>
                 <h2 className="text-lg font-bold text-white mb-4 text-center">Your private leagues</h2>
                 {loading ? (
-                  <p className="text-center text-sb-muted py-8">Loading…</p>
+                  <BrandedLoadingLabel context="survivor" className="text-center text-sb-muted py-8" />
                 ) : privateLeagues.length === 0 ? (
                   <p className="text-center text-sb-muted py-8 text-sm">
                     No private leagues yet — create one or join with a friend&apos;s code.

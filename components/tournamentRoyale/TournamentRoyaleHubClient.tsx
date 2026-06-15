@@ -7,7 +7,9 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { CONTEST_CTAS } from "@/lib/platform/language";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import TournamentRoyaleLiveMap from "@/components/tournamentRoyale/TournamentRoyaleLiveMap";
 import TournamentRoyaleTournamentSwitcher from "@/components/tournamentRoyale/TournamentRoyaleTournamentSwitcher";
@@ -123,7 +125,7 @@ function HubContent() {
         )}
 
         {loading && !view && (
-          <p className="text-center text-sb-muted mt-8">Loading tournament hub…</p>
+          <BrandedLoadingLabel context="tournament" className="text-center text-sb-muted mt-8" />
         )}
 
         {view && (
@@ -131,7 +133,7 @@ function HubContent() {
             {!view.joined && (
               <div className="flex justify-center mt-6">
                 <Button onClick={handleJoin} disabled={joining}>
-                  {joining ? "Joining…" : "Join Global Bracket"}
+                  {joining ? "Joining…" : CONTEST_CTAS.joinTheContest}
                 </Button>
               </div>
             )}

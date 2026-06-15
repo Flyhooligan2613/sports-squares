@@ -7,6 +7,7 @@ import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/Button";
 import SurvivorSportSwitcher from "@/components/survivor/SurvivorSportSwitcher";
@@ -106,7 +107,7 @@ export default function SurvivorLeaguesClient() {
           </div>
 
           {loading ? (
-            <p className="text-center text-sb-muted py-12">Loading leagues…</p>
+            <BrandedLoadingLabel context="survivor" />
           ) : null}
 
           {error ? (

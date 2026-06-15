@@ -19,6 +19,17 @@ export const NOTIFICATION_TEMPLATES = {
   picksDue: "Lock in your picks before the contest closes.",
   survivorAdvance: "You advanced — keep your streak alive.",
   survivorEliminated: "This week's run ended — new contests await.",
+  pickemWeekOpen: "Pick'em week is open for competition.",
+  poolAlmostFull: "Only a few spots remain — lock in your contest.",
+  poolAtCapacity: "Contest pool at capacity — competition locked in.",
+  pickemSundayComplete: "Sunday slate complete — your competition continues.",
+  mondayPredictionDue: "Lock in your Monday prediction before kickoff.",
+  predictionLocked: "Predictions locked — standings finalize automatically.",
+  pickemPoolChampion: "Champion crowned in your Pick'em pool.",
+  pickemChampionSplit: "Championship tie — prize split between champions.",
+  pickemPayoutSent: "Contest winnings sent to your account.",
+  pickemWinStreak: "Win streak active — keep your momentum going.",
+  pickemPerfectWeek: "Perfect week — flawless picks.",
 } as const;
 
 export type NotificationTemplateKey = keyof typeof NOTIFICATION_TEMPLATES;
