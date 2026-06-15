@@ -11,6 +11,8 @@ export type ContestCtaKey =
   | "mlb-squares"
   | "mlb-pickem"
   | "nba-squares"
+  | "wnba-squares"
+  | "wnba-pickem"
   | "tournament-royale"
   | "nhl-pickem"
   | "soccer-pickem"
@@ -34,6 +36,8 @@ export const CONTEST_CTA_LABELS: Record<ContestCtaKey, string> = {
   "mlb-squares": "Claim Your Diamond",
   "mlb-pickem": "Step Up to the Plate",
   "nba-squares": "Own the Court",
+  "wnba-squares": "Own the Court",
+  "wnba-pickem": "Make Your WNBA Picks",
   "tournament-royale": "Enter the Tournament",
   "nhl-pickem": "Drop the Puck",
   "soccer-pickem": "Kick Off the Match",
@@ -62,6 +66,8 @@ export const TEMPLATE_CTA_KEY: Record<string, ContestCtaKey> = {
   "mlb-squares": "mlb-squares",
   "mlb-pickem": "mlb-pickem",
   "nba-squares": "nba-squares",
+  "wnba-squares": "wnba-squares",
+  "wnba-pickem": "wnba-pickem",
   "tournament-royale": "tournament-royale",
   "soccer-pickem": "soccer-pickem",
   "nhl-pickem": "nhl-pickem",
@@ -70,8 +76,10 @@ export const TEMPLATE_CTA_KEY: Record<string, ContestCtaKey> = {
 export const ECOSYSTEM_CTA_KEY: Record<string, ContestCtaKey> = {
   squareboards: "nfl-squares",
   "nba-squares": "nba-squares",
+  "wnba-squares": "wnba-squares",
   "mlb-squares": "mlb-squares",
   pickem: "nfl-pickem",
+  "wnba-pickem": "wnba-pickem",
   "baseball-pickem": "mlb-pickem",
   survivor: "survivor-x",
   brackets: "tournament-royale",
@@ -126,12 +134,14 @@ function resolveCtaKey(input: ResolveContestCtaInput): ContestCtaKey | null {
     if (sport === "nfl" || sport === "football") return "nfl-squares";
     if (sport === "mlb" || sport === "baseball") return "mlb-squares";
     if (sport === "nba" || sport === "basketball") return "nba-squares";
+    if (sport === "wnba") return "wnba-squares";
     return "nfl-squares";
   }
 
   if (input.kind === "pickem") {
     if (sport === "nfl" || sport === "football") return "nfl-pickem";
     if (sport === "mlb" || sport === "baseball") return "mlb-pickem";
+    if (sport === "wnba") return "wnba-pickem";
     if (sport === "nhl" || sport === "hockey") return "nhl-pickem";
     if (sport === "soccer" || sport === "football") return "soccer-pickem";
     return "nfl-pickem";

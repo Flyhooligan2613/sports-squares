@@ -4,10 +4,12 @@ import type { PlatformGameId } from "@/lib/platform/gameTypes";
 export const PLATFORM_GAME_TAGLINES: Record<PlatformGameId, string> = {
   squareboards: "Action lives on the field",
   "nba-squares": "Fast breaks, big moments",
+  "wnba-squares": "Own the court, build legacy",
   "mlb-squares": "Swing batter batter swing",
   pickem: "Lock your card, ride the week",
   survivor: "One pick. Stay alive.",
   "baseball-pickem": "Diamond picks all summer",
+  "wnba-pickem": "Women's hoops, weekly winners",
   brackets: "Every prediction tells a story",
   "soccer-predictor": "Every match tells a story",
 };

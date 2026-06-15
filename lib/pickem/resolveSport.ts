@@ -1,7 +1,7 @@
 import { DEFAULT_PICKEM_SPORT, getPickemSportConfig } from "@/lib/pickem/config";
 import type { PickemSport } from "@/lib/pickem/types";
 
-const VALID_SPORTS = new Set<PickemSport>(["nfl", "mlb", "ncaaf", "nba", "ncaab", "nhl", "soccer"]);
+const VALID_SPORTS = new Set<PickemSport>(["nfl", "mlb", "ncaaf", "nba", "wnba", "ncaab", "nhl", "soccer"]);
 
 export function parsePickemSport(value: string | null | undefined): PickemSport {
   const normalized = value?.trim().toLowerCase();
@@ -23,4 +23,4 @@ export function assertPickemSportEnabled(sport: PickemSport): void {
   }
 }
 
-export const ENABLED_PICKEM_SPORTS: PickemSport[] = ["nfl", "mlb", "soccer"];
+export const ENABLED_PICKEM_SPORTS: PickemSport[] = ["nfl", "mlb", "soccer", "wnba"];

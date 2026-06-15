@@ -5,6 +5,7 @@ export const CONTEST_SPORT_TABS = [
   { id: "nfl", label: "NFL", emoji: "🏈", href: "/games/nfl" },
   { id: "mlb", label: "MLB", emoji: "⚾", href: "/games/mlb" },
   { id: "nba", label: "NBA", emoji: "🏀", href: "/games/nba" },
+  { id: "wnba", label: "WNBA", emoji: "🏀", href: "/games/wnba" },
   { id: "nhl", label: "NHL", emoji: "🏒", href: "/pickem?sport=nhl" },
   { id: "football", label: "Soccer", emoji: "⚽", href: "/soccer-predictor" },
 ] as const;

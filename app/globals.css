@@ -5099,6 +5099,13 @@ html.sb-splash-pending body {
     radial-gradient(circle at 12% 80%, rgba(99, 102, 241, 0.05), transparent 38%);
 }
 
+.pickem-ambient-purple.sb-xp-glow {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -5%, rgba(217, 70, 239, 0.16), transparent 62%),
+    radial-gradient(circle at 85% 70%, rgba(232, 121, 249, 0.08), transparent 42%),
+    radial-gradient(circle at 12% 80%, rgba(91, 76, 247, 0.05), transparent 38%);
+}
+
 /* Football Pick'em Royale™ tutorial */
 .fp-tutorial {
   padding: 1.5rem;

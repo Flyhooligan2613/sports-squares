@@ -49,6 +49,22 @@ export const GAME_ROOM_SPORTS: GameRoomSport[] = [
     ],
   },
   {
+    id: "wnba",
+    label: "WNBA",
+    emoji: "🏀",
+    links: [
+      { label: "Squares", href: "/games/wnba", available: true, cta: "Play Squares", emoji: "🟪" },
+      { label: "Pick'em", href: "/wnba-pickem", available: true, cta: "Play Pick'em", emoji: "🎯" },
+      {
+        label: PLATFORM_TERMS.contestCenter,
+        href: "/contest-center",
+        available: true,
+        cta: `Browse ${PLATFORM_TERMS.contestCenter}`,
+        emoji: "🏆",
+      },
+    ],
+  },
+  {
     id: "mlb",
     label: "MLB",
     emoji: "⚾",

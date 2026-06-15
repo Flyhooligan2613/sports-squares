@@ -4,6 +4,7 @@ export const MARKETPLACE_SPORTS: EspnSport[] = [
   "nfl",
   "ncaaf",
   "nba",
+  "wnba",
   "ncaab",
   "mlb",
 ];
@@ -13,6 +14,7 @@ export const DEFAULT_COST_PER_SQUARE: Record<EspnSport, number> = {
   nfl: 10,
   ncaaf: 5,
   nba: 10,
+  wnba: 5,
   ncaab: 5,
   mlb: 5,
 };

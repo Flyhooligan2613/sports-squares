@@ -5,17 +5,21 @@
  */
 
 import { PLATFORM_GAME_TAGLINES } from "@/lib/platform/gameTaglines";
-import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
+import { isWnbaPickemRoute } from "@/lib/pickem/routes";
 import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
+import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
+import { WNBA_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/wnbaPickem/config";
 
 export type PlatformGameId =
   | "squareboards"
   | "nba-squares"
+  | "wnba-squares"
   | "mlb-squares"
   | "pickem"
   | "survivor"
   | "brackets"
   | "baseball-pickem"
+  | "wnba-pickem"
   | "soccer-predictor";
 
 export type PlatformGameStatus = "available" | "coming_soon";
@@ -61,6 +65,18 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
     status: "available",
     href: "/games/nba",
     accent: "#f97316",
+    statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
+  },
+  {
+    id: "wnba-squares",
+    name: "WNBA Squares",
+    tagline: PLATFORM_GAME_TAGLINES["wnba-squares"],
+    description:
+      "Women's basketball squares with quarter winners, Highlight Squares™, live ESPN scoring, and automatic payouts.",
+    icon: "🏀",
+    status: "available",
+    href: "/games/wnba",
+    accent: "#e879f9",
     statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
   },
   {
@@ -125,6 +141,18 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
     statKeys: ["baseballPickemWins"],
   },
   {
+    id: "wnba-pickem",
+    name: WNBA_PICKEM_ROYALE_PUBLIC_NAME,
+    tagline: PLATFORM_GAME_TAGLINES["wnba-pickem"],
+    description:
+      "Predict every WNBA winner each week. Build streaks, climb leaderboards, and compete all season — no spreads, no odds, just winners.",
+    icon: "🏀",
+    status: "available",
+    href: "/wnba-pickem",
+    accent: "#d946ef",
+    statKeys: ["wnbaPickemWins", "pickAccuracyPct", "currentStreak", "longestStreak"],
+  },
+  {
     id: "soccer-predictor",
     name: FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME,
     tagline: PLATFORM_GAME_TAGLINES["soccer-predictor"],
@@ -161,6 +189,7 @@ export function isPickemRoute(pathname: string): boolean {
     pathname === "/pickem" ||
     pathname.startsWith("/pickem/") ||
     isBaseballPickemRoute(pathname) ||
+    isWnbaPickemRoute(pathname) ||
     isSoccerPredictorRoute(pathname)
   );
 }
@@ -193,13 +222,17 @@ export function isPlatformGameNavActive(
   if (game.id === "nba-squares") {
     return pathname.startsWith("/games/nba");
   }
+  if (game.id === "wnba-squares") {
+    return pathname.startsWith("/games/wnba");
+  }
   if (game.id === "mlb-squares") {
     return pathname.startsWith("/games/mlb") || pathname.startsWith("/learn/mlb-squares");
   }
-  if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname) && !isSoccerPredictorRoute(pathname);
+  if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname) && !isWnbaPickemRoute(pathname) && !isSoccerPredictorRoute(pathname);
   if (game.id === "survivor") return isSurvivorRoute(pathname);
   if (game.id === "brackets") return isTournamentRoyaleRoute(pathname);
   if (game.id === "baseball-pickem") return isBaseballPickemRoute(pathname);
+  if (game.id === "wnba-pickem") return isWnbaPickemRoute(pathname);
   if (game.id === "soccer-predictor") return isSoccerPredictorRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);
 }

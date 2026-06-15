@@ -1,6 +1,7 @@
 import { PLATFORM_GAMES, type PlatformGameId } from "@/lib/platform/gameTypes";
 import { ECOSYSTEM_FEATURE_TAGLINES } from "@/lib/platform/gameTaglines";
 import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
+import { WNBA_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/wnbaPickem/config";
 import { WEEKLY_REWARD_DROP_PUBLIC_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
 import { COMMUNITY_LABELS, PROFILE_LABELS } from "@/lib/platform/language";
 
@@ -31,6 +32,11 @@ const GAME_CARD_OVERRIDES: Record<
     title: "NBA Squares",
     bullets: ["Quarter winners", "Highlight Squares™", "Live scoring"],
   },
+  "wnba-squares": {
+    emoji: "🏀",
+    title: "WNBA Squares",
+    bullets: ["Quarter winners", "Highlight Squares™", "Women's Sports Hub™"],
+  },
   "mlb-squares": {
     emoji: "⚾",
     title: "MLB Squares",
@@ -45,6 +51,11 @@ const GAME_CARD_OVERRIDES: Record<
     emoji: "⚾",
     title: "MLB Pick'em",
     bullets: ["Season-long competition", "Build winning streaks", "Live standings"],
+  },
+  "wnba-pickem": {
+    emoji: "🏀",
+    title: WNBA_PICKEM_ROYALE_PUBLIC_NAME,
+    bullets: ["Weekly slates", "Build winning streaks", "Women's Sports Hub™"],
   },
   survivor: {
     emoji: "🏆",
@@ -151,10 +162,12 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
 const AVAILABLE_GAME_ORDER: PlatformGameId[] = [
   "squareboards",
   "nba-squares",
+  "wnba-squares",
   "mlb-squares",
   "pickem",
   "survivor",
   "baseball-pickem",
+  "wnba-pickem",
   "brackets",
   "soccer-predictor",
 ];

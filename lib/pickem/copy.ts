@@ -19,7 +19,9 @@ export const PICKEM_CHAMPIONSHIP_CONGRATS =
 
 export function pickemLockTerm(sport: PickemSport): string {
   if (sport === "soccer") return "kickoff";
-  return sport === "mlb" ? "first pitch" : "kickoff";
+  if (sport === "mlb") return "first pitch";
+  if (sport === "wnba" || sport === "nba") return "tip-off";
+  return "kickoff";
 }
 
 export function pickemLockTermCapitalized(sport: PickemSport): string {
@@ -29,7 +31,9 @@ export function pickemLockTermCapitalized(sport: PickemSport): string {
 
 export function pickemLandingHowItWorksTitle(sport: PickemSport): string {
   if (sport === "soccer") return "Football prediction, reimagined";
-  return sport === "mlb" ? "Baseball pools, reimagined" : "Football pools, reimagined";
+  if (sport === "wnba") return "Women's hoops, reimagined";
+  if (sport === "mlb") return "Baseball pools, reimagined";
+  return "Football pools, reimagined";
 }
 
 export function pickemLandingHowItWorksSubtitle(sport: PickemSport): string {
@@ -55,7 +59,7 @@ export function pickemLandingFeatures(sport: PickemSport) {
       description: `Tap a team and your pick saves immediately. Edit anytime until ${lock}.`,
     },
     {
-      title: sport === "mlb" ? "Live gameday" : sport === "soccer" ? "Live matchday" : "Live game day",
+      title: sport === "mlb" ? "Live gameday" : sport === "soccer" ? "Live matchday" : sport === "wnba" ? "Live game night" : "Live game day",
       description:
         "Cards turn green or red as games finish. Track your record and streak in real time.",
     },
@@ -91,6 +95,9 @@ export function pickemChampionshipTiebreakerSubtitle(sport: PickemSport): string
   }
   if (sport === "soccer") {
     return "Predict the combined featured match final score. Closest prediction wins the pool. Equal distance = automatic prize split.";
+  }
+  if (sport === "wnba") {
+    return "Predict the combined primetime final score. Closest prediction wins the pool. Equal distance = automatic prize split.";
   }
   return PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE;
 }
@@ -141,6 +148,9 @@ export function pickemHallOfFameEmptyMessage(sport: PickemSport): string {
   if (sport === "soccer") {
     return "Seasons are archived automatically when MLS Cup completes. Check back after the first full season.";
   }
+  if (sport === "wnba") {
+    return "Seasons are archived automatically when the WNBA Finals complete. Check back after the first full season.";
+  }
   return "Seasons are archived automatically when the Super Bowl completes. Check back after the first full season.";
 }
 
@@ -162,6 +172,9 @@ export function pickemLandingAccountTagline(sport: PickemSport): string {
   }
   if (sport === "soccer") {
     return "One account — SquareBoards for every sport, Football Pick'em Royale™ for the beautiful game.";
+  }
+  if (sport === "wnba") {
+    return "One account — WNBA Squares™ for game-night luck, WNBA Pick'em Royale™ for weekly winners.";
   }
   return "Two flagship games, one account — SquareBoards for luck, Pick'em for prediction.";
 }

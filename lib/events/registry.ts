@@ -1,4 +1,5 @@
 import type { SportEventDefinition } from "@/lib/events/types";
+import { WNBA_HIGHLIGHT_EVENTS } from "@/lib/wnba/highlightEvents";
 
 const sportEvents = new Map<string, SportEventDefinition>();
 
@@ -50,5 +51,6 @@ export function registerBuiltinSportEvents(): void {
     { id: "nba.buzzer_beater", sportId: "nba", slug: "buzzer_beater", label: "Buzzer Beater" },
     { id: "soccer.hat_trick", sportId: "soccer", slug: "hat_trick", label: "Hat Trick" },
     { id: "nhl.hat_trick", sportId: "nhl", slug: "hat_trick", label: "Hat Trick" },
+    ...WNBA_HIGHLIGHT_EVENTS,
   ]);
 }

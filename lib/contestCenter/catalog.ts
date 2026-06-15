@@ -1,5 +1,6 @@
 import type { ContestCtaKey } from "@/lib/contestCenter/cta";
 import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
+import { WNBA_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/wnbaPickem/config";
 import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
 import type { ContestKind, ContestListing, ContestStatus } from "@/lib/contestCenter/types";
 
@@ -117,6 +118,38 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     filterTags: ["all", "nba"],
     searchTerms: ["nba", "basketball", "squares"],
     ctaKey: "nba-squares",
+  },
+  {
+    id: "wnba-squares",
+    title: "WNBA Sports Squares™",
+    emoji: "🏀",
+    sport: "WNBA",
+    sportKey: "wnba",
+    kind: "squares",
+    href: "/games/wnba",
+    accent: "#e879f9",
+    entryFeeLabel: "$1–$100",
+    durationLabel: "Game day",
+    contestType: "Squares",
+    filterTags: ["all", "wnba", "new"],
+    searchTerms: ["wnba", "women's basketball", "squares", "wnba squares"],
+    ctaKey: "wnba-squares",
+  },
+  {
+    id: "wnba-pickem",
+    title: WNBA_PICKEM_ROYALE_PUBLIC_NAME,
+    emoji: "🎯",
+    sport: "WNBA",
+    sportKey: "wnba",
+    kind: "pickem",
+    href: "/wnba-pickem",
+    accent: "#d946ef",
+    entryFeeLabel: "$1–$100",
+    durationLabel: "Weekly season",
+    contestType: "Pick'em",
+    filterTags: ["all", "wnba", "pickem", "new"],
+    searchTerms: ["wnba", "pickem", "pick'em", "women's basketball"],
+    ctaKey: "wnba-pickem",
   },
   {
     id: "tournament-royale",

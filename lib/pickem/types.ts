@@ -3,6 +3,7 @@ export type PickemSport =
   | "nfl"
   | "ncaaf"
   | "nba"
+  | "wnba"
   | "ncaab"
   | "mlb"
   | "nhl"

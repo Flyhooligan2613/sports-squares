@@ -32,6 +32,8 @@ export interface AchievementContext {
   lifetimeTierCredits: number;
   pickemWins?: number;
   pickemPerfectWeeks?: number;
+  wnbaPickemWins?: number;
+  wnbaSquaresPurchased?: number;
 }
 
 interface AchievementDef {
@@ -185,6 +187,24 @@ const NAMED: AchievementDef[] = [
     category: "pickem",
     rarity: "common",
     check: (c) => (c.pickemWins ?? 0) >= 1,
+  },
+  {
+    id: "wnba_first_square",
+    title: "First WNBA Square",
+    description: "Purchased your first WNBA Sports Square™",
+    emoji: "🏀",
+    category: "squares",
+    rarity: "common",
+    check: (c) => (c.wnbaSquaresPurchased ?? 0) >= 1,
+  },
+  {
+    id: "wnba_first_pickem_victory",
+    title: "First WNBA Victory",
+    description: "Won your first WNBA Pick'em Royale™ contest",
+    emoji: "🏀",
+    category: "pickem",
+    rarity: "common",
+    check: (c) => (c.wnbaPickemWins ?? 0) >= 1,
   },
   {
     id: "longest_streak_17",

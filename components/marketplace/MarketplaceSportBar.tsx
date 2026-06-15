@@ -10,6 +10,7 @@ const SPORT_EMOJI: Record<EspnSport, string> = {
   nfl: "🏈",
   ncaaf: "🏈",
   nba: "🏀",
+  wnba: "🏀",
   ncaab: "🏀",
   mlb: "⚾",
 };

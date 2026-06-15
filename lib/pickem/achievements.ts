@@ -1,4 +1,5 @@
 import type { PickemAchievement, PickemPlayerStats, PickemSport } from "@/lib/pickem/types";
+import { WNBA_PICKEM_ACHIEVEMENTS } from "@/lib/wnba/achievements";
 
 export const PICKEM_ACHIEVEMENTS: Omit<PickemAchievement, "unlocked" | "unlockedAt">[] = [
   {
@@ -50,19 +51,28 @@ export function computePickemAchievements(
   options?: { worldwideRank?: number | null; foundingSeasonYear?: number }
 ): PickemAchievement[] {
   const foundingYear = options?.foundingSeasonYear ?? 2025;
+  const baseDefs =
+    stats.sport === "wnba"
+      ? [...PICKEM_ACHIEVEMENTS, ...WNBA_PICKEM_ACHIEVEMENTS]
+      : PICKEM_ACHIEVEMENTS;
 
-  return PICKEM_ACHIEVEMENTS.map((def) => {
+  return baseDefs.map((def) => {
     let unlocked = false;
 
     switch (def.id) {
       case "first-win":
+      case "wnba-first-victory":
         unlocked = stats.correctPicks >= 1;
         break;
       case "perfect-week":
+      case "wnba-perfect-week":
         unlocked = stats.perfectWeeks >= 1;
         break;
       case "ten-week-streak":
-        unlocked = stats.longestStreak >= 10;
+      case "wnba-playoff-streak":
+        unlocked = def.id === "wnba-playoff-streak"
+          ? stats.longestStreak >= 5
+          : stats.longestStreak >= 10;
         break;
       case "hundred-correct":
         unlocked = stats.correctPicks >= 100;
@@ -77,7 +87,12 @@ export function computePickemAchievements(
         unlocked = stats.seasonChampionships >= 1;
         break;
       case "founding-member":
+      case "wnba-founding-competitor":
         unlocked = stats.seasonYear <= foundingYear && stats.weeksPlayed >= 1;
+        break;
+      case "wnba-commissioners-cup-week":
+      case "wnba-finals-prophet":
+        unlocked = false;
         break;
       default:
         break;

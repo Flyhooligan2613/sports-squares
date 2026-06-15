@@ -30,6 +30,7 @@ function parseSportParam(value: string | null): MarketplaceSportFilter {
     value === "nfl" ||
     value === "ncaaf" ||
     value === "nba" ||
+    value === "wnba" ||
     value === "ncaab" ||
     value === "mlb"
   ) {

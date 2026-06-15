@@ -14,6 +14,7 @@ import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemOverviewStats, PickemSport, PickemWeekView } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemAmbientClass, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
 import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
+import { WNBA_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/wnbaPickem/config";
 import {
   pickemGamesRemainingLabel,
   pickemLandingAccountTagline,
@@ -42,8 +43,11 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
       ? "MLB Pick'em"
       : sport === "soccer"
         ? FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME
-        : "SquareBoards Pick'em";
-  const badgeLabel = sport === "soccer" ? "Global Football" : "Flagship Game #2";
+        : sport === "wnba"
+          ? WNBA_PICKEM_ROYALE_PUBLIC_NAME
+          : "SquareBoards Pick'em";
+  const badgeLabel =
+    sport === "soccer" ? "Global Football" : sport === "wnba" ? "Women's Sports Hub" : "Flagship Game #2";
   const seasonWeekLabel = sport === "soccer" ? "Matchweek" : "Season Week";
   const features = pickemLandingFeatures(sport);
   const [overview, setOverview] = useState<PickemOverviewStats | null>(null);

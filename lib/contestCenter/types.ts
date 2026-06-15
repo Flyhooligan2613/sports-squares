@@ -16,6 +16,7 @@ export type ContestFilterId =
   | "nfl"
   | "mlb"
   | "nba"
+  | "wnba"
   | "nhl"
   | "football"
   | "pickem"

@@ -4,6 +4,7 @@ const SPORT_LABELS: Record<EspnSport, string> = {
   nfl: "NFL",
   ncaaf: "NCAA Football",
   nba: "NBA",
+  wnba: "WNBA",
   ncaab: "NCAA Basketball",
   mlb: "MLB",
 };

@@ -60,6 +60,16 @@ export const ESPN_SPORTS: Record<EspnSport, EspnSportConfig> = {
     scoringPeriods: ["INN3", "INN5", "INN7", "FINAL"],
     browseLabel: "Browse MLB Games",
   },
+  wnba: {
+    id: "wnba",
+    label: "WNBA",
+    scoreboardUrl:
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard",
+    summaryUrl:
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/summary",
+    scoringPeriods: ["Q1", "Q2", "Q3", "Q4", "FINAL"],
+    browseLabel: "Browse WNBA Games",
+  },
 };
 
 export const ESPN_SPORT_LIST = Object.values(ESPN_SPORTS);

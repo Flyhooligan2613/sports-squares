@@ -9,7 +9,7 @@ import type {
 } from "@/lib/types";
 import { getScoringPeriods, normalizeEspnSport } from "./sports";
 
-const QUARTER_SPORTS: EspnSport[] = ["nfl", "ncaaf", "nba"];
+const QUARTER_SPORTS: EspnSport[] = ["nfl", "ncaaf", "nba", "wnba"];
 
 interface PeriodRule {
   period: ScoringPeriod;
