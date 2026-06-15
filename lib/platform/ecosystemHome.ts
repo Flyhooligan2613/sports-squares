@@ -22,6 +22,11 @@ const GAME_CARD_OVERRIDES: Record<
     title: "Sports Squares",
     bullets: ["Highlight Squares™", "Live scoring", "Automatic payouts"],
   },
+  "nba-squares": {
+    emoji: "🏀",
+    title: "NBA Squares",
+    bullets: ["Quarter winners", "Highlight Squares™", "Live scoring"],
+  },
   "mlb-squares": {
     emoji: "⚾",
     title: "MLB Squares",
@@ -134,6 +139,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
 
 const AVAILABLE_GAME_ORDER: PlatformGameId[] = [
   "squareboards",
+  "nba-squares",
   "mlb-squares",
   "pickem",
   "survivor",

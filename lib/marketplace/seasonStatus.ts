@@ -7,16 +7,10 @@ export interface MarketplaceSeasonStatus {
   returnHint?: string;
 }
 
+/** Sports forced into off-season UI (empty — use live ESPN schedules instead). */
 const OFF_SEASON: Partial<
   Record<EspnSport, Omit<MarketplaceSeasonStatus, "offSeason">>
-> = {
-  nba: {
-    headline: "See you next season",
-    message:
-      "The NBA season has wrapped. SquareBoards will be back when the next slate opens — same 10×10 boards, live quarter scoring, Highlight Squares™, and automatic payouts.",
-    returnHint: "Boards return when the next NBA season kicks off.",
-  },
-};
+> = {};
 
 export function getMarketplaceSeasonStatus(
   sport: EspnSport

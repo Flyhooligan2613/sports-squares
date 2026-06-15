@@ -6,6 +6,7 @@
 
 export type PlatformGameId =
   | "squareboards"
+  | "nba-squares"
   | "mlb-squares"
   | "pickem"
   | "survivor"
@@ -43,6 +44,18 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
     status: "available",
     href: "/games/nfl",
     accent: "#7b61ff",
+    statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
+  },
+  {
+    id: "nba-squares",
+    name: "NBA Squares",
+    description:
+      "Basketball squares with quarter winners, Highlight Squares™, live ESPN scoring, and automatic payouts.",
+    icon: "🏀",
+    status: "available",
+    href: "/games/nba",
+    accent: "#f97316",
+    navBadge: "new",
     statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
   },
   {
@@ -160,6 +173,9 @@ export function isPlatformGameNavActive(
 ): boolean {
   if (game.status !== "available" || !game.href) return false;
   if (game.id === "squareboards") return isSquareBoardsRoute(pathname);
+  if (game.id === "nba-squares") {
+    return pathname.startsWith("/games/nba");
+  }
   if (game.id === "mlb-squares") {
     return pathname.startsWith("/games/mlb") || pathname.startsWith("/learn/mlb-squares");
   }

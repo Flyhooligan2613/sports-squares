@@ -17,7 +17,7 @@ export default function HomeBrowseGamesStrip() {
             <p className="home-browse-strip-kicker">Start playing</p>
             <h2 className="home-browse-strip-title">Explore the platform</h2>
             <p className="home-browse-strip-sub">
-              Sports Squares, Pick&apos;em, MLB Pick&apos;em, and more — one account, every game.
+              NFL, NBA, and MLB squares plus Pick&apos;em — one account, every game.
             </p>
           </div>
           <div className="home-browse-strip-actions">
