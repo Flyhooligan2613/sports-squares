@@ -96,6 +96,23 @@ export const survivorRewardsHandler: PlatformEventHandler = async (event) => {
       return;
     }
 
+    if (event.type === "survivor.life_lost") {
+      await grantSurvivorCredits({
+        email,
+        amount: SURVIVOR_REWARD_CREDITS.lifeLostConsolation,
+        kind: "lifeLostConsolation",
+        idempotencyKey: String(payload.pickId ?? `${entryId}:${weekNumber}`),
+        summary: `+${SURVIVOR_REWARD_CREDITS.lifeLostConsolation} tier credits — still in Double Life`,
+        metadata: {
+          entryId,
+          weekNumber,
+          pickId: payload.pickId,
+          livesRemaining: payload.livesRemaining,
+        },
+      });
+      return;
+    }
+
     if (event.type === "survivor.eliminated") {
       await grantSurvivorCredits({
         email,

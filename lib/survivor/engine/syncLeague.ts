@@ -153,7 +153,34 @@ async function resolveWeekPicks(
         }).catch(() => undefined);
       } else if (outcome === "life_consumed") {
         await resolveSurvivorPick(pick.id, "eliminated");
-        // Double Life — pick lost but player continues with one life remaining.
+
+        const { data: entryRow } = await supabase
+          .from("survivor_entries")
+          .select("display_name, lives_remaining")
+          .eq("id", pick.entryId)
+          .maybeSingle();
+        const displayName = (entryRow?.display_name as string) ?? pick.email;
+        const livesRemaining = (entryRow?.lives_remaining as number) ?? 0;
+
+        await publishPlatformEvent({
+          type: "survivor.life_lost",
+          priority: "high",
+          summary: `${displayName} lost a life on ${pick.teamName} — ${livesRemaining} remaining`,
+          gameType: "survivor",
+          entityType: "survivor_entry",
+          entityId: pick.entryId,
+          actorEmail: pick.email,
+          payload: {
+            weekNumber: week.weekNumber,
+            teamAbbr: pick.teamAbbr,
+            teamName: pick.teamName,
+            pickId: pick.id,
+            displayName,
+            livesRemaining,
+            entryId: pick.entryId,
+          },
+          idempotencyKey: `${pick.id}:life_lost`,
+        }).catch(() => undefined);
       } else {
         await resolveSurvivorPick(pick.id, "eliminated");
         eliminated += 1;

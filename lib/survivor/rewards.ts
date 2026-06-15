@@ -2,6 +2,7 @@
 export const SURVIVOR_REWARD_CREDITS = {
   weekSurvived: 5,
   shieldSavedBonus: 10,
+  lifeLostConsolation: 8,
   eliminatedConsolation: 15,
   champion: 100,
 } as const;

@@ -56,6 +56,9 @@ export function registerDefaultEventHandlers(): void {
   subscribeToPlatformEvent("survivor.shield_activated", survivorRewardsHandler, {
     name: "SurvivorRewards",
   });
+  subscribeToPlatformEvent("survivor.life_lost", survivorRewardsHandler, {
+    name: "SurvivorRewards",
+  });
   subscribeToPlatformEvent("survivor.eliminated", survivorRewardsHandler, {
     name: "SurvivorRewards",
   });

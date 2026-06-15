@@ -8,6 +8,7 @@ export const SURVIVOR_PLATFORM_EVENTS = [
   "survivor.league_joined",
   "survivor.shield_activated",
   "survivor.shield_depleted",
+  "survivor.life_lost",
 ] as const;
 
 export type SurvivorPlatformEventType =

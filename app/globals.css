@@ -5303,6 +5303,69 @@ html.sb-splash-pending body {
   }
 }
 
+.survivor-life-lost-backdrop {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(251, 146, 60, 0.18) 0%,
+    rgba(0, 0, 0, 0.88) 70%
+  );
+  animation: survivor-life-lost-fade-in 0.45s ease-out forwards;
+}
+
+.survivor-life-lost-overlay-reduced .survivor-life-lost-backdrop {
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.survivor-life-lost-card-animate {
+  animation: survivor-life-lost-card-in 0.5s ease-out forwards;
+}
+
+.survivor-life-lost-emoji {
+  animation: survivor-life-lost-emoji 0.55s ease-out forwards;
+}
+
+@keyframes survivor-life-lost-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes survivor-life-lost-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes survivor-life-lost-emoji {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .survivor-life-lost-backdrop,
+  .survivor-life-lost-card-animate,
+  .survivor-life-lost-emoji {
+    animation: none !important;
+  }
+}
+
 .pickem-progress-track {
   height: 0.5rem;
   border-radius: 9999px;

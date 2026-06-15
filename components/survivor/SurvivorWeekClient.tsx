@@ -17,6 +17,9 @@ import SurvivorEliminationMoment, {
 import SurvivorShieldActivation, {
   shieldActivationStorageKey,
 } from "@/components/survivor/SurvivorShieldActivation";
+import SurvivorLifeLostMoment, {
+  lifeLostStorageKey,
+} from "@/components/survivor/SurvivorLifeLostMoment";
 import SurvivorShieldBadge from "@/components/survivor/SurvivorShieldBadge";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
@@ -43,6 +46,7 @@ export default function SurvivorWeekClient() {
   const [authRequired, setAuthRequired] = useState(false);
   const [joining, setJoining] = useState(false);
   const [showShieldActivation, setShowShieldActivation] = useState(false);
+  const [showLifeLostMoment, setShowLifeLostMoment] = useState(false);
   const [showEliminationMoment, setShowEliminationMoment] = useState(false);
   const [sharingToHuddle, setSharingToHuddle] = useState(false);
   const [huddleMessage, setHuddleMessage] = useState<string | null>(null);
@@ -70,6 +74,37 @@ export default function SurvivorWeekClient() {
     }
 
     setShowShieldActivation(true);
+  }, [view]);
+
+  const dismissLifeLostMoment = useCallback(() => {
+    if (view?.entry && view.myPick?.result === "eliminated" && view.entry.status === "active") {
+      sessionStorage.setItem(
+        lifeLostStorageKey(view.entry.id, view.week.weekNumber),
+        "1"
+      );
+    }
+    setShowLifeLostMoment(false);
+  }, [view]);
+
+  useEffect(() => {
+    const isLifeLostPick =
+      view?.entry?.status === "active" &&
+      view.myPick?.result === "eliminated" &&
+      (view.league.livesPerPlayer ?? 1) > 1 &&
+      view.entry.livesRemaining > 0;
+
+    if (!isLifeLostPick) {
+      setShowLifeLostMoment(false);
+      return;
+    }
+
+    const key = lifeLostStorageKey(view.entry!.id, view.week.weekNumber);
+    if (sessionStorage.getItem(key)) {
+      setShowLifeLostMoment(false);
+      return;
+    }
+
+    setShowLifeLostMoment(true);
   }, [view]);
 
   const dismissEliminationMoment = useCallback(() => {
@@ -411,6 +446,16 @@ export default function SurvivorWeekClient() {
             teamName={view.myPick.teamName}
             weekNumber={view.week.weekNumber}
             onComplete={dismissShieldActivation}
+          />
+        ) : null}
+
+        {showLifeLostMoment && view?.entry && view.myPick ? (
+          <SurvivorLifeLostMoment
+            displayName={view.entry.displayName}
+            teamName={view.myPick.teamName}
+            weekNumber={view.week.weekNumber}
+            livesRemaining={view.entry.livesRemaining}
+            onComplete={dismissLifeLostMoment}
           />
         ) : null}
 

@@ -59,6 +59,7 @@ export type PlatformEventType =
   | "survivor.league_joined"
   | "survivor.shield_activated"
   | "survivor.shield_depleted"
+  | "survivor.life_lost"
   | "system.push_notification"
   | "system.email_notification"
   | "system.sms_notification"
