@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
-import { getEcosystemAccount, updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
+import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
+import { updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
 import { earnTierCredits } from "@/lib/platform/ecosystem/credits";
 import { isValidAvatar, DEFAULT_AVATAR } from "@/lib/platform/ecosystem/avatars";
 
@@ -56,14 +57,8 @@ export async function setPlayerAvatar(email: string, emoji: string): Promise<str
 }
 
 export async function getPlayerAvatar(email: string): Promise<string> {
-  const account = await getEcosystemAccount(email);
-  const supabase = getSupabaseAdmin();
-  const { data } = await supabase
-    .from("player_profiles")
-    .select("avatar_emoji")
-    .eq("email", normalizeEmail(email))
-    .maybeSingle();
-  return (data?.avatar_emoji as string) ?? account?.displayName ? DEFAULT_AVATAR : DEFAULT_AVATAR;
+  const identity = await getPlayerPublicIdentity(email);
+  return identity.avatarEmoji;
 }
 
 export async function trackLifetimePurchase(email: string, amountCents: number): Promise<void> {

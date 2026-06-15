@@ -5,15 +5,6 @@ import { Suspense } from "react";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
 import HomeModeSwitcher from "@/components/home/HomeModeSwitcher";
 
-const QUICK_LINKS = [
-  { href: "/games/nfl", label: "NFL Squares", emoji: "🏈" },
-  { href: "/pickem", label: "Pick'em", emoji: "🎯" },
-  { href: "/survivor", label: "Survivor X", emoji: "🏆" },
-  { href: "/my-games/rewards", label: "Rewards", emoji: "🎁" },
-  { href: "/huddle", label: "The Huddle", emoji: "👥" },
-  { href: "/action-center", label: "Action Center", emoji: "⚡" },
-];
-
 export default function GameRoomHero({
   greeting,
   subtitle,
@@ -27,8 +18,6 @@ export default function GameRoomHero({
   isGameDay: boolean;
   atmosphereLabel: string;
 }) {
-  const marqueeItems = [...QUICK_LINKS, ...QUICK_LINKS];
-
   return (
     <header className="gameroom-hero mb-6 sm:mb-8">
       <div className="gameroom-hero-bg" aria-hidden>
@@ -72,21 +61,6 @@ export default function GameRoomHero({
           <Link href="/my-games?mode=gameday" className="gameroom-gameday-chip hidden sm:inline-flex">
             {isGameDay ? "🔴 Game Day Live" : "📅 Game Day"} →
           </Link>
-        </div>
-
-        <div className="gameroom-marquee-wrap" aria-label="Quick game links">
-          <div className="gameroom-marquee-track">
-            {marqueeItems.map((link, index) => (
-              <Link
-                key={`${link.href}-${index}`}
-                href={link.href}
-                className="gameroom-marquee-link"
-              >
-                <span aria-hidden>{link.emoji}</span>
-                {link.label}
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </header>

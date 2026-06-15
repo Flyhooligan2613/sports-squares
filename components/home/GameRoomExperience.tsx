@@ -15,6 +15,7 @@ import GameDayContinuePanel from "@/components/game-day/GameDayContinuePanel";
 import DailyStoryCard from "@/components/home/DailyStoryCard";
 import GameRoomBrowseStrip from "@/components/home/GameRoomBrowseStrip";
 import GameRoomHero from "@/components/home/GameRoomHero";
+import GameRoomSportTabs from "@/components/home/GameRoomSportTabs";
 import GameRoomRewardSection from "@/components/home/GameRoomRewardSection";
 import HomeFriendsPanel from "@/components/home/HomeFriendsPanel";
 import HomeProgressionCenter from "@/components/home/HomeProgressionCenter";
@@ -55,6 +56,10 @@ export default function GameRoomExperience({
             isGameDay={data.isGameDay}
             atmosphereLabel={data.atmosphere.label}
           />
+        </HomeStagger>
+
+        <HomeStagger delay={100} revealed={revealed}>
+          <GameRoomSportTabs />
         </HomeStagger>
 
         {continueItems.length > 0 ? (

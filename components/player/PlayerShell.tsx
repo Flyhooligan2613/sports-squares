@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import PlayerHeaderQuickActions from "@/components/nav/PlayerHeaderQuickActions";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
+import { usePlayerShellAvatarSafe } from "@/components/player/PlayerShellAvatarProvider";
 
 function formatFollowerCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -27,6 +28,9 @@ export default function PlayerShell({
   profileHref = "/my-games/profile",
   followerCount = 0,
 }: PlayerShellProps) {
+  const avatarCtx = usePlayerShellAvatarSafe();
+  const resolvedAvatar = avatarCtx?.avatarEmoji ?? avatarEmoji;
+
   return (
     <div className="player-shell min-h-screen flex flex-col">
       <AppMenuBar
@@ -43,7 +47,7 @@ export default function PlayerShell({
               <span className="hidden sm:inline text-xs font-semibold text-white tabular-nums leading-none">
                 {formatFollowerCount(followerCount)}
               </span>
-              <PlayerAvatar emoji={avatarEmoji} size="md" />
+              <PlayerAvatar emoji={resolvedAvatar} size="md" />
             </Link>
           </div>
         }

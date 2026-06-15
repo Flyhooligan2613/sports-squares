@@ -9980,6 +9980,103 @@ html.sb-splash-pending body {
   box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
 }
 
+.gameroom-sport-tabs {
+  margin: 0 0 1.25rem;
+}
+
+.gameroom-sport-tabs-inner {
+  padding: 1.1rem 1.15rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(255, 255, 255, 0.03));
+}
+
+@media (min-width: 640px) {
+  .gameroom-sport-tabs-inner {
+    padding: 1.25rem 1.5rem 1.35rem;
+  }
+}
+
+.gameroom-sport-tabs-kicker {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+  margin-bottom: 0.65rem;
+}
+
+.gameroom-sport-tab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.gameroom-sport-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gameroom-sport-tab:hover {
+  color: #fff;
+  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(168, 85, 247, 0.12);
+}
+
+.gameroom-sport-tab-active {
+  color: #fff;
+  border-color: rgba(168, 85, 247, 0.55);
+  background: rgba(168, 85, 247, 0.22);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.18);
+}
+
+.gameroom-sport-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gameroom-sport-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.gameroom-sport-link:hover {
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.12);
+  transform: translateY(-1px);
+}
+
+.gameroom-sport-link-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .gameroom-marquee-wrap {
   overflow: hidden;
   margin-top: 1rem;

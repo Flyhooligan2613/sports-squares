@@ -40,6 +40,7 @@ import {
   resolveWelcomeHomeFromUrl,
 } from "@/lib/home/welcomeSession";
 import type { HomeData } from "@/lib/gameDay/types";
+import { PlayerShellAvatarSync } from "@/components/player/PlayerShellAvatarProvider";
 
 export default function HomeExperience() {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function HomeExperience() {
   useEffect(() => {
     let cancelled = false;
 
-    async function load() {
+    async function load(background = false) {
       try {
         const res = await fetch("/api/home", { cache: "no-store", credentials: "include" });
         if (res.status === 401) {
@@ -81,16 +82,16 @@ export default function HomeExperience() {
         const json = (await res.json()) as HomeData;
         if (!cancelled) setData(json);
       } catch (err) {
-        if (!cancelled) {
+        if (!cancelled && !background) {
           setError(err instanceof Error ? err.message : "Something went wrong");
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !background) setLoading(false);
       }
     }
 
     load();
-    const interval = setInterval(load, 45_000);
+    const interval = setInterval(() => void load(true), 45_000);
     return () => {
       cancelled = true;
       clearInterval(interval);
@@ -147,6 +148,7 @@ export default function HomeExperience() {
   if (isGameRoom) {
     return (
       <LiveActivityProvider>
+        <PlayerShellAvatarSync avatarEmoji={data.avatarEmoji} />
         <GameRoomExperience
           data={data}
           revealed={stagger}
@@ -165,6 +167,7 @@ export default function HomeExperience() {
 
   return (
     <LiveActivityProvider>
+      <PlayerShellAvatarSync avatarEmoji={data.avatarEmoji} />
       <div className={`home-page home-page-revealed gd-page gd-theme-${data.atmosphere.theme}`}>
         <AmbientBackground />
 

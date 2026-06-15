@@ -8,15 +8,16 @@ export default function PwaRegister() {
 
     let registration: ServiceWorkerRegistration | undefined;
     let reloadedForUpdate = false;
+    const hadController = Boolean(navigator.serviceWorker.controller);
 
     const onVisible = () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && hadController) {
         void registration?.update();
       }
     };
 
     const onControllerChange = () => {
-      if (reloadedForUpdate) return;
+      if (!hadController || reloadedForUpdate) return;
       reloadedForUpdate = true;
       window.location.reload();
     };
