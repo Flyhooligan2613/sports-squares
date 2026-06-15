@@ -118,7 +118,7 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/my-games");
+    redirect("/my-games?mode=gameday");
   }
 
   return (

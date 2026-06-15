@@ -9816,6 +9816,363 @@ html.sb-splash-pending body {
   letter-spacing: 0.04em;
 }
 
+.welcome-home-gameroom-hint {
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  color: rgba(125, 211, 252, 0.85);
+  animation: welcome-home-summary-rise 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+  opacity: 0;
+}
+
+/* Game Room — player hub */
+.gameroom-page {
+  position: relative;
+  min-height: 100%;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(168, 85, 247, 0.14), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 20%, rgba(56, 189, 248, 0.1), transparent 50%),
+    radial-gradient(ellipse 50% 35% at 0% 60%, rgba(236, 72, 153, 0.08), transparent 45%);
+}
+
+.gameroom-ambient-grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 85%);
+}
+
+.gameroom-live-ribbon {
+  border-bottom-color: rgba(168, 85, 247, 0.2);
+}
+
+.gameroom-hero {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(168, 85, 247, 0.1),
+    rgba(56, 189, 248, 0.06) 45%,
+    rgba(255, 255, 255, 0.03)
+  );
+  padding: 1.25rem 1.25rem 1rem;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px rgba(168, 85, 247, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+@media (min-width: 640px) {
+  .gameroom-hero {
+    padding: 1.75rem 1.75rem 1.25rem;
+  }
+}
+
+.gameroom-hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.gameroom-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(40px);
+  animation: gameroom-orb-float 8s ease-in-out infinite;
+}
+
+.gameroom-orb-a {
+  width: 180px;
+  height: 180px;
+  top: -40px;
+  right: 10%;
+  background: rgba(168, 85, 247, 0.35);
+}
+
+.gameroom-orb-b {
+  width: 140px;
+  height: 140px;
+  bottom: -30px;
+  left: 5%;
+  background: rgba(56, 189, 248, 0.28);
+  animation-delay: -3s;
+}
+
+.gameroom-orb-c {
+  width: 100px;
+  height: 100px;
+  top: 40%;
+  right: -20px;
+  background: rgba(236, 72, 153, 0.22);
+  animation-delay: -5s;
+}
+
+.gameroom-hero-lights {
+  display: flex;
+  gap: 0.35rem;
+  position: absolute;
+  top: 0.65rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.gameroom-light-bulb {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  animation: gameroom-bulb-blink 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--bulb-i, 0) * 0.15s);
+}
+
+.gameroom-neon-sign {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e9d5ff;
+  text-shadow:
+    0 0 8px rgba(168, 85, 247, 0.8),
+    0 0 20px rgba(168, 85, 247, 0.45);
+  animation: gameroom-neon-flicker 4s ease-in-out infinite;
+}
+
+.gameroom-greeting {
+  font-size: clamp(1.75rem, 4vw, 2.45rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+}
+
+.gameroom-hero-avatar {
+  box-shadow:
+    0 0 0 3px rgba(168, 85, 247, 0.25),
+    0 0 32px rgba(168, 85, 247, 0.2);
+  animation: gameroom-avatar-pulse 3s ease-in-out infinite;
+}
+
+.gameroom-gameday-chip {
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #86efac;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.gameroom-gameday-chip:hover {
+  color: #fff;
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.18);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+}
+
+.gameroom-marquee-wrap {
+  overflow: hidden;
+  margin-top: 1rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.gameroom-marquee-track {
+  display: flex;
+  gap: 0.65rem;
+  width: max-content;
+  animation: gameroom-marquee-scroll 38s linear infinite;
+}
+
+.gameroom-marquee-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.gameroom-marquee-link:hover {
+  color: #fff;
+  border-color: rgba(168, 85, 247, 0.45);
+  background: rgba(168, 85, 247, 0.12);
+  transform: translateY(-1px);
+}
+
+.gameroom-browse-strip {
+  margin: 0.5rem 0 1.5rem;
+}
+
+.gameroom-browse-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding: 1.5rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+@media (min-width: 640px) {
+  .gameroom-browse-strip-inner {
+    padding: 1.75rem 2rem;
+  }
+}
+
+.gameroom-browse-kicker {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  margin-bottom: 0.35rem;
+}
+
+.gameroom-browse-title {
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+}
+
+.gameroom-browse-sub {
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.58);
+  max-width: 36rem;
+  line-height: 1.55;
+}
+
+.gameroom-browse-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.gameroom-browse-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7dd3fc;
+  text-decoration: none;
+  padding: 0.45rem 0.25rem;
+}
+
+.gameroom-browse-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.gameroom-player-row .home-section-title,
+.gameroom-player-row .gd-section-title {
+  font-size: 1.05rem;
+}
+
+.gameroom-section .landing-section {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.gameroom-reward-card {
+  border-color: rgba(168, 85, 247, 0.28) !important;
+}
+
+.gameroom-reward-crate {
+  animation: gameroom-crate-bounce 2.8s ease-in-out infinite;
+}
+
+.gameroom-gameday-nudge {
+  margin-top: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(168, 85, 247, 0.28);
+  background: rgba(168, 85, 247, 0.06);
+  text-align: center;
+}
+
+.gameroom-gameday-nudge-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.player-home-nav .player-home-nav-link:first-child.player-home-nav-link-active {
+  background: rgba(168, 85, 247, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.38);
+}
+
+@keyframes gameroom-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8px, -6px) scale(1.05); }
+}
+
+@keyframes gameroom-bulb-blink {
+  0%, 100% { opacity: 0.25; background: rgba(255, 255, 255, 0.15); }
+  50% { opacity: 1; background: #fde047; box-shadow: 0 0 8px rgba(253, 224, 71, 0.7); }
+}
+
+@keyframes gameroom-neon-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.75; }
+  94% { opacity: 1; }
+  96% { opacity: 0.85; }
+  97% { opacity: 1; }
+}
+
+@keyframes gameroom-avatar-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25), 0 0 32px rgba(168, 85, 247, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.28); }
+}
+
+@keyframes gameroom-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes gameroom-crate-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gameroom-marquee-track,
+  .gameroom-neon-sign,
+  .gameroom-orb,
+  .gameroom-light-bulb,
+  .gameroom-hero-avatar,
+  .gameroom-reward-crate,
+  .welcome-home-gameroom-hint {
+    animation: none !important;
+  }
+
+  .gameroom-marquee-track {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .home-stagger {
   opacity: 0;
   transform: translateY(14px);

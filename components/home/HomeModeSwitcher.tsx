@@ -7,12 +7,12 @@ const HOME_HREF = "/my-games?mode=home";
 const GAME_DAY_HREF = "/my-games?mode=gameday";
 
 function isHomeModeActive(pathname: string, mode: string | null): boolean {
-  if (pathname !== "/my-games") return false;
-  return mode !== "gameday";
+  return pathname === "/my-games" && mode === "home";
 }
 
 function isGameDayModeActive(pathname: string, mode: string | null): boolean {
-  return pathname === "/my-games" && mode === "gameday";
+  if (pathname !== "/my-games") return false;
+  return mode === "gameday" || mode === null;
 }
 
 export default function HomeModeSwitcher({
@@ -33,13 +33,13 @@ export default function HomeModeSwitcher({
 
   if (variant === "bar") {
     return (
-      <nav className="player-home-nav" aria-label="Home and Game Day">
+      <nav className="player-home-nav" aria-label="Game Room and Game Day">
         <Link
           href={HOME_HREF}
           className={`player-home-nav-link ${homeActive ? "player-home-nav-link-active" : ""}`}
           aria-current={homeActive ? "page" : undefined}
         >
-          Home
+          Game Room
         </Link>
         <Link
           href={GAME_DAY_HREF}
@@ -53,13 +53,13 @@ export default function HomeModeSwitcher({
   }
 
   return (
-    <nav className="flex flex-wrap items-center gap-2" aria-label="Home and Game Day">
+    <nav className="flex flex-wrap items-center gap-2" aria-label="Game Room and Game Day">
       <Link
         href={HOME_HREF}
         className={`home-badge home-badge-link ${homeActive ? "home-badge-active" : ""}`}
         aria-current={homeActive ? "page" : undefined}
       >
-        Home
+        Game Room
       </Link>
       <Link
         href={GAME_DAY_HREF}

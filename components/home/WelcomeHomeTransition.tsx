@@ -98,6 +98,9 @@ export default function WelcomeHomeTransition({ data, onComplete }: WelcomeHomeT
               <h1 className="welcome-home-greeting">{data.greeting}</h1>
               <p className="welcome-home-subtitle">{data.greetingSubtitle}</p>
               <WelcomeHomeSummary items={summaryItems} />
+              <p className="welcome-home-gameroom-hint">
+                When you&apos;re caught up, explore the Game Room for every game on the platform.
+              </p>
             </>
           ) : (
             <p className="text-sm text-sb-muted animate-pulse">Preparing your Home…</p>

@@ -133,11 +133,11 @@ export default function NavDrawer() {
                     {visibleItems.map((item) => {
                       let active = isNavItemActive(pathname, item.href);
                       if (item.href === "/my-games?mode=gameday") {
-                        active = pathname === "/my-games" && viewMode === "gameday";
-                      } else if (item.href === "/my-games") {
                         active =
-                          (pathname === "/my-games" || pathname === "/home") &&
-                          viewMode !== "gameday";
+                          pathname === "/my-games" &&
+                          (viewMode === "gameday" || viewMode === null);
+                      } else if (item.href === "/my-games?mode=home") {
+                        active = pathname === "/my-games" && viewMode === "home";
                       }
                       const badge = badgeForItem(
                         item,
