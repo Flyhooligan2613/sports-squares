@@ -22,8 +22,13 @@ import HomeProgressionCenter from "@/components/home/HomeProgressionCenter";
 import HomeStagger from "@/components/home/HomeStagger";
 import type { HomeData } from "@/lib/gameDay/types";
 import type { GameDayContinueItem } from "@/lib/gameDay/types";
-import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
+import {
+  HUB_SECTION,
+  GAME_ROOM_SECTION_TABS,
+  hubSectionAnchorClassName,
+} from "@/lib/home/hubSections";
 import { useHubHashScroll } from "@/components/home/useHubHashScroll";
+import GameHubSectionTabs from "@/components/home/GameHubSectionTabs";
 
 interface GameRoomExperienceProps {
   data: HomeData;
@@ -64,6 +69,10 @@ export default function GameRoomExperience({
 
         <HomeStagger delay={100} revealed={revealed}>
           <GameRoomSportTabs />
+        </HomeStagger>
+
+        <HomeStagger delay={120} revealed={revealed}>
+          <GameHubSectionTabs tabs={GAME_ROOM_SECTION_TABS} mode="home" />
         </HomeStagger>
 
         {continueItems.length > 0 ? (
@@ -121,7 +130,9 @@ export default function GameRoomExperience({
           </HomeStagger>
 
           <HomeStagger delay={800} revealed={revealed} className="gameroom-section">
-            <GameRoomRewardSection />
+            <div id={HUB_SECTION.rewards} className={hubSectionAnchorClassName()}>
+              <GameRoomRewardSection />
+            </div>
           </HomeStagger>
         </LandingLiveProvider>
       </div>

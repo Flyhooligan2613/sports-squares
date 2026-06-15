@@ -36,6 +36,7 @@ export default function HomeModeSwitcher({
       <nav className="player-home-nav" aria-label="Game Room and Game Day">
         <Link
           href={HOME_HREF}
+          scroll={false}
           className={`player-home-nav-link ${homeActive ? "player-home-nav-link-active" : ""}`}
           aria-current={homeActive ? "page" : undefined}
         >
@@ -43,6 +44,7 @@ export default function HomeModeSwitcher({
         </Link>
         <Link
           href={GAME_DAY_HREF}
+          scroll={false}
           className={`player-home-nav-link ${gameDayActive ? "player-home-nav-link-active" : ""}`}
           aria-current={gameDayActive ? "page" : undefined}
         >
@@ -56,6 +58,7 @@ export default function HomeModeSwitcher({
     <nav className="flex flex-wrap items-center gap-2" aria-label="Game Room and Game Day">
       <Link
         href={HOME_HREF}
+        scroll={false}
         className={`home-badge home-badge-link ${homeActive ? "home-badge-active" : ""}`}
         aria-current={homeActive ? "page" : undefined}
       >
@@ -63,6 +66,7 @@ export default function HomeModeSwitcher({
       </Link>
       <Link
         href={GAME_DAY_HREF}
+        scroll={false}
         className={[
           "home-badge home-badge-link",
           isGameDay ? "home-badge-live" : "home-badge-calm",

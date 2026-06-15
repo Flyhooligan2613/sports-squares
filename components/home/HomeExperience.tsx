@@ -20,6 +20,7 @@ import GameDaySnapshotGrid from "@/components/game-day/GameDaySnapshotGrid";
 import GameDayContinuePanel from "@/components/game-day/GameDayContinuePanel";
 import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropCountdownBanner";
 import GameDayTodaysGames from "@/components/game-day/GameDayTodaysGames";
+import GameHubSectionTabs from "@/components/home/GameHubSectionTabs";
 import HomeWelcome from "@/components/home/HomeWelcome";
 import GameRoomExperience from "@/components/home/GameRoomExperience";
 import HomeStagger from "@/components/home/HomeStagger";
@@ -42,6 +43,7 @@ import {
 import type { HomeData } from "@/lib/gameDay/types";
 import { PlayerShellAvatarSync } from "@/components/player/PlayerShellAvatarProvider";
 import { useHubHashScroll } from "@/components/home/useHubHashScroll";
+import { GAME_DAY_SECTION_TABS, peekPendingHubHash } from "@/lib/home/hubSections";
 
 export default function HomeExperience() {
   const router = useRouter();
@@ -63,7 +65,7 @@ export default function HomeExperience() {
   }, []);
 
   useEffect(() => {
-    if (window.location.hash) return;
+    if (window.location.hash || peekPendingHubHash()) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [viewMode]);
 
@@ -194,6 +196,10 @@ export default function HomeExperience() {
 
           <HomeStagger delay={120} revealed={stagger}>
             <WeeklyDropCountdownBanner schedule={data.weeklyDropSchedule} />
+          </HomeStagger>
+
+          <HomeStagger delay={160} revealed={stagger}>
+            <GameHubSectionTabs tabs={GAME_DAY_SECTION_TABS} mode="gameday" />
           </HomeStagger>
 
           <HomeStagger delay={220} revealed={stagger}>

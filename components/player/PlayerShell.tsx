@@ -5,6 +5,7 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import PlayerHeaderQuickActions from "@/components/nav/PlayerHeaderQuickActions";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
 import { usePlayerShellAvatarSafe } from "@/components/player/PlayerShellAvatarProvider";
+import { GAME_ROOM_HREF } from "@/lib/home/hubSections";
 
 function formatFollowerCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -34,7 +35,7 @@ export default function PlayerShell({
   return (
     <div className="player-shell min-h-screen flex flex-col">
       <AppMenuBar
-        logoHref="/my-games"
+        logoHref={GAME_ROOM_HREF}
         hideMobileSearch
         rightSlot={
           <div className="flex items-center gap-0.5 sm:gap-1">

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { parseHubHash, scrollToHubSection } from "@/lib/home/hubSections";
+import { resolveHubTargetHash, scrollToHubSection } from "@/lib/home/hubSections";
 
-const RETRY_MS = [80, 200, 420, 700, 1100, 1600];
+const RETRY_MS = [0, 80, 200, 420, 700, 1100, 1600, 2200, 3000];
 
 /** Scroll to `#section` after hub content mounts (Game Day / Game Room). */
 export function useHubHashScroll(ready: boolean, deps: unknown[] = []) {
@@ -13,18 +13,18 @@ export function useHubHashScroll(ready: boolean, deps: unknown[] = []) {
     const timers: number[] = [];
 
     function runScroll() {
-      const hash = parseHubHash();
+      const hash = resolveHubTargetHash();
       if (!hash) return false;
-      return scrollToHubSection(hash);
+      const scrolled = scrollToHubSection(hash);
+      if (scrolled && window.location.hash !== `#${hash}`) {
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hash}`);
+      }
+      return scrolled;
     }
 
     function scheduleRetries() {
       for (const delay of RETRY_MS) {
-        timers.push(
-          window.setTimeout(() => {
-            runScroll();
-          }, delay)
-        );
+        timers.push(window.setTimeout(runScroll, delay));
       }
     }
 

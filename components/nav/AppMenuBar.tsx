@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import Logo from "@/components/Logo";
+import NavBackButton from "@/components/nav/NavBackButton";
 import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
 import NotificationBell from "@/components/nav/NotificationBell";
 import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
+import { GAME_ROOM_HREF } from "@/lib/home/hubSections";
 
 export default function AppMenuBar({
-  logoHref = "/",
+  logoHref = GAME_ROOM_HREF,
   rightSlot,
   hideMobileSearch = false,
 }: {
@@ -26,8 +29,11 @@ export default function AppMenuBar({
           .filter(Boolean)
           .join(" ")}
       >
-        <div className="app-menu-bar-brand flex items-center gap-2 min-w-0 shrink">
+        <div className="app-menu-bar-brand flex items-center gap-1 sm:gap-2 min-w-0 shrink">
           <NavDrawerTrigger />
+          <Suspense fallback={null}>
+            <NavBackButton />
+          </Suspense>
           <Logo href={logoHref} variant="icon" className="sb-logo-nav shrink-0 md:hidden" />
           <Logo href={logoHref} className="sb-logo-nav shrink-0 hidden md:inline-flex" />
         </div>

@@ -1,15 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import type { ComponentProps } from "react";
-import { scrollToHubSection } from "@/lib/home/hubSections";
+import {
+  hubViewModesMatch,
+  scrollToHubSection,
+  setPendingHubHash,
+} from "@/lib/home/hubSections";
 
 type HubSectionLinkProps = ComponentProps<typeof Link>;
 
 function hrefHasHash(href: HubSectionLinkProps["href"]): boolean {
   const hrefString = typeof href === "string" ? href : href.pathname ?? "";
   return hrefString.includes("#");
+}
+
+function parseHubHref(href: string) {
+  const url = new URL(href, window.location.origin);
+  return {
+    pathname: url.pathname,
+    mode: url.searchParams.get("mode"),
+    hash: url.hash.replace(/^#/, ""),
+    hrefString: `${url.pathname}${url.search}${url.hash}`,
+  };
 }
 
 export default function HubSectionLink({
@@ -20,6 +34,7 @@ export default function HubSectionLink({
 }: HubSectionLinkProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const preserveScroll = scroll ?? (hrefHasHash(href) ? false : undefined);
 
   return (
@@ -33,20 +48,24 @@ export default function HubSectionLink({
         const hrefString = typeof href === "string" ? href : href.pathname ?? "";
         if (!hrefString.includes("#")) return;
 
-        const url = new URL(hrefString, window.location.origin);
-        const hash = url.hash.replace(/^#/, "");
-        if (!hash) return;
+        const target = parseHubHref(hrefString);
+        if (!target.hash) return;
 
-        const targetQuery = url.searchParams.toString();
-        const currentQuery = searchParams.toString();
-        const samePath = url.pathname === pathname;
-        const sameQuery = targetQuery === currentQuery;
+        const samePath = target.pathname === pathname;
+        const sameHubMode = hubViewModesMatch(searchParams.get("mode"), target.mode);
 
-        if (samePath && sameQuery) {
-          event.preventDefault();
-          scrollToHubSection(hash);
-          window.history.pushState(null, "", hrefString);
+        if (!samePath) return;
+
+        event.preventDefault();
+
+        if (!sameHubMode) {
+          setPendingHubHash(target.hash);
+          router.push(target.hrefString, { scroll: false });
+          return;
         }
+
+        scrollToHubSection(target.hash);
+        window.history.pushState(null, "", target.hrefString);
       }}
       {...props}
     />
