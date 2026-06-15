@@ -9,6 +9,10 @@ export interface ContinuePlayingContext {
   pickemRemaining: number;
   pickemEntered: boolean;
   unopenedMysteryBox: boolean;
+  liveNflBoards: number;
+  liveMlbBoards: number;
+  highlightSquaresActive: number;
+  hasPickemToday: boolean;
 }
 
 export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContinueItem[] {
@@ -18,7 +22,7 @@ export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContin
     items.push({
       id: "survivor",
       emoji: "🛡️",
-      title: "Survivor Pick Waiting",
+      title: "Continue Survivor X™",
       detail: "Lock your pick before kickoff",
       href: "/survivor",
       urgent: true,
@@ -29,8 +33,8 @@ export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContin
     items.push({
       id: "drop",
       emoji: "🎁",
-      title: "Reward Drop Ready",
-      detail: "Your weekly drop is unopened",
+      title: "Open Weekly Reward Drop",
+      detail: "Your weekly drop is waiting",
       href: "/my-games/rewards/square-drop",
       urgent: true,
     });
@@ -40,10 +44,48 @@ export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContin
     items.push({
       id: "pickem",
       emoji: "🏈",
-      title: "Finish Pick'em Card",
+      title: "Today's Pick'em Card",
       detail: `${ctx.pickemRemaining} pick${ctx.pickemRemaining === 1 ? "" : "s"} still open`,
       href: "/pickem",
       urgent: true,
+    });
+  } else if (ctx.hasPickemToday && !ctx.pickemEntered) {
+    items.push({
+      id: "pickem",
+      emoji: "🏈",
+      title: "Today's Pick'em Card",
+      detail: "Submit your card before lock",
+      href: "/pickem",
+    });
+  }
+
+  if (ctx.liveNflBoards > 0) {
+    items.push({
+      id: "nfl-live",
+      emoji: "🏈",
+      title: "Live NFL Boards",
+      detail: `${ctx.liveNflBoards} board${ctx.liveNflBoards === 1 ? "" : "s"} in play right now`,
+      href: "/action-center",
+    });
+  }
+
+  if (ctx.liveMlbBoards > 0) {
+    items.push({
+      id: "mlb-live",
+      emoji: "⚾",
+      title: "Live MLB Boards",
+      detail: `${ctx.liveMlbBoards} board${ctx.liveMlbBoards === 1 ? "" : "s"} in play right now`,
+      href: "/games/mlb",
+    });
+  }
+
+  if (ctx.highlightSquaresActive > 0) {
+    items.push({
+      id: "highlights",
+      emoji: "⭐",
+      title: "Active Highlight Squares",
+      detail: `${ctx.highlightSquaresActive} highlight${ctx.highlightSquaresActive === 1 ? "" : "s"} on your boards`,
+      href: "/live-winners",
     });
   }
 
@@ -53,7 +95,7 @@ export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContin
       emoji: "🔔",
       title: "Community Notifications",
       detail: `${ctx.notificationCount} update${ctx.notificationCount === 1 ? "" : "s"} for you`,
-      href: "/my-games",
+      href: "/my-games/notifications",
     });
   }
 
@@ -87,5 +129,5 @@ export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContin
     });
   }
 
-  return items.slice(0, 6);
+  return items.slice(0, 8);
 }

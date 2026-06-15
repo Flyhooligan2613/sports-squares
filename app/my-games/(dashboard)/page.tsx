@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import PlayerGameDayHub from "@/components/player/PlayerGameDayHub";
+import HomeExperience from "@/components/home/HomeExperience";
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `Game Day Hub | ${BRAND_NAME}`,
+  title: `Home | ${BRAND_NAME}`,
   description:
-    "Your personalized Game Day Experience — squares, Pick'em, Survivor, rewards, and community momentum in one command center.",
+    "Your Home on SquareBoards — personalized game day momentum, rewards, community, and everything waiting for you.",
 };
 
 export default function MyGamesPage() {
-  return <PlayerGameDayHub />;
+  return <HomeExperience />;
 }

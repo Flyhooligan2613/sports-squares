@@ -11,7 +11,8 @@ import {
   toEmotionalNotifications,
 } from "@/lib/gameDay/notifications";
 import { buildContinuePlaying } from "@/lib/gameDay/continuePlaying";
-import { buildWelcomeGreeting } from "@/lib/gameDay/greeting";
+import { buildHomeFriendsPanel } from "@/lib/gameDay/friendsPlaying";
+import { buildGreetingSubtitle, buildWelcomeGreeting } from "@/lib/gameDay/greeting";
 import { buildSnapshotCards } from "@/lib/gameDay/snapshot";
 import { isGameDaySurface, resolveGameDayPhase } from "@/lib/gameDay/phases";
 import type {
@@ -201,7 +202,51 @@ function startOfWeek(): string {
   return d.toISOString();
 }
 
+async function listNewestFollowers(
+  email: string,
+  limit = 5
+): Promise<{ id: string; username: string; avatarEmoji: string; followedAt: string }[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("huddle_player_follows")
+    .select("id, follower_email, created_at")
+    .eq("following_email", normalizeEmail(email))
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data?.length) return [];
+
+  const followerEmails = data.map((row) => row.follower_email as string);
+  const { data: profiles } = await supabase
+    .from("player_profiles")
+    .select("email, username, avatar_emoji")
+    .in("email", followerEmails);
+
+  const profileByEmail = new Map(
+    (profiles ?? []).map((p) => [normalizeEmail(p.email as string), p])
+  );
+
+  return data.map((row) => {
+    const profile = profileByEmail.get(normalizeEmail(row.follower_email as string));
+    return {
+      id: row.id as string,
+      username: (profile?.username as string) ?? "New follower",
+      avatarEmoji: (profile?.avatar_emoji as string) ?? "💫",
+      followedAt: row.created_at as string,
+    };
+  });
+}
+
+function countLiveBoardsBySport(
+  games: { sport: string; status: string; openBoard: unknown }[] | undefined,
+  sport: string
+): number {
+  if (!games?.length) return 0;
+  return games.filter((g) => g.sport === sport && g.status === "live" && g.openBoard).length;
+}
+
 function buildStatusItems(input: {
+  activeBoards: number;
   activeSquares: number;
   pickemSubmitted: number;
   pickemTotal: number;
@@ -213,15 +258,22 @@ function buildStatusItems(input: {
   tierLabel: string;
   newFollowers: number;
   achievementNear: string | null;
-  legacyBoardsPlayed: number;
   currentWinStreak: number;
   notificationCount: number;
+  lifetimeWinnings: number;
 }): GameDayStatusItem[] {
   const items: GameDayStatusItem[] = [
     {
+      id: "boards",
+      emoji: "🏈",
+      label: "Active Square Boards",
+      value: String(input.activeBoards),
+      href: "/my-games",
+    },
+    {
       id: "squares",
       emoji: "📋",
-      label: "Active Squares",
+      label: "Your Squares",
       value: String(input.activeSquares),
       href: "/my-games",
     },
@@ -268,17 +320,10 @@ function buildStatusItems(input: {
     },
     {
       id: "tier",
-      emoji: "⭐",
+      emoji: "🏅",
       label: `${input.tierLabel} Progress`,
       value: `${input.tierProgressPct}%`,
       href: "/my-games/rewards/tier",
-    },
-    {
-      id: "legacy",
-      emoji: "📈",
-      label: "Legacy Progress",
-      value: `${input.legacyBoardsPlayed} boards played`,
-      href: "/my-games/profile",
     },
     {
       id: "streak",
@@ -290,6 +335,13 @@ function buildStatusItems(input: {
           : "Start a streak",
       href: "/my-games/profile",
       highlight: input.currentWinStreak >= 3,
+    },
+    {
+      id: "winnings",
+      emoji: "💰",
+      label: "Lifetime Winnings",
+      value: `$${input.lifetimeWinnings.toLocaleString()}`,
+      href: "/my-games/winnings",
     },
   ];
 
@@ -351,8 +403,8 @@ function buildRecap(input: {
     communityActivityCount: 0,
     headline:
       input.winsToday > 0
-        ? "You made today count — here's your Game Day summary."
-        : "Game day isn't over yet — here's where you stand.",
+        ? "You made today count — here's your Game Day recap."
+        : "Wind down with your Game Day recap — tomorrow's already loading.",
   };
 }
 
@@ -374,6 +426,7 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     followingEmails,
     newFollowers,
     huddleFeed,
+    newestFollowers,
   ] = await Promise.all([
     getPlayerPublicIdentity(normalized),
     getPlayerDashboard(normalized),
@@ -388,6 +441,7 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     getUnifiedHuddleFeed({ sort: "trending", viewerEmail: normalized, limit: 8 }).catch(
       () => ({ items: [], pickOfWeek: null })
     ),
+    listNewestFollowers(normalized).catch(() => []),
   ]);
 
   const displayName = dashboard?.publicLabel ?? identity.publicLabel;
@@ -450,6 +504,16 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     (dashboard?.activeGames.reduce((sum, g) => sum + g.ownedSquares.length, 0) ?? 0) +
     (dashboard?.upcomingGames.reduce((sum, g) => sum + g.ownedSquareCount, 0) ?? 0);
 
+  const activeBoards =
+    (dashboard?.activeGames.length ?? 0) + (dashboard?.upcomingGames.length ?? 0);
+
+  const liveGames = [
+    ...(actionCenter?.nowHappening ?? []),
+    ...(actionCenter?.hotGames ?? []),
+  ];
+  const liveNflBoards = countLiveBoardsBySport(liveGames, "nfl");
+  const liveMlbBoards = countLiveBoardsBySport(liveGames, "mlb");
+
   const winsToday =
     dashboard?.recentWins.filter((w) => isToday(w.wonAt)).length ?? 0;
 
@@ -503,6 +567,7 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     : null;
 
   const statusItems = buildStatusItems({
+    activeBoards,
     activeSquares,
     pickemSubmitted,
     pickemTotal,
@@ -514,9 +579,9 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     tierLabel: ecosystem.tier.displayName,
     newFollowers,
     achievementNear,
-    legacyBoardsPlayed: legacy?.stats.boardsPlayed ?? 0,
     currentWinStreak: legacy?.stats.currentWinStreak ?? 0,
     notificationCount: dashboard?.notifications.length ?? 0,
+    lifetimeWinnings: legacy?.stats.lifetimeWinnings ?? 0,
   });
 
   const missions = buildGameDayMissions({
@@ -667,19 +732,40 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     pickemRemaining,
     pickemEntered,
     unopenedMysteryBox: ecosystem.unopenedMysteryBox,
+    liveNflBoards,
+    liveMlbBoards,
+    highlightSquaresActive: highlightSquares,
+    hasPickemToday: Boolean(pickemContest),
   });
 
   const firstName = displayName.split(" ")[0] ?? displayName;
+  const isGameDay = isGameDaySurface(now);
+  const greetingCtx = {
+    phase,
+    firstName,
+    atmosphere,
+    isGameDay,
+    favoriteSport: liveNflBoards >= liveMlbBoards ? ("nfl" as const) : liveMlbBoards > 0 ? ("mlb" as const) : null,
+    now,
+  };
+
+  const friendsPlayingPanel = buildHomeFriendsPanel({
+    friendsPlayingToday: friendsPlaying,
+    playersOnline: liveWinners?.platform.playersOnline ?? 0,
+    newestFollowers,
+    friendActivity,
+  });
 
   return {
     updatedAt: now.toISOString(),
     displayName,
     avatarEmoji,
-    greeting: buildWelcomeGreeting(phase, firstName, atmosphere.emoji),
+    greeting: buildWelcomeGreeting(greetingCtx),
+    greetingSubtitle: buildGreetingSubtitle(greetingCtx),
     phase,
     phaseLabel: PHASE_TIMELINE_HINTS[phase].label,
     atmosphere,
-    isGameDay: isGameDaySurface(now),
+    isGameDay,
     statusItems,
     missions,
     whatsNext,
@@ -718,6 +804,12 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
       loginStreakDays,
       legacyHeadline: legacy?.headline ?? "Your legacy is just getting started.",
       boardsPlayed: legacy?.stats.boardsPlayed ?? 0,
+      availableTierCredits: ecosystem.account.availableTierCredits,
+      squareCreditsCents: ecosystem.account.squareCreditsCents,
+      pickemCreditsCents: ecosystem.account.pickemCreditsCents,
+      weeklyMissionsComplete: missions.filter((m) => m.completed).length,
+      weeklyMissionsTotal: missions.length,
     },
+    friendsPlaying: friendsPlayingPanel,
   };
 }

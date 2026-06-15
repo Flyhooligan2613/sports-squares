@@ -103,7 +103,7 @@ export function GameDayCommunityMoments({ items }: { items: GameDayCommunityMome
 export function GameDayRecapPanel({ recap }: { recap: GameDayRecap }) {
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">Game Day Summary</h2>
+      <h2 className="gd-section-title">Game Day Recap</h2>
       <LandingGlassCard className="p-5 sm:p-6 gd-recap-card">
         <p className="text-base text-white font-medium mb-4">{recap.headline}</p>
         <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4">

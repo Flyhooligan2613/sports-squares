@@ -3,12 +3,18 @@
 import Link from "next/link";
 import type { GameDayContinueItem } from "@/lib/gameDay/types";
 
-export default function GameDayContinuePanel({ items }: { items: GameDayContinueItem[] }) {
+export default function GameDayContinuePanel({
+  items,
+  title = "Continue Your Game Day",
+}: {
+  items: GameDayContinueItem[];
+  title?: string;
+}) {
   if (!items.length) return null;
 
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">Continue Playing</h2>
+      <h2 className="gd-section-title home-section-title">{title}</h2>
       <ul className="space-y-3">
         {items.map((item, index) => (
           <li key={item.id}>

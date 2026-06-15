@@ -4,10 +4,16 @@ import Link from "next/link";
 import type { GameDayStatusItem } from "@/lib/gameDay/types";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 
-export default function GameDayStatusStrip({ items }: { items: GameDayStatusItem[] }) {
+export default function GameDayStatusStrip({
+  items,
+  title = "Today's Activity",
+}: {
+  items: GameDayStatusItem[];
+  title?: string;
+}) {
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">Today&apos;s Activity</h2>
+      <h2 className="gd-section-title home-section-title">{title}</h2>
       <ul className="gd-status-grid">
         {items.map((item, index) => (
           <li key={item.id}>

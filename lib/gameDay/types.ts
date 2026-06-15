@@ -13,7 +13,8 @@ export type GameDayAtmosphereTheme =
   | "world_series"
   | "march_madness"
   | "super_bowl"
-  | "championship";
+  | "championship"
+  | "holiday";
 
 export interface GameDayAtmosphere {
   theme: GameDayAtmosphereTheme;
@@ -133,6 +134,26 @@ export interface GameDayProgressCenter {
   loginStreakDays: number;
   legacyHeadline: string;
   boardsPlayed: number;
+  availableTierCredits: number;
+  squareCreditsCents: number;
+  pickemCreditsCents: number;
+  weeklyMissionsComplete: number;
+  weeklyMissionsTotal: number;
+}
+
+export interface HomeFriendFollower {
+  id: string;
+  name: string;
+  emoji: string;
+  at: string;
+  href?: string;
+}
+
+export interface HomeFriendsPanel {
+  friendsPlayingToday: number;
+  communityOnline: number;
+  newestFollowers: HomeFriendFollower[];
+  friendHighlights: GameDayFriendActivity[];
 }
 
 export interface GameDayTodaysGames {
@@ -145,6 +166,7 @@ export interface GameDayHubData {
   displayName: string;
   avatarEmoji: string;
   greeting: string;
+  greetingSubtitle: string;
   phase: GameDayPhase;
   phaseLabel: string;
   atmosphere: GameDayAtmosphere;
@@ -168,4 +190,8 @@ export interface GameDayHubData {
   continuePlaying: GameDayContinueItem[];
   todaysGames: GameDayTodaysGames;
   progressCenter: GameDayProgressCenter;
+  friendsPlaying: HomeFriendsPanel;
 }
+
+/** Directive #011 — authenticated player Home experience */
+export type HomeData = GameDayHubData;

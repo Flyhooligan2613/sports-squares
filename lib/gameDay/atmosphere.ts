@@ -41,6 +41,11 @@ const THEMES: Record<GameDayAtmosphereTheme, Omit<GameDayAtmosphere, "theme">> =
     emoji: "👑",
     tagline: "Crown-worthy moments are loading across the platform.",
   },
+  holiday: {
+    label: "Special Event",
+    emoji: "✨",
+    tagline: "Today feels different — settle in and enjoy the moment.",
+  },
 };
 
 function isNflSunday(now: Date): boolean {
@@ -63,10 +68,22 @@ function isMarchMadnessWindow(now: Date): boolean {
   return now.getMonth() === 2 || (now.getMonth() === 3 && now.getDate() <= 10);
 }
 
+function isHolidayWindow(now: Date): boolean {
+  const month = now.getMonth();
+  const date = now.getDate();
+  if (month === 11 && date >= 24 && date <= 26) return true;
+  if (month === 10 && date >= 22 && date <= 28) return true;
+  if (month === 6 && date === 4) return true;
+  if (month === 0 && date <= 2) return true;
+  return false;
+}
+
 export function resolveGameDayAtmosphere(now = new Date()): GameDayAtmosphere {
   let theme: GameDayAtmosphereTheme = "default";
 
-  if (isSuperBowlWindow(now)) {
+  if (isHolidayWindow(now)) {
+    theme = "holiday";
+  } else if (isSuperBowlWindow(now)) {
     theme = "super_bowl";
   } else if (isNflSunday(now)) {
     theme = "nfl_sunday";

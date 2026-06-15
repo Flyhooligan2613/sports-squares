@@ -8,7 +8,7 @@ export default function GameDaySnapshotGrid({ cards }: { cards: GameDaySnapshotC
 
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">What should I do next?</h2>
+      <h2 className="gd-section-title home-section-title">What Should I Do Next?</h2>
       <ul className="gd-snapshot-grid">
         {cards.map((card, index) => (
           <li key={card.id}>

@@ -74,14 +74,16 @@ export default function GameDayTimeline({ sections }: { sections: GameDayTimelin
 
 export function GameDayLiveStrip({
   items,
+  title = "Live Activity",
 }: {
   items: { id: string; emoji: string; message: string }[];
+  title?: string;
 }) {
   if (!items.length) return null;
 
   return (
     <section className="mb-10 sm:mb-12">
-      <h2 className="gd-section-title">Live Activity</h2>
+      <h2 className="gd-section-title home-section-title">{title}</h2>
       <div className="gd-live-strip">
         {items.slice(0, 8).map((item) => (
           <span key={item.id} className="gd-live-strip-item">
