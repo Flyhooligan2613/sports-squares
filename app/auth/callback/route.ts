@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/my-games";
+  const next = searchParams.get("next") ?? "/my-games?welcome=1";
 
   const loginUrl = new URL("/my-games/login", request.url);
   loginUrl.searchParams.set("error", "sign_in_failed");

@@ -6,9 +6,11 @@ import type { GameDayContinueItem } from "@/lib/gameDay/types";
 export default function GameDayContinuePanel({
   items,
   title = "Continue Your Game Day",
+  glowRewardDrop = false,
 }: {
   items: GameDayContinueItem[];
   title?: string;
+  glowRewardDrop?: boolean;
 }) {
   if (!items.length) return null;
 
@@ -23,6 +25,9 @@ export default function GameDayContinuePanel({
               className={[
                 "gd-continue-card block admin-stat-enter",
                 item.urgent ? "gd-continue-card-urgent" : "",
+                glowRewardDrop && (item.id === "drop" || item.id === "mystery")
+                  ? "home-continue-glow"
+                  : "",
               ]
                 .filter(Boolean)
                 .join(" ")}

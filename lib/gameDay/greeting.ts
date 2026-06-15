@@ -65,6 +65,11 @@ export function buildWelcomeGreeting(ctx: GreetingContext): string {
         ? `${sportEmoji} Good Afternoon, ${ctx.firstName}.`
         : `${sportEmoji} Good Afternoon.`;
     case "evening":
+      if (!ctx.isGameDay) {
+        return ctx.firstName
+          ? `👋 Good Evening, ${ctx.firstName}.`
+          : `👋 Good Evening.`;
+      }
       return ctx.firstName
         ? `${sportEmoji} Welcome Back, ${ctx.firstName}.`
         : `${sportEmoji} Welcome Back.`;

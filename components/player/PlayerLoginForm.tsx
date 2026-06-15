@@ -17,6 +17,7 @@ import {
   markAppUnlocked,
   setRememberMePreference,
 } from "@/lib/auth/security/deviceClient";
+import { markWelcomeHomePending } from "@/lib/home/welcomeSession";
 import {
   fetchAuthBootstrap,
   signInWithBiometric,
@@ -91,6 +92,7 @@ export default function PlayerLoginForm() {
     }
 
     markAppUnlocked(email.trim().toLowerCase());
+    markWelcomeHomePending();
     router.replace("/my-games");
   }
 
@@ -129,6 +131,7 @@ export default function PlayerLoginForm() {
     try {
       await signInWithBiometric(email.trim().toLowerCase(), rememberMe);
       markAppUnlocked(email.trim().toLowerCase());
+      markWelcomeHomePending();
       router.replace("/my-games");
     } catch (err) {
       setError(

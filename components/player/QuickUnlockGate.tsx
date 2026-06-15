@@ -25,6 +25,7 @@ import {
   isQuickPinLocked,
   verifyQuickPin,
 } from "@/lib/auth/security/quickPin";
+import { markWelcomeHomePending } from "@/lib/home/welcomeSession";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
 
 export default function QuickUnlockGate({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,7 @@ export default function QuickUnlockGate({ children }: { children: React.ReactNod
   const unlock = useCallback((playerEmail: string) => {
     markAppUnlocked(playerEmail);
     markLocalUnlock();
+    markWelcomeHomePending();
     setLocked(false);
     setError(null);
   }, []);
