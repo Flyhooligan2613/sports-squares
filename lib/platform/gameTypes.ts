@@ -6,6 +6,7 @@
 
 import { PLATFORM_GAME_TAGLINES } from "@/lib/platform/gameTaglines";
 import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
+import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
 
 export type PlatformGameId =
   | "squareboards"
@@ -125,13 +126,13 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   },
   {
     id: "soccer-predictor",
-    name: "Soccer Predictor",
+    name: FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME,
     tagline: PLATFORM_GAME_TAGLINES["soccer-predictor"],
     description:
-      "Predict match outcomes across leagues worldwide. Global leaderboards.",
+      "Immersive football predictions — matchday picks, live tracking, legacy rewards, and global community.",
     icon: "⚽",
-    status: "coming_soon",
-    href: null,
+    status: "available",
+    href: "/soccer-predictor",
     accent: "#06b6d4",
     statKeys: ["soccerPredictionPoints"],
   },
@@ -151,11 +152,16 @@ export function isBaseballPickemRoute(pathname: string): boolean {
   return pathname === "/baseball-pickem" || pathname.startsWith("/baseball-pickem/");
 }
 
+export function isSoccerPredictorRoute(pathname: string): boolean {
+  return pathname === "/soccer-predictor" || pathname.startsWith("/soccer-predictor/");
+}
+
 export function isPickemRoute(pathname: string): boolean {
   return (
     pathname === "/pickem" ||
     pathname.startsWith("/pickem/") ||
-    isBaseballPickemRoute(pathname)
+    isBaseballPickemRoute(pathname) ||
+    isSoccerPredictorRoute(pathname)
   );
 }
 
@@ -190,9 +196,10 @@ export function isPlatformGameNavActive(
   if (game.id === "mlb-squares") {
     return pathname.startsWith("/games/mlb") || pathname.startsWith("/learn/mlb-squares");
   }
-  if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname);
+  if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname) && !isSoccerPredictorRoute(pathname);
   if (game.id === "survivor") return isSurvivorRoute(pathname);
   if (game.id === "brackets") return isTournamentRoyaleRoute(pathname);
   if (game.id === "baseball-pickem") return isBaseballPickemRoute(pathname);
+  if (game.id === "soccer-predictor") return isSoccerPredictorRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);
 }

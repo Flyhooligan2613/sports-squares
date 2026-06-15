@@ -264,6 +264,20 @@ export const DAILY_STORY_LIBRARY: DailyStoryDefinition[] = [
     tags: ["soccer"],
     weight: 68,
   },
+  {
+    id: "event_football_pickem_opener",
+    emoji: "⚽",
+    body: "Match day is here.\nEvery prediction tells a story.",
+    tags: ["soccer", "football_pickem"],
+    weight: 92,
+  },
+  {
+    id: "event_derby_day",
+    emoji: "🔥",
+    body: "Derby Day™.\nRivalries were made for moments like this.",
+    tags: ["soccer", "football_pickem"],
+    weight: 90,
+  },
 
   // Time of day
   {

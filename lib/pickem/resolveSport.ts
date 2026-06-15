@@ -23,4 +23,4 @@ export function assertPickemSportEnabled(sport: PickemSport): void {
   }
 }
 
-export const ENABLED_PICKEM_SPORTS: PickemSport[] = ["nfl", "mlb"];
+export const ENABLED_PICKEM_SPORTS: PickemSport[] = ["nfl", "mlb", "soccer"];

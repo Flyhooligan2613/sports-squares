@@ -9,7 +9,7 @@ export const PLATFORM_GAME_TAGLINES: Record<PlatformGameId, string> = {
   survivor: "One pick. Stay alive.",
   "baseball-pickem": "Diamond picks all summer",
   brackets: "Every prediction tells a story",
-  "soccer-predictor": "World stage warming up",
+  "soccer-predictor": "Every match tells a story",
 };
 
 export function getPlatformGameTagline(id: PlatformGameId): string {

@@ -1,5 +1,6 @@
 import { PLATFORM_GAMES, type PlatformGameId } from "@/lib/platform/gameTypes";
 import { ECOSYSTEM_FEATURE_TAGLINES } from "@/lib/platform/gameTaglines";
+import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
 import { WEEKLY_REWARD_DROP_PUBLIC_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
 
 export type EcosystemFeatureStatus = "available" | "coming_soon";
@@ -56,8 +57,8 @@ const GAME_CARD_OVERRIDES: Record<
   },
   "soccer-predictor": {
     emoji: "⚽",
-    title: "Soccer Predictor",
-    bullets: ["Global match picks", "League leaderboards", "Worldwide competition"],
+    title: FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME,
+    bullets: ["Matchweek picks", "Live matchday", "Global leaderboards"],
   },
 };
 
@@ -153,6 +154,8 @@ const AVAILABLE_GAME_ORDER: PlatformGameId[] = [
   "pickem",
   "survivor",
   "baseball-pickem",
+  "brackets",
+  "soccer-predictor",
 ];
 
 /** Homepage ecosystem grid — games first, then platform features, then coming soon. */

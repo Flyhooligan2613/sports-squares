@@ -12,7 +12,8 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 import PlatformTrustStrip from "@/components/platform/PlatformTrustStrip";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemOverviewStats, PickemSport, PickemWeekView } from "@/lib/pickem/types";
-import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
+import { pickemApiUrl, pickemAmbientClass, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
+import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
 import {
   pickemGamesRemainingLabel,
   pickemLandingAccountTagline,
@@ -32,6 +33,15 @@ function formatMoney(cents: number): string {
 export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemSport }) {
   const basePath = pickemBasePath(sport);
   const sportLabel = pickemSportLabel(sport);
+  const ambientClass = pickemAmbientClass(sport);
+  const heroTitle =
+    sport === "mlb"
+      ? "MLB Pick'em"
+      : sport === "soccer"
+        ? FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME
+        : "SquareBoards Pick'em";
+  const badgeLabel = sport === "soccer" ? "Global Football" : "Flagship Game #2";
+  const seasonWeekLabel = sport === "soccer" ? "Matchweek" : "Season Week";
   const features = pickemLandingFeatures(sport);
   const [overview, setOverview] = useState<PickemOverviewStats | null>(null);
   const [week, setWeek] = useState<PickemWeekView | null>(null);
@@ -57,15 +67,15 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
 
   return (
     <div className="pickem-page min-h-screen relative overflow-x-hidden">
-      <AmbientBackground className="pickem-ambient-green" fixed />
+      <AmbientBackground className={ambientClass} fixed />
       <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10">
         <LandingSection variant="glow" className="pt-8 sm:pt-12">
           <ExperienceHero
-            badgeLabel="Flagship Game #2"
+            badgeLabel={badgeLabel}
             badgeVariant="live"
-            title={sport === "mlb" ? "MLB Pick'em" : "SquareBoards Pick'em"}
+            title={heroTitle}
             subtitle={`Predict every ${sportLabel} winner. Build winning streaks. Compete worldwide.`}
             stats={
               overview
@@ -73,7 +83,7 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
                     { label: "Players This Week", value: overview.playersThisWeek },
                     { label: "Prize Pool", value: formatMoney(overview.prizePoolCents) },
                     { label: "Longest Streak", value: overview.longestActiveStreak },
-                    { label: "Season Week", value: overview.seasonWeek },
+                    { label: seasonWeekLabel, value: overview.seasonWeek },
                   ]
                 : undefined
             }
@@ -94,6 +104,11 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
             <Button href={`${basePath}/hall-of-fame`} variant="secondary">
               Hall of Fame
             </Button>
+            {sport === "soccer" && (
+              <Button href={`${basePath}/learn`} variant="secondary">
+                How to Play
+              </Button>
+            )}
           </div>
 
           <p className="text-center text-xs text-sb-muted mt-4 max-w-xl mx-auto">

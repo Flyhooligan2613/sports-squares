@@ -337,7 +337,9 @@ export async function syncPickemProfileStats(
     extra: {
       ...(sport === "mlb"
         ? { baseballPickemWins: stats.lifetimePickemWins }
-        : { pickemWins: stats.lifetimePickemWins }),
+        : sport === "soccer"
+          ? { soccerPredictionPoints: stats.lifetimePickemWins }
+          : { pickemWins: stats.lifetimePickemWins }),
       pickAccuracyPct: Math.round(stats.pickAccuracyPct * 10),
       perfectWeeks: stats.perfectWeeks,
       seasonChampionships: stats.seasonChampionships,

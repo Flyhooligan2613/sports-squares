@@ -61,11 +61,11 @@ export const PICKEM_SPORT_CONFIG: Record<PickemSport, PickemSportConfig> = {
   },
   soccer: {
     id: "soccer",
-    label: "Soccer",
+    label: "MLS",
     platformGameId: "soccer-predictor",
     espnPath: "soccer/usa.1",
     defaultSeasonType: 2,
-    enabled: false,
+    enabled: true,
   },
 };
 
@@ -112,6 +112,17 @@ export const NFL_PLAYOFF_LABELS = [
 /** MLB regular season weeks (~26). */
 export const MLB_REGULAR_WEEKS = 26;
 
+/** MLS regular season matchweeks. */
+export const MLS_REGULAR_MATCHWEEKS = 34;
+
+/** MLS playoff round labels. */
+export const MLS_PLAYOFF_LABELS = [
+  "Round 1",
+  "Conference Semifinals",
+  "Conference Final",
+  "MLS Cup",
+] as const;
+
 /** MLB playoff round labels. */
 export const MLB_PLAYOFF_LABELS = [
   "Wild Card",
@@ -126,15 +137,22 @@ export function formatPickemWeekLabel(
   sport: PickemSport = DEFAULT_PICKEM_SPORT
 ): string {
   if (seasonType === PICKEM_SEASON_TYPE_PLAYOFFS) {
-    const labels = sport === "mlb" ? MLB_PLAYOFF_LABELS : NFL_PLAYOFF_LABELS;
+    const labels =
+      sport === "mlb"
+        ? MLB_PLAYOFF_LABELS
+        : sport === "soccer"
+          ? MLS_PLAYOFF_LABELS
+          : NFL_PLAYOFF_LABELS;
     return labels[weekNumber - 1] ?? `Playoff Week ${weekNumber}`;
   }
+  if (sport === "soccer") return `Matchweek ${weekNumber}`;
   return `Week ${weekNumber}`;
 }
 
 export function pickemSeasonWeekSpecs(sport: PickemSport): PickemSeasonWeekSpec[] {
   if (sport === "mlb") return mlbSeasonWeekSpecs();
   if (sport === "nfl") return nflSeasonWeekSpecs();
+  if (sport === "soccer") return soccerSeasonWeekSpecs();
   const config = getPickemSportConfig(sport);
   return [
     {
@@ -195,6 +213,26 @@ export function mlbSeasonWeekSpecs(): PickemSeasonWeekSpec[] {
       seasonType: PICKEM_SEASON_TYPE_PLAYOFFS,
       weekNumber: w,
       label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_PLAYOFFS, "mlb"),
+    });
+  }
+  return weeks;
+}
+
+/** Full MLS calendar — regular season matchweeks + playoffs. */
+export function soccerSeasonWeekSpecs(): PickemSeasonWeekSpec[] {
+  const weeks: PickemSeasonWeekSpec[] = [];
+  for (let w = 1; w <= MLS_REGULAR_MATCHWEEKS; w += 1) {
+    weeks.push({
+      seasonType: PICKEM_SEASON_TYPE_REGULAR,
+      weekNumber: w,
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_REGULAR, "soccer"),
+    });
+  }
+  for (let w = 1; w <= MLS_PLAYOFF_LABELS.length; w += 1) {
+    weeks.push({
+      seasonType: PICKEM_SEASON_TYPE_PLAYOFFS,
+      weekNumber: w,
+      label: formatPickemWeekLabel(w, PICKEM_SEASON_TYPE_PLAYOFFS, "soccer"),
     });
   }
   return weeks;

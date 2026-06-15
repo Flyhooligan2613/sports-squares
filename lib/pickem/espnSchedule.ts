@@ -16,6 +16,10 @@ import {
   getCurrentMlbWeekNumber,
   getMlbWeekDateRange,
 } from "@/lib/pickem/mlbCalendar";
+import {
+  getCurrentMlsMatchweekNumber,
+  getMlsMatchweekDateRange,
+} from "@/lib/pickem/soccerCalendar";
 import type { PickemSport } from "@/lib/pickem/types";
 
 function parseRecord(competitor: {
@@ -65,7 +69,9 @@ export function parsePickemScoreboardMeta(
     weekOverride ??
     (sport === "mlb"
       ? getCurrentMlbWeekNumber(seasonYear)
-      : data.week?.number ?? 1);
+      : sport === "soccer"
+        ? getCurrentMlsMatchweekNumber(seasonYear)
+        : data.week?.number ?? 1);
 
   return {
     weekNumber,
@@ -145,6 +151,12 @@ export async function fetchPickemScoreboard(input?: {
     const weekNumber = input?.week ?? getCurrentMlbWeekNumber(seasonYear);
     weekOverride = weekNumber;
     const { weekStart, weekEnd } = getMlbWeekDateRange(seasonYear, weekNumber);
+    const dates = `${formatEspnDateParam(weekStart)}-${formatEspnDateParam(weekEnd)}`;
+    url = pickemScoreboardUrl(sport, undefined, undefined, dates);
+  } else if (sport === "soccer") {
+    const weekNumber = input?.week ?? getCurrentMlsMatchweekNumber(seasonYear);
+    weekOverride = weekNumber;
+    const { weekStart, weekEnd } = getMlsMatchweekDateRange(seasonYear, weekNumber);
     const dates = `${formatEspnDateParam(weekStart)}-${formatEspnDateParam(weekEnd)}`;
     url = pickemScoreboardUrl(sport, undefined, undefined, dates);
   } else {

@@ -18,6 +18,7 @@ export default function NavbarGate({ children }: { children: React.ReactNode }) 
     pathname.startsWith("/live-winners") ||
     pathname.startsWith("/pickem") ||
     pathname.startsWith("/baseball-pickem") ||
+    pathname.startsWith("/soccer-predictor") ||
     pathname.startsWith("/favorites") ||
     pathname.startsWith("/admin");
 

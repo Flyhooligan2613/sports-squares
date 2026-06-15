@@ -18,7 +18,7 @@ function latestKickoffGame<T extends { kickoffAt: string; espnGameId: string }>(
   )[0];
 }
 
-/** NFL: latest Monday kickoff. MLB: latest Sunday kickoff (Sunday Night Baseball). */
+/** NFL: latest Monday. MLB: latest Sunday. Soccer: latest Saturday (MLS weekend). */
 export function identifyTiebreakerEspnGameId(
   sport: PickemSport,
   games: PickemScheduleGame[]
@@ -31,6 +31,14 @@ export function identifyTiebreakerEspnGameId(
     return target?.espnGameId ?? null;
   }
 
+  if (sport === "soccer") {
+    const saturdayGames = games.filter(
+      (g) => kickoffWeekdayEastern(g.kickoffAt) === "Saturday"
+    );
+    const target = latestKickoffGame(saturdayGames) ?? latestKickoffGame(games);
+    return target?.espnGameId ?? null;
+  }
+
   const mondayGames = games.filter(
     (g) => kickoffWeekdayEastern(g.kickoffAt) === "Monday"
   );
@@ -40,6 +48,7 @@ export function identifyTiebreakerEspnGameId(
 
 export function isTiebreakerKickoff(sport: PickemSport, kickoffAt: string): boolean {
   if (sport === "mlb") return kickoffWeekdayEastern(kickoffAt) === "Sunday";
+  if (sport === "soccer") return kickoffWeekdayEastern(kickoffAt) === "Saturday";
   return kickoffWeekdayEastern(kickoffAt) === "Monday";
 }
 
