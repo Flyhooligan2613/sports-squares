@@ -23,6 +23,8 @@ import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemSport, PickemWeekView } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
+import { isDocumentVisible } from "@/lib/client/fastFetch";
+import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 
@@ -217,9 +219,13 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
 
   useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 60_000);
+    const timer = setInterval(() => {
+      if (isDocumentVisible()) void load();
+    }, 60_000);
     return () => clearInterval(timer);
   }, [load]);
+
+  usePullRefresh(() => void load());
 
   useEffect(() => {
     if (!entrySessionId) return;

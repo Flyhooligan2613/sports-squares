@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
@@ -43,6 +43,8 @@ import {
 import type { HomeData } from "@/lib/gameDay/types";
 import { PlayerShellAvatarSync } from "@/components/player/PlayerShellAvatarProvider";
 import { useHubHashScroll } from "@/components/home/useHubHashScroll";
+import { fastFetchJson, isDocumentVisible } from "@/lib/client/fastFetch";
+import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import { GAME_DAY_SECTION_TABS, peekPendingHubHash } from "@/lib/home/hubSections";
 
 export default function HomeExperience() {
@@ -66,26 +68,45 @@ export default function HomeExperience() {
 
   useEffect(() => {
     if (window.location.hash || peekPendingHubHash()) return;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [viewMode]);
 
   useHubHashScroll(homeRevealed && Boolean(data), [viewMode, data]);
 
+  const reloadHomeRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     let cancelled = false;
 
-    async function load(background = false) {
+    async function load(background = false, force = false) {
       try {
-        const res = await fetch("/api/home", { cache: "no-store", credentials: "include" });
-        if (res.status === 401) {
-          window.location.href = "/my-games/login";
-          return;
-        }
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error ?? "Failed to load Home");
-        }
-        const json = (await res.json()) as HomeData;
+        const json = force
+          ? await (async () => {
+              const res = await fetch("/api/home", { cache: "no-store", credentials: "include" });
+              if (res.status === 401) {
+                window.location.href = "/my-games/login";
+                return null;
+              }
+              if (!res.ok) {
+                const body = await res.json().catch(() => ({}));
+                throw new Error(body.error ?? "Failed to load Home");
+              }
+              return (await res.json()) as HomeData;
+            })()
+          : await fastFetchJson<HomeData>("home", "/api/home", {
+              maxAgeMs: 25_000,
+              init: { credentials: "include" },
+            }).catch(async () => {
+              const res = await fetch("/api/home", { cache: "no-store", credentials: "include" });
+              if (res.status === 401) {
+                window.location.href = "/my-games/login";
+                return null;
+              }
+              if (!res.ok) throw new Error("Failed to load Home");
+              return (await res.json()) as HomeData;
+            });
+
+        if (!json) return;
         if (!cancelled) setData(json);
       } catch (err) {
         if (!cancelled && !background) {
@@ -96,13 +117,22 @@ export default function HomeExperience() {
       }
     }
 
-    load();
-    const interval = setInterval(() => void load(true), 45_000);
+    reloadHomeRef.current = () => {
+      void load(false, true);
+    };
+
+    void load();
+    const interval = setInterval(() => {
+      if (isDocumentVisible()) void load(true, true);
+    }, 45_000);
+
     return () => {
       cancelled = true;
       clearInterval(interval);
     };
   }, []);
+
+  usePullRefresh(() => reloadHomeRef.current());
 
   function handleWelcomeComplete() {
     setWelcomeActive(false);

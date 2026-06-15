@@ -9,7 +9,7 @@ export default function FriendsPlayingSection({
 }) {
   if (items.length === 0) {
     return (
-      <section className="cc-section" aria-labelledby="cc-friends-heading">
+      <section id="cc-friends-playing" className="cc-section hub-section-anchor" aria-labelledby="cc-friends-heading">
         <h2 id="cc-friends-heading" className="cc-section-title">
           Friends Playing
         </h2>
@@ -27,7 +27,7 @@ export default function FriendsPlayingSection({
   }
 
   return (
-    <section className="cc-section" aria-labelledby="cc-friends-heading">
+    <section id="cc-friends-playing" className="cc-section hub-section-anchor" aria-labelledby="cc-friends-heading">
       <h2 id="cc-friends-heading" className="cc-section-title">
         🔥 Friends Playing
       </h2>

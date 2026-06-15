@@ -9,6 +9,7 @@ import GlobalStaffPortalHint from "@/components/GlobalStaffPortalHint";
 import { AnnouncementProvider } from "@/components/announcements/AnnouncementProvider";
 import PwaRegister from "@/components/PwaRegister";
 import AppOpenSplash from "@/components/AppOpenSplash";
+import AppPullToRefresh from "@/components/ui/AppPullToRefresh";
 import { APP_OPEN_SPLASH_PENDING_SCRIPT } from "@/lib/pwa/isPwaDisplayMode";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -56,7 +57,9 @@ export default function RootLayout({
         <NavShell>
           <AnnouncementProvider>
             <NavbarGate>
-              <div className="flex-1 flex flex-col">{children}</div>
+              <AppPullToRefresh>
+                <div className="flex-1 flex flex-col">{children}</div>
+              </AppPullToRefresh>
             </NavbarGate>
           </AnnouncementProvider>
         </NavShell>

@@ -88,7 +88,7 @@ export function resolveHubTargetHash(): string | null {
   return parseHubHash() || consumePendingHubHash();
 }
 
-export function scrollToHubSection(sectionId: string, behavior: ScrollBehavior = "smooth"): boolean {
+export function scrollToHubSection(sectionId: string, behavior: ScrollBehavior = "auto"): boolean {
   const el = document.getElementById(sectionId);
   if (!el) return false;
   el.scrollIntoView({ behavior, block: "start" });

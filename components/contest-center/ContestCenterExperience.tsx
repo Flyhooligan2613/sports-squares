@@ -25,9 +25,12 @@ import {
 } from "@/lib/contestCenter/buildViewModel";
 import type { ContestFilterId, ContestListing } from "@/lib/contestCenter/types";
 import type { HomeFriendsPanel } from "@/lib/gameDay/types";
+import { fastFetchJson, isDocumentVisible } from "@/lib/client/fastFetch";
+import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
-const POLL_MS = 5_000;
+const POLL_MS = 15_000;
+const CACHE_KEY = "action-center";
 
 function groupBySport(contests: ContestListing[]) {
   const map = new Map<string, ContestListing[]>();
@@ -59,26 +62,38 @@ export default function ContestCenterExperience() {
   const [search, setSearch] = useState("");
   const [quickJoin, setQuickJoin] = useState<ContestListing | null>(null);
 
-  async function loadAction() {
-    const res = await fetch("/api/action-center", { cache: "no-store" });
-    if (!res.ok) throw new Error("Failed to load");
-    return (await res.json()) as ActionCenterData;
+  async function loadAction(force = false) {
+    if (force) {
+      const res = await fetch("/api/action-center", { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to load");
+      const data = (await res.json()) as ActionCenterData;
+      return data;
+    }
+    return fastFetchJson<ActionCenterData>(CACHE_KEY, "/api/action-center", {
+      maxAgeMs: 20_000,
+    });
   }
 
-  async function loadFriends() {
+  async function loadFriends(force = false) {
     try {
-      const res = await fetch("/api/home", { cache: "no-store" });
-      if (!res.ok) return null;
-      const json = (await res.json()) as { friendsPlaying?: HomeFriendsPanel };
+      if (force) {
+        const res = await fetch("/api/home", { cache: "no-store" });
+        if (!res.ok) return null;
+        const json = (await res.json()) as { friendsPlaying?: HomeFriendsPanel };
+        return json.friendsPlaying ?? null;
+      }
+      const json = await fastFetchJson<{ friendsPlaying?: HomeFriendsPanel }>("home-friends", "/api/home", {
+        maxAgeMs: 30_000,
+      });
       return json.friendsPlaying ?? null;
     } catch {
       return null;
     }
   }
 
-  async function load() {
+  async function load(force = false) {
     try {
-      const [action, friendsPanel] = await Promise.all([loadAction(), loadFriends()]);
+      const [action, friendsPanel] = await Promise.all([loadAction(force), loadFriends(force)]);
       setActionData(action);
       setFriends(friendsPanel);
       setError(null);
@@ -91,9 +106,13 @@ export default function ContestCenterExperience() {
 
   useEffect(() => {
     void load();
-    const id = window.setInterval(load, POLL_MS);
+    const id = window.setInterval(() => {
+      if (isDocumentVisible()) void load(true);
+    }, POLL_MS);
     return () => window.clearInterval(id);
   }, []);
+
+  usePullRefresh(() => load(true));
 
   const viewModel = useMemo(() => {
     if (!actionData) return null;
@@ -162,7 +181,11 @@ export default function ContestCenterExperience() {
               {quickJoin ? <QuickJoinBanner contest={quickJoin} /> : null}
 
               {viewModel.featured ? (
-                <section className="cc-section" aria-labelledby="cc-featured-heading">
+                <section
+                  id="cc-featured-contests"
+                  className="cc-section hub-section-anchor"
+                  aria-labelledby="cc-featured-heading"
+                >
                   <h2 id="cc-featured-heading" className="cc-section-title">
                     Featured Competitions
                   </h2>

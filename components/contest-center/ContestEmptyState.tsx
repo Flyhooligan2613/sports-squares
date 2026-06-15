@@ -45,7 +45,7 @@ export function LiveContestsSection({
 }) {
   if (empty) {
     return (
-      <section className="cc-section" aria-labelledby="cc-live-heading">
+      <section id="cc-live-contests" className="cc-section hub-section-anchor" aria-labelledby="cc-live-heading">
         <h2 id="cc-live-heading" className="cc-section-title">
           Today&apos;s Live Contests
         </h2>
@@ -55,7 +55,7 @@ export function LiveContestsSection({
   }
 
   return (
-    <section className="cc-section" aria-labelledby="cc-live-heading">
+    <section id="cc-live-contests" className="cc-section hub-section-anchor" aria-labelledby="cc-live-heading">
       <h2 id="cc-live-heading" className="cc-section-title">
         Today&apos;s Live Contests
       </h2>

@@ -5,7 +5,7 @@ export default function TrendingSection({ contests }: { contests: ContestListing
   if (contests.length === 0) return null;
 
   return (
-    <section className="cc-section" aria-labelledby="cc-trending-heading">
+    <section id="cc-trending-contests" className="cc-section hub-section-anchor" aria-labelledby="cc-trending-heading">
       <h2 id="cc-trending-heading" className="cc-section-title">
         Trending Contests
       </h2>

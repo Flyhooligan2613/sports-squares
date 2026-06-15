@@ -63,7 +63,7 @@ export default function PrivateContestsSection() {
   }
 
   return (
-    <section className="cc-section" aria-labelledby="cc-private-heading">
+    <section id="cc-private-contests" className="cc-section hub-section-anchor" aria-labelledby="cc-private-heading">
       <h2 id="cc-private-heading" className="cc-section-title">
         Private Contests
       </h2>

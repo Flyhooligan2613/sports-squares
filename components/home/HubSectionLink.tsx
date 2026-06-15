@@ -41,6 +41,7 @@ export default function HubSectionLink({
     <Link
       href={href}
       scroll={preserveScroll}
+      prefetch
       onClick={(event) => {
         onClick?.(event);
         if (event.defaultPrevented) return;

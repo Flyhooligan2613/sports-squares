@@ -1,21 +1,27 @@
 import type { ContestFilterId, ContestStatus, TrendingBadge } from "@/lib/contestCenter/types";
 
-export const CONTEST_FILTERS: { id: ContestFilterId; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "nfl", label: "NFL" },
-  { id: "mlb", label: "MLB" },
-  { id: "nba", label: "NBA" },
-  { id: "nhl", label: "NHL" },
-  { id: "football", label: "Football" },
-  { id: "pickem", label: "Pick'em" },
-  { id: "survivor", label: "Survivor" },
-  { id: "tournament", label: "Tournament" },
-  { id: "private", label: "Private" },
-  { id: "friends", label: "Friends" },
-  { id: "trending", label: "Trending" },
-  { id: "new", label: "New" },
-  { id: "recent", label: "Recently Played" },
+export const CONTEST_SPORT_TABS = [
+  { id: "nfl", label: "NFL", emoji: "🏈", href: "/games/nfl" },
+  { id: "mlb", label: "MLB", emoji: "⚾", href: "/games/mlb" },
+  { id: "nba", label: "NBA", emoji: "🏀", href: "/games/nba" },
+  { id: "nhl", label: "NHL", emoji: "🏒", href: "/pickem?sport=nhl" },
+  { id: "football", label: "Soccer", emoji: "⚽", href: "/soccer-predictor" },
+] as const;
+
+export const CONTEST_FILTER_TABS: { id: ContestFilterId; label: string; emoji?: string }[] = [
+  { id: "all", label: "All", emoji: "🏆" },
+  { id: "pickem", label: "Pick'em", emoji: "🎯" },
+  { id: "survivor", label: "Survivor", emoji: "🛡️" },
+  { id: "tournament", label: "Tournament", emoji: "🏅" },
+  { id: "trending", label: "Trending", emoji: "🔥" },
+  { id: "friends", label: "Friends", emoji: "👥" },
+  { id: "private", label: "Private", emoji: "🔑" },
+  { id: "new", label: "New", emoji: "✨" },
+  { id: "recent", label: "Recent", emoji: "↩️" },
 ];
+
+/** @deprecated Use CONTEST_FILTER_TABS */
+export const CONTEST_FILTERS = CONTEST_FILTER_TABS;
 
 export const STATUS_LABELS: Record<ContestStatus, string> = {
   open: "Open",

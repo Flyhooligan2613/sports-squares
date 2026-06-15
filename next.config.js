@@ -3,7 +3,10 @@
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["sharp"],
+    optimizePackageImports: ["lucide-react"],
   },
+  compress: true,
+  poweredByHeader: false,
   async headers() {
     return [
       {

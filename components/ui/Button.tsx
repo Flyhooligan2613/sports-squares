@@ -8,6 +8,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
   href?: string;
+  prefetch?: boolean;
   children: ReactNode;
   className?: string;
 }
@@ -28,6 +29,7 @@ export function Button({
   variant = "primary",
   size = "default",
   href,
+  prefetch = true,
   children,
   className = "",
   ...props
@@ -44,6 +46,7 @@ export function Button({
     return (
       <Link
         href={href}
+        prefetch={prefetch}
         className={classes}
         onClick={onClick as MouseEventHandler<HTMLAnchorElement> | undefined}
       >

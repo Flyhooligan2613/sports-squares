@@ -29,6 +29,8 @@ import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { parseSurvivorSport } from "@/lib/survivor/sports";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
 import type { SurvivorWeekView } from "@/lib/survivor/types";
+import { isDocumentVisible } from "@/lib/client/fastFetch";
+import { usePullRefresh } from "@/lib/client/usePullRefresh";
 
 interface WeekOption {
   id: string;
@@ -235,9 +237,16 @@ export default function SurvivorWeekClient() {
 
   useEffect(() => {
     void loadWeek(selectedWeek);
-    const timer = window.setInterval(() => void loadWeek(selectedWeek), 60_000);
+    const timer = window.setInterval(() => {
+      if (isDocumentVisible()) void loadWeek(selectedWeek);
+    }, 60_000);
     return () => window.clearInterval(timer);
   }, [selectedWeek, loadWeek]);
+
+  usePullRefresh(() => {
+    void loadWeeks();
+    void loadWeek(selectedWeek);
+  });
 
   async function handleJoin() {
     setJoining(true);

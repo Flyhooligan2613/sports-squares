@@ -23,6 +23,8 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { useLiveTvSound } from "@/lib/liveTv/useLiveTvSound";
+import { isDocumentVisible } from "@/lib/client/fastFetch";
+import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import type { LiveTvData } from "@/lib/liveTv/types";
 
 const POLL_MS = 8_000;
@@ -53,9 +55,13 @@ export default function LiveTvExperience() {
 
   useEffect(() => {
     void load();
-    const pollId = window.setInterval(load, POLL_MS);
+    const pollId = window.setInterval(() => {
+      if (isDocumentVisible()) void load();
+    }, POLL_MS);
     return () => window.clearInterval(pollId);
   }, []);
+
+  usePullRefresh(load);
 
   useEffect(() => {
     const tick = () =>

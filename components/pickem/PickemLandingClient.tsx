@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import LandingSection from "@/components/landing/LandingSection";
@@ -21,6 +21,8 @@ import {
   pickemLandingHowItWorksSubtitle,
   pickemLandingHowItWorksTitle,
 } from "@/lib/pickem/copy";
+import { fastFetchJson } from "@/lib/client/fastFetch";
+import { usePullRefresh } from "@/lib/client/usePullRefresh";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -47,23 +49,26 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
   const [week, setWeek] = useState<PickemWeekView | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch(pickemApiUrl("overview", sport), { cache: "no-store" });
-        if (!res.ok) return;
-        const json = (await res.json()) as {
-          overview: PickemOverviewStats;
-          week: PickemWeekView;
-        };
-        setOverview(json.overview);
-        setWeek(json.week);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const json = await fastFetchJson<{
+        overview: PickemOverviewStats;
+        week: PickemWeekView;
+      }>(`pickem-overview-${sport}`, pickemApiUrl("overview", sport), {
+        maxAgeMs: 20_000,
+      });
+      setOverview(json.overview);
+      setWeek(json.week);
+    } finally {
+      setLoading(false);
     }
-    void load();
   }, [sport]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  usePullRefresh(load);
 
   return (
     <div className="pickem-page min-h-screen relative overflow-x-hidden">
