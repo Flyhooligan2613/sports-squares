@@ -27,12 +27,12 @@ function EcosystemFeatureCard({ feature, index }: { feature: EcosystemFeature; i
         <span
           className={[
             "home-ecosystem-card-badge",
-            isAvailable ? "home-ecosystem-card-badge-live" : "",
+            isAvailable ? "home-ecosystem-card-badge-vibe" : "home-ecosystem-card-badge-soon",
           ]
             .filter(Boolean)
             .join(" ")}
         >
-          {isAvailable ? "Live" : "Coming Soon"}
+          {feature.tagline}
         </span>
       </div>
       <h3 className="home-ecosystem-card-title">{feature.title}</h3>
@@ -42,10 +42,8 @@ function EcosystemFeatureCard({ feature, index }: { feature: EcosystemFeature; i
         ))}
       </ul>
       {isAvailable ? (
-        <span className="home-ecosystem-card-cta">Explore →</span>
-      ) : (
-        <span className="home-ecosystem-card-soon">Launching on SquareBoards</span>
-      )}
+        <span className="home-ecosystem-card-cta">Get in the game →</span>
+      ) : null}
     </>
   );
 

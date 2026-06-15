@@ -10,12 +10,6 @@ import {
 } from "@/lib/platform/gameTypes";
 import { useNavDrawer } from "@/components/nav/NavDrawerProvider";
 
-function statusLabel(game: PlatformGameDefinition, isAvailable: boolean): string {
-  if (game.navBadge === "new") return "NEW";
-  if (isAvailable) return "Available Now";
-  return "Coming Soon";
-}
-
 function NavGameCard({ game }: { game: PlatformGameDefinition }) {
   const pathname = usePathname();
   const { close } = useNavDrawer();
@@ -32,13 +26,12 @@ function NavGameCard({ game }: { game: PlatformGameDefinition }) {
         <span
           className={[
             "nav-game-card-status",
-            isAvailable ? "nav-game-card-status-live" : "",
-            game.navBadge === "new" ? "nav-game-card-status-new" : "",
+            isAvailable ? "nav-game-card-status-vibe" : "nav-game-card-status-soon",
           ]
             .filter(Boolean)
             .join(" ")}
         >
-          {statusLabel(game, Boolean(isAvailable))}
+          {game.tagline}
         </span>
       </span>
     </>

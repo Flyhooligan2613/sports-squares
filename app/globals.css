@@ -4907,10 +4907,20 @@ html.sb-splash-pending body {
 
 .nav-game-card-status {
   font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.38);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.25;
+  font-style: italic;
+}
+
+.nav-game-card-status-vibe {
+  color: color-mix(in srgb, var(--nav-game-accent, #7b61ff) 75%, #fff);
+}
+
+.nav-game-card-status-soon {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .nav-game-card-status-live {
@@ -4964,16 +4974,30 @@ html.sb-splash-pending body {
 }
 
 .platform-game-card-badge {
-  font-size: 0.625rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.35rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  padding: 0.35rem 0.65rem;
   border-radius: 9999px;
   color: rgba(255, 255, 255, 0.55);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  white-space: nowrap;
+  max-width: 100%;
+  text-align: right;
+  line-height: 1.25;
+}
+
+.platform-game-card-badge-vibe {
+  color: color-mix(in srgb, var(--platform-accent, #7b61ff) 80%, #fff);
+  background: color-mix(in srgb, var(--platform-accent, #7b61ff) 14%, transparent);
+  border-color: color-mix(in srgb, var(--platform-accent, #7b61ff) 38%, transparent);
+  font-style: italic;
+}
+
+.platform-game-card-badge-soon {
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
 }
 
 .platform-game-card-badge-live {
@@ -8862,15 +8886,30 @@ html.sb-splash-pending body {
 }
 
 .home-ecosystem-card-badge {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.45rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  padding: 0.25rem 0.55rem;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--sb-muted, #94a3b8);
   background: rgba(255, 255, 255, 0.04);
+  max-width: 58%;
+  text-align: right;
+  line-height: 1.25;
+}
+
+.home-ecosystem-card-badge-vibe {
+  color: color-mix(in srgb, var(--eco-accent, #7b61ff) 78%, #fff);
+  border-color: color-mix(in srgb, var(--eco-accent, #7b61ff) 35%, transparent);
+  background: color-mix(in srgb, var(--eco-accent, #7b61ff) 12%, transparent);
+  font-style: italic;
+}
+
+.home-ecosystem-card-badge-soon {
+  color: rgba(255, 255, 255, 0.42);
+  font-style: italic;
 }
 
 .home-ecosystem-card-badge-live {

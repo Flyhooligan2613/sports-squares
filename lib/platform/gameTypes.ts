@@ -4,6 +4,8 @@
  * leaderboards, achievements, and payout systems via `PlatformGameId`.
  */
 
+import { PLATFORM_GAME_TAGLINES } from "@/lib/platform/gameTaglines";
+
 export type PlatformGameId =
   | "squareboards"
   | "nba-squares"
@@ -16,11 +18,11 @@ export type PlatformGameId =
 
 export type PlatformGameStatus = "available" | "coming_soon";
 
-export type PlatformNavBadge = "new" | "coming_soon";
-
 export interface PlatformGameDefinition {
   id: PlatformGameId;
   name: string;
+  /** Gameplay-ready card tagline (replaces "Available Now" / "NEW" badges). */
+  tagline: string;
   description: string;
   icon: string;
   status: PlatformGameStatus;
@@ -32,17 +34,16 @@ export interface PlatformGameDefinition {
   accent: string;
   /** Stat keys this game contributes to on player profiles */
   statKeys: string[];
-  /** Optional nav badge override */
-  navBadge?: PlatformNavBadge;
 }
 
 export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   {
     id: "squareboards",
-    name: "SquareBoards",
+    name: "NFL Squares",
+    tagline: PLATFORM_GAME_TAGLINES.squareboards,
     description:
-      "Classic 10×10 sports squares with live scores, Highlight Squares™, automatic winners, and instant payouts.",
-    icon: "🎲",
+      "10×10 football squares with live quarter scoring, Highlight Squares™, and instant payouts.",
+    icon: "🏈",
     status: "available",
     href: "/games/nfl",
     accent: "#7b61ff",
@@ -51,18 +52,19 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   {
     id: "nba-squares",
     name: "NBA Squares",
+    tagline: PLATFORM_GAME_TAGLINES["nba-squares"],
     description:
       "Basketball squares with quarter winners, Highlight Squares™, live ESPN scoring, and automatic payouts.",
     icon: "🏀",
     status: "available",
     href: "/games/nba",
     accent: "#f97316",
-    navBadge: "new",
     statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
   },
   {
     id: "mlb-squares",
     name: "MLB Squares",
+    tagline: PLATFORM_GAME_TAGLINES["mlb-squares"],
     description:
       "Baseball squares with inning checkpoints at the 3rd, 5th, 7th, and final — plus Highlight Squares™ bonus rewards.",
     icon: "⚾",
@@ -70,36 +72,36 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
     href: "/games/mlb",
     learnHref: "/learn/mlb-squares",
     accent: "#dc2626",
-    navBadge: "new",
     statKeys: ["squaresWon", "lifetimeWins", "lifetimeWinnings"],
   },
   {
     id: "pickem",
     name: "Pick'em",
+    tagline: PLATFORM_GAME_TAGLINES.pickem,
     description:
       "Predict every NFL winner each week. Build streaks, climb leaderboards, and compete worldwide — no spreads, no odds, just winners.",
     icon: "🏈",
     status: "available",
     href: "/pickem",
     accent: "#22c55e",
-    navBadge: "new",
     statKeys: ["pickemWins", "pickAccuracyPct", "currentStreak", "longestStreak"],
   },
   {
     id: "survivor",
     name: "Survivor X™",
+    tagline: PLATFORM_GAME_TAGLINES.survivor,
     description:
       "Survive the entire NFL season — one pick per week, never the same team twice. Legacy, live eliminations, and Hall of Fame glory.",
     icon: "🏆",
     status: "available",
     href: "/survivor",
     accent: "#f59e0b",
-    navBadge: "new",
     statKeys: ["survivorWeeksSurvived", "survivorChampionships", "longestSurvivalStreak"],
   },
   {
     id: "brackets",
     name: "Brackets",
+    tagline: PLATFORM_GAME_TAGLINES.brackets,
     description:
       "March Madness and tournament brackets with live scoring and big prizes.",
     icon: "🏀",
@@ -111,18 +113,19 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   {
     id: "baseball-pickem",
     name: "MLB Pick'em",
+    tagline: PLATFORM_GAME_TAGLINES["baseball-pickem"],
     description:
       "Predict every MLB winner each week. Build streaks, climb leaderboards, and compete all season — no spreads, no odds, just winners.",
     icon: "⚾",
     status: "available",
     href: "/baseball-pickem",
     accent: "#ef4444",
-    navBadge: "new",
     statKeys: ["baseballPickemWins"],
   },
   {
     id: "soccer-predictor",
     name: "Soccer Predictor",
+    tagline: PLATFORM_GAME_TAGLINES["soccer-predictor"],
     description:
       "Predict match outcomes across leagues worldwide. Global leaderboards.",
     icon: "⚽",

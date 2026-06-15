@@ -10,8 +10,8 @@ interface PlatformGameCardProps {
   index?: number;
 }
 
-function statusLabel(game: PlatformGameDefinition): string {
-  return game.status === "available" ? "Available Now" : "Coming Soon";
+function cardTagline(game: PlatformGameDefinition): string {
+  return game.tagline;
 }
 
 export default function PlatformGameCard({
@@ -47,21 +47,19 @@ export default function PlatformGameCard({
         <span
           className={[
             "platform-game-card-badge",
-            isAvailable ? "platform-game-card-badge-live" : "",
+            isAvailable ? "platform-game-card-badge-vibe" : "platform-game-card-badge-soon",
           ]
             .filter(Boolean)
             .join(" ")}
         >
-          {statusLabel(game)}
+          {cardTagline(game)}
         </span>
       </div>
       <h3 className="platform-game-card-title">{game.name}</h3>
       <p className="platform-game-card-desc">{game.description}</p>
       {isAvailable ? (
-        <span className="platform-game-card-cta">Play now →</span>
-      ) : (
-        <span className="platform-game-card-soon">Launching soon on SquareBoards</span>
-      )}
+        <span className="platform-game-card-cta">Get in the game →</span>
+      ) : null}
     </>
   );
 

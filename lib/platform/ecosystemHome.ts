@@ -1,4 +1,5 @@
 import { PLATFORM_GAMES, type PlatformGameId } from "@/lib/platform/gameTypes";
+import { ECOSYSTEM_FEATURE_TAGLINES } from "@/lib/platform/gameTaglines";
 import { WEEKLY_REWARD_DROP_PUBLIC_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
 
 export type EcosystemFeatureStatus = "available" | "coming_soon";
@@ -7,6 +8,7 @@ export interface EcosystemFeature {
   id: string;
   emoji: string;
   title: string;
+  tagline: string;
   bullets: string[];
   href: string | null;
   status: EcosystemFeatureStatus;
@@ -18,9 +20,9 @@ const GAME_CARD_OVERRIDES: Record<
   Pick<EcosystemFeature, "emoji" | "title" | "bullets">
 > = {
   squareboards: {
-    emoji: "🎲",
-    title: "Sports Squares",
-    bullets: ["Highlight Squares™", "Live scoring", "Automatic payouts"],
+    emoji: "🏈",
+    title: "NFL Squares",
+    bullets: ["Highlight Squares™", "Live quarter scoring", "Automatic payouts"],
   },
   "nba-squares": {
     emoji: "🏀",
@@ -68,6 +70,7 @@ function gameToFeature(gameId: PlatformGameId): EcosystemFeature | null {
     id: game.id,
     emoji: override.emoji,
     title: override.title,
+    tagline: game.tagline,
     bullets: override.bullets,
     href: game.href,
     status: game.status,
@@ -81,6 +84,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
     id: "weekly-rewards",
     emoji: "🎁",
     title: WEEKLY_REWARD_DROP_PUBLIC_NAME,
+    tagline: ECOSYSTEM_FEATURE_TAGLINES["weekly-rewards"],
     bullets: [
       "Gameplay rewards",
       "Referral bonuses",
@@ -94,6 +98,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
     id: "achievements",
     emoji: "🏆",
     title: "Achievements",
+    tagline: ECOSYSTEM_FEATURE_TAGLINES.achievements,
     bullets: ["Unlock badges", "Earn XP", "Level up", "Build your legacy"],
     href: "/my-games/rewards/achievements",
     status: "available",
@@ -103,6 +108,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
     id: "player-profiles",
     emoji: "👤",
     title: "Player Profiles",
+    tagline: ECOSYSTEM_FEATURE_TAGLINES["player-profiles"],
     bullets: ["Wins & stats", "Followers", "Bio & emoji", "Public player page"],
     href: "/my-games/profile",
     status: "available",
@@ -112,6 +118,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
     id: "huddle",
     emoji: "👥",
     title: "The Huddle",
+    tagline: ECOSYSTEM_FEATURE_TAGLINES.huddle,
     bullets: ["Community feed", "Share picks", "Follow players", "Trending picks"],
     href: "/huddle",
     status: "available",
@@ -121,6 +128,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
     id: "stats-hub",
     emoji: "📊",
     title: "Stats Hub",
+    tagline: ECOSYSTEM_FEATURE_TAGLINES["stats-hub"],
     bullets: ["Live standings", "League rankings", "Team statistics"],
     href: "/stats-hub",
     status: "available",
@@ -130,6 +138,7 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
     id: "leaderboards",
     emoji: "🏅",
     title: "Leaderboards",
+    tagline: ECOSYSTEM_FEATURE_TAGLINES.leaderboards,
     bullets: ["Global rankings", "State leaders", "Referral & community"],
     href: "/leaderboards",
     status: "available",
@@ -157,6 +166,7 @@ export function getHomeEcosystemFeatures(): EcosystemFeature[] {
     id: "more-games",
     emoji: "🎮",
     title: "More Games Coming",
+    tagline: ECOSYSTEM_FEATURE_TAGLINES["more-games"],
     bullets: comingSoonGames.map((g) => g.name).concat("And more…"),
     href: null,
     status: "coming_soon",
