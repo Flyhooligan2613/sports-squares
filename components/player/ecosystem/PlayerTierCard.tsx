@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import AvatarPicker from "@/components/player/ecosystem/AvatarPicker";
 import type { TierVisual } from "@/lib/platform/ecosystem/tierVisuals";
 
@@ -129,7 +130,7 @@ export default function PlayerTierCard({ showAvatarPicker = false }: { showAvata
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-          <MiniStat label="Lifetime Winnings" value={`$${(legacy?.lifetimeWinnings ?? 0).toFixed(0)}`} />
+          <MiniStat label={PLATFORM_TERMS.lifetimeContestWinnings} value={`$${(legacy?.lifetimeWinnings ?? 0).toFixed(0)}`} />
           <MiniStat label="Career Wins" value={String(legacy?.lifetimeWins ?? 0)} />
           <MiniStat label="Current Streak" value={String(legacy?.currentStreak ?? 0)} />
           <MiniStat label="Longest Streak" value={String(legacy?.longestStreak ?? 0)} />

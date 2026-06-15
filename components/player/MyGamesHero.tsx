@@ -3,6 +3,7 @@
 import Link from "next/link";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
 import { useCountUp } from "@/lib/motion/useCountUp";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import type { PlayerDashboardStats } from "@/lib/player/dashboardTypes";
 
 interface MyGamesHeroProps {
@@ -99,7 +100,7 @@ export default function MyGamesHero({
         </p>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <StatTile label="Total Winnings" value={stats.totalWinnings} prefix="$" accent="text-sb-gold" delay={80} />
+          <StatTile label={PLATFORM_TERMS.totalContestWinnings} value={stats.totalWinnings} prefix="$" accent="text-sb-gold" delay={80} />
           <StatTile label="Lifetime Wins" value={stats.lifetimeWins} accent="text-sb-success" delay={160} />
           <StatTile label="Active Boards" value={stats.activeBoards} accent="text-sb-glow" delay={240} />
           <StatTile label="Upcoming Games" value={stats.upcomingGames} accent="text-white" delay={320} />

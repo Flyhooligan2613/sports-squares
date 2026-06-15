@@ -1,3 +1,4 @@
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
 import { getPlayerWallet } from "@/lib/stripe/playerWallet";
 import { normalizeEmail } from "@/lib/player/statsCore";
@@ -47,7 +48,7 @@ export async function getPlayEligibility(email: string): Promise<PlayEligibility
 
 export function playEligibilityErrorMessage(blockers: PlayEligibilityBlocker[]): string {
   if (blockers.includes("payout_account_required")) {
-    return "Set up your cash-out account through Stripe on My Winnings before placing squares or picks.";
+    return `Set up your cash-out account through Stripe on ${PLATFORM_TERMS.contestWinnings} before entering contests.`;
   }
   return "Complete cash-out setup before playing.";
 }

@@ -14,6 +14,7 @@ import {
   GameDayNotifications,
   GameDayRecapPanel,
 } from "@/components/game-day/GameDaySocial";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import HotGames from "@/components/action-center/HotGames";
 import LiveActivityTicker from "@/components/liveActivity/LiveActivityTicker";
 import { LiveActivityProvider } from "@/components/liveActivity/LiveActivityProvider";
@@ -101,7 +102,7 @@ export default function GameDayHubClient() {
               { label: "Tier", value: data.tier.label },
               { label: "Progress", value: `${data.tier.progressPct}%` },
             ]}
-            cta={{ label: "Action Center", href: "/action-center" }}
+            cta={{ label: PLATFORM_TERMS.contestCenter, href: "/contest-center" }}
             className="gd-hero"
           />
 

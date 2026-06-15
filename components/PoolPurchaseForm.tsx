@@ -14,6 +14,7 @@ import type { Pool } from "@/lib/types";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 import PlatformHostingFeeNote from "@/components/platform/PlatformHostingFeeNote";
 import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 interface PoolPurchaseFormProps {
   pool: Pool;
@@ -132,7 +133,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
       return;
     }
     if (playEligible === false) {
-      setError("Set up your cash-out account on My Winnings before purchasing.");
+      setError(`Set up your cash-out account on ${PLATFORM_TERMS.contestWinnings} before entering contests.`);
       return;
     }
     if (savedPaymentLabel && authenticated) {

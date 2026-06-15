@@ -1,3 +1,5 @@
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+
 export interface GameRoomSportLink {
   label: string;
   href: string;
@@ -20,7 +22,7 @@ export const GAME_ROOM_SPORTS: GameRoomSport[] = [
       { label: "Squares", href: "/games/nfl", available: true },
       { label: "Pick'em", href: "/pickem", available: true },
       { label: "Survivor X", href: "/survivor", available: true },
-      { label: "Action Center", href: "/action-center", available: true },
+      { label: PLATFORM_TERMS.contestCenter, href: "/contest-center", available: true },
     ],
   },
   {

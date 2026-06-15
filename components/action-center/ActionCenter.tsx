@@ -18,6 +18,7 @@ import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
 import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import type { ActionCenterData } from "@/lib/actionCenter/types";
+import { JOIN_THE_CONTEST, PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 const POLL_MS = 5_000;
 
@@ -63,7 +64,7 @@ export default function ActionCenter() {
       setData(json);
       setError(null);
     } catch {
-      setError("Could not refresh the Action Center.");
+      setError(`Could not refresh the ${PLATFORM_TERMS.contestCenter}.`);
     } finally {
       setLoading(false);
     }
@@ -111,11 +112,11 @@ export default function ActionCenter() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <ExperienceHero
-            badgeLabel="⚡ Action Center"
+            badgeLabel={`⚡ ${PLATFORM_TERMS.contestCenter}`}
             badgeVariant="live"
-            title="The Action Center"
-            subtitle="What's live, what's starting soon, and where you should play next — updated automatically."
-            cta={{ label: "Browse Live Boards", href: "/games/nfl" }}
+            title={PLATFORM_TERMS.contestCenterTitle}
+            subtitle={PLATFORM_TERMS.contestCenterSubtitle}
+            cta={{ label: PLATFORM_TERMS.browseLiveContests, href: "/games/nfl" }}
           />
 
           {loading ? (

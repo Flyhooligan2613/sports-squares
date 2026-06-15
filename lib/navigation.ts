@@ -1,3 +1,5 @@
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+
 export interface NavItem {
   href: string;
   label: string;
@@ -39,15 +41,15 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒", requiresAuth: true },
       { href: "/my-games/rewards/square-drop", label: "Weekly Reward Drop", icon: "🎁", requiresAuth: true },
       { href: "/my-games/referrals", label: "Invite Friends", icon: "👥", requiresAuth: true },
-      { href: "/my-games/winnings", label: "My Winnings", icon: "💰", requiresAuth: true },
-      { href: "/my-games/history", label: "Win History", icon: "📜", requiresAuth: true },
+      { href: "/my-games/winnings", label: PLATFORM_TERMS.contestWinnings, icon: "💰", requiresAuth: true },
+      { href: "/my-games/history", label: PLATFORM_TERMS.competitionHistory, icon: "📜", requiresAuth: true },
     ],
   },
   {
     id: "player-live",
     title: "Live & Rankings",
     items: [
-      { href: "/action-center", label: "Action Center", icon: "⚡" },
+      { href: "/contest-center", label: PLATFORM_TERMS.contestCenter, icon: "⚡" },
       { href: "/live-winners", label: "Winners Center", icon: "🏆" },
       { href: "/leaderboards", label: "Leaderboards", icon: "📊" },
     ],
@@ -107,6 +109,8 @@ export function isNavItemActive(pathname: string, href: string): boolean {
   if (href === "/my-games/rewards") {
     return pathname === href;
   }
-  if (href.startsWith("/#")) return false;
+  if (href === "/contest-center" || href === "/action-center") {
+    return pathname === "/action-center" || pathname === "/contest-center";
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }

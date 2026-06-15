@@ -15,6 +15,7 @@ import ExperienceHero from "@/components/ui/ExperienceHero";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
 import type { LiveWinnersCenterData } from "@/lib/liveWinners/types";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 const POLL_MS = 12_000;
 
@@ -101,7 +102,7 @@ export default function LiveWinnersCenter() {
             badgeVariant="live"
             title="Live Winners Center"
             subtitle="Real-time winners, automatic payouts, and live game activity — all handled automatically."
-            cta={{ label: "Play Today's Boards", href: "/action-center" }}
+            cta={{ label: PLATFORM_TERMS.browseLiveContests, href: "/contest-center" }}
           />
 
           {loading ? (

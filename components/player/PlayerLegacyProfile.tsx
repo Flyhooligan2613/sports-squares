@@ -17,6 +17,7 @@ import {
   Trophy,
   Wallet,
 } from "lucide-react";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 function LegacyStat({
   label,
@@ -214,7 +215,7 @@ export default function PlayerLegacyProfile() {
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <LegacyStat
-            label="Lifetime Winnings"
+            label={PLATFORM_TERMS.lifetimeContestWinnings}
             value={legacy.stats.lifetimeWinnings}
             prefix="$"
             accent="text-sb-gold"
@@ -313,7 +314,7 @@ export default function PlayerLegacyProfile() {
             Wallet & Payouts
           </h2>
           <p className="text-sb-muted text-sm leading-relaxed mb-4">
-            Connect Stripe on My Winnings for automatic quarter payouts. Save a card at checkout
+            Connect Stripe on {PLATFORM_TERMS.contestWinnings} for automatic contest payouts. Save a card at checkout
             for faster purchases.
           </p>
           <Button href="/my-games/winnings" variant="secondary" size="sm">

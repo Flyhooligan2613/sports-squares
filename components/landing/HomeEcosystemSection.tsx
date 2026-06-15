@@ -9,6 +9,7 @@ import {
   getHomeEcosystemFeatures,
   type EcosystemFeature,
 } from "@/lib/platform/ecosystemHome";
+import { JOIN_THE_CONTEST } from "@/lib/platform/legacy/competitiveLanguage";
 
 function EcosystemFeatureCard({ feature, index }: { feature: EcosystemFeature; index: number }) {
   const isAvailable = feature.status === "available" && feature.href;
@@ -42,7 +43,7 @@ function EcosystemFeatureCard({ feature, index }: { feature: EcosystemFeature; i
         ))}
       </ul>
       {isAvailable ? (
-        <span className="home-ecosystem-card-cta">Get in the game →</span>
+        <span className="home-ecosystem-card-cta">{JOIN_THE_CONTEST} →</span>
       ) : null}
     </>
   );

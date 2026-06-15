@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 export default function GameRoomBrowseStrip() {
   function scrollToEcosystem() {
@@ -42,8 +43,8 @@ export default function GameRoomBrowseStrip() {
             >
               Live Boards
             </Button>
-            <Link href="/action-center" className="gameroom-browse-link">
-              Action Center →
+            <Link href="/contest-center" className="gameroom-browse-link">
+              {PLATFORM_TERMS.contestCenter} →
             </Link>
           </div>
         </div>

@@ -1,170 +1,159 @@
-# Executive Product Directive #001 — Project Legacy
+# EXECUTIVE COMPANY DIRECTIVE #001
 
-**Status:** Active product direction  
+# PROJECT LEGACY
+
+# THE SQUAREBOARDS MANIFESTO
+
+**Status:** Active — read before writing a single line of code  
 **Effective:** June 2026
 
----
+This document replaces every previous assumption about what SquareBoards is.
 
-## Transform SquareBoards into a Living Sports Gaming Platform
+This is no longer simply a sports gaming application.  
+This is no longer simply a Squares platform.  
+This is no longer simply a prediction platform.
 
-This is not a feature request. This is a **product direction change**.
+**SquareBoards is the world's premier Competitive Sports Platform.**
 
-SquareBoards has evolved beyond a Sports Squares application. From this point forward, every design decision, interaction, animation, page, and system should reinforce one idea:
+Every engineering decision, design decision, animation, notification, reward, screen, and feature should reinforce this identity.
 
-**SquareBoards is the Premium Sports Gaming Platform.**
+If a new feature does not strengthen competition, community, progression, or player experience, it should be reconsidered.
 
-Sports Squares is no longer the product — it is one **flagship experience** inside the platform. Every future experience should feel naturally connected to the ecosystem.
-
----
-
-## Platform philosophy
-
-We are not building a website. We are building a **destination**.
-
-Players should never feel like they completed one game and reached the end. The platform should continuously offer another meaningful experience.
-
-### Connected player journey
-
-Nothing should feel isolated. The journey flows between:
-
-- Sports Squares · Pick'em · MLB Squares · MLB Pick'em
-- Survivor · Bracket Challenges
-- Rewards · Weekly Reward Drops · Legacy
-- Player Profiles · The Huddle · Stats Hub · Marketplace
-- Leaderboards · Achievements · Referrals · **Highlight Squares™**
+**Code reference:** `lib/platform/legacy/competitiveLanguage.ts`
 
 ---
 
-## Company philosophy
+## WHO WE ARE
 
-| Principle | Meaning |
-|-----------|---------|
-| **Every Fan Has A Chance** | Access and participation for everyone — no gatekeeping |
-| **There's No Wait Line** | Jump in immediately; the platform is always ready |
-| **Somewhere You Belong** | Identity, community, legacy — not a one-off visit |
+SquareBoards exists for one reason: **to give sports fans the greatest place in the world to compete.**
 
-SquareBoards isn't somewhere you visit. It's somewhere you **belong**.
+We are not asking players to gamble against the house. We are inviting competitors to challenge one another.
 
----
-
-## The homepage
-
-The homepage no longer sells Sports Squares. It sells the **entire ecosystem**.
-
-A new visitor should think: *"I've discovered a premium sports gaming platform."*
-
-Not: *"I've discovered a Sports Squares website."*
-
-The homepage introduces:
-
-1. **The Platform** — one account, every experience  
-2. **The Community** — Huddle, profiles, leaderboards  
-3. **The Experiences** — games showcase  
-4. **The Rewards** — Square Drop, tiers, credits  
-5. **The Legacy** — achievements, reputation, history  
-6. **The Excitement** — live moments, happening now  
+- SquareBoards is the arena.
+- The competitors create the excitement.
+- The platform celebrates the journey.
 
 ---
 
-## Continuous engagement
+## WE DO NOT SELL GAMBLING
 
-The platform should never leave players wondering what to do next. Every completed action should naturally lead to another.
+We sell **competition**, **challenge**, **community**, **reputation**, and **unforgettable game day experiences**.
 
-```
-Quarter Ends
-    ↓
-Reward Available
-    ↓
-Highlight Square Activated
-    ↓
-Achievement Unlocked
-    ↓
-Follower Notification
-    ↓
-Weekly Reward Drop
-    ↓
-Next Game Available
-```
-
-**No dead ends.** Always a next meaningful action.
+Money is one reward. Competition is the purpose. Legacy is the destination.
 
 ---
 
-## Highlight Squares™
+## OUR PLAYERS
 
-> **Full specification:** [Universal Highlight Engine™ (#006)](./HIGHLIGHT_ENGINE.md)
+Do not refer to users internally as bettors. Do not design for gamblers. **Design for competitors.**
 
-A platform-wide engagement layer — **not** score-based cash prizes. Celebrates unforgettable sports moments with **platform rewards**. Powers every Squares board (NFL, MLB, future sports).
-
-### Summary
-
-### Reward types (non-cash)
-
-Tier XP · Tier Credits · Weekly Reward Drops · Mystery Boxes · Profile Frames · Achievements · Badges · Marketplace Credits · Square Credits · Community Reputation
-
-### Activation moments (examples)
-
-| Sport | Moments |
-|-------|---------|
-| **NFL** | Hail Mary, kick/punt return TD, pick-six, safety, blocked kick TD |
-| **MLB** | Grand slam, walk-off HR, inside-the-park HR, triple play, no-hitter, cycle |
-| **NBA** | Buzzer beater, poster dunk, triple-double, half-court shot |
-| **Soccer** | Hat trick, bicycle kick, penalty shootout winner, last-minute goal |
-
-### Experience when activated
-
-The board should **come alive**: glowing squares, energy effects, premium animations, celebration overlays. Keep every player engaged even when they are no longer competing for a cash prize.
+Every player joins because they want to: compete, improve, win, build reputation, earn respect, become champions.
 
 ---
 
-## Design philosophy
+## PLATFORM LANGUAGE
 
-Every interaction intentional. Every animation premium. Every screen communicates trust. Every transition effortless.
+| Instead of | Use |
+|------------|-----|
+| Place Bet | Join Contest / Enter the Contest |
+| Bet History | Competition History |
+| Sportsbook | Contest Center |
+| Play Now | Join the Contest |
+| Bettor | Competitor |
+| Winnings | Contest Winnings / Competition Results |
 
-**Inspiration:** Apple, Xbox, PlayStation, Arc Browser, Linear.
+**Primary CTA:** `Join the Contest`
 
-**Avoid:** Generic UI patterns, isolated game silos, squares-first marketing.
+Examples:
 
----
-
-## Brand positioning
-
-| Before | After |
-|--------|-------|
-| Sports Squares application | **The Premium Sports Gaming Platform** |
-| Website that sells squares | Destination you belong to |
-| Game is the product | Platform is the brand; games are experiences |
-
-See also: `docs/BRAND_ARCHITECTURE.md`
-
----
-
-## Final objective (v1.0)
-
-When Version 1.0 launches, players should not simply download another sports app.
-
-They should feel like they have entered a **living sports entertainment platform** that:
-
-- Constantly rewards participation  
-- Celebrates unforgettable moments  
-- Builds community  
-- Gives every fan a place to belong  
-
-**This is the standard** every future feature, screen, animation, and interaction is measured against.
+- Join the Contest · Sports Squares™
+- Join the Contest · Pick'em Royale™
+- Join the Contest · Survivor X™
+- Join the Contest · Tournament Royale™
+- Join the Contest · MLB Squares™
 
 ---
 
-## Related directives
+## THE PLAYER JOURNEY
 
-- **#002 — Player Legacy Experience:** `docs/PLAYER_LEGACY_EXPERIENCE.md` (profile as digital identity)
-- **#003 — Project Polish:** `docs/PROJECT_POLISH.md` (premium UX, motion, v1.0 quality bar)
-- **#005 — MLB Squares Experience:** `docs/MLB_SQUARES_EXPERIENCE.md` (second flagship game)
-- **#006 — Universal Highlight Engine™:** `docs/HIGHLIGHT_ENGINE.md` (moment-based engagement)
-
-### Architecture directives
-
-- **Architecture #002 — EventEngine™:** `docs/EVENT_ENGINE.md` (central event bus — powers all engines)
+Every competitor is **building** — a Legacy, a Reputation, a Career, a Community, a Story. Every game contributes to something larger.
 
 ---
 
-*Executive Product Directive #001 — Project Legacy*
+## REPUTATION IS A CURRENCY
+
+Money is temporary. Reputation lasts. Celebrate consistency, sportsmanship, accuracy, championships, achievements, community, followers, and respect.
+
+---
+
+## EVERY CONTEST MATTERS
+
+No contest should feel isolated. Every experience should strengthen: Legacy™, RewardCore™, Community™, Hall of Fame™, Tier Progress™, Daily Story™, Player Reputation™, Game Day™.
+
+---
+
+## THE PLATFORM NEVER ENDS
+
+Quarter ends → Reward earned → Tier increased → Achievement unlocked → Community celebrates → Next contest suggested → Another opportunity begins.
+
+**Never leave the competitor standing still.**
+
+---
+
+## BUILD FOR EMOTION
+
+Every screen should answer: *How should the competitor feel right now?*  
+Confident. Excited. Curious. Welcomed. Celebrated. Hopeful. Motivated.
+
+Never design around transactions. Design around emotion.
+
+---
+
+## TRUST ABOVE EVERYTHING
+
+Transparent. Fair. Auditable. Reliable. Secure. Respectful.
+
+---
+
+## THE SQUAREBOARDS TEST
+
+Before shipping any feature ask:
+
+1. Does this make competition more exciting?
+2. Does this strengthen community?
+3. Does this reward commitment?
+4. Does this build reputation?
+5. Does this improve the player experience?
+6. Does this create another memorable moment?
+
+If not — rework it.
+
+---
+
+## OUR MISSION
+
+Every fan deserves a place where they can compete. Every competitor deserves a chance to build a legacy. Every contest deserves to feel meaningful. Every victory deserves to be celebrated. Every defeat should inspire another challenge.
+
+---
+
+## THE VISION
+
+**"What is SquareBoards?"**
+
+SquareBoards is the world's premier competitive sports platform — where fans compete against each other, build reputations, build friendships, build legacies, and create unforgettable memories.
+
+---
+
+## THE FOUNDING PRINCIPLES
+
+- Every Fan Has A Chance.
+- There Is No Wait Line.
+- Protect The Player's Emotion.
+- Build Moments, Not Features.
+- Competition Before Transactions.
+- Reputation Before Revenue.
+- Trust Before Growth.
+- Never Leave The Competitor Standing Still.
+- SquareBoards Isn't Somewhere You Visit. It's Somewhere You Belong.
+
+**Join The Contest.**

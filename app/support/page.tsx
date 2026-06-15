@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { BRAND_NAME } from "@/lib/brand";
 import { SUPPORT_CATEGORIES } from "@/lib/platform/core/supportCategories";
 import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 export const metadata = {
   title: `Support Center | ${BRAND_NAME}`,
@@ -74,7 +75,7 @@ export default function SupportCenterPage() {
           <li>
             Need payout setup help? Visit{" "}
             <Link href="/my-games/winnings" className="text-sb-glow hover:text-white">
-              My Winnings
+              {PLATFORM_TERMS.contestWinnings}
             </Link>{" "}
             to connect Stripe.
           </li>

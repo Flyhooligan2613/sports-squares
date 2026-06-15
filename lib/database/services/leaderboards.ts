@@ -15,6 +15,7 @@ import {
   normalizeEmail,
   playerOwnsWin,
 } from "@/lib/player/statsCore";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import { getPlayerPublicIdentityMap } from "@/lib/player/publicIdentity";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -245,7 +246,7 @@ export async function getLeaderboards(
   const boards: LeaderboardBoard[] = [
     buildBoard(
       "all-time-winnings",
-      "All-Time Winnings",
+      PLATFORM_TERMS.lifetimeContestWinnings,
       "Top earners across every board",
       winningsSorted,
       normalizedViewer

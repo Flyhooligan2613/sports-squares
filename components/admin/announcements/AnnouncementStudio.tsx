@@ -1,5 +1,6 @@
 "use client";
 
+import { JOIN_THE_CONTEST } from "@/lib/platform/legacy/competitiveLanguage";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -486,7 +487,7 @@ export default function AnnouncementStudio() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs text-sb-muted mb-1.5 uppercase tracking-wider">Primary button</label>
-                <input value={form.buttonText ?? ""} onChange={(e) => setForm({ ...form, buttonText: e.target.value })} className={inputClassName()} placeholder="Play Now" />
+                <input value={form.buttonText ?? ""} onChange={(e) => setForm({ ...form, buttonText: e.target.value })} className={inputClassName()} placeholder={JOIN_THE_CONTEST} />
               </div>
               <div>
                 <label className="block text-xs text-sb-muted mb-1.5 uppercase tracking-wider">Primary destination</label>

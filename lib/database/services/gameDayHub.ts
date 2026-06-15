@@ -13,6 +13,7 @@ import {
 import { resolveDailyStory } from "@/lib/dailyStory/resolve";
 import { buildContinuePlaying } from "@/lib/gameDay/continuePlaying";
 import { buildHomeFriendsPanel } from "@/lib/gameDay/friendsPlaying";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import { buildGreetingSubtitle, buildWelcomeGreeting } from "@/lib/gameDay/greeting";
 import { buildSnapshotCards } from "@/lib/gameDay/snapshot";
 import { isGameDaySurface, resolveGameDayPhase } from "@/lib/gameDay/phases";
@@ -340,7 +341,7 @@ function buildStatusItems(input: {
     {
       id: "winnings",
       emoji: "💰",
-      label: "Lifetime Winnings",
+      label: PLATFORM_TERMS.lifetimeContestWinnings,
       value: `$${input.lifetimeWinnings.toLocaleString()}`,
       href: "/my-games/winnings",
     },

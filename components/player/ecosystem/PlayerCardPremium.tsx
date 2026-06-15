@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { EcosystemDashboard } from "@/lib/platform/ecosystem/types";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 interface PlayerCardData extends EcosystemDashboard {
   legacy?: {
@@ -79,7 +80,7 @@ export default function PlayerCardPremium() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <Stat label="Lifetime winnings" value={`$${(legacy?.lifetimeWinnings ?? 0).toFixed(0)}`} />
+          <Stat label={PLATFORM_TERMS.lifetimeContestWinnings} value={`$${(legacy?.lifetimeWinnings ?? 0).toFixed(0)}`} />
           <Stat label="Wins" value={String(legacy?.lifetimeWins ?? 0)} />
           <Stat label="Current streak" value={String(legacy?.currentStreak ?? 0)} />
           <Stat label="Tier credits" value={account.availableTierCredits.toLocaleString()} />

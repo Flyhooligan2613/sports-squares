@@ -1,28 +1,46 @@
 ---
-description: SquareBoards platform-first product direction (Executive Directive #001)
+description: SquareBoards Project Legacy — Executive Directive #001 (Competitive Sports Platform)
 globs: app/**/*.tsx,components/**/*.tsx,lib/platform/**/*
 alwaysApply: false
 ---
 
 # SquareBoards — Project Legacy (#001)
 
-**The Premium Sports Gaming Platform.** Sports Squares is a flagship experience inside it — not the product.
+**The world's premier competitive sports platform.** Not a sportsbook. Not gambling against the house.
+
+## Read first
+
+Full manifesto: `docs/PROJECT_LEGACY.md`  
+Player-facing language: `lib/platform/legacy/competitiveLanguage.ts`
 
 ## Principles
 
-- Every Fan Has A Chance · No Wait Line · Somewhere You Belong
-- Platform is the destination; games, rewards, legacy, and community are one ecosystem
-- No dead ends — every action leads to the next (rewards → achievements → next game)
+- **Join the Contest** — primary CTA across the platform
+- Design for **competitors**, never bettors
+- **Competition before transactions** · Reputation before revenue · Trust before growth
+- Every contest connects to Legacy™, RewardCore™, Community™, Hall of Fame™, Tier Progress™, Game Day™
+- Never leave the competitor standing still
+
+## Language (required)
+
+| Avoid | Use |
+|-------|-----|
+| Play Now | Join the Contest |
+| Action Center / Sportsbook | Contest Center |
+| My Winnings | Contest Winnings |
+| Win History | Competition History |
+| Bettor | Competitor |
+
+Import copy from `competitiveLanguage.ts` — do not invent gambling-oriented labels.
+
+## The SquareBoards Test
+
+Before shipping: Does it make competition more exciting? Strengthen community? Reward commitment? Build reputation? Improve experience? Create a memorable moment?
 
 ## Build standards
 
-- Homepage sells **platform + community + experiences + rewards + legacy** — not squares alone
-- Premium intentional UI: Apple / Xbox / PlayStation / Arc / Linear — not generic patterns
-- Highlight Squares™ = moment-based platform rewards (not cash), with live board celebration UX
+- Premium intentional UI — emotion over transactions
+- Homepage sells platform + community + legacy — not squares alone
+- Highlight Squares™ = moment-based platform rewards with live celebration UX
 
-## Copy
-
-- Category: **The Premium Sports Gaming Platform**
-- Never lead with "sports squares website" or "squares marketplace"
-
-Full directives: `docs/EVENT_ENGINE.md` · `docs/PROJECT_LEGACY.md` · `docs/HIGHLIGHT_ENGINE.md` · `docs/MLB_SQUARES_EXPERIENCE.md` · `docs/PLAYER_LEGACY_EXPERIENCE.md` · `docs/PROJECT_POLISH.md` · `docs/BRAND_ARCHITECTURE.md`
+Related: `docs/EVENT_ENGINE.md` · `docs/HIGHLIGHT_ENGINE.md` · `docs/PLAYER_LEGACY_EXPERIENCE.md` · `docs/PROJECT_POLISH.md`

@@ -1,4 +1,9 @@
 import type { AnnouncementUpsertInput } from "@/lib/platform/announcements/types";
+import {
+  JOIN_CONTEST_BY_GAME,
+  JOIN_THE_CONTEST,
+  PLATFORM_TERMS,
+} from "@/lib/platform/legacy/competitiveLanguage";
 
 export interface AnnouncementPreset {
   slug: string;
@@ -37,9 +42,9 @@ export const BUILTIN_ANNOUNCEMENT_PRESETS: AnnouncementPreset[] = [
       displayType: "welcome_popup",
       category: "nfl_week_open",
       audience: "all",
-      buttonText: "Play Pick'em",
+      buttonText: JOIN_CONTEST_BY_GAME.pickem,
       destinationHref: "/pickem/week",
-      secondaryButtonText: "Browse Boards",
+      secondaryButtonText: PLATFORM_TERMS.browseLiveContests,
       secondaryDestinationHref: "/boards",
       priorityLevel: "high",
       frequency: "once",
@@ -77,7 +82,7 @@ export const BUILTIN_ANNOUNCEMENT_PRESETS: AnnouncementPreset[] = [
       displayType: "welcome_popup",
       category: "holiday",
       audience: "all",
-      buttonText: "Play Now",
+      buttonText: JOIN_THE_CONTEST,
       destinationHref: "/",
       secondaryButtonText: "Learn More",
       secondaryDestinationHref: "/pickem",

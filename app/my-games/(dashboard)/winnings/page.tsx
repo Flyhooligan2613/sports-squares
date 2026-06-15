@@ -7,9 +7,10 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/purchases/successSummary";
 import { isStripeConnectEnabled } from "@/lib/stripe/connect";
 import { BRAND_NAME } from "@/lib/brand";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 export const metadata: Metadata = {
-  title: `My Winnings | ${BRAND_NAME}`,
+  title: `${PLATFORM_TERMS.contestWinnings} | ${BRAND_NAME}`,
 };
 
 export default async function MyWinningsPage() {
@@ -25,9 +26,9 @@ export default async function MyWinningsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
       <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
-        My Winnings
+        {PLATFORM_TERMS.contestWinnings}
       </h1>
-      <p className="text-sb-muted mb-8">Every quarter win and payout in one place.</p>
+      <p className="text-sb-muted mb-8">Every contest win and payout — in one place.</p>
 
       {dashboard && (
         <PlayerPayoutSetup
@@ -39,7 +40,9 @@ export default async function MyWinningsPage() {
       {dashboard ? (
         <>
           <LandingGlassCard glow className="p-6 mb-6 text-center">
-            <p className="text-xs uppercase tracking-wider text-sb-muted mb-2">Total Winnings</p>
+            <p className="text-xs uppercase tracking-wider text-sb-muted mb-2">
+              {PLATFORM_TERMS.totalContestWinnings}
+            </p>
             <p className="text-4xl font-bold text-sb-gold tabular-nums">
               {formatCurrency(dashboard.stats.totalWinnings)}
             </p>

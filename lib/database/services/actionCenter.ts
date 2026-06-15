@@ -38,6 +38,7 @@ import { getEspnSportConfig } from "@/lib/espn/sports";
 import { getMarketplaceSportStats } from "@/lib/marketplace/listings";
 import { getTemplatePercentages } from "@/lib/payoutTemplates";
 import { calcPeriodPayouts } from "@/lib/poolFinance";
+import { JOIN_THE_CONTEST, PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import { resolvePoolHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { EspnLiveGame, EspnScoreboardGame, EspnSport, Game, ScoringPeriod } from "@/lib/types";
@@ -405,7 +406,7 @@ function buildNowHappening(cards: ActionGameCard[]): NowHappeningCard[] {
         : (card.openBoard?.fillPercent ?? 0) >= 75
           ? "filling_fast"
           : "kickoff_soon",
-    ctaLabel: card.openBoard ? "Play Now" : "Browse Boards",
+    ctaLabel: card.openBoard ? JOIN_THE_CONTEST : PLATFORM_TERMS.browseLiveContests,
   }));
 }
 
@@ -669,7 +670,7 @@ function buildRecommendations(
       title: `${topLive.awayTeam} vs ${topLive.homeTeam}`,
       detail: `${topLive.openBoard.squaresRemaining} squares left on Board #${topLive.openBoard.boardIndex}`,
       playUrl: `/pool/${topLive.openBoard.poolId}`,
-      ctaLabel: "Play Now",
+      ctaLabel: JOIN_THE_CONTEST,
     });
   }
 
@@ -681,7 +682,7 @@ function buildRecommendations(
       title: `${urgent.awayTeam} vs ${urgent.homeTeam}`,
       detail: `Only ${urgent.squaresRemaining} squares remain · ${urgent.fillPercent}% full`,
       playUrl: `/pool/${urgent.poolId}`,
-      ctaLabel: "Play Now",
+      ctaLabel: JOIN_THE_CONTEST,
     });
   }
 
@@ -699,7 +700,7 @@ function buildRecommendations(
       title: `${soon.awayTeam} vs ${soon.homeTeam}`,
       detail: `Board #${soon.openBoard.boardIndex} is open before kickoff`,
       playUrl: `/pool/${soon.openBoard.poolId}`,
-      ctaLabel: "Play Now",
+      ctaLabel: JOIN_THE_CONTEST,
     });
   }
 

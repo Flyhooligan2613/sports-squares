@@ -6,6 +6,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import type { GameDayTodaysGames } from "@/lib/gameDay/types";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 export default function GameDayTodaysGames({ games }: { games: GameDayTodaysGames }) {
   const hasGames = games.active.length > 0 || games.upcoming.length > 0;
@@ -15,10 +16,10 @@ export default function GameDayTodaysGames({ games }: { games: GameDayTodaysGame
       <div className="flex items-end justify-between gap-4 mb-4">
         <h2 className="gd-section-title mb-0">Today&apos;s Games</h2>
         <Link
-          href="/action-center"
+          href="/contest-center"
           className="text-xs font-semibold text-sb-glow hover:text-white transition-colors"
         >
-          Browse boards →
+          {PLATFORM_TERMS.browseLiveContests} →
         </Link>
       </div>
 
@@ -31,7 +32,7 @@ export default function GameDayTodaysGames({ games }: { games: GameDayTodaysGame
           <p className="text-sb-muted text-sm mb-6 max-w-sm mx-auto">
             Join a Square Board and your live games, countdowns, and checkpoints will show up here.
           </p>
-          <Button href="/action-center">Find a board</Button>
+          <Button href="/contest-center">{PLATFORM_TERMS.findAContest}</Button>
         </LandingGlassCard>
       ) : (
         <div className="space-y-4">
