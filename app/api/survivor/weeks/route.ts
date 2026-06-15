@@ -6,11 +6,14 @@ import { listSurvivorWeeks } from "@/lib/survivor/db/weeks";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   noStore();
+  const { searchParams } = new URL(request.url);
 
   try {
-    const { leagueId } = await ensureSurvivorSeason();
+    const { leagueId: defaultLeagueId } = await ensureSurvivorSeason();
+    const leagueIdParam = searchParams.get("leagueId");
+    const leagueId = leagueIdParam ?? defaultLeagueId;
     const league = await getSurvivorLeagueById(leagueId);
     if (!league) {
       return NextResponse.json({ error: "League not found." }, { status: 404 });

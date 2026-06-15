@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
@@ -30,6 +31,9 @@ interface WeekOption {
 }
 
 export default function SurvivorWeekClient() {
+  const searchParams = useSearchParams();
+  const leagueIdParam = searchParams.get("leagueId") ?? undefined;
+
   const [view, setView] = useState<SurvivorWeekView | null>(null);
   const [weeks, setWeeks] = useState<WeekOption[]>([]);
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
@@ -121,20 +125,26 @@ export default function SurvivorWeekClient() {
   }
 
   const loadWeeks = useCallback(async () => {
-    const res = await fetch(survivorApiUrl("weeks"), { cache: "no-store" });
+    const res = await fetch(
+      survivorApiUrl("weeks", leagueIdParam ? { leagueId: leagueIdParam } : undefined),
+      { cache: "no-store" }
+    );
     if (!res.ok) return;
     const data = await res.json();
     setWeeks(data.weeks ?? []);
     const current = data.weeks?.find((w: WeekOption) => w.isCurrent);
     if (current) setSelectedWeek(current.weekNumber);
-  }, []);
+  }, [leagueIdParam]);
 
   const loadWeek = useCallback(async (weekNumber: number) => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(
-        survivorApiUrl("week", { weekNumber }),
+        survivorApiUrl("week", {
+          weekNumber,
+          ...(leagueIdParam ? { leagueId: leagueIdParam } : {}),
+        }),
         { cache: "no-store" }
       );
       if (!res.ok) {
@@ -148,7 +158,7 @@ export default function SurvivorWeekClient() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [leagueIdParam]);
 
   useEffect(() => {
     void loadWeeks();
@@ -164,7 +174,13 @@ export default function SurvivorWeekClient() {
     setJoining(true);
     setError(null);
     try {
-      const res = await fetch(survivorApiUrl("join"), { method: "POST" });
+      const res = await fetch(survivorApiUrl("join"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leagueId: leagueIdParam ?? view?.league.id,
+        }),
+      });
       const json = await res.json();
       if (!res.ok) {
         if (res.status === 401) setAuthRequired(true);
@@ -221,7 +237,11 @@ export default function SurvivorWeekClient() {
           title={view?.week.label ?? "Loading week…"}
           subtitle={
             view
-              ? `${view.league.name} · One pick per week · One shield per season`
+              ? `${view.league.name} · One pick per week · One shield per season${
+                  view.league.livesPerPlayer > 1
+                    ? ` · ${view.league.livesPerPlayer} lives`
+                    : ""
+                }`
               : "Global Classic — your Survivor Shield™ is your second chance"
           }
         />
@@ -280,7 +300,10 @@ export default function SurvivorWeekClient() {
           <LandingGlassCard className="p-6 text-center mb-6">
             <p className="text-white font-semibold mb-2">Join Global Survivor</p>
             <p className="text-sm text-sb-muted mb-4">
-              Free entry — lock one NFL team each week. Every player starts with one Survivor Shield™.
+              Free entry — lock one NFL team each week. Every player starts with one Survivor Shield™
+              {view?.league.livesPerPlayer && view.league.livesPerPlayer > 1
+                ? ` and ${view.league.livesPerPlayer} lives.`
+                : "."}
             </p>
             <Button onClick={() => void handleJoin()} disabled={joining}>
               {joining ? "Joining…" : "Join & Play"}
@@ -351,8 +374,12 @@ export default function SurvivorWeekClient() {
                         : "capitalize"
                     }
                   >
-                    {view.myPick.result === "shield_saved"
-                      ? "shield saved you"
+                  {view.myPick.result === "shield_saved"
+                    ? "shield saved you"
+                    : view.myPick.result === "eliminated" &&
+                        view.entry.status === "active" &&
+                        view.entry.livesRemaining > 0
+                      ? "lost — 1 life used"
                       : view.myPick.result}
                   </span>
                 </p>

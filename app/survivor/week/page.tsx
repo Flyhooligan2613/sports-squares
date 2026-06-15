@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SurvivorWeekClient from "@/components/survivor/SurvivorWeekClient";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 
@@ -7,5 +8,9 @@ export const metadata = {
 };
 
 export default function SurvivorWeekPage() {
-  return <SurvivorWeekClient />;
+  return (
+    <Suspense fallback={null}>
+      <SurvivorWeekClient />
+    </Suspense>
+  );
 }

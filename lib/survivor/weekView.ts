@@ -170,6 +170,8 @@ export async function buildSurvivorWeekView(input: {
       seasonYear: input.league.seasonYear,
       status: input.league.status,
       currentWeek: input.league.currentWeek,
+      mode: input.league.mode,
+      livesPerPlayer: input.league.livesPerPlayer,
     },
     week: {
       id: week.id,

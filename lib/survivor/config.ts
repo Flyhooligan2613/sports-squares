@@ -25,8 +25,7 @@ export const SURVIVOR_MODES: SurvivorModeDefinition[] = [
     title: "Double Life",
     description: "Two lives. Lose twice — then elimination. More room for strategy.",
     lives: 2,
-    badge: "Coming soon",
-    available: false,
+    available: true,
   },
   {
     id: "turbo",

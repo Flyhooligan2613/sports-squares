@@ -18,3 +18,9 @@ export function survivorApiUrl(
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
 }
+
+export function survivorWeekHref(leagueId?: string): string {
+  return leagueId
+    ? `${SURVIVOR_BASE_PATH}/week?leagueId=${encodeURIComponent(leagueId)}`
+    : `${SURVIVOR_BASE_PATH}/week`;
+}

@@ -151,6 +151,9 @@ async function resolveWeekPicks(
           payload: { weekNumber: week.weekNumber },
           idempotencyKey: `${pick.entryId}:shield_depleted`,
         }).catch(() => undefined);
+      } else if (outcome === "life_consumed") {
+        await resolveSurvivorPick(pick.id, "eliminated");
+        // Double Life — pick lost but player continues with one life remaining.
       } else {
         await resolveSurvivorPick(pick.id, "eliminated");
         eliminated += 1;

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   if (eligibilityError) return eligibilityError;
 
   try {
-    const body = (await request.json()) as { leagueId?: string };
+    const body = (await request.json().catch(() => ({}))) as { leagueId?: string };
     const { leagueId: defaultLeagueId } = await ensureSurvivorSeason();
     const leagueId = body.leagueId ?? defaultLeagueId;
     const league = await getSurvivorLeagueById(leagueId);

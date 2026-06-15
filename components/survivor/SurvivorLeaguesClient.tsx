@@ -1,15 +1,85 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
+import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/Button";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
-import { survivorPath } from "@/lib/survivor/routes";
+import { survivorApiUrl, survivorPath, survivorWeekHref } from "@/lib/survivor/routes";
+
+interface LeagueRow {
+  id: string;
+  name: string;
+  description: string | null;
+  mode: string;
+  livesPerPlayer: number;
+  currentWeek: number;
+  status: string;
+  entry: {
+    id: string;
+    status: string;
+    livesRemaining: number;
+  } | null;
+}
 
 export default function SurvivorLeaguesClient() {
+  const [leagues, setLeagues] = useState<LeagueRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const res = await fetch(survivorApiUrl("leagues"), { cache: "no-store" });
+        if (!res.ok) throw new Error("Could not load leagues.");
+        const data = (await res.json()) as { leagues: LeagueRow[] };
+        setLeagues(data.leagues ?? []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  async function handleJoin(leagueId: string) {
+    setJoiningId(leagueId);
+    setError(null);
+    try {
+      const res = await fetch(survivorApiUrl("join"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leagueId }),
+        credentials: "include",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error ?? "Could not join.");
+      setLeagues((prev) =>
+        prev.map((l) =>
+          l.id === leagueId
+            ? {
+                ...l,
+                entry: {
+                  id: "joined",
+                  status: "active",
+                  livesRemaining: l.livesPerPlayer,
+                },
+              }
+            : l
+        )
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not join.");
+    } finally {
+      setJoiningId(null);
+    }
+  }
+
   return (
     <div className="survivor-page min-h-screen relative overflow-x-hidden">
       <AmbientBackground className="survivor-ambient-amber" fixed />
@@ -20,26 +90,55 @@ export default function SurvivorLeaguesClient() {
           <ScrollReveal>
             <LandingSectionHeader
               eyebrow="Leagues"
-              title="Global Survivor is live"
-              subtitle="Join the flagship SquareBoards Survivor X™ league — free entry, one pick per week, last standing wins."
+              title="Choose your Survivor"
+              subtitle="Classic is one-and-done. Double Life gives you two strikes — same rules, more strategy."
             />
           </ScrollReveal>
 
-          <div className="landing-glass-card max-w-xl mx-auto text-center py-14 px-6 mt-6">
-            <p className="text-4xl mb-4" aria-hidden>
-              🌎
+          {loading ? (
+            <p className="text-center text-sb-muted py-12">Loading leagues…</p>
+          ) : null}
+
+          {error ? (
+            <p className="text-center text-red-400 text-sm py-4" role="alert">
+              {error}
             </p>
-            <h2 className="text-xl font-bold text-white mb-2">Classic Global Survivor</h2>
-            <p className="text-sm text-sb-muted leading-relaxed mb-6">
-              Double Life, Turbo, and Private leagues arrive in a future phase. For now, everyone
-              plays in the Global Classic pool.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button href={survivorPath("week")}>Play This Week</Button>
-              <Button href={survivorPath()} variant="secondary">
-                Back to hub
-              </Button>
-            </div>
+          ) : null}
+
+          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto mt-8">
+            {leagues.map((league) => (
+              <LandingGlassCard key={league.id} className="p-6 flex flex-col h-full">
+                <p className="text-3xl mb-3" aria-hidden>
+                  {league.mode === "double_life" ? "🔥" : "🌎"}
+                </p>
+                <h2 className="text-lg font-bold text-white mb-2">{league.name}</h2>
+                <p className="text-sm text-sb-muted leading-relaxed flex-1 mb-4">
+                  {league.description}
+                </p>
+                <p className="text-xs text-sb-muted mb-4">
+                  {league.livesPerPlayer} {league.livesPerPlayer === 1 ? "life" : "lives"} · Week{" "}
+                  {league.currentWeek} · 1 Shield per season
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {league.entry ? (
+                    <Button href={survivorWeekHref(league.id)}>Play This Week</Button>
+                  ) : (
+                    <Button
+                      disabled={joiningId === league.id}
+                      onClick={() => void handleJoin(league.id)}
+                    >
+                      {joiningId === league.id ? "Joining…" : "Join Free"}
+                    </Button>
+                  )}
+                </div>
+              </LandingGlassCard>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Button href={survivorPath()} variant="secondary">
+              Back to {SURVIVOR_X_PUBLIC_NAME}
+            </Button>
           </div>
         </LandingSection>
       </div>

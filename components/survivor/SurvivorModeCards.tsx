@@ -2,6 +2,13 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { SURVIVOR_MODES } from "@/lib/survivor/config";
+import { survivorPath } from "@/lib/survivor/routes";
+
+const MODE_HREF: Record<string, string> = {
+  classic: survivorPath("week"),
+  global: survivorPath("week"),
+  double_life: survivorPath("leagues"),
+};
 
 export default function SurvivorModeCards() {
   return (
@@ -25,10 +32,10 @@ export default function SurvivorModeCards() {
           <p className="text-sm text-sb-muted leading-relaxed flex-1 mb-4">{mode.description}</p>
           {mode.available ? (
             <Link
-              href="/survivor/week"
+              href={MODE_HREF[mode.id] ?? survivorPath("leagues")}
               className="inline-flex items-center gap-1 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
             >
-              Play Global Survivor
+              {mode.id === "double_life" ? "Join Double Life" : "Play Global Survivor"}
               <ChevronRight className="w-4 h-4" />
             </Link>
           ) : (

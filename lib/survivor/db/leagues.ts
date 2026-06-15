@@ -71,6 +71,69 @@ export async function getGlobalClassicLeague(
   return data ? mapLeague(data as SurvivorLeagueRow) : null;
 }
 
+export async function getDoubleLifeLeague(
+  seasonYear: number
+): Promise<SurvivorLeague | null> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*")
+    .eq("sport", "nfl")
+    .eq("season_year", seasonYear)
+    .eq("mode", "double_life")
+    .eq("visibility", "global")
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? mapLeague(data as SurvivorLeagueRow) : null;
+}
+
+export async function upsertDoubleLifeLeague(seasonYear: number): Promise<SurvivorLeague> {
+  const existing = await getDoubleLifeLeague(seasonYear);
+  if (existing) return existing;
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert({
+      sport: "nfl",
+      season_year: seasonYear,
+      mode: "double_life",
+      visibility: "global",
+      name: `Survivor X™ Double Life ${seasonYear}`,
+      description:
+        "Two lives per season — lose twice and you are out. One pick per week, never reuse a team.",
+      entry_fee_cents: 0,
+      lives_per_player: 2,
+      current_week: 1,
+      status: "open",
+    })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return mapLeague(data as SurvivorLeagueRow);
+}
+
+export async function listPublicSurvivorLeagues(
+  seasonYear: number
+): Promise<SurvivorLeague[]> {
+  await upsertGlobalClassicLeague(seasonYear);
+  await upsertDoubleLifeLeague(seasonYear);
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*")
+    .eq("sport", "nfl")
+    .eq("season_year", seasonYear)
+    .eq("visibility", "global")
+    .in("mode", ["global", "double_life"])
+    .in("status", ["open", "active", "complete"]);
+
+  if (error) throw error;
+  return ((data ?? []) as SurvivorLeagueRow[]).map(mapLeague);
+}
+
 export async function upsertGlobalClassicLeague(seasonYear: number): Promise<SurvivorLeague> {
   const existing = await getGlobalClassicLeague(seasonYear);
   const supabase = getSupabaseAdmin();
