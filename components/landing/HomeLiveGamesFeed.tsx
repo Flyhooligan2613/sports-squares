@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { CONTEST_CENTER, EMPTY_STATE } from "@/lib/platform/language";
 import { useEffect, useState } from "react";
 import HeroTeamLogo from "@/components/landing/hero/HeroTeamLogo";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
@@ -111,9 +112,9 @@ export default function HomeLiveGamesFeed() {
   if (!cards.length) {
     return (
       <LandingGlassCard className="p-8 text-center">
-        <p className="text-white font-semibold mb-2">No games this week yet</p>
+        <p className="text-white font-semibold mb-2">{EMPTY_STATE.noGames.title}</p>
         <p className="text-sb-muted text-sm">
-          Boards open automatically as kickoff approaches.
+          {EMPTY_STATE.noGames.body}
         </p>
       </LandingGlassCard>
     );

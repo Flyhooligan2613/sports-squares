@@ -5,6 +5,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import type { CountdownGame } from "@/lib/actionCenter/types";
+import { CONTEST_CTAS, EMPTY_STATE } from "@/lib/platform/language";
 
 interface CountdownCenterProps {
   games: CountdownGame[];
@@ -49,9 +50,9 @@ export default function CountdownCenter({ games }: CountdownCenterProps) {
         {games.length === 0 ? (
           <SectionEmptyState
             emoji="📅"
-            title="No games on the clock"
-            description="New boards open automatically throughout the day. Check back soon."
-            actionLabel="Browse Games"
+            title={EMPTY_STATE.noGamesOnClock.title}
+            description={EMPTY_STATE.noGamesOnClock.body}
+            actionLabel={CONTEST_CTAS.browseContests}
             actionHref="/games/nfl"
             compact
           />

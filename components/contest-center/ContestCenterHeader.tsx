@@ -1,12 +1,12 @@
 "use client";
 
-import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { CONTEST_CENTER } from "@/lib/platform/language";
 
 const SECTION_LINKS = [
-  { id: "cc-live-contests", label: "Today's Live Contests" },
-  { id: "cc-trending-contests", label: "Trending Contests" },
-  { id: "cc-featured-contests", label: "Featured Competitions" },
-  { id: "cc-friends-playing", label: "Friends Playing" },
+  { id: "cc-live-contests", label: CONTEST_CENTER.todaysLiveContests },
+  { id: "cc-trending-contests", label: CONTEST_CENTER.trendingContests },
+  { id: "cc-featured-contests", label: CONTEST_CENTER.featuredCompetitions },
+  { id: "cc-friends-playing", label: CONTEST_CENTER.friendsPlaying },
 ] as const;
 
 export default function ContestCenterHeader() {
@@ -16,12 +16,12 @@ export default function ContestCenterHeader() {
 
   return (
     <header className="cc-header sb-xp-hero-enter">
-      <p className="cc-header-badge">🏆 {PLATFORM_TERMS.contestCenter}</p>
-      <h1 className="cc-header-title">{PLATFORM_TERMS.contestCenterTitle}</h1>
+      <p className="cc-header-badge">🏆 {CONTEST_CENTER.shortTitle}</p>
+      <h1 className="cc-header-title">{CONTEST_CENTER.shortTitle}</h1>
       <div className="cc-header-taglines">
-        <p>{PLATFORM_TERMS.contestCenterTagline}</p>
-        <p>{PLATFORM_TERMS.contestCenterTagline2}</p>
-        <p>{PLATFORM_TERMS.contestCenterTagline3}</p>
+        <p>{CONTEST_CENTER.tagline}</p>
+        <p>{CONTEST_CENTER.tagline2}</p>
+        <p>{CONTEST_CENTER.tagline3}</p>
       </div>
       <nav className="cc-header-nav" aria-label="Contest Center sections">
         {SECTION_LINKS.map((link, index) => (

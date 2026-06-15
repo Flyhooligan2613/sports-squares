@@ -82,3 +82,9 @@ export {
   GUARANTEED_FILL_PERCENT,
   GUARANTEED_PLAY_EXPLAINER,
 } from "@/lib/platform/core/guaranteedPlay";
+
+export {
+  CONTEST_LANGUAGE,
+  getContestLanguage,
+  getLoadingMessage,
+} from "@/lib/platform/language";

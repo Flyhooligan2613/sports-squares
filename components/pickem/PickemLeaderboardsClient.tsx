@@ -15,6 +15,7 @@ import type {
   PickemSport,
 } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
+import { COMMUNITY_LABELS } from "@/lib/platform/language";
 
 const SCOPES: PickemLeaderboardScope[] = [
   "worldwide",
@@ -96,7 +97,7 @@ export default function PickemLeaderboardsClient({ sport = "nfl" }: { sport?: Pi
           badgeLabel="Rankings"
           badgeVariant="info"
           badgePulse={false}
-          title="Pick'em Leaderboards"
+          title={`Pick'em ${COMMUNITY_LABELS.competitionRankings}`}
           subtitle="Weekly, season, and all-time rankings. Protect your streak."
         />
 

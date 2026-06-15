@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { EMPTY_STATE } from "@/lib/platform/language";
 import HeroTeamLogo from "@/components/landing/hero/HeroTeamLogo";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
@@ -111,9 +112,9 @@ export default function NowHappening({ cards }: NowHappeningProps) {
         <h2 className="ac-section-title">Now Happening</h2>
         <p className="text-xs text-sb-muted mb-4">This week&apos;s games · updates every 5 seconds</p>
         <LandingGlassCard className="p-8 text-center">
-          <p className="text-white font-semibold mb-2">No games this week yet</p>
+          <p className="text-white font-semibold mb-2">{EMPTY_STATE.noGames.title}</p>
           <p className="text-sb-muted text-sm">
-            Check back as kickoff approaches — boards open automatically.
+            {EMPTY_STATE.noGames.body}
           </p>
         </LandingGlassCard>
       </section>

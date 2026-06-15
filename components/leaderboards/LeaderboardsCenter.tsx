@@ -12,6 +12,12 @@ import type {
   LeaderboardTab,
   LeaderboardsData,
 } from "@/lib/player/leaderboardTypes";
+import {
+  COMMUNITY_LABELS,
+  CONTEST_CTAS,
+  EMPTY_STATE,
+  PLAYER_TERMS,
+} from "@/lib/platform/language";
 import { Crown, Medal, Trophy, Users } from "lucide-react";
 
 const TAB_ORDER: LeaderboardTab[] = [
@@ -38,11 +44,11 @@ function LeaderboardTable({ board }: { board: LeaderboardBoard }) {
   if (!board.entries.length) {
     return (
       <LandingGlassCard className="p-10 text-center">
-        <p className="text-white font-semibold mb-2">No rankings yet</p>
+        <p className="text-white font-semibold mb-2">{EMPTY_STATE.noRankings.title}</p>
         <p className="text-sb-muted text-sm mb-6">
-          Be the first on the board — grab squares and start winning.
+          {EMPTY_STATE.noRankings.body}
         </p>
-        <Button href="/games/nfl">Browse Games</Button>
+        <Button href="/games/nfl">{EMPTY_STATE.noRankings.cta}</Button>
       </LandingGlassCard>
     );
   }
@@ -68,7 +74,7 @@ function LeaderboardTable({ board }: { board: LeaderboardBoard }) {
                 {entry.displayName}
                 {entry.isViewer && (
                   <span className="ml-2 text-xs font-semibold uppercase tracking-wider text-sb-glow">
-                    You
+                    {PLAYER_TERMS.you}
                   </span>
                 )}
               </p>
@@ -99,7 +105,7 @@ export default function LeaderboardsCenter() {
         const json = (await res.json()) as LeaderboardsData;
         if (!cancelled) setData(json);
       } catch {
-        if (!cancelled) setError("Could not load leaderboards.");
+        if (!cancelled) setError(`Could not load ${COMMUNITY_LABELS.competitionRankings.toLowerCase()}.`);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -121,8 +127,8 @@ export default function LeaderboardsCenter() {
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <ExperienceHero
             badgeLabel="Global Competition"
-            title="Leaderboards"
-            subtitle="See where you rank worldwide — winnings, wins, weekly heat, and streaks."
+            title={COMMUNITY_LABELS.competitionRankings}
+            subtitle={`See where you rank worldwide — winnings, wins, weekly heat, and streaks.`}
           />
 
           {loading ? (
@@ -136,7 +142,7 @@ export default function LeaderboardsCenter() {
               <div className="flex flex-wrap items-center gap-3 mt-8 mb-6">
                 <span className="inline-flex items-center gap-2 text-xs text-sb-muted bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
                   <Users className="w-3.5 h-3.5" />
-                  {data.totalPlayers.toLocaleString()} players ranked
+                  {data.totalPlayers.toLocaleString()} {PLAYER_TERMS.competitors.toLowerCase()} ranked
                 </span>
                 {activeBoard?.viewerRank && (
                   <span className="inline-flex items-center gap-2 text-xs font-semibold text-sb-glow bg-sb-purple/15 border border-sb-purple/30 rounded-full px-3 py-1.5">
@@ -175,7 +181,7 @@ export default function LeaderboardsCenter() {
               )}
 
               <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-                <Button href="/games/nfl">Play & Climb Rankings</Button>
+                <Button href="/games/nfl">{CONTEST_CTAS.competeNow}</Button>
                 <Button href="/my-games/profile" variant="ghost">
                   View Your Legacy
                 </Button>

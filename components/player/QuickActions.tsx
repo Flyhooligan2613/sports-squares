@@ -1,6 +1,12 @@
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import {
+  COMMUNITY_LABELS,
+  CONTEST_CTAS,
+  PROFILE_LABELS,
+  REWARD_LABELS,
+} from "@/lib/platform/language";
+import {
   ArrowRight,
   Grid3X3,
   ShoppingCart,
@@ -14,9 +20,9 @@ import {
 const ACTIONS = [
   {
     href: "/games/nfl",
-    label: "Browse Games",
+    label: CONTEST_CTAS.browseContests,
     icon: Grid3X3,
-    description: "Find your next board",
+    description: "Find your next contest",
   },
   {
     href: "/games/nfl",
@@ -26,13 +32,13 @@ const ACTIONS = [
   },
   {
     href: "/leaderboards",
-    label: "Leaderboards",
+    label: COMMUNITY_LABELS.competitionRankings,
     icon: BarChart3,
-    description: "Worldwide rankings",
+    description: COMMUNITY_LABELS.worldwideRankings,
   },
   {
     href: "/my-games/rewards",
-    label: "Rewards & Tiers",
+    label: REWARD_LABELS.myRewards,
     icon: Gift,
     description: "Credits, boxes & marketplace",
   },
@@ -40,7 +46,7 @@ const ACTIONS = [
     href: "/my-games/referrals",
     label: "Refer & Earn",
     icon: Users,
-    description: "Share your Player ID",
+    description: "Share your Competitor ID",
   },
   {
     href: "/my-games/profile#legacy",
@@ -50,7 +56,7 @@ const ACTIONS = [
   },
   {
     href: "/my-games/history",
-    label: "Withdraw History",
+    label: PROFILE_LABELS.competitionHistory,
     icon: History,
     description: "Past wins & transfers",
   },

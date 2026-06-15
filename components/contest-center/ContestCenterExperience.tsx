@@ -27,7 +27,7 @@ import type { ContestFilterId, ContestListing } from "@/lib/contestCenter/types"
 import type { HomeFriendsPanel } from "@/lib/gameDay/types";
 import { fastFetchJson, isDocumentVisible } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
-import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { CONTEST_CENTER } from "@/lib/platform/language";
 
 const POLL_MS = 15_000;
 const CACHE_KEY = "action-center";
@@ -98,7 +98,7 @@ export default function ContestCenterExperience() {
       setFriends(friendsPanel);
       setError(null);
     } catch {
-      setError(`Could not refresh the ${PLATFORM_TERMS.contestCenter}.`);
+      setError(`Could not refresh the ${CONTEST_CENTER.shortTitle}.`);
     } finally {
       setLoading(false);
     }
@@ -187,7 +187,7 @@ export default function ContestCenterExperience() {
                   aria-labelledby="cc-featured-heading"
                 >
                   <h2 id="cc-featured-heading" className="cc-section-title">
-                    Featured Competitions
+                    {CONTEST_CENTER.featuredCompetitions}
                   </h2>
                   <FeaturedContestCard contest={viewModel.featured} />
                 </section>

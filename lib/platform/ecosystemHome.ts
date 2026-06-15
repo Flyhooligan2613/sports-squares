@@ -2,6 +2,7 @@ import { PLATFORM_GAMES, type PlatformGameId } from "@/lib/platform/gameTypes";
 import { ECOSYSTEM_FEATURE_TAGLINES } from "@/lib/platform/gameTaglines";
 import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
 import { WEEKLY_REWARD_DROP_PUBLIC_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
+import { COMMUNITY_LABELS, PROFILE_LABELS } from "@/lib/platform/language";
 
 export type EcosystemFeatureStatus = "available" | "coming_soon";
 
@@ -38,7 +39,7 @@ const GAME_CARD_OVERRIDES: Record<
   pickem: {
     emoji: "🏈",
     title: "Pick'em",
-    bullets: ["Weekly contests", "Streaks", "Leaderboards"],
+    bullets: ["Weekly contests", "Streaks", COMMUNITY_LABELS.competitionRankings],
   },
   "baseball-pickem": {
     emoji: "⚾",
@@ -138,9 +139,9 @@ const PLATFORM_FEATURES: EcosystemFeature[] = [
   {
     id: "leaderboards",
     emoji: "🏅",
-    title: "Leaderboards",
+    title: COMMUNITY_LABELS.competitionRankings,
     tagline: ECOSYSTEM_FEATURE_TAGLINES.leaderboards,
-    bullets: ["Global rankings", "State leaders", "Referral & community"],
+    bullets: ["Global rankings", "Top competitors", "Referral & community"],
     href: "/leaderboards",
     status: "available",
     accent: "#ec4899",
@@ -193,5 +194,5 @@ export const PLATFORM_VALUE_PILLARS: PlatformValuePillar[] = [
   { emoji: "📊", title: "Live Sports Data" },
   { emoji: "🎁", title: "Seasonal Events" },
   { emoji: "⭐", title: "Achievements" },
-  { emoji: "🌎", title: "Global Leaderboards" },
+  { emoji: "🌎", title: `Global ${COMMUNITY_LABELS.competitionRankings}` },
 ];

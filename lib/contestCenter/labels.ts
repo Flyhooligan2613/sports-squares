@@ -1,4 +1,5 @@
 import type { ContestFilterId, ContestStatus, TrendingBadge } from "@/lib/contestCenter/types";
+import { CONTEST_STATUS_LABELS } from "@/lib/platform/language";
 
 export const CONTEST_SPORT_TABS = [
   { id: "nfl", label: "NFL", emoji: "🏈", href: "/games/nfl" },
@@ -23,15 +24,8 @@ export const CONTEST_FILTER_TABS: { id: ContestFilterId; label: string; emoji?: 
 /** @deprecated Use CONTEST_FILTER_TABS */
 export const CONTEST_FILTERS = CONTEST_FILTER_TABS;
 
-export const STATUS_LABELS: Record<ContestStatus, string> = {
-  open: "Open",
-  filling: "Filling",
-  almost_full: "Almost Full",
-  locked: "Locked",
-  live: "Live",
-  completed: "Completed",
-  coming_soon: "Coming Soon",
-};
+/** Player-facing contest status labels — sourced from Contest Language Engine™ */
+export const STATUS_LABELS: Record<ContestStatus, string> = CONTEST_STATUS_LABELS;
 
 export const TRENDING_LABELS: Record<TrendingBadge, string> = {
   filling_fast: "🔥 Filling Fast",

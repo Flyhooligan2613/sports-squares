@@ -1,7 +1,8 @@
 import type { ContestKind, ContestListing, ContestStatus } from "@/lib/contestCenter/types";
+import { CONTEST_CTAS, CONTEST_STATUS_LABELS } from "@/lib/platform/language";
 
 /** Fallback when no contest context is available. */
-export const JOIN_THE_CONTEST_FALLBACK = "Join the Contest";
+export const JOIN_THE_CONTEST_FALLBACK = CONTEST_CTAS.joinTheContest;
 
 export type ContestCtaKey =
   | "nfl-squares"
@@ -143,7 +144,7 @@ function resolveCtaKey(input: ResolveContestCtaInput): ContestCtaKey | null {
 }
 
 export function resolveContestCta(input: ResolveContestCtaInput): string {
-  if (input.status === "coming_soon") return "Coming Soon";
+  if (input.status === "coming_soon") return CONTEST_STATUS_LABELS.coming_soon;
 
   const explicit = input.ctaLabel?.trim();
   if (explicit) return explicit;

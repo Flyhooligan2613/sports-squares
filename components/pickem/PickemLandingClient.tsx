@@ -23,6 +23,7 @@ import {
 } from "@/lib/pickem/copy";
 import { fastFetchJson } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
+import { COMMUNITY_LABELS, CONTEST_CTAS, getLoadingMessage, PROFILE_LABELS } from "@/lib/platform/language";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -92,19 +93,19 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
                   ]
                 : undefined
             }
-            cta={{ label: "Play This Week", href: `${basePath}/week` }}
+            cta={{ label: CONTEST_CTAS.competeNow, href: `${basePath}/week` }}
           />
 
           <div className="flex flex-wrap justify-center gap-3 mt-2">
-            <Button href={`${basePath}/week`}>Play This Week</Button>
+            <Button href={`${basePath}/week`}>{CONTEST_CTAS.competeNow}</Button>
             <Button href={`${basePath}/week`} variant="secondary">
               My Picks
             </Button>
             <Button href={`${basePath}/leaderboards`} variant="secondary">
-              Leaderboards
+              {COMMUNITY_LABELS.competitionRankings}
             </Button>
             <Button href={`${basePath}/history`} variant="secondary">
-              My Profile
+              {PROFILE_LABELS.competitorProfile}
             </Button>
             <Button href={`${basePath}/hall-of-fame`} variant="secondary">
               Hall of Fame
@@ -125,7 +126,7 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
               {overview.contestLabel} · {overview.gamesRemaining} games remaining this week
             </p>
           ) : loading ? (
-            <p className="text-center text-sm text-sb-muted mt-6">Loading live stats…</p>
+            <p className="text-center text-sm text-sb-muted mt-6">{getLoadingMessage("pickem")}</p>
           ) : null}
 
           <PlatformTrustStrip className="mt-8 px-4" />

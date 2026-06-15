@@ -13,6 +13,7 @@ import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { PlayerDashboardData } from "@/lib/player/dashboardTypes";
+import { CONTEST_CTAS, EMPTY_STATE } from "@/lib/platform/language";
 
 export default function MyGamesDashboard() {
   const [data, setData] = useState<PlayerDashboardData | null>(null);
@@ -112,9 +113,9 @@ export default function MyGamesDashboard() {
             <LandingGlassCard glow className="p-8 sm:p-10">
               <SectionEmptyState
                 emoji="🏈"
-                title="No active games yet"
-                description="No games are currently available. New boards open automatically throughout the day."
-                actionLabel="Browse Games →"
+                title={EMPTY_STATE.noGamesAvailable.title}
+                description={EMPTY_STATE.noGamesAvailable.body}
+                actionLabel={`${CONTEST_CTAS.browseContests} →`}
                 actionHref="/games/nfl"
               />
             </LandingGlassCard>

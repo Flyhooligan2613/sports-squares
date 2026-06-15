@@ -19,6 +19,7 @@ import {
 } from "@/lib/marketplace/seasonStatus";
 import type { EspnSport, MarketplaceSportStats } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
+import { EMPTY_STATE } from "@/lib/platform/language";
 
 function formatCount(value: number): string {
   return value.toLocaleString("en-US");
@@ -160,11 +161,11 @@ export default function MarketplaceSports() {
         </div>
       ) : selectedOffSeason ? null : visibleStats.length === 0 ? (
         <div className="landing-glass-card text-center py-14 px-6">
-          <p className="text-white font-semibold text-lg mb-2">No games listed yet</p>
+          <p className="text-white font-semibold text-lg mb-2">{EMPTY_STATE.noGamesListed.title}</p>
           <p className="text-sb-muted text-sm max-w-md mx-auto mb-5">
             {selectedConfig
-              ? `${selectedConfig.label} games sync automatically from live schedules. Try another sport or check back soon.`
-              : "Games sync automatically from live schedules. Check back soon."}
+              ? `${selectedConfig.label} contests sync automatically from live schedules. Try another sport or check back soon.`
+              : EMPTY_STATE.noGamesListed.body}
           </p>
           {selectedSport !== "all" ? (
             <button

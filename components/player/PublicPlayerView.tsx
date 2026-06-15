@@ -5,6 +5,7 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ProfileSocialView from "@/components/player/social/ProfileSocialView";
 import type { PublicPlayerProfile } from "@/lib/player/publicProfileTypes";
+import { COMMUNITY_LABELS, PLAYER_TERMS } from "@/lib/platform/language";
 
 export default function PublicPlayerView({
   profile,
@@ -18,7 +19,7 @@ export default function PublicPlayerView({
         <AmbientBackground />
         <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <p className="text-[10px] uppercase tracking-[0.3em] text-purple-400/80 mb-6 text-center sm:text-left">
-            SquareBoards Player
+            SquareBoards {PLAYER_TERMS.competitor}
           </p>
           <ProfileSocialView profile={profile} />
           <div className="mt-10 flex flex-wrap gap-3 justify-center border-t border-white/10 pt-8">
@@ -32,7 +33,7 @@ export default function PublicPlayerView({
               href="/leaderboards"
               className="text-sm text-sb-muted hover:text-white transition-colors"
             >
-              Leaderboards
+              {COMMUNITY_LABELS.competitionRankings}
             </Link>
             {!profile.isOwner ? (
               <Link

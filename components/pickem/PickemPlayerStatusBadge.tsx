@@ -3,6 +3,7 @@
 import { CheckCircle2, Trophy, XCircle, Zap, Split } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import type { PickemPlayerPoolStatus } from "@/lib/pickem/types";
+import { PLAYER_TERMS } from "@/lib/platform/language";
 
 const STATUS_CONFIG = {
   active: {
@@ -21,7 +22,7 @@ const STATUS_CONFIG = {
     className: "text-amber-300 bg-amber-500/10 border-amber-500/30",
   },
   winner: {
-    label: "Winner",
+    label: PLAYER_TERMS.champion,
     icon: Trophy,
     className: "text-yellow-300 bg-yellow-500/10 border-yellow-500/30",
   },

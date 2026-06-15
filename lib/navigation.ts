@@ -1,4 +1,5 @@
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { COMMUNITY_LABELS, PROFILE_LABELS } from "@/lib/platform/language";
 
 export interface NavItem {
   href: string;
@@ -34,7 +35,7 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "player",
     title: "Player",
     items: [
-      { href: "/my-games/profile", label: "Player Hub", icon: "👤", requiresAuth: true },
+      { href: "/my-games/profile", label: PROFILE_LABELS.competitorHub, icon: "👤", requiresAuth: true },
       { href: "/my-games/rewards", label: "My Rewards", icon: "🎁", requiresAuth: true },
       { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐", requiresAuth: true },
       { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎", requiresAuth: true },
@@ -51,7 +52,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/contest-center", label: PLATFORM_TERMS.contestCenter, icon: "⚡" },
       { href: "/live-winners", label: "Winners Center", icon: "🏆" },
-      { href: "/leaderboards", label: "Leaderboards", icon: "📊" },
+      { href: "/leaderboards", label: COMMUNITY_LABELS.competitionRankings, icon: "📊" },
     ],
   },
   {

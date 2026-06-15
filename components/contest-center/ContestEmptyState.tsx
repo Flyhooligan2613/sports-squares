@@ -3,7 +3,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { ContestJoinLabel } from "@/components/contest-center/ContestJoinButton";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
-import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { CONTEST_CENTER, contestSpotsLeft, EMPTY_STATE } from "@/lib/platform/language";
 
 export default function ContestEmptyState() {
   return (
@@ -12,25 +12,24 @@ export default function ContestEmptyState() {
         🏆
       </p>
       <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-        No contests are available right now.
+        {EMPTY_STATE.noContests.title}
       </h2>
       <p className="text-sb-muted max-w-md mx-auto mb-8">
-        The arena is gearing up. Explore upcoming sports, check the Daily Story, or
-        connect with the community while the next contest opens.
+        {EMPTY_STATE.noContests.body}
       </p>
       <div className="flex flex-wrap justify-center gap-3">
         <Button href="/game-day" variant="primary">
-          Daily Story
+          {EMPTY_STATE.noContests.ctaDailyStory}
         </Button>
         <Button href="/huddle" variant="secondary">
-          Community
+          {EMPTY_STATE.noContests.ctaCommunity}
         </Button>
         <Button href="/games/nfl" variant="secondary">
-          {PLATFORM_TERMS.browseLiveContests}
+          {EMPTY_STATE.noContests.ctaBrowse}
         </Button>
       </div>
       <p className="text-xs text-sb-muted mt-8">
-        Upcoming: NFL · MLB · NBA · Pick&apos;em · Survivor · Tournament Royale
+        {EMPTY_STATE.noContests.upcomingHint}
       </p>
     </LandingGlassCard>
   );
@@ -47,7 +46,7 @@ export function LiveContestsSection({
     return (
       <section id="cc-live-contests" className="cc-section hub-section-anchor" aria-labelledby="cc-live-heading">
         <h2 id="cc-live-heading" className="cc-section-title">
-          Today&apos;s Live Contests
+          {CONTEST_CENTER.todaysLiveContests}
         </h2>
         <ContestEmptyState />
       </section>
@@ -57,7 +56,7 @@ export function LiveContestsSection({
   return (
     <section id="cc-live-contests" className="cc-section hub-section-anchor" aria-labelledby="cc-live-heading">
       <h2 id="cc-live-heading" className="cc-section-title">
-        Today&apos;s Live Contests
+        {CONTEST_CENTER.todaysLiveContests}
       </h2>
       <div className="cc-live-groups">
         {contests.map((group) => (
@@ -82,7 +81,7 @@ export function LiveContestsSection({
                         contest.entryFeeLabel,
                         contest.prizePoolLabel,
                         contest.remainingSpots != null
-                          ? `${contest.remainingSpots} spots left`
+                          ? contestSpotsLeft(contest.remainingSpots)
                           : null,
                       ]
                         .filter(Boolean)
