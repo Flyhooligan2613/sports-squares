@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getHuddleFeed } from "@/lib/huddle/pickPosts";
+import { getUnifiedHuddleFeed } from "@/lib/huddle/unifiedFeed";
 import type { HuddleFeedSort } from "@/lib/huddle/types";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
 
   try {
-    const feed = await getHuddleFeed({
+    const feed = await getUnifiedHuddleFeed({
       sort,
       viewerEmail: user?.email ?? null,
     });

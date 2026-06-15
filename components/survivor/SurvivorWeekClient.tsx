@@ -40,6 +40,8 @@ export default function SurvivorWeekClient() {
   const [joining, setJoining] = useState(false);
   const [showShieldActivation, setShowShieldActivation] = useState(false);
   const [showEliminationMoment, setShowEliminationMoment] = useState(false);
+  const [sharingToHuddle, setSharingToHuddle] = useState(false);
+  const [huddleMessage, setHuddleMessage] = useState<string | null>(null);
 
   const dismissShieldActivation = useCallback(() => {
     if (view?.entry && view.myPick?.result === "shield_saved") {
@@ -94,6 +96,29 @@ export default function SurvivorWeekClient() {
 
     setShowEliminationMoment(true);
   }, [view]);
+
+  const canShareToHuddle = Boolean(
+    view?.myPick &&
+      view.games.some((g) => g.isSelected && g.picksLocked)
+  );
+
+  async function handleShareToHuddle() {
+    setSharingToHuddle(true);
+    setHuddleMessage(null);
+    try {
+      const res = await fetch("/api/huddle/survivor-post", {
+        method: "POST",
+        credentials: "include",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error ?? "Could not share.");
+      setHuddleMessage("Shared to The Huddle!");
+    } catch (err) {
+      setHuddleMessage(err instanceof Error ? err.message : "Could not share.");
+    } finally {
+      setSharingToHuddle(false);
+    }
+  }
 
   const loadWeeks = useCallback(async () => {
     const res = await fetch(survivorApiUrl("weeks"), { cache: "no-store" });
@@ -273,6 +298,20 @@ export default function SurvivorWeekClient() {
           />
         ) : null}
 
+        {canShareToHuddle && view?.entry && view.entry.status !== "active" ? (
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={sharingToHuddle}
+              onClick={() => void handleShareToHuddle()}
+            >
+              {sharingToHuddle ? "Sharing…" : "Share pick to The Huddle"}
+            </Button>
+            {huddleMessage ? <span className="text-xs text-emerald-300">{huddleMessage}</span> : null}
+          </div>
+        ) : null}
+
         {view?.entry && view.entry.status === "active" ? (
           <LandingGlassCard className="p-5 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -300,22 +339,37 @@ export default function SurvivorWeekClient() {
               </div>
             </div>
             {view.myPick ? (
-              <p className="text-sm text-sb-muted mt-3">
-                Locked pick:{" "}
-                <span className="text-white font-semibold">{view.myPick.teamName}</span>
-                {" · "}
-                <span
-                  className={
-                    view.myPick.result === "shield_saved"
-                      ? "text-violet-300 font-semibold capitalize"
-                      : "capitalize"
-                  }
-                >
-                  {view.myPick.result === "shield_saved"
-                    ? "shield saved you"
-                    : view.myPick.result}
-                </span>
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <p className="text-sm text-sb-muted">
+                  Locked pick:{" "}
+                  <span className="text-white font-semibold">{view.myPick.teamName}</span>
+                  {" · "}
+                  <span
+                    className={
+                      view.myPick.result === "shield_saved"
+                        ? "text-violet-300 font-semibold capitalize"
+                        : "capitalize"
+                    }
+                  >
+                    {view.myPick.result === "shield_saved"
+                      ? "shield saved you"
+                      : view.myPick.result}
+                  </span>
+                </p>
+                {canShareToHuddle ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={sharingToHuddle}
+                    onClick={() => void handleShareToHuddle()}
+                  >
+                    {sharingToHuddle ? "Sharing…" : "Share to Huddle"}
+                  </Button>
+                ) : null}
+                {huddleMessage ? (
+                  <span className="text-xs text-emerald-300">{huddleMessage}</span>
+                ) : null}
+              </div>
             ) : view.canPick ? (
               <p className="text-sm text-amber-400/90 mt-3">
                 Choose one team below — you cannot reuse a team this season.

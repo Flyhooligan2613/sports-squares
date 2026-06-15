@@ -45,6 +45,29 @@ export interface HuddlePickPost {
   copiedByViewer: boolean;
 }
 
+export interface HuddleSurvivorPost {
+  id: string;
+  email: string;
+  entryId: string;
+  weekId: string;
+  leagueId: string;
+  weekLabel: string;
+  teamAbbr: string;
+  teamName: string;
+  weeksSurvived: number;
+  shieldAvailable: boolean;
+  tierSlug: PlayerTierSlug | null;
+  bioSnapshot: string | null;
+  likeCount: number;
+  publishedAt: string;
+  author: HuddlePlayerSummary;
+  likedByViewer: boolean;
+}
+
+export type HuddleFeedItem =
+  | { kind: "pickem"; post: HuddlePickPost; publishedAt: string }
+  | { kind: "survivor"; post: HuddleSurvivorPost; publishedAt: string };
+
 export interface HuddlePlayerSummary {
   email: string;
   slug: string;
@@ -68,7 +91,7 @@ export interface HuddlePlayerSummary {
 }
 
 export interface HuddleFeedResponse {
-  posts: HuddlePickPost[];
+  items: HuddleFeedItem[];
   pickOfWeek: HuddlePickPost | null;
   sort: HuddleFeedSort;
 }
