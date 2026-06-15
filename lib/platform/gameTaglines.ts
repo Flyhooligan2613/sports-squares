@@ -8,7 +8,7 @@ export const PLATFORM_GAME_TAGLINES: Record<PlatformGameId, string> = {
   pickem: "Lock your card, ride the week",
   survivor: "One pick. Stay alive.",
   "baseball-pickem": "Diamond picks all summer",
-  brackets: "Bracket season loading",
+  brackets: "Every prediction tells a story",
   "soccer-predictor": "World stage warming up",
 };
 

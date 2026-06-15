@@ -5,6 +5,7 @@
  */
 
 import { PLATFORM_GAME_TAGLINES } from "@/lib/platform/gameTaglines";
+import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
 
 export type PlatformGameId =
   | "squareboards"
@@ -100,13 +101,13 @@ export const PLATFORM_GAMES: PlatformGameDefinition[] = [
   },
   {
     id: "brackets",
-    name: "Brackets",
+    name: TOURNAMENT_ROYALE_PUBLIC_NAME,
     tagline: PLATFORM_GAME_TAGLINES.brackets,
     description:
-      "March Madness and tournament brackets with live scoring and big prizes.",
+      "Immersive tournament predictions — Cinderella Meter™, Bracket Combos™, live bracket, and legacy rewards.",
     icon: "🏀",
-    status: "coming_soon",
-    href: null,
+    status: "available",
+    href: "/tournament-royale",
     accent: "#3b82f6",
     statKeys: ["bracketPoints"],
   },
@@ -173,6 +174,10 @@ export function isSurvivorRoute(pathname: string): boolean {
   return pathname === "/survivor" || pathname.startsWith("/survivor/");
 }
 
+export function isTournamentRoyaleRoute(pathname: string): boolean {
+  return pathname === "/tournament-royale" || pathname.startsWith("/tournament-royale/");
+}
+
 export function isPlatformGameNavActive(
   game: PlatformGameDefinition,
   pathname: string
@@ -187,6 +192,7 @@ export function isPlatformGameNavActive(
   }
   if (game.id === "pickem") return isPickemRoute(pathname) && !isBaseballPickemRoute(pathname);
   if (game.id === "survivor") return isSurvivorRoute(pathname);
+  if (game.id === "brackets") return isTournamentRoyaleRoute(pathname);
   if (game.id === "baseball-pickem") return isBaseballPickemRoute(pathname);
   return pathname === game.href || pathname.startsWith(`${game.href}/`);
 }

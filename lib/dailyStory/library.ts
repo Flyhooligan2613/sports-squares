@@ -75,6 +75,27 @@ export const DAILY_STORY_LIBRARY: DailyStoryDefinition[] = [
     tags: ["march_madness"],
     weight: 90,
   },
+  {
+    id: "event_tournament_royale_opener",
+    emoji: "🏀",
+    body: "March Madness begins today.\nEvery prediction tells a story.",
+    tags: ["march_madness", "tournament_royale"],
+    weight: 95,
+  },
+  {
+    id: "event_tournament_sweet_16",
+    emoji: "🏆",
+    body: "Sweet 16 has arrived.\nOnly the bold remain.",
+    tags: ["march_madness", "tournament_royale"],
+    weight: 93,
+  },
+  {
+    id: "event_tournament_final_four",
+    emoji: "🔥",
+    body: "Final Four Weekend.\nLegends are about to be made.",
+    tags: ["march_madness", "tournament_royale", "playoffs"],
+    weight: 94,
+  },
 
   // Player progression (warm, never salesy)
   {
