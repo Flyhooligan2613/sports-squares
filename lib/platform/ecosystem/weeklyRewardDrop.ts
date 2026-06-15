@@ -5,7 +5,10 @@ import { getAdminConfig } from "@/lib/platform/ecosystem/adminConfig";
 import { ensureEcosystemAccount, updateEcosystemProfile } from "@/lib/platform/ecosystem/account";
 import { addInventoryItem } from "@/lib/platform/ecosystem/inventory";
 import { addSquareCredits, earnTierCredits } from "@/lib/platform/ecosystem/credits";
-import { listActivePromotions } from "@/lib/platform/ecosystem/promotions";
+import {
+  getPlayerDropSchedule,
+  scheduleNextWeeklyDropAfterOpen,
+} from "@/lib/platform/ecosystem/firstPlay";
 import type { PlayerTierSlug } from "@/lib/platform/ecosystem/types";
 import type {
   DropBoxType,
@@ -18,6 +21,11 @@ import type {
   WeeklyRewardDropConfig,
 } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
 import { DEFAULT_WEEKLY_REWARD_DROP_CONFIG } from "@/lib/platform/ecosystem/config";
+import {
+  dropCycleKey,
+  isDropDue,
+  msUntilDrop,
+} from "@/lib/platform/ecosystem/weeklyDropSchedule";
 
 export function isoWeekKey(date = new Date()): string {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -40,7 +48,7 @@ function mapRow(row: Record<string, unknown>): WeeklyDropRecord {
     weekKey: row.week_key as string,
     boxType: (row.box_type as DropBoxType) ?? "bronze",
     tierSlug: row.tier_slug as PlayerTierSlug,
-    qualificationSource: (row.qualification_source as QualificationSource) ?? "weekly_gameplay",
+    qualificationSource: (row.qualification_source as QualificationSource) ?? "first_play_timer",
     rewards: (row.rewards as DropReward[]) ?? [],
     totalValueCents: Number(row.total_value_cents ?? 0),
     openedAt: (row.opened_at as string | null) ?? null,
@@ -125,7 +133,16 @@ function randomInRange([min, max]: [number, number]): number {
 function buildReward(rarity: RewardRarity, boxType: DropBoxType): DropReward {
   const pool = REWARD_POOL[rarity];
   const template = pool[Math.floor(Math.random() * pool.length)]!;
-  const multiplier = boxType === "immortal" ? 1.5 : boxType === "legend" ? 1.35 : boxType === "diamond" ? 1.2 : boxType === "gold" ? 1.1 : 1;
+  const multiplier =
+    boxType === "immortal"
+      ? 1.5
+      : boxType === "legend"
+        ? 1.35
+        : boxType === "diamond"
+          ? 1.2
+          : boxType === "gold"
+            ? 1.1
+            : 1;
 
   const reward: DropReward = {
     id: randomUUID(),
@@ -191,73 +208,65 @@ function totalValueCents(rewards: DropReward[]): number {
   }, 0);
 }
 
-async function resolveQualification(
-  email: string,
-  config: WeeklyRewardDropConfig
-): Promise<{ qualified: boolean; source: QualificationSource }> {
-  const account = await ensureEcosystemAccount(email);
-
-  if (account.weeklyGameplayCents >= config.minWeeklyGameplayCents) {
-    return { qualified: true, source: "weekly_gameplay" };
-  }
-
-  const promotions = await listActivePromotions(email);
-  if (promotions.some((p) => p.promoType === "vip" && !p.claimed)) {
-    return { qualified: true, source: "vip_promotion" };
-  }
-
-  if (promotions.some((p) => p.promoType === "giveaway" || p.promoType === "holiday")) {
-    return { qualified: true, source: "holiday" };
-  }
-
+async function getUnopenedDrop(email: string): Promise<WeeklyDropRecord | null> {
   const supabase = getSupabaseAdmin();
-  const { data: pending } = await supabase
-    .from("player_pending_rewards")
-    .select("id")
+  const { data: row } = await supabase
+    .from("player_mystery_boxes")
+    .select("*")
     .eq("email", normalizeEmail(email))
-    .eq("reward_type", "weekly_drop")
-    .is("claimed_at", null)
+    .is("opened_at", null)
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (pending) return { qualified: true, source: "admin_giveaway" };
+  return row ? mapRow(row as Record<string, unknown>) : null;
+}
 
-  return { qualified: false, source: "weekly_gameplay" };
+function buildScheduleFields(
+  schedule: { firstPlayAt: string | null; nextWeeklyDropAt: string | null },
+  hasUnopenedDrop: boolean,
+  now = new Date()
+) {
+  const nextDropAt = schedule.nextWeeklyDropAt;
+  const nextDate = nextDropAt ? new Date(nextDropAt) : null;
+  const due = isDropDue(nextDate, now);
+  return {
+    firstPlayAt: schedule.firstPlayAt,
+    nextDropAt,
+    msUntilNext: msUntilDrop(nextDate, now),
+    dropReady: hasUnopenedDrop || due,
+    hasStartedDropTimer: Boolean(schedule.firstPlayAt),
+  };
 }
 
 export async function ensureWeeklyRewardDrop(email: string): Promise<boolean> {
   const config = await getWeeklyDropConfig();
   if (!config.enabled) return false;
 
+  const schedule = await getPlayerDropSchedule(email);
+  if (!schedule.firstPlayAt || !schedule.nextWeeklyDropAt) return false;
+
+  const existing = await getUnopenedDrop(email);
+  if (existing) return true;
+
+  if (!isDropDue(new Date(schedule.nextWeeklyDropAt))) return false;
+
   const account = await ensureEcosystemAccount(email);
-  const weekKey = isoWeekKey();
   const normalized = normalizeEmail(email);
   const supabase = getSupabaseAdmin();
-
-  const { data: existing } = await supabase
-    .from("player_mystery_boxes")
-    .select("id, opened_at")
-    .eq("email", normalized)
-    .eq("week_key", weekKey)
-    .maybeSingle();
-
-  if (existing) return !existing.opened_at;
-
-  const { qualified, source } = await resolveQualification(email, config);
-  if (!qualified) return false;
-
   const boxType = config.tierBoxMap[account.tierSlug] ?? "bronze";
   const rewards = rollDropRewards(config, boxType);
+  const cycleKey = dropCycleKey();
 
   await supabase.from("player_mystery_boxes").insert({
     email: normalized,
-    week_key: weekKey,
+    week_key: cycleKey,
     tier_slug: account.tierSlug,
     box_type: boxType,
-    qualification_source: source,
+    qualification_source: "first_play_timer",
     rewards,
     total_value_cents: totalValueCents(rewards),
-    drop_metadata: { version: 1, gameTypes: ["squareboards", "pickem"] },
+    drop_metadata: { version: 2, intervalDays: 6 },
   });
 
   return true;
@@ -266,46 +275,40 @@ export async function ensureWeeklyRewardDrop(email: string): Promise<boolean> {
 export async function getWeeklyDropStatus(email: string): Promise<WeeklyDropStatus> {
   const config = await getWeeklyDropConfig();
   const account = await ensureEcosystemAccount(email);
-  const weekKey = isoWeekKey();
-  const normalized = normalizeEmail(email);
-  const supabase = getSupabaseAdmin();
+  const schedule = await getPlayerDropSchedule(email);
 
   await ensureWeeklyRewardDrop(email).catch(() => false);
 
-  const { data: row } = await supabase
-    .from("player_mystery_boxes")
-    .select("*")
-    .eq("email", normalized)
-    .eq("week_key", weekKey)
-    .maybeSingle();
+  const unopened = await getUnopenedDrop(email);
+  const scheduleFields = buildScheduleFields(schedule, Boolean(unopened));
 
-  const { qualified } = await resolveQualification(email, config);
-  const min = config.minWeeklyGameplayCents;
-  const progressPct = Math.min(100, Math.round((account.weeklyGameplayCents / min) * 100));
-
-  if (!row) {
-    return {
-      qualified,
-      hasUnopenedDrop: false,
-      currentDrop: null,
-      boxType: null,
-      qualificationSource: null,
-      weeklyGameplayCents: account.weeklyGameplayCents,
-      minGameplayCents: min,
-      progressPct,
-    };
-  }
-
-  const drop = mapRow(row as Record<string, unknown>);
   return {
-    qualified,
-    hasUnopenedDrop: !drop.openedAt,
-    currentDrop: drop,
-    boxType: drop.boxType,
-    qualificationSource: drop.qualificationSource,
+    qualified: scheduleFields.hasStartedDropTimer && scheduleFields.dropReady,
+    hasUnopenedDrop: Boolean(unopened),
+    currentDrop: unopened,
+    boxType: unopened?.boxType ?? null,
+    qualificationSource: unopened?.qualificationSource ?? null,
     weeklyGameplayCents: account.weeklyGameplayCents,
-    minGameplayCents: min,
-    progressPct,
+    minGameplayCents: 0,
+    progressPct: scheduleFields.hasStartedDropTimer
+      ? unopened
+        ? 100
+        : scheduleFields.msUntilNext <= 0
+          ? 100
+          : Math.max(
+              0,
+              Math.min(
+                100,
+                Math.round(
+                  (1 -
+                    scheduleFields.msUntilNext /
+                      (6 * 24 * 60 * 60 * 1000)) *
+                    100
+                )
+              )
+            )
+      : 0,
+    ...scheduleFields,
   };
 }
 
@@ -313,7 +316,12 @@ async function fulfillReward(email: string, reward: DropReward, weekKey: string)
   switch (reward.type) {
     case "tier_credits":
       if (reward.amount) {
-        await earnTierCredits({ email, amount: reward.amount, source: "weekly_reward_drop", metadata: { rarity: reward.rarity } });
+        await earnTierCredits({
+          email,
+          amount: reward.amount,
+          source: "weekly_reward_drop",
+          metadata: { rarity: reward.rarity },
+        });
         await addInventoryItem({
           email,
           itemType: "tier_reward",
@@ -338,10 +346,10 @@ async function fulfillReward(email: string, reward: DropReward, weekKey: string)
       }
       break;
     case "pickem_credit": {
-      const account = await ensureEcosystemAccount(email);
+      const acct = await ensureEcosystemAccount(email);
       const cents = reward.valueCents ?? 1000;
       await updateEcosystemProfile(email, {
-        pickem_credits_cents: account.pickemCreditsCents + cents,
+        pickem_credits_cents: acct.pickemCreditsCents + cents,
       });
       await addInventoryItem({
         email,
@@ -358,7 +366,12 @@ async function fulfillReward(email: string, reward: DropReward, weekKey: string)
     case "referral_bonus":
       await addInventoryItem({
         email,
-        itemType: reward.type === "coupon" ? "coupon" : reward.type === "merch_credit" ? "merch_coupon" : "reward_token",
+        itemType:
+          reward.type === "coupon"
+            ? "coupon"
+            : reward.type === "merch_credit"
+              ? "merch_coupon"
+              : "reward_token",
         title: reward.label,
         quantity: reward.amount ?? 1,
         source: "weekly_reward_drop",
@@ -401,7 +414,6 @@ async function fulfillReward(email: string, reward: DropReward, weekKey: string)
 }
 
 export async function openWeeklyRewardDrop(email: string): Promise<{ drop: WeeklyDropRecord }> {
-  const weekKey = isoWeekKey();
   const normalized = normalizeEmail(email);
   const supabase = getSupabaseAdmin();
 
@@ -409,7 +421,9 @@ export async function openWeeklyRewardDrop(email: string): Promise<{ drop: Weekl
     .from("player_mystery_boxes")
     .select("*")
     .eq("email", normalized)
-    .eq("week_key", weekKey)
+    .is("opened_at", null)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (error) throw error;
@@ -420,13 +434,16 @@ export async function openWeeklyRewardDrop(email: string): Promise<{ drop: Weekl
   const rewards = drop.rewards;
 
   for (const reward of rewards) {
-    await fulfillReward(email, reward, weekKey);
+    await fulfillReward(email, reward, drop.weekKey);
   }
 
+  const openedAt = new Date();
   await supabase
     .from("player_mystery_boxes")
-    .update({ opened_at: new Date().toISOString() })
+    .update({ opened_at: openedAt.toISOString() })
     .eq("id", drop.id);
+
+  await scheduleNextWeeklyDropAfterOpen(email, openedAt);
 
   const account = await ensureEcosystemAccount(email);
   await updateEcosystemProfile(email, {
@@ -434,7 +451,7 @@ export async function openWeeklyRewardDrop(email: string): Promise<{ drop: Weekl
   });
 
   return {
-    drop: { ...drop, openedAt: new Date().toISOString() },
+    drop: { ...drop, openedAt: openedAt.toISOString() },
   };
 }
 

@@ -10177,6 +10177,86 @@ html.sb-splash-pending body {
   background: linear-gradient(145deg, rgba(56, 189, 248, 0.06), rgba(255, 255, 255, 0.02));
 }
 
+.weekly-drop-banner {
+  border-radius: 1rem;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(56, 189, 248, 0.06));
+  overflow: hidden;
+}
+
+.weekly-drop-banner.compact .weekly-drop-banner-inner {
+  padding: 0.85rem 1rem;
+}
+
+.weekly-drop-banner-inner {
+  padding: 1rem 1.15rem;
+}
+
+.weekly-drop-banner-ready {
+  border-color: rgba(250, 204, 21, 0.4);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.12), rgba(168, 85, 247, 0.1));
+  animation: weekly-drop-ready-pulse 2.4s ease-in-out infinite;
+}
+
+.weekly-drop-banner-kicker {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #d8b4fe;
+  margin-bottom: 0.25rem;
+}
+
+.weekly-drop-banner-title {
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.weekly-drop-banner-sub {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.45;
+  max-width: 42rem;
+}
+
+.weekly-drop-banner-cta,
+.weekly-drop-banner-link {
+  display: inline-flex;
+  margin-top: 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fde68a;
+  text-decoration: none;
+}
+
+.weekly-drop-banner-cta:hover,
+.weekly-drop-banner-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.weekly-drop-banner-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes weekly-drop-ready-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(250, 204, 21, 0); }
+  50% { box-shadow: 0 0 24px rgba(250, 204, 21, 0.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weekly-drop-banner-ready {
+    animation: none;
+  }
+}
+
 .home-stagger {
   opacity: 0;
   transform: translateY(14px);

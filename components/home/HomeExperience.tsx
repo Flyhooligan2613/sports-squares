@@ -18,6 +18,7 @@ import GameDayStatusStrip, {
 } from "@/components/game-day/GameDayStatusStrip";
 import GameDaySnapshotGrid from "@/components/game-day/GameDaySnapshotGrid";
 import GameDayContinuePanel from "@/components/game-day/GameDayContinuePanel";
+import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropCountdownBanner";
 import GameDayTodaysGames from "@/components/game-day/GameDayTodaysGames";
 import HomeWelcome from "@/components/home/HomeWelcome";
 import GameRoomExperience from "@/components/home/GameRoomExperience";
@@ -182,6 +183,10 @@ export default function HomeExperience() {
               isGameDay={data.isGameDay}
               atmosphereLabel={data.atmosphere.label}
             />
+          </HomeStagger>
+
+          <HomeStagger delay={120} revealed={stagger}>
+            <WeeklyDropCountdownBanner schedule={data.weeklyDropSchedule} />
           </HomeStagger>
 
           <HomeStagger delay={220} revealed={stagger}>

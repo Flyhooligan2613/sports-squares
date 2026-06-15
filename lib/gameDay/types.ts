@@ -162,6 +162,15 @@ export interface GameDayTodaysGames {
   upcoming: PlayerUpcomingGame[];
 }
 
+export interface WeeklyDropSchedule {
+  hasUnopenedDrop: boolean;
+  nextDropAt: string | null;
+  firstPlayAt: string | null;
+  msUntilNext: number;
+  dropReady: boolean;
+  hasStartedDropTimer: boolean;
+}
+
 export interface GameDayHubData {
   updatedAt: string;
   displayName: string;
@@ -193,6 +202,7 @@ export interface GameDayHubData {
   progressCenter: GameDayProgressCenter;
   friendsPlaying: HomeFriendsPanel;
   dailyStory: DailyStory;
+  weeklyDropSchedule: WeeklyDropSchedule;
 }
 
 /** Directive #011 — authenticated player Home experience */

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import { RewardsCenterProvider, useRewardsCenter } from "./RewardsCenterProvider";
 import { MY_REWARDS_NAME, REWARDS_CENTER_SECTIONS, SQUARE_DROP_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
+import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropCountdownBanner";
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,6 +34,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           />
           <StatPill label="Drops" value={String(data.wallet.mysteryBoxesAvailable)} />
           <StatPill label="Promos" value={String(data.promotions.filter((p) => !p.claimed).length)} />
+        </div>
+      ) : null}
+
+      {!loading && data?.weeklyDropSchedule ? (
+        <div className="mb-6">
+          <WeeklyDropCountdownBanner schedule={data.weeklyDropSchedule} variant="compact" />
         </div>
       ) : null}
 

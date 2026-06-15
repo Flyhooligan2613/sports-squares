@@ -10,13 +10,15 @@ import { listActivePromotions } from "@/lib/platform/ecosystem/promotions";
 import { listRewardsCatalog } from "@/lib/platform/ecosystem/rewards";
 import { getTierVisual, computeTierLevel, computeXpToNextTier } from "@/lib/platform/ecosystem/tierVisuals";
 import { listRecentCreditActivity } from "@/lib/platform/ecosystem/credits";
+import { getWeeklyDropStatus } from "@/lib/platform/ecosystem/weeklyRewardDrop";
 import { DEFAULT_AVATAR } from "@/lib/platform/ecosystem/avatars";
 
 export async function getRewardsCenterData(email: string) {
   const normalized = normalizeEmail(email);
   await recordDailyLogin(normalized).catch(() => null);
 
-  const [dashboard, inventory, promotions, catalog, legacy, playerDash, identity] = await Promise.all([
+  const [dashboard, inventory, promotions, catalog, legacy, playerDash, identity, weeklyDrop] =
+    await Promise.all([
     getEcosystemDashboard(normalized),
     getInventorySummary(normalized),
     listActivePromotions(normalized),
@@ -24,6 +26,7 @@ export async function getRewardsCenterData(email: string) {
     getPlayerLegacy(normalized),
     getPlayerDashboard(normalized).catch(() => null),
     getPlayerPublicIdentity(normalized),
+    getWeeklyDropStatus(normalized).catch(() => null),
   ]);
 
   const supabase = getSupabaseAdmin();
@@ -114,6 +117,23 @@ export async function getRewardsCenterData(email: string) {
         }
       : null,
     unopenedMysteryBox: dashboard.unopenedMysteryBox,
+    weeklyDropSchedule: weeklyDrop
+      ? {
+          hasUnopenedDrop: weeklyDrop.hasUnopenedDrop,
+          nextDropAt: weeklyDrop.nextDropAt,
+          firstPlayAt: weeklyDrop.firstPlayAt,
+          msUntilNext: weeklyDrop.msUntilNext,
+          dropReady: weeklyDrop.dropReady,
+          hasStartedDropTimer: weeklyDrop.hasStartedDropTimer,
+        }
+      : {
+          hasUnopenedDrop: false,
+          nextDropAt: null,
+          firstPlayAt: null,
+          msUntilNext: 0,
+          dropReady: false,
+          hasStartedDropTimer: false,
+        },
   };
 }
 

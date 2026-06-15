@@ -838,5 +838,13 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     },
     friendsPlaying: friendsPlayingPanel,
     dailyStory,
+    weeklyDropSchedule: {
+      hasUnopenedDrop: weeklyDrop?.hasUnopenedDrop ?? false,
+      nextDropAt: weeklyDrop?.nextDropAt ?? null,
+      firstPlayAt: weeklyDrop?.firstPlayAt ?? null,
+      msUntilNext: weeklyDrop?.msUntilNext ?? 0,
+      dropReady: weeklyDrop?.dropReady ?? false,
+      hasStartedDropTimer: weeklyDrop?.hasStartedDropTimer ?? false,
+    },
   };
 }

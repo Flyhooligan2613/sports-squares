@@ -5,7 +5,7 @@ import { ensureEcosystemAccount } from "@/lib/platform/ecosystem/account";
 import { listRecentCreditActivity } from "@/lib/platform/ecosystem/credits";
 import { getReferralSummary } from "@/lib/platform/ecosystem/referrals";
 import { listTierDefinitions, resolveTierForCredits } from "@/lib/platform/ecosystem/tiers";
-import { ensureWeeklyMysteryBox } from "@/lib/platform/ecosystem/mysteryBox";
+import { ensureWeeklyRewardDrop } from "@/lib/platform/ecosystem/weeklyRewardDrop";
 import { getTierVisual, computeTierLevel, computeXpToNextTier } from "@/lib/platform/ecosystem/tierVisuals";
 import { DEFAULT_AVATAR } from "@/lib/platform/ecosystem/avatars";
 import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
@@ -18,7 +18,7 @@ export async function getEcosystemDashboard(email: string): Promise<EcosystemDas
   const referral = await getReferralSummary(email);
   const recentCreditActivity = await listRecentCreditActivity(email);
 
-  const hasBox = await ensureWeeklyMysteryBox(email);
+  await ensureWeeklyRewardDrop(email);
   const supabase = getSupabaseAdmin();
   const { data: box } = await supabase
     .from("player_mystery_boxes")
@@ -35,7 +35,7 @@ export async function getEcosystemDashboard(email: string): Promise<EcosystemDas
     creditsToNextTier: tierState.creditsToNext,
     tierProgressPct: tierState.progressPct,
     referral,
-    unopenedMysteryBox: Boolean(hasBox && box),
+    unopenedMysteryBox: Boolean(box),
     recentCreditActivity,
   };
 }

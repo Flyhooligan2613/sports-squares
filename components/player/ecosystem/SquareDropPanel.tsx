@@ -15,6 +15,7 @@ import {
   SQUARE_DROP_TAGLINE,
   SQUARE_DROP_READY,
 } from "@/lib/platform/ecosystem/squareDropBrand";
+import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropCountdownBanner";
 
 export default function SquareDropPanel() {
   const { data, loading, refresh } = useRewardsCenter();
@@ -39,13 +40,15 @@ export default function SquareDropPanel() {
   }
 
   const visual = getTierVisual(data.dashboard.tier.slug);
-  const minCents = 50000;
-  const qualified = data.dashboard.account.weeklyGameplayCents >= minCents;
   const boxVisual = data.unopenedMysteryBox ? BOX_VISUALS[boxType] : null;
 
   return (
     <>
       <div className="space-y-6">
+        {data.weeklyDropSchedule ? (
+          <WeeklyDropCountdownBanner schedule={data.weeklyDropSchedule} variant="compact" />
+        ) : null}
+
         <LandingGlassCard className="p-8 text-center relative overflow-hidden">
           <div
             className={`absolute inset-0 bg-gradient-to-br ${visual.gradient} opacity-50 pointer-events-none`}
@@ -67,10 +70,9 @@ export default function SquareDropPanel() {
             <h3 className="text-2xl font-bold text-white mb-2">
               {data.unopenedMysteryBox ? SQUARE_DROP_READY : boxVisual?.label ?? SQUARE_DROP_NAME}
             </h3>
-            <p className="text-sm text-sb-muted max-w-lg mx-auto mb-6">{SQUARE_DROP_TAGLINE}. Qualify through weekly gameplay, VIP promotions, referral milestones, and special events — every eligible player always earns rewards.</p>
-            <p className="text-xs text-sb-muted mb-4">
-              This week: ${(data.dashboard.account.weeklyGameplayCents / 100).toFixed(2)} gameplay ·{" "}
-              {qualified ? "Qualified ✓" : `$${((minCents - data.dashboard.account.weeklyGameplayCents) / 100).toFixed(2)} to qualify`}
+            <p className="text-sm text-sb-muted max-w-lg mx-auto mb-6">
+              {SQUARE_DROP_TAGLINE}. After your first square or Pick&apos;em line, your first drop unlocks in 6
+              days — then a new drop every 6 days after you open it.
             </p>
             {data.unopenedMysteryBox ? (
               <Button className="player-btn-glow" onClick={() => setShowDrop(true)}>
@@ -78,9 +80,9 @@ export default function SquareDropPanel() {
               </Button>
             ) : (
               <p className="text-sm text-sb-muted">
-                {qualified
-                  ? "You've opened this week's drop — check back Monday!"
-                  : `Keep playing to unlock your ${SQUARE_DROP_NAME}.`}
+                {data.weeklyDropSchedule?.hasStartedDropTimer
+                  ? "Your next drop is on the timer above."
+                  : `Place your first square or Pick'em line to start your ${SQUARE_DROP_NAME} schedule.`}
               </p>
             )}
             <Link

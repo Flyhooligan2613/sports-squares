@@ -6,7 +6,7 @@ import {
   recordWeeklyGameplay,
 } from "@/lib/platform/ecosystem/credits";
 import { processReferralGameplay } from "@/lib/platform/ecosystem/referrals";
-import { ensureWeeklyMysteryBox } from "@/lib/platform/ecosystem/mysteryBox";
+import { recordFirstPlayIfNeeded } from "@/lib/platform/ecosystem/firstPlay";
 import { trackLifetimePurchase } from "@/lib/platform/ecosystem/progression";
 import type { GameplayEvent } from "@/lib/platform/ecosystem/types";
 
@@ -34,5 +34,5 @@ export async function recordQualifiedGameplay(event: GameplayEvent): Promise<voi
     isDeposit: event.isDeposit,
   });
 
-  await ensureWeeklyMysteryBox(email);
+  await recordFirstPlayIfNeeded(email);
 }

@@ -37,7 +37,7 @@ export interface EcosystemAdminConfig {
 }
 
 export const DEFAULT_WEEKLY_REWARD_DROP_CONFIG: WeeklyRewardDropConfig = {
-  minWeeklyGameplayCents: 50000,
+  minWeeklyGameplayCents: 0,
   enabled: true,
   dropRates: {
     bronze: { common: 80, rare: 15, epic: 5, legendary: 0, mythic: 0, immortal: 0 },

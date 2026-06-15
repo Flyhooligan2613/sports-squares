@@ -6,6 +6,7 @@ export type RewardRarity = "common" | "rare" | "epic" | "legendary" | "mythic" |
 export type DropBoxType = "bronze" | "silver" | "gold" | "diamond" | "legend" | "immortal";
 
 export type QualificationSource =
+  | "first_play_timer"
   | "weekly_gameplay"
   | "vip_promotion"
   | "referral_milestone"
@@ -92,6 +93,12 @@ export interface WeeklyDropStatus {
   weeklyGameplayCents: number;
   minGameplayCents: number;
   progressPct: number;
+  /** Rolling 6-day schedule */
+  firstPlayAt: string | null;
+  nextDropAt: string | null;
+  msUntilNext: number;
+  dropReady: boolean;
+  hasStartedDropTimer: boolean;
 }
 
 export const RARITY_COLORS: Record<RewardRarity, { border: string; glow: string; text: string; label: string }> = {
