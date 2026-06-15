@@ -22,13 +22,20 @@ export default function AppOpenSplash() {
   const [phase, setPhase] = useState<SplashPhase>("hidden");
   const [splashReady, setSplashReady] = useState(false);
   const startedRef = useRef(false);
+  const phaseRef = useRef<SplashPhase>("hidden");
+  const splashStartedAtRef = useRef(0);
 
   function finishSplash() {
     document.documentElement.classList.remove("sb-splash-pending");
     notifySplashComplete();
     setPhase("done");
+    phaseRef.current = "done";
     setSplashReady(true);
   }
+
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -64,9 +71,14 @@ export default function AppOpenSplash() {
     }
 
     setPhase("enter");
+    phaseRef.current = "enter";
+    splashStartedAtRef.current = Date.now();
     document.documentElement.classList.add("sb-splash-pending");
 
-    const exitTimer = window.setTimeout(() => setPhase("exit"), SHOW_MS);
+    const exitTimer = window.setTimeout(() => {
+      setPhase("exit");
+      phaseRef.current = "exit";
+    }, SHOW_MS);
     const doneTimer = window.setTimeout(() => {
       try {
         sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
@@ -76,9 +88,26 @@ export default function AppOpenSplash() {
       finishSplash();
     }, SHOW_MS + EXIT_MS);
 
+    const onVisibility = () => {
+      if (document.visibilityState !== "visible") return;
+      const elapsed = Date.now() - splashStartedAtRef.current;
+      const overdue = elapsed > SHOW_MS + EXIT_MS + 800;
+      if (!overdue) return;
+      if (phaseRef.current === "hidden" || phaseRef.current === "done") return;
+      try {
+        sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      finishSplash();
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       window.clearTimeout(exitTimer);
       window.clearTimeout(doneTimer);
+      document.removeEventListener("visibilitychange", onVisibility);
       document.documentElement.classList.remove("sb-splash-pending");
     };
   }, [pathname]);

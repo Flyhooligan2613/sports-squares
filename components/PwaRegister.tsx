@@ -17,6 +17,7 @@ export default function PwaRegister() {
     };
 
     const onControllerChange = () => {
+      // Only reload when replacing an existing controller (deploy update), not first install.
       if (!hadController || reloadedForUpdate) return;
       reloadedForUpdate = true;
       window.location.reload();
@@ -25,14 +26,14 @@ export default function PwaRegister() {
     navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
 
     navigator.serviceWorker
-      .register("/sw.js")
+      .register("/sw.js", { scope: "/" })
       .then((reg) => {
         registration = reg;
         void reg.update();
         document.addEventListener("visibilitychange", onVisible);
       })
-      .catch(() => {
-        /* registration optional */
+      .catch((err) => {
+        console.warn("[PwaRegister] service worker registration failed", err);
       });
 
     return () => {

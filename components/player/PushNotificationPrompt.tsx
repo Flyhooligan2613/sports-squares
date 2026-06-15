@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bell, BellOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { subscribeToPushNotifications } from "@/lib/push/clientSubscribe";
+import { notifySplashComplete } from "@/lib/auth/signupPrompt";
 
 const DISMISS_KEY = "sb-push-prompt-dismissed";
 
+type EnablePhase = "idle" | "permission" | "syncing";
+
 export default function PushNotificationPrompt() {
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [phase, setPhase] = useState<EnablePhase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [supported, setSupported] = useState(false);
+  const enablingRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -30,20 +34,38 @@ export default function PushNotificationPrompt() {
   function dismiss() {
     localStorage.setItem(DISMISS_KEY, "1");
     setVisible(false);
+    setPhase("idle");
+    setError(null);
   }
 
   async function enable() {
-    setLoading(true);
+    if (enablingRef.current) return;
+    enablingRef.current = true;
+    setPhase("permission");
     setError(null);
+
+    // Unblock app shell if the open splash was paused by the OS permission sheet.
+    document.documentElement.classList.remove("sb-splash-pending");
+    notifySplashComplete();
+
+    setPhase("syncing");
     const result = await subscribeToPushNotifications();
-    setLoading(false);
+
+    enablingRef.current = false;
+    setPhase("idle");
+
     if (!result.ok) {
       setError(result.error ?? "Could not enable notifications.");
       return;
     }
+
     localStorage.setItem(DISMISS_KEY, "1");
     setVisible(false);
   }
+
+  const loading = phase !== "idle";
+  const loadingLabel =
+    phase === "permission" ? "Waiting for permission…" : "Syncing alerts…";
 
   if (!supported || !visible) return null;
 
@@ -55,7 +77,13 @@ export default function PushNotificationPrompt() {
             <Bell className="w-5 h-5 text-emerald-400" />
             <p className="text-white font-semibold text-sm">Game day alerts</p>
           </div>
-          <button type="button" onClick={dismiss} className="text-sb-muted hover:text-white" aria-label="Dismiss">
+          <button
+            type="button"
+            onClick={dismiss}
+            className="text-sb-muted hover:text-white"
+            aria-label="Dismiss"
+            disabled={loading}
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -66,9 +94,9 @@ export default function PushNotificationPrompt() {
         {error ? <p className="text-xs text-red-400 mb-3">{error}</p> : null}
         <div className="flex gap-2">
           <Button size="sm" onClick={() => void enable()} disabled={loading} className="flex-1">
-            {loading ? "Enabling…" : "Enable notifications"}
+            {loading ? loadingLabel : "Enable notifications"}
           </Button>
-          <Button size="sm" variant="ghost" onClick={dismiss} className="shrink-0">
+          <Button size="sm" variant="ghost" onClick={dismiss} className="shrink-0" disabled={loading}>
             <BellOff className="w-4 h-4" />
           </Button>
         </div>
