@@ -18,9 +18,12 @@ export const JOIN_THE_CONTEST = "Join the Contest";
 export const PLATFORM_TERMS = {
   joinTheContest: JOIN_THE_CONTEST,
   contestCenter: "Contest Center",
-  contestCenterTitle: "The Contest Center",
+  contestCenterTitle: "Contest Center",
   contestCenterSubtitle:
-    "What's live, what's starting soon, and which contest you should enter next — updated automatically.",
+    "Join a contest. Build your legacy. Compete with the community.",
+  contestCenterTagline: "Join a contest.",
+  contestCenterTagline2: "Build your legacy.",
+  contestCenterTagline3: "Compete with the community.",
   contestWinnings: "Contest Winnings",
   competitionHistory: "Competition History",
   competitionResults: "Competition Results",

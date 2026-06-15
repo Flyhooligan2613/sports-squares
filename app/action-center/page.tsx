@@ -5,7 +5,7 @@ import { PLATFORM_IDENTITY, PLATFORM_TERMS } from "@/lib/platform/legacy/competi
 
 export const metadata: Metadata = {
   title: `${PLATFORM_TERMS.contestCenter} | ${BRAND_NAME}`,
-  description: `${PLATFORM_IDENTITY.tagline} Live contests, filling boards, countdowns, and smart recommendations — updated automatically.`,
+  description: `${PLATFORM_IDENTITY.tagline} Discover live contests, join with friends, and compete across every sport — updated automatically.`,
 };
 
 export default function ActionCenterPage() {

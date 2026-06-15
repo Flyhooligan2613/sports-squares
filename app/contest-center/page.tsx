@@ -1,6 +1,13 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import ContestCenterExperience from "@/components/contest-center/ContestCenterExperience";
+import { BRAND_NAME } from "@/lib/brand";
+import { PLATFORM_IDENTITY, PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
-/** Contest Center — canonical name for the live contests hub (Action Center route). */
+export const metadata: Metadata = {
+  title: `${PLATFORM_TERMS.contestCenter} | ${BRAND_NAME}`,
+  description: `${PLATFORM_IDENTITY.tagline} Discover live contests, join with friends, and compete across every sport — updated automatically.`,
+};
+
 export default function ContestCenterPage() {
-  redirect("/action-center");
+  return <ContestCenterExperience />;
 }
