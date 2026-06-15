@@ -27,6 +27,9 @@ export default function AppOpenSplash() {
 
   function finishSplash() {
     document.documentElement.classList.remove("sb-splash-pending");
+    if (typeof document !== "undefined") {
+      document.body.style.removeProperty("overflow");
+    }
     notifySplashComplete();
     setPhase("done");
     phaseRef.current = "done";
@@ -85,6 +88,8 @@ export default function AppOpenSplash() {
       } catch {
         /* ignore */
       }
+      document.documentElement.classList.remove("sb-splash-pending");
+      document.body.style.removeProperty("overflow");
       finishSplash();
     }, SHOW_MS + EXIT_MS);
 

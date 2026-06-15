@@ -3,6 +3,13 @@ import type { LiveActivityEvent, LiveActivityInput } from "@/lib/liveActivity/ty
 
 type Listener = () => void;
 
+const MAX_QUEUE = 48;
+
+function trimQueue(queue: LiveActivityEvent[]): LiveActivityEvent[] {
+  if (queue.length <= MAX_QUEUE) return queue;
+  return queue.slice(0, MAX_QUEUE);
+}
+
 function insertByPriority(queue: LiveActivityEvent[], event: LiveActivityEvent): void {
   const idx = queue.findIndex((item) => item.priority < event.priority);
   if (idx === -1) {
@@ -32,6 +39,7 @@ export class LiveActivityService {
     for (const event of events) {
       insertByPriority(this.queue, event);
     }
+    this.queue = trimQueue(this.queue);
     this.notify();
   }
 
@@ -53,6 +61,8 @@ export class LiveActivityService {
       if (this.queue.some((q) => q.id === event.id)) continue;
       insertByPriority(this.queue, event);
     }
+    this.queue = trimQueue(this.queue);
+    this.personalizedPending = trimQueue(this.personalizedPending);
     this.notify();
   }
 

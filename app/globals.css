@@ -9616,6 +9616,11 @@ html.sb-splash-pending body {
   letter-spacing: -0.025em;
 }
 
+.home-welcome {
+  position: relative;
+  isolation: isolate;
+}
+
 .home-welcome-avatar {
   box-shadow: 0 0 32px rgba(56, 189, 248, 0.12);
 }
@@ -9801,6 +9806,7 @@ html.sb-splash-pending body {
 
 .welcome-home-overlay-exit {
   animation: welcome-home-fade-out 0.42s ease-in forwards;
+  pointer-events: none;
 }
 
 .welcome-home-logo-stage {

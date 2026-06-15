@@ -9,7 +9,7 @@ import {
 } from "react";
 import type { LiveWinnersCenterData } from "@/lib/liveWinners/types";
 
-const POLL_MS = 12_000;
+const POLL_MS = 30_000;
 
 interface LandingLiveContextValue {
   data: LiveWinnersCenterData | null;
@@ -30,21 +30,27 @@ export function LandingLiveProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function load() {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       try {
         const res = await fetch("/api/live-winners", { cache: "no-store" });
-        if (!res.ok) return;
+        if (!res.ok || cancelled) return;
         setData((await res.json()) as LiveWinnersCenterData);
       } catch {
         // Keep the last good snapshot on transient failures.
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     void load();
-    const id = window.setInterval(load, POLL_MS);
-    return () => window.clearInterval(id);
+    const id = window.setInterval(() => void load(), POLL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
   }, []);
 
   return (

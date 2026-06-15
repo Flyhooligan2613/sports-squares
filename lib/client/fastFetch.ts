@@ -1,4 +1,5 @@
 const CACHE_PREFIX = "sb:fast:";
+const inflightFetches = new Map<string, Promise<unknown>>();
 
 interface CacheEntry<T> {
   data: T;
@@ -39,10 +40,24 @@ export async function fastFetchJson<T>(
   const maxAgeMs = options.maxAgeMs ?? 30_000;
   const cached = readCachedJson<T>(key, maxAgeMs);
   if (cached) {
-    void fetchFresh(key, url, options.init);
+    if (!inflightFetches.has(key)) {
+      inflightFetches.set(
+        key,
+        fetchFresh(key, url, options.init).finally(() => {
+          inflightFetches.delete(key);
+        })
+      );
+    }
     return cached;
   }
-  return fetchFresh(key, url, options.init);
+  if (inflightFetches.has(key)) {
+    return inflightFetches.get(key) as Promise<T>;
+  }
+  const pending = fetchFresh<T>(key, url, options.init).finally(() => {
+    inflightFetches.delete(key);
+  });
+  inflightFetches.set(key, pending);
+  return pending;
 }
 
 async function fetchFresh<T>(key: string, url: string, init?: RequestInit): Promise<T> {

@@ -26,7 +26,10 @@ interface LiveActivityContextValue {
 
 const LiveActivityContext = createContext<LiveActivityContextValue | null>(null);
 
-const POLL_MS = 60_000;
+const POLL_MS = 90_000;
+const MAX_QUEUE = 48;
+
+let globalSeeded = false;
 
 export function LiveActivityProvider({ children }: { children: ReactNode }) {
   const serviceRef = useRef(getLiveActivityService());
@@ -34,8 +37,9 @@ export function LiveActivityProvider({ children }: { children: ReactNode }) {
   const [version, bumpVersion] = useReducer((n: number) => n + 1, 0);
 
   useEffect(() => {
-    if (seededRef.current) return;
+    if (seededRef.current || globalSeeded) return;
     seededRef.current = true;
+    globalSeeded = true;
     serviceRef.current.seed(createMockLiveActivitySeed());
     bumpVersion();
   }, []);
@@ -48,12 +52,13 @@ export function LiveActivityProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function poll() {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       try {
         const res = await fetch("/api/live-activity", { cache: "no-store" });
         if (!res.ok || cancelled) return;
         const data = (await res.json()) as { events?: LiveActivityEvent[] };
         if (data.events?.length) {
-          serviceRef.current.ingestMany(data.events);
+          serviceRef.current.ingestMany(data.events.slice(0, MAX_QUEUE));
         }
       } catch {
         /* mock seed remains */

@@ -19,7 +19,7 @@ export default function HomeWelcome({
   atmosphereLabel: string;
 }) {
   return (
-    <header className="home-welcome mb-8 sm:mb-10 admin-stat-enter">
+    <header className="home-welcome mb-8 sm:mb-10">
       <div className="flex flex-wrap items-start gap-5 sm:gap-6">
         <PlayerAvatar emoji={avatarEmoji} size="lg" className="home-welcome-avatar shrink-0" />
 

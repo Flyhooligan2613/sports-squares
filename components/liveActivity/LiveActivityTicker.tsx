@@ -112,13 +112,16 @@ export default function LiveActivityTicker({ className = "" }: { className?: str
     document.addEventListener("visibilitychange", onVisibilityChange);
     onVisibilityChange();
 
-    const interval = window.setInterval(() => rotate(), LIVE_ACTIVITY_ROTATE_MS);
+    const interval = window.setInterval(() => {
+      if (!document.hidden) rotate();
+    }, LIVE_ACTIVITY_ROTATE_MS);
+
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.clearInterval(interval);
       clearTimers();
     };
-  }, [live, live?.version, rotate, clearTimers]);
+  }, [live, rotate, clearTimers]);
 
   if (!live || !current) return null;
 

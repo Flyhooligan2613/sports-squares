@@ -30,7 +30,6 @@ import {
   GameDayNotifications,
   GameDayRecapPanel,
 } from "@/components/game-day/GameDaySocial";
-import { LiveActivityProvider } from "@/components/liveActivity/LiveActivityProvider";
 import LiveActivityTicker from "@/components/liveActivity/LiveActivityTicker";
 import {
   hasRewardDropReady,
@@ -123,8 +122,8 @@ export default function HomeExperience() {
 
     void load();
     const interval = setInterval(() => {
-      if (isDocumentVisible()) void load(true, true);
-    }, 45_000);
+      if (isDocumentVisible()) void load(true, false);
+    }, 60_000);
 
     return () => {
       cancelled = true;
@@ -136,7 +135,9 @@ export default function HomeExperience() {
 
   function handleWelcomeComplete() {
     setWelcomeActive(false);
-    setHomeRevealed(true);
+    window.requestAnimationFrame(() => {
+      setHomeRevealed(true);
+    });
     if (viewMode !== "home") {
       router.replace("/my-games?mode=gameday", { scroll: false });
     }
@@ -159,18 +160,7 @@ export default function HomeExperience() {
   }
 
   if (welcomeActive && !homeRevealed) {
-    return (
-      <>
-        <WelcomeHomeTransition data={data} onComplete={handleWelcomeComplete} />
-        {data ? (
-          <LiveActivityProvider>
-            <div className="sr-only" aria-hidden>
-              Home loading
-            </div>
-          </LiveActivityProvider>
-        ) : null}
-      </>
-    );
+    return <WelcomeHomeTransition data={data} onComplete={handleWelcomeComplete} />;
   }
 
   if (!data) {
@@ -183,7 +173,7 @@ export default function HomeExperience() {
 
   if (isGameRoom) {
     return (
-      <LiveActivityProvider>
+      <>
         <PlayerShellAvatarSync avatarEmoji={data.avatarEmoji} />
         <GameRoomExperience
           data={data}
@@ -191,7 +181,7 @@ export default function HomeExperience() {
           continueItems={continueItems}
           rewardDropGlow={rewardDropGlow}
         />
-      </LiveActivityProvider>
+      </>
     );
   }
 
@@ -202,7 +192,7 @@ export default function HomeExperience() {
   }));
 
   return (
-    <LiveActivityProvider>
+    <>
       <PlayerShellAvatarSync avatarEmoji={data.avatarEmoji} />
       <div className={`home-page home-page-revealed gd-page gd-theme-${data.atmosphere.theme}`}>
         <AmbientBackground />
@@ -297,6 +287,6 @@ export default function HomeExperience() {
           </HomeStagger>
         </div>
       </div>
-    </LiveActivityProvider>
+    </>
   );
 }

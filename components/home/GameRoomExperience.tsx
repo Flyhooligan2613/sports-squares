@@ -29,6 +29,7 @@ import {
 } from "@/lib/home/hubSections";
 import { useHubHashScroll } from "@/components/home/useHubHashScroll";
 import GameHubSectionTabs from "@/components/home/GameHubSectionTabs";
+import DeferredMount from "@/components/ui/DeferredMount";
 
 interface GameRoomExperienceProps {
   data: HomeData;
@@ -89,52 +90,62 @@ export default function GameRoomExperience({
           <HomeStagger delay={260} revealed={revealed} className="gameroom-section">
             <HomeHappeningNow />
           </HomeStagger>
+        </LandingLiveProvider>
 
-          <HomeStagger delay={320} revealed={revealed}>
-            <div id={HUB_SECTION.browse} className={hubSectionAnchorClassName()}>
-              <GameRoomBrowseStrip />
-            </div>
-          </HomeStagger>
+        <HomeStagger delay={320} revealed={revealed}>
+          <div id={HUB_SECTION.browse} className={hubSectionAnchorClassName()}>
+            <GameRoomBrowseStrip />
+          </div>
+        </HomeStagger>
 
-          <HomeStagger delay={380} revealed={revealed}>
-            <div className="gameroom-player-row grid lg:grid-cols-2 gap-8 xl:gap-10 mb-2">
-              <HomeFriendsPanel data={data.friendsPlaying} />
-              <HomeProgressionCenter progress={data.progressCenter} />
-            </div>
-          </HomeStagger>
+        <HomeStagger delay={380} revealed={revealed}>
+          <div className="gameroom-player-row grid lg:grid-cols-2 gap-8 xl:gap-10 mb-2">
+            <HomeFriendsPanel data={data.friendsPlaying} />
+            <HomeProgressionCenter progress={data.progressCenter} />
+          </div>
+        </HomeStagger>
 
-          <HomeStagger delay={440} revealed={revealed} className="gameroom-section">
-            <HomeEcosystemSection />
-          </HomeStagger>
+        <HomeStagger delay={440} revealed={revealed} className="gameroom-section">
+          <HomeEcosystemSection />
+        </HomeStagger>
 
+        <DeferredMount className="gameroom-section">
           <HomeStagger delay={500} revealed={revealed} className="gameroom-section">
             <HomePlatformValueSection />
           </HomeStagger>
+        </DeferredMount>
 
+        <DeferredMount className="gameroom-section" minHeight="12rem">
           <HomeStagger delay={560} revealed={revealed} className="gameroom-section">
             <Suspense fallback={null}>
               <MarketplaceSports />
             </Suspense>
           </HomeStagger>
+        </DeferredMount>
 
+        <DeferredMount className="gameroom-section" minHeight="10rem">
           <HomeStagger delay={620} revealed={revealed} className="gameroom-section">
             <FeaturedPools />
           </HomeStagger>
+        </DeferredMount>
 
+        <DeferredMount className="gameroom-section" minHeight="8rem">
           <HomeStagger delay={680} revealed={revealed} className="gameroom-section">
             <JoinPoolSection />
           </HomeStagger>
+        </DeferredMount>
 
+        <DeferredMount className="gameroom-section" minHeight="8rem">
           <HomeStagger delay={740} revealed={revealed} className="gameroom-section">
             <SocialProof />
           </HomeStagger>
+        </DeferredMount>
 
-          <HomeStagger delay={800} revealed={revealed} className="gameroom-section">
-            <div id={HUB_SECTION.rewards} className={hubSectionAnchorClassName()}>
-              <GameRoomRewardSection />
-            </div>
-          </HomeStagger>
-        </LandingLiveProvider>
+        <HomeStagger delay={800} revealed={revealed} className="gameroom-section">
+          <div id={HUB_SECTION.rewards} className={hubSectionAnchorClassName()}>
+            <GameRoomRewardSection />
+          </div>
+        </HomeStagger>
       </div>
     </div>
   );
