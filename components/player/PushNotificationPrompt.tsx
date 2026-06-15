@@ -4,9 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { Bell, BellOff, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { subscribeToPushNotifications } from "@/lib/push/clientSubscribe";
+import {
+  isPushPromptSupported,
+  markPushPromptComplete,
+  markPushPromptSeenThisSession,
+  shouldShowPushPrompt,
+} from "@/lib/push/promptState";
 import { notifySplashComplete } from "@/lib/auth/signupPrompt";
-
-const DISMISS_KEY = "sb-push-prompt-dismissed";
 
 type EnablePhase = "idle" | "permission" | "syncing";
 
@@ -16,23 +20,29 @@ export default function PushNotificationPrompt() {
   const [error, setError] = useState<string | null>(null);
   const [supported, setSupported] = useState(false);
   const enablingRef = useRef(false);
+  const scheduledRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+    if (!isPushPromptSupported()) return;
 
     setSupported(true);
 
-    if (localStorage.getItem(DISMISS_KEY) === "1") return;
-    if (Notification.permission === "granted") return;
-    if (Notification.permission === "denied") return;
+    if (!shouldShowPushPrompt()) return;
+    if (scheduledRef.current) return;
+    scheduledRef.current = true;
 
-    const timer = setTimeout(() => setVisible(true), 2500);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => {
+      if (!shouldShowPushPrompt()) return;
+      markPushPromptSeenThisSession();
+      setVisible(true);
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   function dismiss() {
-    localStorage.setItem(DISMISS_KEY, "1");
+    markPushPromptSeenThisSession();
     setVisible(false);
     setPhase("idle");
     setError(null);
@@ -44,7 +54,6 @@ export default function PushNotificationPrompt() {
     setPhase("permission");
     setError(null);
 
-    // Unblock app shell if the open splash was paused by the OS permission sheet.
     document.documentElement.classList.remove("sb-splash-pending");
     notifySplashComplete();
 
@@ -59,7 +68,7 @@ export default function PushNotificationPrompt() {
       return;
     }
 
-    localStorage.setItem(DISMISS_KEY, "1");
+    markPushPromptComplete();
     setVisible(false);
   }
 
