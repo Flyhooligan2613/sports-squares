@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import PromotionsPanel from "@/components/player/ecosystem/PromotionsPanel";
-import { BRAND_NAME } from "@/lib/brand";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: `Promotions | ${BRAND_NAME}`,
-};
-
-export default function PromotionsPage() {
-  return <PromotionsPanel />;
+export default function PromotionsRedirectPage() {
+  redirect("/my-games/rewards/gift-shop");
 }

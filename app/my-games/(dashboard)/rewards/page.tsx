@@ -3,7 +3,7 @@ import RewardsDashboardPanel from "@/components/player/ecosystem/RewardsDashboar
 import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `Rewards Dashboard | ${BRAND_NAME}`,
+  title: `My Rewards | ${BRAND_NAME}`,
 };
 
 export default function RewardsDashboardPage() {

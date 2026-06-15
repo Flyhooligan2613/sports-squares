@@ -45,7 +45,7 @@ export default function HomeWeeklyRewardSection() {
           <p className="text-xs text-sb-muted mt-5">
             Already playing?{" "}
             <Link href="/my-games/rewards" className="text-sb-glow hover:underline">
-              Open your rewards center
+              Open My Rewards
             </Link>
           </p>
         </LandingGlassCard>

@@ -14,7 +14,8 @@ export type InventoryItemType =
   | "cosmetic"
   | "badge"
   | "referral_bonus"
-  | "promo_credit";
+  | "promo_credit"
+  | "survivor_shield";
 
 export interface InventoryItem {
   id: string;

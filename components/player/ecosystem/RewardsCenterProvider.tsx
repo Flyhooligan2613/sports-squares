@@ -17,7 +17,7 @@ interface RewardsCenterContextValue {
   data: RewardsCenterData | null;
   loading: boolean;
   error: string | null;
-  refresh: () => Promise<void>;
+  refresh: (options?: { background?: boolean }) => Promise<void>;
 }
 
 const RewardsCenterContext = createContext<RewardsCenterContextValue | null>(null);
@@ -27,8 +27,8 @@ export function RewardsCenterProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
+  const refresh = useCallback(async (options?: { background?: boolean }) => {
+    if (!options?.background) setLoading(true);
     const res = await fetch("/api/ecosystem/rewards-center", {
       cache: "no-store",
       credentials: "include",
@@ -36,12 +36,12 @@ export function RewardsCenterProvider({ children }: { children: ReactNode }) {
     const json = (await res.json()) as RewardsCenterData & { error?: string };
     if (!res.ok) {
       setError(json.error ?? "Could not load rewards.");
-      setLoading(false);
+      if (!options?.background) setLoading(false);
       return;
     }
     setData(json);
     setError(null);
-    setLoading(false);
+    if (!options?.background) setLoading(false);
   }, []);
 
   useEffect(() => {

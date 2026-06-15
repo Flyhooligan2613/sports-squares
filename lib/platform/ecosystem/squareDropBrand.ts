@@ -29,15 +29,17 @@ export const RARITY_LABELS = {
   immortal: "Immortal",
 } as const;
 
+export const MY_REWARDS_NAME = "My Rewards";
+
 export const REWARDS_CENTER_SECTIONS = [
   { href: "/my-games/rewards", label: "Overview", icon: "📊", exact: true },
+  { href: "/my-games/rewards/gift-shop", label: "Gift Shop", icon: "🎀" },
+  { href: "/my-games/rewards/credit-shop", label: "Credit Shop", icon: "💎" },
   { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐" },
   { href: "/my-games/rewards/square-drop", label: "Square Drop", icon: "🎁" },
   { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒" },
   { href: "/my-games/rewards/achievements", label: "Achievements", icon: "🏆" },
-  { href: "/my-games/rewards/marketplace", label: "Marketplace", icon: "🛒" },
   { href: "/my-games/rewards/upcoming", label: "Upcoming", icon: "📅" },
-  { href: "/my-games/rewards/promotions", label: "Promotions", icon: "✨" },
-  { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎" },
+  { href: "/my-games/rewards/credits", label: "My Credits", icon: "💰" },
   { href: "/my-games/rewards/history", label: "History", icon: "📜" },
 ] as const;

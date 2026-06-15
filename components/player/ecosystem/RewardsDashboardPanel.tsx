@@ -35,6 +35,21 @@ export default function RewardsDashboardPanel() {
         </LandingGlassCard>
       ) : null}
 
+      <div className="grid md:grid-cols-2 gap-4">
+        <QuickLink
+          href="/my-games/rewards/gift-shop"
+          icon="🎀"
+          title="Gift Shop"
+          detail="Claim pending rewards, promotions, and bonus items"
+        />
+        <QuickLink
+          href="/my-games/rewards/credit-shop"
+          icon="💎"
+          title="Credit Shop"
+          detail={`Spend ${data.wallet.tierCredits.toLocaleString()} Tier Credits on squares, lines & shields`}
+        />
+      </div>
+
       <div className="grid md:grid-cols-3 gap-4">
         <QuickLink
           href="/my-games/rewards/square-drop"
@@ -58,7 +73,12 @@ export default function RewardsDashboardPanel() {
 
       {data.pendingRewards.length ? (
         <LandingGlassCard className="p-5">
-          <h3 className="text-lg font-semibold text-white mb-3">Pending Rewards</h3>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <h3 className="text-lg font-semibold text-white">Ready to claim</h3>
+            <Link href="/my-games/rewards/gift-shop" className="text-xs text-sb-glow hover:underline">
+              Open Gift Shop →
+            </Link>
+          </div>
           <ul className="space-y-2">
             {data.pendingRewards.map((r) => (
               <li key={r.id as string} className="flex justify-between text-sm border-b border-white/5 py-2">
@@ -73,7 +93,7 @@ export default function RewardsDashboardPanel() {
       <MysteryBoxModal
         open={showBox}
         onClose={() => setShowBox(false)}
-        onOpened={() => void refresh()}
+        onOpened={() => void refresh({ background: true })}
       />
     </div>
   );

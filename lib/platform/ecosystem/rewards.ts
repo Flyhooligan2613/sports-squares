@@ -87,7 +87,7 @@ export async function redeemReward(input: {
         itemType: "square_credit",
         title: catalog.title,
         valueCents: amountCents,
-        source: "marketplace",
+        source: "credit_shop",
         metadata: { slug: catalog.slug },
       });
     }
@@ -104,7 +104,29 @@ export async function redeemReward(input: {
       itemType: "pickem_entry",
       title: catalog.title,
       valueCents: entryTierCents,
-      source: "marketplace",
+      source: "credit_shop",
+    });
+  }
+
+  if (catalog.rewardType === "bonus_square") {
+    await addInventoryItem({
+      email: input.email,
+      itemType: "reward_token",
+      title: catalog.title,
+      quantity: Number(catalog.rewardValue.quantity ?? 1),
+      source: "credit_shop",
+      metadata: { slug: catalog.slug, redeemType: "bonus_square" },
+    });
+  }
+
+  if (catalog.rewardType === "survivor_shield") {
+    await addInventoryItem({
+      email: input.email,
+      itemType: "survivor_shield",
+      title: catalog.title,
+      quantity: Number(catalog.rewardValue.quantity ?? 1),
+      source: "credit_shop",
+      metadata: { slug: catalog.slug },
     });
   }
 

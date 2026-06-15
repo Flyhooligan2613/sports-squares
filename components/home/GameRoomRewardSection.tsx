@@ -51,7 +51,7 @@ export default function GameRoomRewardSection() {
           </div>
           <p className="text-xs text-sb-muted mt-5">
             <Link href="/my-games/rewards" className="text-sb-glow hover:underline">
-              Full rewards center →
+              My Rewards →
             </Link>
           </p>
         </LandingGlassCard>

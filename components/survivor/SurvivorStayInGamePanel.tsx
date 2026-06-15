@@ -14,7 +14,7 @@ const LINKS = [
   { label: "Play Pick'em", href: "/pickem/week", emoji: "🎯" },
   { label: "Browse Squares", href: "/games/nfl", emoji: "🏈" },
   { label: "The Huddle", href: "/huddle", emoji: "💬" },
-  { label: "Rewards Center", href: "/my-games/rewards", emoji: "🎁" },
+  { label: "My Rewards", href: "/my-games/rewards", emoji: "🎁" },
 ] as const;
 
 export default function SurvivorStayInGamePanel({

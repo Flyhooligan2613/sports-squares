@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import { RewardsCenterProvider, useRewardsCenter } from "./RewardsCenterProvider";
-import { SQUARE_DROP_NAME, REWARDS_CENTER_SECTIONS } from "@/lib/platform/ecosystem/squareDropBrand";
+import { MY_REWARDS_NAME, REWARDS_CENTER_SECTIONS, SQUARE_DROP_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,8 +13,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
       <PageHeader
-        title="🎁 Rewards Center"
-        subtitle={`Earn, unlock, and redeem — featuring ${SQUARE_DROP_NAME}™`}
+        title={`🎁 ${MY_REWARDS_NAME}`}
+        subtitle={`Your home for earning, claiming, and spending rewards — featuring ${SQUARE_DROP_NAME}™`}
       />
 
       {!loading && data ? (
@@ -38,7 +38,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
       <nav
         className="flex gap-1 overflow-x-auto pb-2 mb-6 scrollbar-hide border-b border-white/10"
-        aria-label="Rewards sections"
+        aria-label="My Rewards sections"
       >
         {REWARDS_CENTER_SECTIONS.map((tab) => {
           const active =

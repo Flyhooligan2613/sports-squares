@@ -16,6 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
   badge: "Badges",
   referral_bonus: "Referral Bonuses",
   promo_credit: "Promotional Credits",
+  survivor_shield: "Survivor X Shields",
 };
 
 export default function InventoryPanel() {

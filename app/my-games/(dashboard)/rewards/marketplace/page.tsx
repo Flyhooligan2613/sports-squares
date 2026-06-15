@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
-import RewardsMarketplacePanel from "@/components/player/ecosystem/RewardsMarketplacePanel";
-import { BRAND_NAME } from "@/lib/brand";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: `Reward Marketplace | ${BRAND_NAME}`,
-};
-
-export default function MarketplacePage() {
-  return <RewardsMarketplacePanel />;
+export default function MarketplaceRedirectPage() {
+  redirect("/my-games/rewards/credit-shop");
 }

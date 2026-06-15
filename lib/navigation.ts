@@ -33,7 +33,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Player",
     items: [
       { href: "/my-games/profile", label: "Player Hub", icon: "👤", requiresAuth: true },
-      { href: "/my-games/rewards", label: "Rewards Center", icon: "🎁", requiresAuth: true },
+      { href: "/my-games/rewards", label: "My Rewards", icon: "🎁", requiresAuth: true },
       { href: "/my-games/rewards/tier", label: "Tier Progress", icon: "⭐", requiresAuth: true },
       { href: "/my-games/rewards/credits", label: "My Credits", icon: "💎", requiresAuth: true },
       { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒", requiresAuth: true },

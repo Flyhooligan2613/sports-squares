@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { DropReward, DropBoxType } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
 import { BOX_VISUALS, RARITY_COLORS } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
@@ -49,6 +49,10 @@ export default function WeeklyRewardDropExperience({
   const [flippedIndex, setFlippedIndex] = useState(-1);
   const [error, setError] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
+  const openingRef = useRef(false);
+  const pendingRefreshRef = useRef(false);
+  const onOpenedRef = useRef(onOpened);
+  onOpenedRef.current = onOpened;
   const visual = BOX_VISUALS[boxType];
 
   const reset = useCallback(() => {
@@ -57,6 +61,8 @@ export default function WeeklyRewardDropExperience({
     setFlippedIndex(-1);
     setError(null);
     setDropId(null);
+    openingRef.current = false;
+    pendingRefreshRef.current = false;
   }, [replayOnly]);
 
   useEffect(() => {
@@ -123,7 +129,15 @@ export default function WeeklyRewardDropExperience({
     }
   }, [phase]);
 
+  useEffect(() => {
+    if (phase !== "done" || !pendingRefreshRef.current) return;
+    pendingRefreshRef.current = false;
+    onOpenedRef.current();
+  }, [phase]);
+
   async function handleOpen() {
+    if (openingRef.current) return;
+    openingRef.current = true;
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate([40, 30, 80]);
     }
@@ -136,6 +150,7 @@ export default function WeeklyRewardDropExperience({
     if (replayOnly && replayRewards) {
       setRewards(replayRewards);
       setTimeout(() => setPhase("reveal"), 700);
+      openingRef.current = false;
       return;
     }
 
@@ -153,11 +168,12 @@ export default function WeeklyRewardDropExperience({
 
       setRewards(data.rewards ?? []);
       setDropId(data.drop?.id ?? null);
-      onOpened();
+      pendingRefreshRef.current = true;
       setTimeout(() => setPhase("reveal"), 700);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not open drop.");
       setPhase("ready");
+      openingRef.current = false;
     }
   }
 
