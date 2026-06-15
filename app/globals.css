@@ -11323,6 +11323,48 @@ html.sb-splash-pending body {
   margin-top: 0.25rem;
 }
 
+.contest-join-btn {
+  transition:
+    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.28s ease;
+}
+
+.contest-join-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 28px rgba(91, 76, 247, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.contest-join-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 14px rgba(91, 76, 247, 0.25);
+}
+
+.contest-join-btn-featured:hover:not(:disabled) {
+  box-shadow:
+    0 12px 32px rgba(91, 76, 247, 0.45),
+    0 0 24px color-mix(in srgb, var(--cc-accent, #7b61ff) 35%, transparent);
+}
+
+.contest-join-btn-glow {
+  position: relative;
+}
+
+.contest-join-label {
+  font-size: inherit;
+  font-weight: inherit;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contest-join-btn:hover:not(:disabled),
+  .contest-join-btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 .cc-live-group + .cc-live-group {
   margin-top: 1.5rem;
 }

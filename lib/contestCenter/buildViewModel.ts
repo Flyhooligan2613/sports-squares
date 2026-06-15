@@ -1,6 +1,7 @@
 import type { ActionCenterData } from "@/lib/actionCenter/types";
 import type { GameDayFriendActivity } from "@/lib/gameDay/types";
 import { CONTEST_TEMPLATES, templateToListing } from "@/lib/contestCenter/catalog";
+import type { FeaturedCtaPreset } from "@/lib/contestCenter/cta";
 import type {
   ContestCenterViewModel,
   ContestFriendActivity,
@@ -95,6 +96,10 @@ function buildBoardContests(data: ActionCenterData): ContestListing[] {
   return listings;
 }
 
+function withFeaturedCta(contest: ContestListing, preset: FeaturedCtaPreset): ContestListing {
+  return { ...contest, featured: true, featuredCtaPreset: preset };
+}
+
 function pickFeatured(
   templates: ContestListing[],
   boards: ContestListing[],
@@ -102,41 +107,47 @@ function pickFeatured(
 ): ContestListing | null {
   const hotBoard = boards.find((b) => (b.fillPercent ?? 0) >= 70);
   if (hotBoard) {
-    return {
-      ...hotBoard,
-      featured: true,
-      trendingBadge: "featured" as TrendingBadge,
-      title: hotBoard.subtitle?.includes("Squares")
-        ? `${hotBoard.sport} Sunday Contest`
-        : hotBoard.title,
-    };
+    return withFeaturedCta(
+      {
+        ...hotBoard,
+        trendingBadge: "featured" as TrendingBadge,
+        title: hotBoard.subtitle?.includes("Squares")
+          ? `${hotBoard.sport} Sunday Contest`
+          : hotBoard.title,
+      },
+      "enter_today"
+    );
   }
 
   const liveCard = data.nowHappening[0];
   if (liveCard?.openBoard) {
     const match = boards.find((b) => b.href === `/pool/${liveCard.openBoard!.poolId}`);
     if (match) {
-      return {
-        ...match,
-        featured: true,
-        title: `${liveCard.sportLabel} Contest`,
-        subtitle: `${liveCard.awayTeam} @ ${liveCard.homeTeam}`,
-        trendingBadge: "featured",
-      };
+      return withFeaturedCta(
+        {
+          ...match,
+          title: `${liveCard.sportLabel} Contest`,
+          subtitle: `${liveCard.awayTeam} @ ${liveCard.homeTeam}`,
+          trendingBadge: "featured",
+        },
+        "compete_now"
+      );
     }
   }
 
   const nflSquares = templates.find((t) => t.id === "nfl-squares");
   if (nflSquares) {
-    return {
-      ...nflSquares,
-      featured: true,
-      title: "NFL Sunday Contest",
-      subtitle: "Sports Squares™ — join before kickoff",
-      trendingBadge: "featured",
-      playersJoined: data.platform.playersOnline,
-      prizePoolLabel: formatPrizePool(data.platform.moneyInPlay),
-    };
+    return withFeaturedCta(
+      {
+        ...nflSquares,
+        title: "NFL Sunday Contest",
+        subtitle: "Sports Squares™ — join before kickoff",
+        trendingBadge: "featured",
+        playersJoined: data.platform.playersOnline,
+        prizePoolLabel: formatPrizePool(data.platform.moneyInPlay),
+      },
+      "compete_for_glory"
+    );
   }
 
   return templates[0] ?? null;

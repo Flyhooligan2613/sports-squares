@@ -1,4 +1,6 @@
 import type { WeeklyRewardDropConfig } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
+import type { ContestCtaAdminConfig } from "@/lib/contestCenter/cta";
+import { DEFAULT_CONTEST_CTA_CONFIG } from "@/lib/contestCenter/cta";
 
 export interface ReferralConfig {
   rewardCents: number;
@@ -34,6 +36,7 @@ export interface EcosystemAdminConfig {
   weekly_reward_drop: WeeklyRewardDropConfig;
   username: UsernameConfig;
   game_status: GameStatusConfig;
+  contest_cta: ContestCtaAdminConfig;
 }
 
 export const DEFAULT_WEEKLY_REWARD_DROP_CONFIG: WeeklyRewardDropConfig = {
@@ -76,4 +79,5 @@ export const DEFAULT_ECOSYSTEM_CONFIG: EcosystemAdminConfig = {  referral: {
     cancelled: "refund",
     forfeit: "official_ruling",
   },
+  contest_cta: DEFAULT_CONTEST_CTA_CONFIG,
 };

@@ -4,6 +4,13 @@
  * Internal stat keys (e.g. lifetimeWinnings) stay unchanged — use display labels here.
  */
 
+import {
+  CONTEST_CTA_LABELS,
+  JOIN_THE_CONTEST_FALLBACK,
+} from "@/lib/contestCenter/cta";
+
+export const JOIN_THE_CONTEST = JOIN_THE_CONTEST_FALLBACK;
+
 export const PLATFORM_IDENTITY = {
   name: "SquareBoards",
   tagline: "The world's premier competitive sports platform.",
@@ -11,9 +18,6 @@ export const PLATFORM_IDENTITY = {
   mission:
     "Every fan deserves a place to compete, build reputation, and create unforgettable game day memories.",
 } as const;
-
-/** Primary platform CTA — use on buttons, cards, and hero actions. */
-export const JOIN_THE_CONTEST = "Join the Contest";
 
 export const PLATFORM_TERMS = {
   joinTheContest: JOIN_THE_CONTEST,
@@ -40,16 +44,22 @@ export const PLATFORM_TERMS = {
   userLabel: "Competitor",
 } as const;
 
-/** Game-specific "Join the Contest" lines from Directive #001. */
+/** Platform Polish Directive #001 — contextual contest CTAs by game mode. */
 export const JOIN_CONTEST_BY_GAME = {
-  squares: `${JOIN_THE_CONTEST} · Sports Squares™`,
-  nflSquares: `${JOIN_THE_CONTEST} · Sports Squares™`,
-  pickem: `${JOIN_THE_CONTEST} · Pick'em Royale™`,
-  survivor: `${JOIN_THE_CONTEST} · Survivor X™`,
-  tournamentRoyale: `${JOIN_THE_CONTEST} · Tournament Royale™`,
-  mlbSquares: `${JOIN_THE_CONTEST} · MLB Squares™`,
-  baseballPickem: `${JOIN_THE_CONTEST} · MLB Pick'em`,
-  soccerPickem: `${JOIN_THE_CONTEST} · Football Pick'em Royale™`,
+  squares: CONTEST_CTA_LABELS["nfl-squares"],
+  nflSquares: CONTEST_CTA_LABELS["nfl-squares"],
+  pickem: CONTEST_CTA_LABELS["nfl-pickem"],
+  survivor: CONTEST_CTA_LABELS["survivor-x"],
+  tournamentRoyale: CONTEST_CTA_LABELS["tournament-royale"],
+  mlbSquares: CONTEST_CTA_LABELS["mlb-squares"],
+  baseballPickem: CONTEST_CTA_LABELS["mlb-pickem"],
+  soccerPickem: CONTEST_CTA_LABELS["soccer-pickem"],
+  nbaSquares: CONTEST_CTA_LABELS["nba-squares"],
+  nhlPickem: CONTEST_CTA_LABELS["nhl-pickem"],
+  highlightSquares: CONTEST_CTA_LABELS["highlight-squares"],
+  weeklyRewardDrop: CONTEST_CTA_LABELS["weekly-reward-drop"],
+  legacy: CONTEST_CTA_LABELS.legacy,
+  huddle: CONTEST_CTA_LABELS.huddle,
 } as const;
 
 export function joinContestCta(gameLabel: string): string {

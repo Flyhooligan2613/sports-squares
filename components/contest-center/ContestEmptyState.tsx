@@ -1,8 +1,9 @@
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
-import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { ContestJoinLabel } from "@/components/contest-center/ContestJoinButton";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
+import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
 export default function ContestEmptyState() {
   return (
@@ -88,7 +89,9 @@ export function LiveContestsSection({
                         .join(" · ")}
                     </p>
                   </div>
-                  <span className="cc-live-join">Join Contest</span>
+                  <span className="cc-live-join">
+                    <ContestJoinLabel contest={contest} />
+                  </span>
                 </Link>
               ))}
             </div>

@@ -1,3 +1,5 @@
+import type { ContestCtaKey, FeaturedCtaPreset } from "@/lib/contestCenter/cta";
+
 export type ContestStatus =
   | "open"
   | "filling"
@@ -56,6 +58,12 @@ export interface ContestListing {
   trendingBadge?: TrendingBadge;
   accent: string;
   featured?: boolean;
+  /** Registry key for default CTA copy — see lib/contestCenter/cta.ts */
+  ctaKey?: ContestCtaKey;
+  /** Admin or campaign override — takes precedence over ctaKey */
+  ctaLabel?: string;
+  /** Featured contest preset when featured === true and ctaLabel is unset */
+  featuredCtaPreset?: FeaturedCtaPreset;
   searchTerms: string[];
   filterTags?: string[];
 }

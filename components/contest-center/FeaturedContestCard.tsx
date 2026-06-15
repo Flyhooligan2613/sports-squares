@@ -2,12 +2,11 @@
 
 import type { CSSProperties } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
-import { Button } from "@/components/ui/Button";
+import ContestJoinButton from "@/components/contest-center/ContestJoinButton";
 import ContestStatusBadge from "@/components/contest-center/ContestStatusBadge";
 import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import { useReducedMotion } from "@/lib/motion/useReducedMotion";
 import type { ContestListing } from "@/lib/contestCenter/types";
-import { JOIN_THE_CONTEST } from "@/lib/platform/legacy/competitiveLanguage";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
 
 export default function FeaturedContestCard({ contest }: { contest: ContestListing }) {
@@ -85,14 +84,12 @@ export default function FeaturedContestCard({ contest }: { contest: ContestListi
           </div>
         ) : null}
 
-        <Button
-          href={contest.href}
-          variant="primary"
+        <ContestJoinButton
+          contest={contest}
+          featured
           className={`cc-featured-join w-full sm:w-auto ${reducedMotion ? "" : "cc-join-btn-pulse"}`}
           onClick={() => rememberContestJoin(contest.id)}
-        >
-          {JOIN_THE_CONTEST}
-        </Button>
+        />
       </div>
     </LandingGlassCard>
   );

@@ -1,3 +1,4 @@
+import type { ContestCtaKey } from "@/lib/contestCenter/cta";
 import { FOOTBALL_PICKEM_ROYALE_PUBLIC_NAME } from "@/lib/soccerPickem/config";
 import { TOURNAMENT_ROYALE_PUBLIC_NAME } from "@/lib/tournamentRoyale/config";
 import type { ContestKind, ContestListing, ContestStatus } from "@/lib/contestCenter/types";
@@ -17,6 +18,7 @@ export interface ContestTemplate {
   filterTags: string[];
   searchTerms: string[];
   status?: ContestStatus;
+  ctaKey: ContestCtaKey;
 }
 
 export const CONTEST_TEMPLATES: ContestTemplate[] = [
@@ -34,6 +36,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Squares",
     filterTags: ["all", "nfl", "trending"],
     searchTerms: ["nfl", "squares", "football", "sunday"],
+    ctaKey: "nfl-squares",
   },
   {
     id: "nfl-pickem",
@@ -49,6 +52,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Pick'em",
     filterTags: ["all", "nfl", "pickem", "trending"],
     searchTerms: ["pickem", "pick'em", "nfl", "royale"],
+    ctaKey: "nfl-pickem",
   },
   {
     id: "survivor-x",
@@ -64,6 +68,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Survivor",
     filterTags: ["all", "nfl", "survivor", "trending"],
     searchTerms: ["survivor", "elimination", "nfl"],
+    ctaKey: "survivor-x",
   },
   {
     id: "mlb-squares",
@@ -79,6 +84,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Squares",
     filterTags: ["all", "mlb", "trending"],
     searchTerms: ["mlb", "baseball", "squares"],
+    ctaKey: "mlb-squares",
   },
   {
     id: "mlb-pickem",
@@ -94,6 +100,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Pick'em",
     filterTags: ["all", "mlb", "pickem"],
     searchTerms: ["mlb", "pickem", "baseball"],
+    ctaKey: "mlb-pickem",
   },
   {
     id: "nba-squares",
@@ -109,6 +116,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Squares",
     filterTags: ["all", "nba"],
     searchTerms: ["nba", "basketball", "squares"],
+    ctaKey: "nba-squares",
   },
   {
     id: "tournament-royale",
@@ -124,6 +132,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Bracket",
     filterTags: ["all", "nba", "tournament", "new"],
     searchTerms: ["bracket", "tournament", "march madness", "royale"],
+    ctaKey: "tournament-royale",
   },
   {
     id: "soccer-pickem",
@@ -139,6 +148,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     contestType: "Pick'em",
     filterTags: ["all", "football", "pickem"],
     searchTerms: ["soccer", "football", "pickem", "champions league"],
+    ctaKey: "soccer-pickem",
   },
   {
     id: "nhl-pickem",
@@ -155,6 +165,7 @@ export const CONTEST_TEMPLATES: ContestTemplate[] = [
     filterTags: ["all", "nhl", "pickem", "new"],
     searchTerms: ["nhl", "hockey", "stanley cup"],
     status: "coming_soon",
+    ctaKey: "nhl-pickem",
   },
 ];
 
@@ -175,6 +186,7 @@ export function templateToListing(
     durationLabel: template.durationLabel,
     contestType: template.contestType,
     accent: template.accent,
+    ctaKey: template.ctaKey,
     searchTerms: template.searchTerms,
     playersJoined: overrides.playersJoined,
     prizePoolLabel: overrides.prizePoolLabel,

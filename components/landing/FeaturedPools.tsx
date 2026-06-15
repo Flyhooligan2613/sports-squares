@@ -19,6 +19,7 @@ import {
   getSportLabel,
   parsePoolDisplayMeta,
 } from "@/lib/landing/poolDisplay";
+import { resolveSquaresBoardCta } from "@/lib/contestCenter/cta";
 import { poolStore } from "@/lib/poolStore";
 import type { Pool } from "@/lib/types";
 
@@ -157,13 +158,13 @@ export default function FeaturedPools() {
                     <Link
                       href={`/pool/${pool.id}`}
                       className={[
-                        "sb-btn-primary sb-btn-motion landing-pool-join-btn flex items-center justify-center gap-1 w-full min-h-[52px] rounded-xl font-semibold text-sm group/btn",
+                        "sb-btn-primary sb-btn-motion contest-join-btn landing-pool-join-btn flex items-center justify-center gap-1 w-full min-h-[52px] rounded-xl font-semibold text-sm group/btn",
                         open
                           ? ""
                           : "opacity-60 !shadow-none pointer-events-auto !translate-y-0",
                       ].join(" ")}
                     >
-                      Join Board
+                      {resolveSquaresBoardCta(pool.espnSport ?? "nfl")}
                       <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
                     </Link>
                   </div>

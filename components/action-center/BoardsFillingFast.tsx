@@ -5,7 +5,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { FillingFastBoard } from "@/lib/actionCenter/types";
-import { JOIN_THE_CONTEST } from "@/lib/platform/legacy/competitiveLanguage";
+import { resolveSquaresBoardCta } from "@/lib/contestCenter/cta";
 
 interface BoardsFillingFastProps {
   boards: FillingFastBoard[];
@@ -59,8 +59,8 @@ export default function BoardsFillingFast({ boards }: BoardsFillingFastProps) {
                 {board.squaresRemaining === 1 ? "" : "s"} left
               </p>
               <Link href={`/pool/${board.poolId}`}>
-                <Button size="sm" className="w-full ac-btn-play">
-                  {JOIN_THE_CONTEST}
+                <Button size="sm" className="w-full ac-btn-play contest-join-btn">
+                  {resolveSquaresBoardCta(board.sport)}
                 </Button>
               </Link>
             </LandingGlassCard>

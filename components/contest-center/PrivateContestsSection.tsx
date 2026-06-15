@@ -7,6 +7,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { Input } from "@/components/ui/Input";
+import { FEATURED_CTA_LABELS } from "@/lib/contestCenter/cta";
 import { normalizePoolCode, parseJoinInput } from "@/lib/landing/join";
 import { poolStore } from "@/lib/poolStore";
 
@@ -80,8 +81,8 @@ export default function PrivateContestsSection() {
                 placeholder="Paste code or invite link"
                 aria-label="Private contest invite code"
               />
-              <Button type="submit" variant="primary" disabled={loading}>
-                {loading ? "Joining…" : "Join Contest"}
+              <Button type="submit" variant="primary" className="contest-join-btn" disabled={loading}>
+                {loading ? "Joining…" : FEATURED_CTA_LABELS.claim_spot}
               </Button>
             </form>
             {error ? <Alert variant="error">{error}</Alert> : null}

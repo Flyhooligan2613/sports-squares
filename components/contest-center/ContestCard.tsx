@@ -3,11 +3,10 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
-import { Button } from "@/components/ui/Button";
+import ContestJoinButton, { ContestJoinLabel } from "@/components/contest-center/ContestJoinButton";
 import ContestStatusBadge from "@/components/contest-center/ContestStatusBadge";
 import { TRENDING_LABELS } from "@/lib/contestCenter/labels";
 import type { ContestListing } from "@/lib/contestCenter/types";
-import { JOIN_THE_CONTEST } from "@/lib/platform/legacy/competitiveLanguage";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
 
 interface ContestCardProps {
@@ -91,15 +90,12 @@ export default function ContestCard({ contest, compact = false }: ContestCardPro
           </div>
         ) : null}
 
-        <Button
-          href={contest.status === "coming_soon" ? undefined : contest.href}
-          variant="primary"
-          className="cc-join-btn w-full"
-          disabled={contest.status === "coming_soon"}
+        <ContestJoinButton
+          contest={contest}
+          fullWidth
+          className="cc-join-btn"
           onClick={() => rememberContestJoin(contest.id)}
-        >
-          {contest.status === "coming_soon" ? "Coming Soon" : JOIN_THE_CONTEST}
-        </Button>
+        />
       </div>
     </LandingGlassCard>
   );
@@ -124,7 +120,7 @@ export function ContestCardRow({ contest }: { contest: ContestListing }) {
         </p>
       </div>
       <ContestStatusBadge status={contest.status} />
-      <span className="cc-contest-row-cta">{JOIN_THE_CONTEST}</span>
+      <ContestJoinLabel contest={contest} />
     </Link>
   );
 }
