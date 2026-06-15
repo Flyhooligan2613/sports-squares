@@ -10092,14 +10092,21 @@ html.sb-splash-pending body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #c4b5fd;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.35rem;
+}
+
+.gameroom-sport-tabs-hint {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.58);
+  margin-bottom: 0.75rem;
+  line-height: 1.45;
 }
 
 .gameroom-sport-tab-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0;
 }
 
 .gameroom-sport-tab {
@@ -10118,6 +10125,11 @@ html.sb-splash-pending body {
   transition: all 0.2s ease;
 }
 
+.gameroom-sport-tab-emoji {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .gameroom-sport-tab:hover {
   color: #fff;
   border-color: rgba(168, 85, 247, 0.4);
@@ -10129,6 +10141,74 @@ html.sb-splash-pending body {
   border-color: rgba(168, 85, 247, 0.55);
   background: rgba(168, 85, 247, 0.22);
   box-shadow: 0 0 18px rgba(168, 85, 247, 0.18);
+}
+
+.gameroom-sport-panel {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gameroom-sport-panel-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 0.75rem;
+}
+
+.gameroom-sport-panel-title span {
+  color: #fff;
+}
+
+.gameroom-sport-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.gameroom-sport-action-btn {
+  min-height: 44px !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  justify-content: space-between !important;
+  gap: 0.65rem !important;
+  min-width: min(100%, 220px);
+  flex: 1 1 auto;
+}
+
+.gameroom-sport-action-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.gameroom-sport-action-emoji {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.gameroom-sport-empty {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.gameroom-sport-soon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.gameroom-sport-soon-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 .gameroom-sport-links {

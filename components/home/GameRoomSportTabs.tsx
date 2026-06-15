@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { GAME_ROOM_SPORTS } from "@/lib/home/gameRoomSports";
 
 export default function GameRoomSportTabs() {
@@ -10,10 +11,15 @@ export default function GameRoomSportTabs() {
 
   if (!activeSport) return null;
 
+  const availableLinks = activeSport.links.filter((link) => link.available);
+  const panelId = `gameroom-sport-panel-${activeSport.id}`;
+
   return (
     <section className="gameroom-sport-tabs" aria-label="Browse by sport">
       <div className="gameroom-sport-tabs-inner">
         <p className="gameroom-sport-tabs-kicker">Play by sport</p>
+        <p className="gameroom-sport-tabs-hint">Tap a sport, then choose what you want to play.</p>
+
         <div className="gameroom-sport-tab-row" role="tablist" aria-label="Sports">
           {GAME_ROOM_SPORTS.map((sport) => {
             const selected = sport.id === activeId;
@@ -22,7 +28,9 @@ export default function GameRoomSportTabs() {
                 key={sport.id}
                 type="button"
                 role="tab"
+                id={`gameroom-sport-tab-${sport.id}`}
                 aria-selected={selected}
+                aria-controls={panelId}
                 className={[
                   "gameroom-sport-tab",
                   selected ? "gameroom-sport-tab-active" : "",
@@ -31,7 +39,9 @@ export default function GameRoomSportTabs() {
                   .join(" ")}
                 onClick={() => setActiveId(sport.id)}
               >
-                <span aria-hidden>{sport.emoji}</span>
+                <span className="gameroom-sport-tab-emoji" aria-hidden>
+                  {sport.emoji}
+                </span>
                 {sport.label}
               </button>
             );
@@ -39,21 +49,56 @@ export default function GameRoomSportTabs() {
         </div>
 
         <div
-          className="gameroom-sport-links"
+          id={panelId}
+          className="gameroom-sport-panel"
           role="tabpanel"
-          aria-label={`${activeSport.label} games`}
+          aria-labelledby={`gameroom-sport-tab-${activeSport.id}`}
         >
-          {activeSport.links.map((link) =>
-            link.available ? (
-              <Link key={link.href + link.label} href={link.href} className="gameroom-sport-link">
-                {link.label}
-              </Link>
-            ) : (
-              <span key={link.label} className="gameroom-sport-link gameroom-sport-link-disabled">
-                {link.label}
-              </span>
-            )
+          <p className="gameroom-sport-panel-title">
+            Choose what to play · <span>{activeSport.label}</span>
+          </p>
+
+          {availableLinks.length > 0 ? (
+            <div className="gameroom-sport-actions">
+              {availableLinks.map((link, index) => (
+                <Button
+                  key={link.href + link.label}
+                  href={link.href}
+                  prefetch
+                  variant={index === 0 ? "primary" : "secondary"}
+                  size="sm"
+                  className="gameroom-sport-action-btn group"
+                >
+                  <span className="gameroom-sport-action-label">
+                    {link.emoji ? (
+                      <span className="gameroom-sport-action-emoji" aria-hidden>
+                        {link.emoji}
+                      </span>
+                    ) : null}
+                    {link.cta ?? `Play ${link.label}`}
+                  </span>
+                  <ChevronRight
+                    className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Button>
+              ))}
+            </div>
+          ) : (
+            <p className="gameroom-sport-empty">More {activeSport.label} games are on the way.</p>
           )}
+
+          {activeSport.links.some((link) => !link.available) ? (
+            <div className="gameroom-sport-soon-row" aria-label="Coming soon">
+              {activeSport.links
+                .filter((link) => !link.available)
+                .map((link) => (
+                  <span key={link.label} className="gameroom-sport-soon-pill">
+                    {link.label}
+                  </span>
+                ))}
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
