@@ -26,7 +26,11 @@ export function mapEspnStatusToGameStatus(
     lower.includes("progress") ||
     lower.includes("half") ||
     lower.includes("quarter") ||
-    lower.includes("period")
+    lower.includes("period") ||
+    lower.includes("inning") ||
+    lower.includes("top ") ||
+    lower.includes("bot ") ||
+    lower.includes("mid ")
   ) {
     return "live";
   }
@@ -34,6 +38,12 @@ export function mapEspnStatusToGameStatus(
     return "cancelled";
   }
   return "scheduled";
+}
+
+/** True once ESPN (or kickoff time fallback) indicates the game has started. */
+export function isGameStarted(game: Game): boolean {
+  if (game.status === "live" || game.status === "final") return true;
+  return new Date(game.kickoffAt).getTime() <= Date.now();
 }
 
 export async function dbUpsertGame(input: {

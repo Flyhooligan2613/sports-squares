@@ -114,9 +114,9 @@ export async function lockPickemGamesPastKickoff(contestId: string): Promise<num
     const kickoff = game.kickoff_at as string;
     const shouldLock =
       !game.picks_locked &&
-      (new Date(kickoff).getTime() <= Date.now() ||
-        game.status === "live" ||
-        game.status === "final");
+      (game.status === "live" ||
+        game.status === "final" ||
+        new Date(kickoff).getTime() <= Date.now());
 
     if (!shouldLock) continue;
 

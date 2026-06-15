@@ -35,8 +35,17 @@ function mapEspnStatus(
   const lower = statusName.toLowerCase();
   if (completed || lower.includes("final")) return "final";
   if (
+    lower.includes("live") ||
     lower.includes("in progress") ||
+    lower.includes("progress") ||
     lower.includes("halftime") ||
+    lower.includes("half") ||
+    lower.includes("quarter") ||
+    lower.includes("period") ||
+    lower.includes("inning") ||
+    lower.includes("top ") ||
+    lower.includes("bot ") ||
+    lower.includes("mid ") ||
     lower.includes("end of")
   ) {
     return "live";

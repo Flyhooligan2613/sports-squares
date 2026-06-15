@@ -8,7 +8,11 @@ import {
 } from "@/lib/database/services/boards";
 import { maybeCompleteGuaranteedBoard } from "@/lib/platform/core/guaranteedPlayEngine";
 import { PLATFORM_ENTRY_TIERS } from "@/lib/platform/core/entryTiers";
-import { dbListGames } from "@/lib/database/services/games";
+import {
+  dbGetGame,
+  dbListGames,
+  isGameStarted,
+} from "@/lib/database/services/games";
 import { TABLES } from "@/lib/database/config";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Game } from "@/lib/types";
@@ -22,7 +26,7 @@ export interface BoardEngineResult {
 }
 
 function isBeforeKickoff(game: Game): boolean {
-  return new Date(game.kickoffAt).getTime() > Date.now();
+  return !isGameStarted(game);
 }
 
 export async function processFullOpenBoards(): Promise<number> {
@@ -54,16 +58,16 @@ export async function processFullOpenBoards(): Promise<number> {
   return processed;
 }
 
-export async function lockBoardsAtKickoff(): Promise<number> {
+/** Lock and randomize every open marketplace board once its game has started. */
+export async function lockBoardsAtGameStart(): Promise<number> {
   const games = await dbListGames({
     status: ["scheduled", "live"],
   });
 
   let locked = 0;
-  const now = Date.now();
 
   for (const game of games) {
-    if (new Date(game.kickoffAt).getTime() > now) continue;
+    if (!isGameStarted(game)) continue;
 
     const boards = await dbListBoardsForGame(game.id);
     for (const board of boards) {
@@ -71,6 +75,53 @@ export async function lockBoardsAtKickoff(): Promise<number> {
       await dbLockAndDrawBoard(board.id);
       locked += 1;
     }
+  }
+
+  locked += await lockStandaloneOpenPools();
+
+  return locked;
+}
+
+/** @deprecated Use lockBoardsAtGameStart — kept for callers during transition. */
+export async function lockBoardsAtKickoff(): Promise<number> {
+  return lockBoardsAtGameStart();
+}
+
+async function lockStandaloneOpenPools(): Promise<number> {
+  const supabase = getSupabaseAdmin();
+  const now = new Date().toISOString();
+  let locked = 0;
+
+  const liveGames = await dbListGames({ status: ["live", "final"] });
+  for (const game of liveGames) {
+    const { data: pools, error } = await supabase
+      .from(TABLES.pools)
+      .select("id, status")
+      .eq("status", "open")
+      .eq("espn_game_id", game.espnGameId)
+      .eq("espn_sport", game.espnSport)
+      .is("game_id", null);
+
+    if (error) throw error;
+
+    for (const pool of pools ?? []) {
+      await dbLockAndDrawBoard(pool.id as string);
+      locked += 1;
+    }
+  }
+
+  const { data: kickoffPools, error: kickoffError } = await supabase
+    .from(TABLES.pools)
+    .select("id, status")
+    .eq("status", "open")
+    .not("kickoff_at", "is", null)
+    .lte("kickoff_at", now);
+
+  if (kickoffError) throw kickoffError;
+
+  for (const pool of kickoffPools ?? []) {
+    await dbLockAndDrawBoard(pool.id as string);
+    locked += 1;
   }
 
   return locked;
@@ -103,8 +154,13 @@ export async function maybeAdvanceBoardAfterClaim(poolId: string): Promise<boole
     return false;
   }
 
-  if (poolRow.kickoff_at && new Date(poolRow.kickoff_at).getTime() <= Date.now()) {
+  if (poolRow.kickoff_at && new Date(poolRow.kickoff_at as string).getTime() <= Date.now()) {
     return false;
+  }
+
+  if (poolRow.game_id) {
+    const game = await dbGetGame(poolRow.game_id as string);
+    if (game && isGameStarted(game)) return false;
   }
 
   await maybeCompleteGuaranteedBoard(poolId);
@@ -112,7 +168,6 @@ export async function maybeAdvanceBoardAfterClaim(poolId: string): Promise<boole
   const refreshedClaimed = await dbCountClaimedSquares(poolId);
   if (refreshedClaimed < 100) return false;
 
-  const { dbGetGame } = await import("@/lib/database/services/games");
   const game = await dbGetGame(poolRow.game_id as string);
   if (!game) return false;
 
@@ -139,7 +194,7 @@ export async function runBoardEngine(): Promise<BoardEngineResult> {
   }
 
   try {
-    boardsLocked = await lockBoardsAtKickoff();
+    boardsLocked = await lockBoardsAtGameStart();
   } catch (err) {
     errors.push(err instanceof Error ? err.message : "Kickoff lock failed");
   }
