@@ -10,6 +10,7 @@ import {
   buildTierPushNotification,
   toEmotionalNotifications,
 } from "@/lib/gameDay/notifications";
+import { resolveDailyStory } from "@/lib/dailyStory/resolve";
 import { buildContinuePlaying } from "@/lib/gameDay/continuePlaying";
 import { buildHomeFriendsPanel } from "@/lib/gameDay/friendsPlaying";
 import { buildGreetingSubtitle, buildWelcomeGreeting } from "@/lib/gameDay/greeting";
@@ -756,6 +757,31 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
     friendActivity,
   });
 
+  const favoriteSport = liveNflBoards >= liveMlbBoards
+    ? liveNflBoards > 0
+      ? ("nfl" as const)
+      : null
+    : liveMlbBoards > 0
+      ? ("mlb" as const)
+      : null;
+
+  const dailyStory = resolveDailyStory({
+    email: normalized,
+    now,
+    phase,
+    atmosphereTheme: atmosphere.theme,
+    favoriteSport,
+    tierLabel: ecosystem.tier.displayName,
+    tierProgressPct: ecosystem.tierProgressPct,
+    creditsToNextTier: ecosystem.creditsToNextTier,
+    nextTierLabel: ecosystem.nextTier?.displayName ?? null,
+    currentWinStreak: legacy?.stats.currentWinStreak ?? 0,
+    weeklyDropAvailable: weeklyDrop?.hasUnopenedDrop ?? false,
+    survivorPickWaiting,
+    winsToday,
+    isGameDay,
+  });
+
   return {
     updatedAt: now.toISOString(),
     displayName,
@@ -811,5 +837,6 @@ export async function getGameDayHubData(email: string): Promise<GameDayHubData> 
       weeklyMissionsTotal: missions.length,
     },
     friendsPlaying: friendsPlayingPanel,
+    dailyStory,
   };
 }

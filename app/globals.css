@@ -9725,10 +9725,138 @@ html.sb-splash-pending body {
   .welcome-home-greeting,
   .welcome-home-subtitle,
   .welcome-home-summary,
-  .home-continue-glow {
+  .home-continue-glow,
+  .daily-story-section {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/* Daily Story — Directive #014 */
+.daily-story-section {
+  animation: daily-story-fade-in 0.65s ease-out forwards;
+}
+
+.daily-story-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(12px);
+}
+
+.daily-story-accent {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 20% 0%,
+    rgba(56, 189, 248, 0.1),
+    transparent 65%
+  );
+  pointer-events: none;
+}
+
+.daily-story-theme-nfl_sunday .daily-story-accent,
+.daily-story-theme-nfl .daily-story-accent {
+  background: radial-gradient(
+    ellipse 80% 60% at 20% 0%,
+    rgba(34, 197, 94, 0.12),
+    transparent 65%
+  );
+}
+
+.daily-story-theme-mlb .daily-story-accent,
+.daily-story-theme-opening_day .daily-story-accent,
+.daily-story-theme-world_series .daily-story-accent {
+  background: radial-gradient(
+    ellipse 80% 60% at 20% 0%,
+    rgba(248, 113, 113, 0.1),
+    transparent 65%
+  );
+}
+
+.daily-story-theme-super_bowl .daily-story-accent,
+.daily-story-theme-playoffs .daily-story-accent,
+.daily-story-theme-championship .daily-story-accent {
+  background: radial-gradient(
+    ellipse 80% 60% at 20% 0%,
+    rgba(249, 115, 22, 0.12),
+    transparent 65%
+  );
+}
+
+.daily-story-theme-progression .daily-story-accent {
+  background: radial-gradient(
+    ellipse 80% 60% at 20% 0%,
+    rgba(168, 85, 247, 0.12),
+    transparent 65%
+  );
+}
+
+.daily-story-theme-holiday .daily-story-accent {
+  background: radial-gradient(
+    ellipse 80% 60% at 20% 0%,
+    rgba(244, 114, 182, 0.12),
+    transparent 65%
+  );
+}
+
+.daily-story-kicker {
+  position: relative;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 1rem;
+}
+
+.daily-story-content {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.daily-story-emoji {
+  font-size: 1.75rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.daily-story-quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.daily-story-line {
+  display: block;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+}
+
+.daily-story-line + .daily-story-line {
+  margin-top: 0.35rem;
+}
+
+@keyframes daily-story-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

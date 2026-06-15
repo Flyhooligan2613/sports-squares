@@ -2,6 +2,7 @@ import type { TimelineEvent, ActionGameCard } from "@/lib/actionCenter/types";
 import type { LiveActivityEvent } from "@/lib/liveActivity/types";
 import type { PlayerActiveGame, PlayerUpcomingGame } from "@/lib/player/dashboardTypes";
 import type { PlayerTierSlug } from "@/lib/platform/ecosystem/types";
+import type { DailyStory } from "@/lib/dailyStory/types";
 
 export type GameDayPhase = "morning" | "afternoon" | "evening" | "night";
 
@@ -191,6 +192,7 @@ export interface GameDayHubData {
   todaysGames: GameDayTodaysGames;
   progressCenter: GameDayProgressCenter;
   friendsPlaying: HomeFriendsPanel;
+  dailyStory: DailyStory;
 }
 
 /** Directive #011 — authenticated player Home experience */

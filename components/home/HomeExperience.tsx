@@ -20,6 +20,7 @@ import GameDayTodaysGames from "@/components/game-day/GameDayTodaysGames";
 import HomeProgressionCenter from "@/components/home/HomeProgressionCenter";
 import HomeFriendsPanel from "@/components/home/HomeFriendsPanel";
 import HomeWelcome from "@/components/home/HomeWelcome";
+import DailyStoryCard from "@/components/home/DailyStoryCard";
 import WelcomeHomeTransition from "@/components/home/WelcomeHomeTransition";
 import {
   GameDayCommunityMoments,
@@ -177,7 +178,11 @@ export default function HomeExperience() {
             />
           </HomeStagger>
 
-          <HomeStagger delay={140} revealed={stagger}>
+          <HomeStagger delay={160} revealed={stagger}>
+            <DailyStoryCard story={data.dailyStory} />
+          </HomeStagger>
+
+          <HomeStagger delay={220} revealed={stagger}>
             <GameDayAtmosphereBanner
               emoji={data.atmosphere.emoji}
               label={data.atmosphere.label}
@@ -186,7 +191,7 @@ export default function HomeExperience() {
             />
           </HomeStagger>
 
-          <HomeStagger delay={220} revealed={stagger}>
+          <HomeStagger delay={280} revealed={stagger}>
             <GameDayStatusStrip items={data.statusItems} title="Today's Game Day" />
           </HomeStagger>
 
