@@ -8,6 +8,15 @@ const MODE_HREF: Record<string, string> = {
   classic: survivorPath("week"),
   global: survivorPath("week"),
   double_life: survivorPath("leagues"),
+  private: survivorPath("private"),
+};
+
+const MODE_CTA: Record<string, string> = {
+  classic: "Play Classic",
+  global: "Play Global Survivor",
+  double_life: "Join Double Life",
+  private: "Create or Join Private",
+  turbo: "Play Turbo Survivor",
 };
 
 export default function SurvivorModeCards() {
@@ -35,7 +44,7 @@ export default function SurvivorModeCards() {
               href={MODE_HREF[mode.id] ?? survivorPath("leagues")}
               className="inline-flex items-center gap-1 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
             >
-              {mode.id === "double_life" ? "Join Double Life" : "Play Global Survivor"}
+              {MODE_CTA[mode.id] ?? "Play Survivor"}
               <ChevronRight className="w-4 h-4" />
             </Link>
           ) : (

@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 import { ensureSurvivorSeason } from "@/lib/survivor/engine/seedSeason";
-import { getSurvivorLeagueById } from "@/lib/survivor/db/leagues";
-import { joinSurvivorLeague } from "@/lib/survivor/db/entries";
+import { getSurvivorLeagueById, getSurvivorLeagueByInviteCode } from "@/lib/survivor/db/leagues";
+import { countEntriesByStatus, getSurvivorEntry, joinSurvivorLeague } from "@/lib/survivor/db/entries";
 import { publishPlatformEvent } from "@/lib/events/engine";
 
 export const dynamic = "force-dynamic";
@@ -24,16 +24,48 @@ export async function POST(request: Request) {
   if (eligibilityError) return eligibilityError;
 
   try {
-    const body = (await request.json().catch(() => ({}))) as { leagueId?: string };
+    const body = (await request.json().catch(() => ({}))) as {
+      leagueId?: string;
+      inviteCode?: string;
+    };
     const { leagueId: defaultLeagueId } = await ensureSurvivorSeason();
-    const leagueId = body.leagueId ?? defaultLeagueId;
+
+    const email = normalizeEmail(user.email);
+
+    let leagueId = body.leagueId ?? defaultLeagueId;
+    if (body.inviteCode?.trim()) {
+      const byCode = await getSurvivorLeagueByInviteCode(body.inviteCode);
+      if (!byCode) {
+        return NextResponse.json({ error: "Invalid invite code." }, { status: 404 });
+      }
+      leagueId = byCode.id;
+    }
+
     const league = await getSurvivorLeagueById(leagueId);
 
     if (!league) {
       return NextResponse.json({ error: "League not found." }, { status: 404 });
     }
 
-    const email = normalizeEmail(user.email);
+    if (!["open", "active"].includes(league.status)) {
+      return NextResponse.json({ error: "This league is not accepting entries." }, { status: 400 });
+    }
+
+    if (league.maxPlayers != null) {
+      const playerCount = await countEntriesByStatus(league.id);
+      const existing = await getSurvivorEntry(league.id, email);
+      if (!existing && playerCount >= league.maxPlayers) {
+        return NextResponse.json({ error: "This league is full." }, { status: 400 });
+      }
+    }
+
+    if (league.entryFeeCents > 0) {
+      return NextResponse.json(
+        { error: "Paid private leagues are coming soon — free leagues only for now." },
+        { status: 400 }
+      );
+    }
+
     const entry = await joinSurvivorLeague({
       leagueId,
       email,

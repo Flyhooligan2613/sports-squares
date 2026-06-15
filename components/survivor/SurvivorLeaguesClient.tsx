@@ -135,7 +135,10 @@ export default function SurvivorLeaguesClient() {
             ))}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-10 flex flex-wrap gap-3 justify-center">
+            <Button href={survivorPath("private")} variant="secondary">
+              Private Leagues
+            </Button>
             <Button href={survivorPath()} variant="secondary">
               Back to {SURVIVOR_X_PUBLIC_NAME}
             </Button>

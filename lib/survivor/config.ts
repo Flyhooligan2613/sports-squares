@@ -50,8 +50,7 @@ export const SURVIVOR_MODES: SurvivorModeDefinition[] = [
     title: "Private Survivor",
     description: "Friends and family leagues with invite codes, custom fees, and prizes.",
     lives: 1,
-    badge: "Coming soon",
-    available: false,
+    available: true,
   },
 ];
 

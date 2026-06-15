@@ -13,7 +13,7 @@ export interface SurvivorSeasonSeedResult {
   weeksCreated: number;
 }
 
-async function seedWeeksForLeague(leagueId: string): Promise<number> {
+export async function seedWeeksForLeague(leagueId: string): Promise<number> {
   const specs = survivorNflWeekSpecs();
   let weeksCreated = 0;
 
