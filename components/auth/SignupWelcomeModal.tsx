@@ -1,5 +1,6 @@
 "use client";
 
+import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -252,6 +253,7 @@ export default function SignupWelcomeModal({
                   (~2 minutes). Required to purchase squares and receive winnings — we&apos;ll walk
                   you through it right away.
                 </p>
+                <p className="mt-2 text-emerald-300/90">{TRUST_MESSAGES.cashOutDebitTip}</p>
               </div>
             </div>
           ) : null}

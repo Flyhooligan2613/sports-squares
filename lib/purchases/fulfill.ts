@@ -637,6 +637,23 @@ export async function fulfillPurchase(
       amountCents: input.amountPaidCents,
       isDeposit: input.amountPaidCents >= 2500,
     }).catch(() => undefined);
+
+    const tierCents =
+      pool.entryTierCents ?? Math.round((pool.costPerSquare ?? 0) * 100);
+    const { calcPlatformHostingFeeCents, recordPlatformHostingFee } = await import(
+      "@/lib/platform/core/platformFeeSchedule"
+    );
+    const hostingFeeCents = calcPlatformHostingFeeCents(
+      input.amountPaidCents,
+      tierCents,
+      "squares"
+    );
+    await recordPlatformHostingFee({
+      amountCents: hostingFeeCents,
+      productType: "squares",
+      sourceId: input.poolId,
+      description: `Squares hosting · ${pool.name}`,
+    }).catch(() => undefined);
   }
 
   return {

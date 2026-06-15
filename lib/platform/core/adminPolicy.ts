@@ -28,6 +28,7 @@ export const ADMIN_RESTRICTIONS = [
   "Access Stripe balances",
   "Override winner calculations",
   "Modify completed games",
+  "Change entry prices or hosting fees",
 ] as const;
 
 export const ADMIN_PHILOSOPHY =

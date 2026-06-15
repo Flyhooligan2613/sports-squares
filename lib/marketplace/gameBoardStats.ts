@@ -1,4 +1,5 @@
 import { TABLES } from "@/lib/database/config";
+import { resolvePoolHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 export async function estimatePoolPrizeCents(poolId: string): Promise<number> {
@@ -7,7 +8,7 @@ export async function estimatePoolPrizeCents(poolId: string): Promise<number> {
   const [poolRes, playersRes] = await Promise.all([
     supabase
       .from(TABLES.pools)
-      .select("cost_per_square, service_fee_percent")
+      .select("cost_per_square, entry_tier_cents")
       .eq("id", poolId)
       .maybeSingle(),
     supabase
@@ -21,7 +22,10 @@ export async function estimatePoolPrizeCents(poolId: string): Promise<number> {
   if (!poolRes.data) return 0;
 
   const cost = Number(poolRes.data.cost_per_square ?? 0);
-  const feePercent = Number(poolRes.data.service_fee_percent ?? 0);
+  const feePercent = resolvePoolHostingFeePercent({
+    entryTierCents: poolRes.data.entry_tier_cents as number | null,
+    costPerSquare: cost,
+  });
   const credits = (playersRes.data ?? []).reduce(
     (sum, row) => sum + Number(row.credits_allocated ?? 0),
     0

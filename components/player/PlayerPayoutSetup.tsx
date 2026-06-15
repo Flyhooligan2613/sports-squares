@@ -5,6 +5,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import FastPurchaseConfirmModal from "@/components/player/FastPurchaseConfirmModal";
 import { Button } from "@/components/ui/Button";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
+import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 
 interface PlayerPayoutSetupProps {
@@ -178,6 +179,9 @@ export default function PlayerPayoutSetup({
               {status?.ready
                 ? "Winnings deposit automatically via Stripe. Card linking and identity checks are handled by Stripe."
                 : "Required before you can place squares or picks. Tap below — Stripe opens in your browser to verify identity and link your bank. Use the same name and address from sign-up."}
+            </p>
+            <p className="text-xs text-emerald-300/85 mt-3 leading-relaxed max-w-xl">
+              {TRUST_MESSAGES.cashOutDebitTip}
             </p>
             {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
           </div>

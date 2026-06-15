@@ -1,4 +1,5 @@
 import { getScoringPeriods } from "@/lib/espn/sports";
+import { resolvePoolHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import { resolvePoolPayoutPercentages } from "@/lib/payoutTemplates";
 import type {
   Participant,
@@ -29,7 +30,10 @@ export function calcTotalAllocatedCredits(pool: Pool): number {
 
 export function calcPoolSummary(pool: Pool): PoolSummary {
   const costPerSquare = pool.costPerSquare ?? 0;
-  const serviceFeePercent = pool.serviceFeePercent ?? 0;
+  const serviceFeePercent = resolvePoolHostingFeePercent({
+    entryTierCents: pool.entryTierCents,
+    costPerSquare: pool.costPerSquare,
+  });
   const allocatedCredits = calcTotalAllocatedCredits(pool);
   const totalRevenue = roundMoney(allocatedCredits * costPerSquare);
   const serviceFee = roundMoney(totalRevenue * (serviceFeePercent / 100));

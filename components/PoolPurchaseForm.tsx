@@ -12,6 +12,8 @@ import PlayEligibilityBanner, {
 } from "@/components/player/PlayEligibilityBanner";
 import type { Pool } from "@/lib/types";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
+import PlatformHostingFeeNote from "@/components/platform/PlatformHostingFeeNote";
+import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
 
 interface PoolPurchaseFormProps {
   pool: Pool;
@@ -30,8 +32,12 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
   const { eligible: playEligible, loading: eligibilityLoading } = usePlayEligible();
 
   const costPerSquare = pool.costPerSquare ?? 0;
+  const entryTierCents = normalizeEntryTierCents(
+    pool.entryTierCents ?? Math.round(costPerSquare * 100)
+  );
   const count = parseInt(squaresCount, 10) || 0;
   const total = count > 0 ? count * costPerSquare : 0;
+  const totalCents = Math.round(total * 100);
 
   useEffect(() => {
     let cancelled = false;
@@ -245,6 +251,14 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
               Secured by Stripe
             </div>
           </div>
+
+          {totalCents > 0 ? (
+            <PlatformHostingFeeNote
+              entryTierCents={entryTierCents}
+              grossCents={totalCents}
+              productType="squares"
+            />
+          ) : null}
 
           {savedPaymentLabel && authenticated ? (
             <div className="flex flex-col sm:flex-row gap-3">

@@ -3,6 +3,7 @@ import { getLiveWinnersCenterData } from "@/lib/database/services/liveWinnersCen
 import { TABLES } from "@/lib/database/config";
 import { assemblePool } from "@/lib/database/mappers";
 import { calcPoolSummary } from "@/lib/poolFinance";
+import { resolvePoolHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { PlayerRow, PoolRow, SquareRow, WinnerRow } from "@/lib/database/types";
 import type {
@@ -44,7 +45,10 @@ function estimatePrizePool(pool: PoolRow, players: PlayerRow[]): number {
     .filter((p) => p.pool_id === pool.id)
     .reduce((sum, p) => sum + (p.credits_allocated ?? 0), 0);
   const revenue = credits * (pool.cost_per_square ?? 0);
-  const fee = revenue * ((pool.service_fee_percent ?? 0) / 100);
+  const fee = revenue * (resolvePoolHostingFeePercent({
+    entryTierCents: pool.entry_tier_cents,
+    costPerSquare: pool.cost_per_square,
+  }) / 100);
   return Math.round(revenue - fee);
 }
 

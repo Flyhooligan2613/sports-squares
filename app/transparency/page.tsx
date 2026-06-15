@@ -18,6 +18,12 @@ import {
 } from "@/lib/platform/core/growthFund";
 import { GUARANTEED_PLAY_EXPLAINER } from "@/lib/platform/core/guaranteedPlay";
 import { formatTierCents, PLATFORM_ENTRY_TIERS } from "@/lib/platform/core/entryTiers";
+import {
+  PLATFORM_HOSTING_FEE_BANDS,
+  PLATFORM_MODEL,
+  PLATFORM_PRICING_LOCKED,
+  getTierFeeSchedule,
+} from "@/lib/platform/core/platformFeeSchedule";
 
 export const metadata = {
   title: `Transparency Center | ${BRAND_NAME}`,
@@ -40,14 +46,28 @@ export default async function TransparencyCenterPage() {
     // Migration may not be applied yet — show zeros.
   }
 
+  const feeSchedule = getTierFeeSchedule();
+
   const sections = [
     {
       title: "How SquareBoards Works",
       body: "SquareBoards is a fully automated multi-game sports platform. There are no commissioners, hosts, or moderators. You sign in, pick a game, make your picks or buy squares, and the platform handles everything else — locking, scoring, winners, and payouts.",
     },
     {
+      title: "Competition, Not Wagering",
+      body: `${PLATFORM_MODEL.pickem} ${PLATFORM_MODEL.squares} SquareBoards never takes the other side of your picks — it hosts the competition and pays winners from tier prize pools.`,
+    },
+    {
       title: "How Pick'em Works",
       body: "Every NFL week is created automatically. You choose winners before kickoff. Picks lock at kickoff, scores update from official feeds, and standings refresh in real time. Weekly winners receive automated Stripe payouts when the week completes.",
+    },
+    {
+      title: "Mandatory Cash-Out Accounts",
+      body: PLATFORM_MODEL.connect + " " + PLATFORM_MODEL.hosting,
+    },
+    {
+      title: "Fixed Hosting Fees",
+      body: PLATFORM_PRICING_LOCKED + " Hosting fees fund platform operations, official scoring, prize pools, and automated Stripe Connect payouts. The schedule is identical across NFL, NBA, MLB, NCAA, Soccer, and all future game modes.",
     },
     {
       title: "Automatic Payouts",
@@ -112,6 +132,44 @@ export default async function TransparencyCenterPage() {
           </LandingGlassCard>
         ))}
       </div>
+
+      <LandingSectionHeader
+        eyebrow="Hosting fees"
+        title="Fixed platform hosting schedule"
+        subtitle="Same rates for Squares, Pick'em, Brackets, and Survivor — locked in code, not editable by administrators."
+      />
+      <LandingGlassCard id="hosting-fees" className="p-6 mb-8 scroll-mt-24">
+        <div className="flex flex-wrap gap-2 mb-5">
+          {PLATFORM_HOSTING_FEE_BANDS.map((band) => (
+            <span
+              key={band.label}
+              className="px-3 py-1.5 rounded-full text-sm border border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
+            >
+              {band.label}: {band.hostingFeePercent}% hosting
+            </span>
+          ))}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead>
+              <tr className="text-sb-muted border-b border-white/10">
+                <th className="py-2 pr-4 font-medium">Entry tier</th>
+                <th className="py-2 pr-4 font-medium">Hosting fee</th>
+                <th className="py-2 font-medium">To prize pool</th>
+              </tr>
+            </thead>
+            <tbody>
+              {feeSchedule.map((row) => (
+                <tr key={row.tier.cents} className="border-b border-white/5 text-white/90">
+                  <td className="py-2.5 pr-4">{row.tier.label}</td>
+                  <td className="py-2.5 pr-4">{row.hostingFeePercent}%</td>
+                  <td className="py-2.5">{row.prizePoolPercent}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </LandingGlassCard>
 
       <LandingSectionHeader
         eyebrow="Entry levels"

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayEligibilityBlocker } from "@/lib/payments/playEligibility";
+import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
 
 interface PlayEligibilityResponse {
@@ -74,6 +75,7 @@ export default function PlayEligibilityBanner({
               {status?.savedPaymentLabel ? ` · ${status.savedPaymentLabel}` : ""}. Stripe
               verifies your card and identity — SquareBoards does not hold player balances.
             </p>
+            <p className="text-xs text-emerald-300/80 mt-2">{TRUST_MESSAGES.cashOutDebitTip}</p>
           </div>
         </div>
       </LandingGlassCard>
@@ -104,6 +106,7 @@ export default function PlayEligibilityBanner({
                 prevention is handled by Stripe.
               </p>
             ) : null}
+            <p className="text-xs text-amber-200/80 mt-2">{TRUST_MESSAGES.cashOutDebitTip}</p>
           </div>
         </div>
         <Button href={setupHref} size="sm" className="shrink-0">

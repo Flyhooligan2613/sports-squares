@@ -22,6 +22,7 @@ import {
   fetchAuthBootstrap,
   signInWithBiometric,
 } from "@/lib/auth/security/webauthnClient";
+import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 
 export default function PlayerLoginForm() {
   const router = useRouter();
@@ -345,7 +346,7 @@ export default function PlayerLoginForm() {
           </a>
           <span className="block mt-2 text-[11px] text-sb-muted/90">
             After sign-up you&apos;ll connect a free Stripe cash-out profile (~2 min) — required
-            to buy squares and receive winnings.
+            to buy squares and receive winnings. {TRUST_MESSAGES.cashOutDebitTip}
           </span>
         </p>
       </div>

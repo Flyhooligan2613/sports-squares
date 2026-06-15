@@ -6,6 +6,11 @@ import {
 } from "@/lib/pickem/db/leagues";
 import { getPickemContestById } from "@/lib/pickem/db/contests";
 import { isValidEntryTierCents } from "@/lib/platform/core/entryTiers";
+import {
+  calcPrizePoolCreditCents,
+  calcPlatformHostingFeeCents,
+  recordPlatformHostingFee,
+} from "@/lib/platform/core/platformFeeSchedule";
 import { logPlatformAudit } from "@/lib/platform/core/auditLog";
 import { ensurePlayerProfile } from "@/lib/database/services/playerProfiles";
 import { displayNameFromEmail } from "@/lib/player/statsCore";
@@ -183,13 +188,31 @@ export async function fulfillPickemEntryPurchase(input: {
 
   if (updateError) throw updateError;
 
+  const hostingFeeCents = calcPlatformHostingFeeCents(
+    input.amountPaidCents,
+    entryTierCents,
+    "pickem"
+  );
+  const prizePoolCreditCents = calcPrizePoolCreditCents(
+    input.amountPaidCents,
+    entryTierCents,
+    "pickem"
+  );
+
   await supabase
     .from("pickem_leagues")
     .update({
-      prize_pool_cents: league.prizePoolCents + input.amountPaidCents,
+      prize_pool_cents: league.prizePoolCents + prizePoolCreditCents,
       updated_at: now,
     })
     .eq("id", league.id);
+
+  await recordPlatformHostingFee({
+    amountCents: hostingFeeCents,
+    productType: "pickem",
+    sourceId: league.id,
+    description: `Pick'em hosting · ${contest.label} · ${entryTierCents / 100}`,
+  }).catch(() => undefined);
 
   await logPlatformAudit({
     eventType: "pickem.entry_paid",

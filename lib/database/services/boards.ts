@@ -14,6 +14,7 @@ import {
   normalizeEntryTierCents,
 } from "@/lib/platform/core/entryTiers";
 import { logPlatformAudit } from "@/lib/platform/core/auditLog";
+import { resolvePlatformHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import type { Game, Pool } from "@/lib/types";
 import { generateId, createEmptySquares } from "@/lib/utils";
 import { TABLES } from "../config";
@@ -118,7 +119,7 @@ export async function dbCreateMarketplaceBoard(
     espn_game_id: game.espnGameId,
     espn_sport: game.espnSport,
     cost_per_square: cost,
-    service_fee_percent: 0,
+    service_fee_percent: resolvePlatformHostingFeePercent(entryTierCents, "squares"),
     payout_template: "standard",
     payout_percentages: {},
     game_id: game.id,

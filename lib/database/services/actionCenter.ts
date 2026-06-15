@@ -38,6 +38,7 @@ import { getEspnSportConfig } from "@/lib/espn/sports";
 import { getMarketplaceSportStats } from "@/lib/marketplace/listings";
 import { getTemplatePercentages } from "@/lib/payoutTemplates";
 import { calcPeriodPayouts } from "@/lib/poolFinance";
+import { resolvePoolHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import type { EspnLiveGame, EspnScoreboardGame, EspnSport, Game, ScoringPeriod } from "@/lib/types";
 
@@ -138,7 +139,10 @@ function estimatePrizePool(pool: PoolRow, players: PlayerRow[]): number {
   const poolPlayers = players.filter((p) => p.pool_id === pool.id);
   const credits = poolPlayers.reduce((sum, p) => sum + (p.credits_allocated ?? 0), 0);
   const revenue = credits * (pool.cost_per_square ?? 0);
-  const fee = revenue * ((pool.service_fee_percent ?? 0) / 100);
+  const fee = revenue * (resolvePoolHostingFeePercent({
+    entryTierCents: pool.entry_tier_cents,
+    costPerSquare: pool.cost_per_square,
+  }) / 100);
   return Math.round(revenue - fee);
 }
 

@@ -7,6 +7,7 @@ import {
   type EntryTier,
   type EntryTierGroup,
 } from "@/lib/platform/core/entryTiers";
+import { formatHostingFeePercent } from "@/lib/platform/core/platformFeeSchedule";
 
 interface EntryTierSelectorProps {
   selectedCents?: number | null;
@@ -50,6 +51,9 @@ export default function EntryTierSelector({
                     <p className="text-lg font-bold">{tier.label}</p>
                     <p className="text-[10px] uppercase tracking-wider mt-1 opacity-70">
                       {formatTierCents(tier.cents)} entry
+                    </p>
+                    <p className="text-[10px] mt-1 text-emerald-400/80">
+                      {formatHostingFeePercent(tier.cents)} hosting
                     </p>
                   </>
                 );

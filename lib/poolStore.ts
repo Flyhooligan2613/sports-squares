@@ -429,36 +429,11 @@ export const poolStore = {
 
   async updatePoolFinancials(
     poolId: string,
-    data: { costPerSquare?: number; serviceFeePercent?: number }
+    _data: { costPerSquare?: number; serviceFeePercent?: number }
   ): Promise<Pool | undefined> {
-    const fields: Record<string, number> = {};
-    if (data.costPerSquare !== undefined) {
-      fields.cost_per_square = Math.max(0, data.costPerSquare);
-    }
-    if (data.serviceFeePercent !== undefined) {
-      fields.service_fee_percent = Math.min(
-        100,
-        Math.max(0, data.serviceFeePercent)
-      );
-    }
-
-    if (isDatabaseConfigured() && Object.keys(fields).length > 0) {
-      try {
-        const updated = await dbUpdatePoolFields(poolId, fields);
-        if (!updated) return undefined;
-
-        await writeLocal(updated);
-        await recalculateWinnerPayoutsForPool(poolId, updated);
-
-        return (await readPool(poolId)) ?? updated;
-      } catch {
-        // Never fall back to localStorage when Supabase is configured — stale
-        // local data would overwrite players/squares in the database.
-        return undefined;
-      }
-    }
-
-    return mockDB.updatePoolFinancials(poolId, data);
+    void poolId;
+    void _data;
+    return undefined;
   },
 
   async updatePoolPayoutSettings(
