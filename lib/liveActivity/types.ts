@@ -78,7 +78,7 @@ export const LIVE_ACTIVITY_ANIM_MS = 280;
 export const LIVE_ACTIVITY_CELEBRATION_MS = 3000;
 
 /** Pages that show the global ticker (extend as needed). */
-export const LIVE_ACTIVITY_TICKER_ROUTES = ["/"] as const;
+export const LIVE_ACTIVITY_TICKER_ROUTES = ["/", "/game-day"] as const;
 
 export function isLiveActivityTickerRoute(pathname: string): boolean {
   if (pathname.startsWith("/admin")) return false;

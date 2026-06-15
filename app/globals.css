@@ -8811,3 +8811,224 @@ html.sb-splash-pending body {
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.35;
 }
+
+/* Game Day Experience™ Hub */
+.gd-page {
+  position: relative;
+}
+
+.gd-hero .sb-xp-hero-enter {
+  animation-delay: 0ms;
+}
+
+.gd-section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.gd-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .gd-status-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .gd-status-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.gd-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.gd-status-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.06);
+  transform: translateY(-1px);
+}
+
+.gd-status-card-highlight {
+  border-color: rgba(250, 204, 21, 0.45);
+  background: rgba(250, 204, 21, 0.08);
+  box-shadow: 0 0 24px rgba(250, 204, 21, 0.08);
+}
+
+.gd-status-emoji {
+  font-size: 1.25rem;
+}
+
+.gd-status-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.gd-status-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.gd-atmosphere {
+  border-color: rgba(56, 189, 248, 0.2);
+}
+
+.gd-atmosphere-nfl_sunday,
+.gd-atmosphere-super_bowl {
+  border-color: rgba(34, 197, 94, 0.25);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.gd-atmosphere-playoffs,
+.gd-atmosphere-championship {
+  border-color: rgba(249, 115, 22, 0.3);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(255, 255, 255, 0.03));
+}
+
+.gd-live-ribbon {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(8, 12, 22, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.gd-live-strip {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+}
+
+.gd-live-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.gd-live-strip-item {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.gd-timeline-phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gd-timeline-phase-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gd-timeline-phase-pill-active {
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.gd-mission-card,
+.gd-whats-next-card {
+  padding: 0.95rem 1rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.gd-whats-next-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.gd-mission-card:hover,
+.gd-whats-next-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.gd-mission-card-done {
+  opacity: 0.65;
+}
+
+.gd-mission-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.gd-mission-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #22c55e);
+}
+
+.gd-notification-card {
+  border-color: rgba(56, 189, 248, 0.15);
+}
+
+.gd-community-card {
+  padding: 1rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.gd-community-card:hover {
+  border-color: rgba(250, 204, 21, 0.35);
+  transform: translateY(-1px);
+}
+
+.gd-recap-card {
+  border-color: rgba(34, 197, 94, 0.25);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.gd-recap-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7dd3fc;
+}
+
+.gd-recap-link:hover {
+  text-decoration: underline;
+}
+
