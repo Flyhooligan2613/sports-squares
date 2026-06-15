@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import HubSectionLink from "@/components/home/HubSectionLink";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 import type {
   GameDayCommunityMoment,
   GameDayEmotionalNotification,
@@ -17,7 +19,7 @@ export function GameDayNotifications({
   if (!notifications.length) return null;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.forYou} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title">For You</h2>
       <ul className="space-y-3">
         {notifications.map((n) => {
@@ -38,9 +40,9 @@ export function GameDayNotifications({
           return (
             <li key={n.id}>
               {n.href ? (
-                <Link href={n.href} className="block hover:opacity-90 transition-opacity">
+                <HubSectionLink href={n.href} className="block hover:opacity-90 transition-opacity">
                   {inner}
-                </Link>
+                </HubSectionLink>
               ) : (
                 inner
               )}

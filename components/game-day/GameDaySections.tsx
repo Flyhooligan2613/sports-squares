@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import HubSectionLink from "@/components/home/HubSectionLink";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 import type { GameDayTimelineSection } from "@/lib/gameDay/types";
 
 const KIND_ICONS: Record<string, string> = {
@@ -17,7 +18,7 @@ export default function GameDayTimeline({ sections }: { sections: GameDayTimelin
   const active = sections.find((s) => s.active) ?? sections[0];
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.timeline} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title">Game Day Timeline</h2>
       <div className="gd-timeline-phases mb-4">
         {sections.map((section) => (
@@ -82,7 +83,7 @@ export function GameDayLiveStrip({
   if (!items.length) return null;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.liveActivity} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title home-section-title">{title}</h2>
       <div className="gd-live-strip">
         {items.slice(0, 8).map((item) => (
@@ -103,7 +104,7 @@ export function GameDayMissionsPanel({
   const completed = missions.filter((m) => m.completed).length;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.missions} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <div className="flex items-end justify-between gap-4 mb-4">
         <h2 className="gd-section-title mb-0">Game Day Missions</h2>
         <span className="text-xs text-sb-muted tabular-nums">
@@ -113,7 +114,7 @@ export function GameDayMissionsPanel({
       <ul className="space-y-3">
         {missions.map((mission) => (
           <li key={mission.id}>
-            <Link
+            <HubSectionLink
               href={mission.href}
               className={[
                 "gd-mission-card block",
@@ -144,7 +145,7 @@ export function GameDayMissionsPanel({
                   {mission.completed ? "Done" : mission.rewardLabel}
                 </span>
               </div>
-            </Link>
+            </HubSectionLink>
           </li>
         ))}
       </ul>
@@ -160,12 +161,12 @@ export function GameDayWhatsNextPanel({
   if (!items.length) return null;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.whatsNext} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title">What&apos;s Next?</h2>
       <ul className="space-y-3">
         {items.map((item) => (
           <li key={item.id}>
-            <Link href={item.href} className="gd-whats-next-card block">
+            <HubSectionLink href={item.href} className="gd-whats-next-card block">
               <span className="text-xl" aria-hidden>
                 {item.emoji}
               </span>
@@ -173,7 +174,7 @@ export function GameDayWhatsNextPanel({
                 <p className="text-sm font-semibold text-white">{item.title}</p>
                 <p className="text-xs text-sb-muted mt-0.5">{item.reason}</p>
               </div>
-            </Link>
+            </HubSectionLink>
           </li>
         ))}
       </ul>

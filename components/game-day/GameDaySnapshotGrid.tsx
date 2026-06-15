@@ -1,18 +1,19 @@
 "use client";
 
-import Link from "next/link";
+import HubSectionLink from "@/components/home/HubSectionLink";
 import type { GameDaySnapshotCard } from "@/lib/gameDay/types";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 
 export default function GameDaySnapshotGrid({ cards }: { cards: GameDaySnapshotCard[] }) {
   if (!cards.length) return null;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.snapshot} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title home-section-title">What Should I Do Next?</h2>
       <ul className="gd-snapshot-grid">
         {cards.map((card, index) => (
           <li key={card.id}>
-            <Link
+            <HubSectionLink
               href={card.href}
               className={[
                 "gd-snapshot-card admin-stat-enter",
@@ -29,7 +30,7 @@ export default function GameDaySnapshotGrid({ cards }: { cards: GameDaySnapshotC
               {card.subtitle ? (
                 <span className="gd-snapshot-subtitle">{card.subtitle}</span>
               ) : null}
-            </Link>
+            </HubSectionLink>
           </li>
         ))}
       </ul>

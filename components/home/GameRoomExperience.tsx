@@ -22,6 +22,8 @@ import HomeProgressionCenter from "@/components/home/HomeProgressionCenter";
 import HomeStagger from "@/components/home/HomeStagger";
 import type { HomeData } from "@/lib/gameDay/types";
 import type { GameDayContinueItem } from "@/lib/gameDay/types";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
+import { useHubHashScroll } from "@/components/home/useHubHashScroll";
 
 interface GameRoomExperienceProps {
   data: HomeData;
@@ -36,6 +38,8 @@ export default function GameRoomExperience({
   continueItems,
   rewardDropGlow,
 }: GameRoomExperienceProps) {
+  useHubHashScroll(revealed, [revealed]);
+
   return (
     <div className="gameroom-page home-page home-page-revealed">
       <AmbientBackground />
@@ -78,7 +82,9 @@ export default function GameRoomExperience({
           </HomeStagger>
 
           <HomeStagger delay={320} revealed={revealed}>
-            <GameRoomBrowseStrip />
+            <div id={HUB_SECTION.browse} className={hubSectionAnchorClassName()}>
+              <GameRoomBrowseStrip />
+            </div>
           </HomeStagger>
 
           <HomeStagger delay={380} revealed={revealed}>

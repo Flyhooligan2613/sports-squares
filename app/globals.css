@@ -9122,6 +9122,22 @@ html.sb-splash-pending body {
   position: relative;
 }
 
+.hub-section-anchor {
+  scroll-margin-top: 5.5rem;
+}
+
+@media (min-width: 640px) {
+  .hub-section-anchor {
+    scroll-margin-top: 6.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hub-section-anchor {
+    scroll-margin-top: 7rem;
+  }
+}
+
 .gd-hero .sb-xp-hero-enter {
   animation-delay: 0ms;
 }

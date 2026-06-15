@@ -27,6 +27,7 @@ import type {
   GameDayTimelineSection,
 } from "@/lib/gameDay/types";
 import { buildWhatsNext } from "@/lib/gameDay/whatsNext";
+import { gameDaySection } from "@/lib/home/hubSections";
 import { getUnifiedHuddleFeed } from "@/lib/huddle/unifiedFeed";
 import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import { normalizeEmail } from "@/lib/player/statsCore";
@@ -270,14 +271,14 @@ function buildStatusItems(input: {
       emoji: "🏈",
       label: "Active Square Boards",
       value: String(input.activeBoards),
-      href: "/my-games",
+      href: gameDaySection("todaysGames"),
     },
     {
       id: "squares",
       emoji: "📋",
       label: "Your Squares",
       value: String(input.activeSquares),
-      href: "/my-games",
+      href: gameDaySection("todaysGames"),
     },
     {
       id: "pickem",
@@ -353,7 +354,7 @@ function buildStatusItems(input: {
       emoji: "🔔",
       label: "Community Notifications",
       value: String(input.notificationCount),
-      href: "/my-games",
+      href: "/my-games/notifications",
       highlight: true,
     });
   }

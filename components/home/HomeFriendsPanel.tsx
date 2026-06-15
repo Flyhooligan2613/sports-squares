@@ -3,6 +3,7 @@
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import type { HomeFriendsPanel as HomeFriendsData } from "@/lib/gameDay/types";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 
 export default function HomeFriendsPanel({ data }: { data: HomeFriendsData }) {
   const hasContent =
@@ -14,7 +15,7 @@ export default function HomeFriendsPanel({ data }: { data: HomeFriendsData }) {
   if (!hasContent) return null;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.friends} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title home-section-title">Friends Are Playing</h2>
 
       <div className="grid sm:grid-cols-3 gap-3 mb-5">

@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import type { GameDayTodaysGames } from "@/lib/gameDay/types";
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 
 export default function GameDayTodaysGames({ games }: { games: GameDayTodaysGames }) {
   const hasGames = games.active.length > 0 || games.upcoming.length > 0;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.todaysGames} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <div className="flex items-end justify-between gap-4 mb-4">
         <h2 className="gd-section-title mb-0">Today&apos;s Games</h2>
         <Link

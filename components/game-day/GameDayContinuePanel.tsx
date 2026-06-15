@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import HubSectionLink from "@/components/home/HubSectionLink";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 import type { GameDayContinueItem } from "@/lib/gameDay/types";
 
 export default function GameDayContinuePanel({
@@ -15,12 +16,12 @@ export default function GameDayContinuePanel({
   if (!items.length) return null;
 
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.continue} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title home-section-title">{title}</h2>
       <ul className="space-y-3">
         {items.map((item, index) => (
           <li key={item.id}>
-            <Link
+            <HubSectionLink
               href={item.href}
               className={[
                 "gd-continue-card block admin-stat-enter",
@@ -43,7 +44,7 @@ export default function GameDayContinuePanel({
               <span className="text-sb-muted text-sm shrink-0" aria-hidden>
                 →
               </span>
-            </Link>
+            </HubSectionLink>
           </li>
         ))}
       </ul>

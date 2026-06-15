@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import HubSectionLink from "@/components/home/HubSectionLink";
 import type { GameDayProgressCenter } from "@/lib/gameDay/types";
+import { gameDaySection, HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -14,7 +16,7 @@ export default function HomeProgressionCenter({
   progress: GameDayProgressCenter;
 }) {
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.progression} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title home-section-title">Player Progression Center</h2>
       <LandingGlassCard className="p-5 sm:p-6 home-progression-card">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
@@ -89,7 +91,12 @@ export default function HomeProgressionCenter({
           <div>
             <dt className="text-[10px] uppercase tracking-wider text-sb-muted">Daily Missions</dt>
             <dd className="text-lg font-bold text-white tabular-nums">
-              {progress.weeklyMissionsComplete}/{progress.weeklyMissionsTotal}
+              <HubSectionLink
+                href={gameDaySection("missions")}
+                className="hover:text-sb-glow transition-colors"
+              >
+                {progress.weeklyMissionsComplete}/{progress.weeklyMissionsTotal}
+              </HubSectionLink>
             </dd>
           </div>
         </dl>

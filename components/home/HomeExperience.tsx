@@ -41,6 +41,7 @@ import {
 } from "@/lib/home/welcomeSession";
 import type { HomeData } from "@/lib/gameDay/types";
 import { PlayerShellAvatarSync } from "@/components/player/PlayerShellAvatarProvider";
+import { useHubHashScroll } from "@/components/home/useHubHashScroll";
 
 export default function HomeExperience() {
   const router = useRouter();
@@ -62,8 +63,11 @@ export default function HomeExperience() {
   }, []);
 
   useEffect(() => {
+    if (window.location.hash) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [viewMode]);
+
+  useHubHashScroll(homeRevealed && Boolean(data), [viewMode, data]);
 
   useEffect(() => {
     let cancelled = false;

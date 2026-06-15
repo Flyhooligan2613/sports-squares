@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import HubSectionLink from "@/components/home/HubSectionLink";
 import type { GameDayStatusItem } from "@/lib/gameDay/types";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import { HUB_SECTION, hubSectionAnchorClassName } from "@/lib/home/hubSections";
 
 export default function GameDayStatusStrip({
   items,
@@ -12,12 +13,12 @@ export default function GameDayStatusStrip({
   title?: string;
 }) {
   return (
-    <section className="mb-10 sm:mb-12">
+    <section id={HUB_SECTION.status} className={hubSectionAnchorClassName("mb-10 sm:mb-12")}>
       <h2 className="gd-section-title home-section-title">{title}</h2>
       <ul className="gd-status-grid">
         {items.map((item, index) => (
           <li key={item.id}>
-            <Link
+            <HubSectionLink
               href={item.href ?? "#"}
               className={[
                 "gd-status-card admin-stat-enter",
@@ -32,7 +33,7 @@ export default function GameDayStatusStrip({
               </span>
               <span className="gd-status-value">{item.value}</span>
               <span className="gd-status-label">{item.label}</span>
-            </Link>
+            </HubSectionLink>
           </li>
         ))}
       </ul>

@@ -1,4 +1,5 @@
 import type { GameDayContinueItem } from "@/lib/gameDay/types";
+import { gameDaySection } from "@/lib/home/hubSections";
 
 export interface ContinuePlayingContext {
   survivorPickWaiting: boolean;
@@ -105,7 +106,7 @@ export function buildContinuePlaying(ctx: ContinuePlayingContext): GameDayContin
       emoji: "✨",
       title: "Daily Mission",
       detail: `${ctx.missionsIncomplete} mission${ctx.missionsIncomplete === 1 ? "" : "s"} still open today`,
-      href: "/my-games",
+      href: gameDaySection("missions"),
     });
   }
 
