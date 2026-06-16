@@ -128,6 +128,8 @@ export default function SquareWalletDashboard() {
   const refresh = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
+    let resolvedDashboard: SquareWalletDashboard | null = null;
+
     try {
       const dashRes = await fetch("/api/square-wallet/dashboard", {
         cache: "no-store",
@@ -136,27 +138,24 @@ export default function SquareWalletDashboard() {
 
       if (dashRes.status === 401) {
         setLoadError("Sign in to view your SquareWallet™.");
-        setDashboard(createFallbackDashboard());
-        return;
-      }
-
-      if (dashRes.ok) {
+        resolvedDashboard = createFallbackDashboard();
+      } else if (dashRes.ok) {
         const data = (await dashRes.json()) as { dashboard: SquareWalletDashboard | null };
-        if (data.dashboard) {
-          setDashboard(data.dashboard);
-        } else {
-          setDashboard(createFallbackDashboard());
-          setLoadError("Could not load wallet data. Balances may be out of date.");
-        }
+        resolvedDashboard = data.dashboard ?? createFallbackDashboard();
       } else {
-        setDashboard(createFallbackDashboard());
-        setLoadError("Could not load wallet data. Balances may be out of date.");
+        resolvedDashboard = createFallbackDashboard();
       }
     } catch {
-      setDashboard((prev) => prev ?? createFallbackDashboard());
-      setLoadError("Could not load wallet data. Balances may be out of date.");
+      resolvedDashboard = createFallbackDashboard();
     } finally {
       setLoading(false);
+    }
+
+    if (resolvedDashboard) {
+      setDashboard(resolvedDashboard);
+    } else {
+      setDashboard(null);
+      setLoadError("Could not load wallet data. Balances may be out of date.");
     }
 
     void loadRecommendations();
@@ -183,10 +182,25 @@ export default function SquareWalletDashboard() {
     window.history.replaceState({}, "", query ? `?${query}` : window.location.pathname);
   }
 
-  if (loading || !dashboard) {
+  if (loading) {
     return (
       <div className="py-20">
         <BrandedLoadingLabel context="wallet" className="text-center text-sb-muted animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!dashboard) {
+    return (
+      <div className="space-y-8">
+        <LandingGlassCard className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-amber-200/90">
+            {loadError ?? "Could not load wallet data. Balances may be out of date."}
+          </p>
+          <Button variant="secondary" size="sm" onClick={() => void refresh()}>
+            Retry
+          </Button>
+        </LandingGlassCard>
       </div>
     );
   }
