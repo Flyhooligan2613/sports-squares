@@ -15,10 +15,6 @@ const WALLETS = "square_wallets";
 const BALANCES = "square_wallet_balances";
 const LEDGER = "square_wallet_ledger_entries";
 
-function generateLedgerId(): string {
-  return `swl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
-}
-
 function mapWallet(row: Record<string, unknown>): SquareWalletRecord {
   return {
     id: row.id as string,
@@ -180,101 +176,42 @@ export async function getBalanceCents(
   return Number(data?.amount_cents ?? 0);
 }
 
+/** @deprecated All mutations route through SquareBank — kept for legacy callers. */
 export async function applyLedgerMutation(input: {
   walletId: string;
   playerEmail: string;
-  balanceType: SquareWalletBalanceType;
-  direction: LedgerDirection;
+  balanceType: import("./types").SquareWalletBalanceType;
+  direction: import("./types").LedgerDirection;
   amountCents: number;
-  entryType: LedgerEntryType;
+  entryType: import("./types").LedgerEntryType;
   referenceType?: string | null;
   referenceId?: string | null;
   paymentTransactionId?: string | null;
   description?: string | null;
   metadata?: Record<string, unknown>;
   lifetimeField?: keyof Pick<
-    SquareWalletRecord,
+    import("./types").SquareWalletRecord,
     | "lifetimeDepositsCents"
     | "lifetimeWithdrawalsCents"
     | "lifetimeContestEntriesCents"
     | "lifetimeWinningsCents"
   >;
-}): Promise<SquareWalletLedgerEntry> {
-  if (input.amountCents <= 0) throw new Error("Ledger amount must be positive.");
-
-  const supabase = getSupabaseAdmin();
-  const now = new Date().toISOString();
-  const current = await getBalanceCents(input.walletId, input.balanceType);
-
-  const delta = input.direction === "credit" ? input.amountCents : -input.amountCents;
-  const nextBalance = current + delta;
-  if (nextBalance < 0) {
-    throw new Error(`Insufficient ${input.balanceType} balance.`);
-  }
-
-  const ledgerId = generateLedgerId();
-
-  const { error: balError } = await supabase
-    .from(BALANCES)
-    .update({ amount_cents: nextBalance, updated_at: now })
-    .eq("wallet_id", input.walletId)
-    .eq("balance_type", input.balanceType);
-
-  if (balError) throw balError;
-
-  const { data: ledgerRow, error: ledgerError } = await supabase
-    .from(LEDGER)
-    .insert({
-      id: ledgerId,
-      wallet_id: input.walletId,
-      player_email: normalizeEmail(input.playerEmail),
-      balance_type: input.balanceType,
-      direction: input.direction,
-      amount_cents: input.amountCents,
-      running_balance_cents: nextBalance,
-      entry_type: input.entryType,
-      reference_type: input.referenceType ?? null,
-      reference_id: input.referenceId ?? null,
-      payment_transaction_id: input.paymentTransactionId ?? null,
-      description: input.description ?? null,
-      metadata: input.metadata ?? {},
-      created_at: now,
-    })
-    .select("*")
-    .single();
-
-  if (ledgerError) throw ledgerError;
-
-  if (input.lifetimeField) {
-    const columnMap = {
-      lifetimeDepositsCents: "lifetime_deposits_cents",
-      lifetimeWithdrawalsCents: "lifetime_withdrawals_cents",
-      lifetimeContestEntriesCents: "lifetime_contest_entries_cents",
-      lifetimeWinningsCents: "lifetime_winnings_cents",
-    } as const;
-    const column = columnMap[input.lifetimeField];
-    const wallet = await findWalletById(input.walletId);
-    if (wallet) {
-      const currentLifetime =
-        input.lifetimeField === "lifetimeDepositsCents"
-          ? wallet.lifetimeDepositsCents
-          : input.lifetimeField === "lifetimeWithdrawalsCents"
-            ? wallet.lifetimeWithdrawalsCents
-            : input.lifetimeField === "lifetimeContestEntriesCents"
-              ? wallet.lifetimeContestEntriesCents
-              : wallet.lifetimeWinningsCents;
-
-      await supabase
-        .from(WALLETS)
-        .update({
-          [column]: currentLifetime + input.amountCents,
-          updated_at: now,
-        })
-        .eq("id", input.walletId);
-    }
-  }
-
-  return mapLedger(ledgerRow as Record<string, unknown>);
+}): Promise<import("./types").SquareWalletLedgerEntry> {
+  const { creditBalance, debitBalance } = await import("./WalletLedgerService");
+  const base = {
+    email: input.playerEmail,
+    walletId: input.walletId,
+    balanceType: input.balanceType,
+    amountCents: input.amountCents,
+    entryType: input.entryType,
+    referenceType: input.referenceType,
+    referenceId: input.referenceId,
+    paymentTransactionId: input.paymentTransactionId,
+    description: input.description,
+    metadata: input.metadata,
+    lifetimeField: input.lifetimeField,
+  };
+  return input.direction === "credit" ? creditBalance(base) : debitBalance(base);
 }
 
 async function findWalletById(id: string): Promise<SquareWalletRecord | null> {

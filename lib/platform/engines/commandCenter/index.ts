@@ -11,6 +11,7 @@ export type {
   CommandCenterSearchResult,
   PaymentCenterSummary,
   PaymentCenterTransaction,
+  FinancialHealthSummary,
   ContestOperationsSummary,
   SystemHealthReport,
   ExecutiveDashboardSummary,

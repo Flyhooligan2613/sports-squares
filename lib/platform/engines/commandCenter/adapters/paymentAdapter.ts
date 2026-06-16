@@ -24,8 +24,8 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
 
   if (!isSupabaseAdminConfigured()) return empty;
 
-  const { fetchWalletAnalytics } = await import(
-    "@/lib/platform/engines/payment/wallet/repository"
+  const { fetchBankAnalytics } = await import(
+    "@/lib/platform/engines/squareBank/repository"
   );
 
   const supabase = getSupabaseAdmin();
@@ -63,12 +63,12 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
         .select("id", { count: "exact", head: true })
         .in("status", ["completed", "captured"])
         .gte("created_at", today),
-      fetchWalletAnalytics().catch(() => ({
-        totalWallets: 0,
-        avgAvailableCents: 0,
+      fetchBankAnalytics().catch(() => ({
+        totalAccounts: 0,
+        avgAvailableCashCents: 0,
         totalDepositsCents: 0,
         totalWithdrawalsCents: 0,
-        utilizationPercent: 0,
+        totalPendingCents: 0,
       })),
     ]);
 
@@ -97,10 +97,17 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
     failedCount: failedRes.count ?? 0,
     completedTodayCount: completedTodayRes.count ?? 0,
     recentTransactions,
-    walletTotalWallets: walletAnalytics.totalWallets,
-    walletAvgAvailableCents: walletAnalytics.avgAvailableCents,
+    walletTotalWallets: walletAnalytics.totalAccounts,
+    walletAvgAvailableCents: walletAnalytics.avgAvailableCashCents,
     walletLifetimeDepositsCents: walletAnalytics.totalDepositsCents,
     walletLifetimeWithdrawalsCents: walletAnalytics.totalWithdrawalsCents,
-    walletUtilizationPercent: walletAnalytics.utilizationPercent,
+    walletUtilizationPercent:
+      walletAnalytics.totalDepositsCents > 0
+        ? Math.round(
+            ((walletAnalytics.totalDepositsCents - walletAnalytics.totalWithdrawalsCents) /
+              walletAnalytics.totalDepositsCents) *
+              100
+          )
+        : 0,
   };
 }

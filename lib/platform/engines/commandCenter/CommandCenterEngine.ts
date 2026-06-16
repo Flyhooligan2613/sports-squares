@@ -1,4 +1,5 @@
 import { fetchContestOperationsSummary } from "./adapters/contestAdapter";
+import { fetchFinancialHealthSummary } from "./adapters/financeAdapter";
 import { fetchPaymentCenterSummary } from "./adapters/paymentAdapter";
 import { fetchDashboardStats } from "./adapters/statsAdapter";
 import { fetchActivityFeed } from "./services/ActivityFeedService";
@@ -18,6 +19,7 @@ export const CommandCenterEngine = {
   getDashboardStats: fetchDashboardStats,
   getActivityFeed: fetchActivityFeed,
   getPaymentCenterSummary: fetchPaymentCenterSummary,
+  getFinancialHealthSummary: fetchFinancialHealthSummary,
   getContestOperationsSummary: fetchContestOperationsSummary,
   getAuditLog: fetchAuditLog,
   search: searchCommandCenter,

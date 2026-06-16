@@ -7,7 +7,6 @@ import {
   getWalletBalances,
 } from "./WalletLedgerService";
 import { ensureSquareWallet } from "./WalletLifecycleService";
-import { findWalletByEmail } from "./repository";
 import type { ContestFundingResult } from "./types";
 import type { SquareWalletBalanceType } from "./types";
 
@@ -91,17 +90,18 @@ export async function chargeForEntry(input: {
   });
 
   if (walletId) {
-    const { getSupabaseAdmin } = await import("@/lib/supabase/admin");
-    const wallet = await findWalletByEmail(input.email);
-    if (wallet) {
-      await getSupabaseAdmin()
-        .from("square_wallets")
-        .update({
-          lifetime_contest_entries_cents: wallet.lifetimeContestEntriesCents + amountCents,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", wallet.id);
-    }
+    const { updateAccountLifetime } = await import(
+      "@/lib/platform/engines/squareBank/repository"
+    );
+    const { ensureBankAccount } = await import(
+      "@/lib/platform/engines/squareBank/AccountService"
+    );
+    const account = await ensureBankAccount(input.email);
+    await updateAccountLifetime({
+      accountId: account.id,
+      field: "lifetimeContestEntriesCents",
+      deltaCents: amountCents,
+    });
   }
 
   return { ok: true, ledgerEntryIds, paymentTransactionId: tx.id };

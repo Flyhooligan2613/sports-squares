@@ -65,6 +65,13 @@ export const COMMAND_CENTER_NAV: CommandCenterNavItem[] = [
     roles: ["finance", "operations", "executive", "compliance"],
   },
   {
+    id: "finance",
+    label: "Financial Health",
+    href: "/admin/command-center/finance",
+    description: "SquareBank™ ledger health, volume, and reconciliation.",
+    roles: ["finance", "operations", "executive", "compliance"],
+  },
+  {
     id: "compliance",
     label: "Compliance Center",
     href: "/admin/command-center/compliance",

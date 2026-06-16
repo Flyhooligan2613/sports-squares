@@ -9,11 +9,12 @@ globs:
 
 # SquareWallet™ 2.0 (Platform Build Spec #011)
 
-Competitors fund **SquareWallet™**, not contests directly. All financial flows through SquareWallet → PaymentEngine → adapters.
+Competitors fund **SquareWallet™**, not contests directly. All financial flows through SquareWallet → **SquareBank™** (ledger truth) → PaymentEngine → adapters.
 
 ## Rules
 
 - Route all wallet operations through `SquareWalletEngine` — not direct Supabase in UI
+- **All balance mutations delegate to `SquareBankEngine.postEntry()`** — wallet layer is presentation only
 - **No direct Stripe imports** in wallet layer — use `PaymentEngine` only
 - Contest checkout tries `ContestFundingService.chargeForEntry()` before merchant checkout
 - Insufficient balance → redirect to `/my-games/wallet?deposit=` (not direct Stripe for contest)

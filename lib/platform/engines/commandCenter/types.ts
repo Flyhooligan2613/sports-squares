@@ -12,6 +12,7 @@ export type CommandCenterSectionId =
   | "dashboard"
   | "contests"
   | "payments"
+  | "finance"
   | "compliance"
   | "community"
   | "support"
@@ -119,6 +120,21 @@ export interface PaymentCenterSummary {
   walletLifetimeDepositsCents: number;
   walletLifetimeWithdrawalsCents: number;
   walletUtilizationPercent: number;
+}
+
+export interface FinancialHealthSummary {
+  totalAccounts: number;
+  totalDepositsCents: number;
+  totalWithdrawalsCents: number;
+  totalPendingCents: number;
+  avgAvailableCashCents: number;
+  dailyVolumeCents: number;
+  monthlyVolumeCents: number;
+  failedPaymentsCount: number;
+  chargebacksCount: number;
+  refundsCount: number;
+  contestFeesCents: number;
+  reconciliationMismatchCount: number;
 }
 
 export interface PaymentCenterTransaction {

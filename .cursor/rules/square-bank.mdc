@@ -1,0 +1,35 @@
+---
+description: SquareBank™ financial source of truth — internal ledger core
+globs:
+  - lib/platform/engines/squareBank/**
+  - app/api/square-bank/**
+  - app/admin/square-bank/**
+  - supabase/migrations/059_square_bank.sql
+---
+
+# SquareBank™ (Platform Build Spec #012)
+
+Financial source of truth — **not customer-facing**. SquareWallet™ is presentation only.
+
+## Rules
+
+- **All balance mutations** through `SquareBankEngine.postEntry()` — never direct balance UPDATE in app code
+- **Immutable ledger** — no UPDATE/DELETE on `square_bank_ledger`
+- **Unique IDs** — `TransactionIdService` generates `SQ-YYYY-00000012345`
+- PaymentEngine records provider refs; SquareBank records ledger truth
+- Do not alter payout calculation amounts
+- Admin routes require `getAuthorizedAdminUser()`
+
+## Adding a ledger entry type
+
+1. Add to `SquareBankLedgerEntryType` in `types.ts`
+2. Add wallet presentation mapping in `config.ts` `BANK_TO_WALLET_ENTRY_TYPE`
+3. Wire calling service through `postEntry()`
+
+## Adding an account type
+
+1. Add to migration check constraint + `SquareBankAccountType` in `types.ts`
+2. Add to `ALL_SQUARE_BANK_ACCOUNT_TYPES` in `config.ts`
+3. Map to wallet presentation in `balanceMapping.ts`
+
+Full spec: `docs/project-legacy/SQUARE_BANK.md`

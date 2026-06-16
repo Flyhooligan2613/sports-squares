@@ -3,7 +3,7 @@ import { recordPaymentTransaction } from "@/lib/platform/engines/payment/Transac
 import { getPaymentProviderId } from "@/lib/platform/engines/payment/config";
 import { getConnectAccountIdForEmail } from "@/lib/database/services/stripeConnect";
 import { normalizeEmail } from "@/lib/player/statsCore";
-import { LARGE_WITHDRAWAL_REVIEW_CENTS, MIN_WITHDRAWAL_CENTS } from "./config";
+import { MIN_WITHDRAWAL_CENTS } from "./config";
 import {
   computeWithdrawableCents,
   creditBalance,
@@ -11,11 +11,12 @@ import {
   getWalletBalances,
 } from "./WalletLedgerService";
 import { ensureSquareWallet } from "./WalletLifecycleService";
+import { requiresWithdrawalReview as bankRequiresReview } from "@/lib/platform/engines/squareBank/ComplianceService";
 import type { WithdrawalRequestResult } from "./types";
 
-/** ComplianceEngine hook placeholder — large withdrawals flagged for review. */
+/** ComplianceEngine hook — delegates to SquareBank ComplianceService. */
 export function requiresWithdrawalReview(amountCents: number): boolean {
-  return amountCents >= LARGE_WITHDRAWAL_REVIEW_CENTS;
+  return bankRequiresReview(amountCents);
 }
 
 export async function requestWithdrawal(input: {

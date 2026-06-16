@@ -62,11 +62,36 @@ export async function distributeRewards(
     }
 
     if (type === "wallet_credits" && reward.amountCents) {
+      const { SquareBankEngine } = await import("@/lib/platform/engines/squareBank");
+      await SquareBankEngine.ensureAccount(normalized);
+      const entryType = source.includes("referral")
+        ? "referral_reward"
+        : source.includes("square_pass") || source.includes("squarepass")
+          ? "squarepass_reward"
+          : "bonus_credit";
+      const accountType =
+        entryType === "referral_reward"
+          ? "referral_credits"
+          : entryType === "squarepass_reward"
+            ? "reward_credits"
+            : "bonus_credits";
+      await SquareBankEngine.postEntry({
+        email: normalized,
+        accountType,
+        direction: "credit",
+        amountCents: reward.amountCents,
+        entryType,
+        description: reward.label,
+        referenceType: "square_pass",
+        referenceId: source,
+        metadata: { squarePass: true, source },
+        module: "square_pass",
+      });
       await addSquareCredits({
         email: normalized,
         amountCents: reward.amountCents,
         source,
-        metadata: { squarePass: true },
+        metadata: { squarePass: true, squareBank: true },
       });
       granted.push({
         type: "wallet_credits",
