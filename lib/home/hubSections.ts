@@ -98,14 +98,17 @@ export function scrollToHubSection(sectionId: string, behavior: ScrollBehavior =
 export interface HubSectionTab {
   id: string;
   label: string;
-  section: HubSectionKey;
+  section?: HubSectionKey;
   emoji?: string;
+  /** When set, navigates to a route instead of a hub section anchor. */
+  directHref?: string;
 }
 
 export const GAME_DAY_SECTION_TABS: HubSectionTab[] = [
   { id: "status", label: "Today", section: "status", emoji: "📊" },
   { id: "continue", label: "Continue", section: "continue", emoji: "▶️" },
   { id: "missions", label: "Missions", section: "missions", emoji: "✨" },
+  { id: "wallet", label: "Wallet", directHref: "/my-games/wallet", emoji: "💳" },
   { id: "liveActivity", label: "Live", section: "liveActivity", emoji: "🔴" },
   { id: "todaysGames", label: "Games", section: "todaysGames", emoji: "🏈" },
   { id: "whatsNext", label: "Next Up", section: "whatsNext", emoji: "➡️" },

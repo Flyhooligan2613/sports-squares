@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import HubSectionLink from "@/components/home/HubSectionLink";
 import {
   HUB_SECTION,
@@ -25,32 +26,55 @@ export default function GameHubSectionTabs({ tabs, mode }: GameHubSectionTabsPro
     (mode === "home" ? currentMode === "home" : currentMode !== "home");
 
   function sectionHref(section: HubSectionTab["section"]) {
-    return mode === "home" ? gameRoomSection(section) : gameDaySection(section);
+    return mode === "home" ? gameRoomSection(section!) : gameDaySection(section!);
   }
 
-  function isActive(section: HubSectionTab["section"]) {
-    if (!onHub || !activeHash) return false;
+  function isSectionActive(section: HubSectionTab["section"]) {
+    if (!section || !onHub || !activeHash) return false;
     return activeHash === HUB_SECTION[section];
+  }
+
+  function isDirectHrefActive(href: string) {
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   return (
     <nav className="hub-section-tabs" aria-label="Jump to section">
       <div className="hub-section-tabs-inner" role="tablist">
         {tabs.map((tab) => {
-          const href = sectionHref(tab.section);
-          const selected = isActive(tab.section);
+          const href = tab.directHref ?? sectionHref(tab.section);
+          const selected = tab.directHref
+            ? isDirectHrefActive(tab.directHref)
+            : isSectionActive(tab.section);
+          const className = [
+            "hub-section-tab",
+            selected ? "hub-section-tab-active" : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+          if (tab.directHref) {
+            return (
+              <Link
+                key={tab.id}
+                href={tab.directHref}
+                role="tab"
+                aria-selected={selected}
+                className={className}
+              >
+                {tab.emoji ? <span aria-hidden>{tab.emoji}</span> : null}
+                {tab.label}
+              </Link>
+            );
+          }
+
           return (
             <HubSectionLink
               key={tab.id}
               href={href}
               role="tab"
               aria-selected={selected}
-              className={[
-                "hub-section-tab",
-                selected ? "hub-section-tab-active" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+              className={className}
             >
               {tab.emoji ? <span aria-hidden>{tab.emoji}</span> : null}
               {tab.label}

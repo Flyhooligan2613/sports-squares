@@ -6298,21 +6298,11 @@ html.sb-splash-pending body {
 
 .wallet-balance-chip-loading {
   min-width: 4.5rem;
-  pointer-events: none;
 }
 
-.wallet-balance-chip-skeleton {
-  display: block;
-  width: 3.5rem;
-  height: 0.75rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
+.wallet-balance-chip-amount-loading {
+  opacity: 0.72;
   animation: pulse 1.5s ease-in-out infinite;
-}
-
-.wallet-balance-chip-fallback {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
 }
 
 @media (min-width: 640px) {
