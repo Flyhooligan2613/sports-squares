@@ -20,7 +20,7 @@ import { publicProfilePath } from "@/lib/player/slug";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { CONTEST_TERMS } from "@/lib/platform/language";
 import type { PlayerAchievement } from "@/lib/player/legacyTypes";
-import { getPodiumCareerStats } from "@/lib/platform/podium/awardPodium";
+import { getPodiumCareerStats } from "@/lib/platform/engines/podium/recordFinishes";
 
 export interface BuildCompetitorCardOptions {
   email: string;

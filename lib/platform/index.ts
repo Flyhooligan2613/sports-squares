@@ -24,12 +24,18 @@ export {
 
 export {
   DEFAULT_PODIUM_CONFIG,
+  DEFAULT_PODIUM_ENGINE_CONFIG,
   getPodiumConfig,
+  getPodiumEngineConfig,
   resolvePodium,
   awardPodium,
   getPodiumCareerStats,
   podiumMedalForRank,
-} from "@/lib/platform/podium";
+  PodiumEngine,
+  processContestPodium,
+  registerPodiumAdapter,
+  recordPodiumFinishes,
+} from "@/lib/platform/engines/podium";
 
 export { getPlatformPlayerStats } from "@/lib/platform/getPlatformPlayerStats";
 

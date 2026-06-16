@@ -1,8 +1,11 @@
 import type { WeeklyRewardDropConfig } from "@/lib/platform/ecosystem/weeklyRewardDropTypes";
 import type { ContestCtaAdminConfig } from "@/lib/contestCenter/cta";
 import { DEFAULT_CONTEST_CTA_CONFIG } from "@/lib/contestCenter/cta";
-import type { PodiumConfig } from "@/lib/platform/podium/types";
-import { DEFAULT_PODIUM_CONFIG } from "@/lib/platform/podium/config";
+import type { PodiumConfig, PodiumEngineConfig } from "@/lib/platform/engines/podium/types";
+import {
+  DEFAULT_PODIUM_CONFIG,
+  DEFAULT_PODIUM_ENGINE_CONFIG,
+} from "@/lib/platform/engines/podium/config";
 
 export interface ReferralConfig {
   rewardCents: number;
@@ -39,7 +42,10 @@ export interface EcosystemAdminConfig {
   username: UsernameConfig;
   game_status: GameStatusConfig;
   contest_cta: ContestCtaAdminConfig;
+  /** Legacy key — maps to podiumEngine.defaultConfig */
   podium: PodiumConfig;
+  /** PodiumEngine™ full config schema */
+  podiumEngine: PodiumEngineConfig;
 }
 
 export const DEFAULT_WEEKLY_REWARD_DROP_CONFIG: WeeklyRewardDropConfig = {
@@ -84,4 +90,5 @@ export const DEFAULT_ECOSYSTEM_CONFIG: EcosystemAdminConfig = {  referral: {
   },
   contest_cta: DEFAULT_CONTEST_CTA_CONFIG,
   podium: DEFAULT_PODIUM_CONFIG,
+  podiumEngine: DEFAULT_PODIUM_ENGINE_CONFIG,
 };
