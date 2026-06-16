@@ -4,6 +4,10 @@
 
 :root {
   color-scheme: dark;
+  --sb-safe-top: env(safe-area-inset-top, 0px);
+  --sb-safe-right: env(safe-area-inset-right, 0px);
+  --sb-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --sb-safe-left: env(safe-area-inset-left, 0px);
 }
 
 * {
@@ -15,9 +19,16 @@ body {
   overflow-x: hidden;
 }
 
-body {
-  margin: 0;
-  overflow-x: hidden;
+/* Capacitor WebView: respect notches and home indicators */
+html.sb-native-shell body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.sb-safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
 }
 
 html.sb-splash-pending {

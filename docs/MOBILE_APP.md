@@ -63,6 +63,8 @@ npm run cap:android   # opens Android Studio
 
 Build/run from Android Studio or Xcode. The app opens `https://www.squareboards.pro`.
 
+Shortcut: `npm run mobile:android` opens the Android project in Android Studio (same as `npm run cap:android`).
+
 ### Dev: load local Next.js
 
 1. Start the web app: `npm run dev` (port **3000**).
@@ -107,6 +109,62 @@ Cleartext HTTP is enabled only when `CAPACITOR_DEV=1` (see `capacitor.config.ts`
 
 Update App Store Connect and Google Play Console with screenshots, age rating questionnaire, and contest/gambling disclosures as applicable in your jurisdictions.
 
+## First Play Store upload (signed AAB + keystore)
+
+Google Play requires an **Android App Bundle (`.aab`)** signed with an **upload key**. Create the keystore once, back it up securely, and reuse it for every release.
+
+### 1. One-time Play Console registration
+
+- Pay the **$25** one-time [Google Play Console](https://play.google.com/console) developer fee.
+- Create the app listing (name **SquareBoards**, package **`com.squareboards.app`**).
+
+### 2. Generate an upload keystore (once)
+
+Run on any machine with a JDK (Android Studio bundles one). **Do not commit the keystore or passwords to git.**
+
+```bash
+keytool -genkeypair -v \
+  -keystore squareboards-upload.jks \
+  -alias squareboards-upload \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -storetype JKS
+```
+
+Store `squareboards-upload.jks` in a password manager or secure vault (not the repo). You will need it for every store upload.
+
+### 3. Configure signing in Android Studio
+
+1. `npm run cap:sync` then `npm run mobile:android`.
+2. **Build → Generate Signed App Bundle / APK…**
+3. Choose **Android App Bundle**, select the keystore above, enter store/alias passwords.
+4. Release build type → finish. Output: `android/app/release/app-release.aab` (path may vary slightly).
+
+Alternatively, add a local `android/keystore.properties` (gitignored) and wire `signingConfigs` in `android/app/build.gradle` if you prefer CLI/`./gradlew bundleRelease` — keep secrets out of version control.
+
+### 4. Upload to Play Console
+
+1. **Testing → Internal testing** (recommended first) → Create release.
+2. Upload the `.aab`, add release notes, roll out to testers.
+3. Complete **Data safety**, **Content rating (IARC)**, store listing, and policy declarations before promoting to production.
+
+### 5. Deep links (Android App Links)
+
+`AndroidManifest.xml` declares `https://www.squareboards.pro` and `https://squareboards.pro` with `android:autoVerify="true"`. For verified App Links (open in app instead of Chrome), host Digital Asset Links at:
+
+- `https://www.squareboards.pro/.well-known/assetlinks.json`
+- `https://squareboards.pro/.well-known/assetlinks.json`
+
+Use the SHA-256 certificate fingerprint from your **upload** or **app signing** key (Play Console → **Setup → App signing**). Capacitor `@capacitor/app` can handle opened URLs in Phase 2.
+
+### 6. Version bumps before each upload
+
+| Field | Location |
+|-------|----------|
+| `version` | `package.json` |
+| `versionCode` / `versionName` | `android/app/build.gradle` → `defaultConfig` |
+
+Increment `versionCode` (integer, monotonic) on every Play upload.
+
 ## App Store / Play submission checklist (contest app)
 
 SquareBoards involves contests, payments, and real-world sports outcomes. Plan review time accordingly.
@@ -131,7 +189,8 @@ SquareBoards involves contests, payments, and real-world sports outcomes. Plan r
 
 - [ ] Test checkout (Stripe), auth (Supabase), and push on physical devices.
 - [ ] Verify `allowNavigation` covers Stripe Checkout and auth redirects (`capacitor.config.ts`).
-- [ ] Deep links / universal links for board invites (Phase 2).
+- [x] Android intent filters for `https://www.squareboards.pro` (manifest); verified App Links need `assetlinks.json` (see above).
+- [ ] Deep links / universal links for board invites — handle in app via `@capacitor/app` (Phase 2).
 - [ ] Versioning: bump `version` in `package.json` and native build numbers before each store upload.
 
 ## Architecture notes
@@ -162,7 +221,7 @@ SquareBoards involves contests, payments, and real-world sports outcomes. Plan r
 4. Deep links (`@capacitor/app` URL open) for `/create`, board IDs, pick’em weeks.
 5. Optional `@capacitor/haptics` for pick submission feedback.
 6. CI: macOS workflow for iOS archive; Android APK/AAB on merge to main.
-7. Safe area / viewport tweaks in `globals.css` for notched devices in native WebView.
+7. Use `--sb-safe-*` CSS variables from `globals.css` on fixed footers/toasts in native WebView; `viewportFit: cover` is set in `app/layout.tsx`.
 8. Evaluate **Capacitor Live Updates** only if you later ship bundled static shells — not needed for remote URL mode.
 
 ## Troubleshooting
