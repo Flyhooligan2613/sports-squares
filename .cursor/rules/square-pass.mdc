@@ -20,6 +20,16 @@ Dynamic promotion & referral engine — **admin-configured campaigns**, no hardc
 - Fraud checks via `FraudGuardService` before every redemption
 - Signup bonuses are idempotent via `square_pass_redemptions` audit rows
 
+## New Competitor Automated Experience™
+
+- Every new competitor enters the welcome flow automatically after first dashboard login
+- Wire dashboard via `SquarePassAutomationProvider` inside `GenesisProvider`
+- Route automation through `AutomationEngine` — not direct Supabase in UI
+- Mystery SquarePass **always grants a reward** — weighted pool from `square_pass_mystery_pool`
+- No manual promo code entry for welcome/mystery/daily flows
+- Backwards compat: accounts >48h old skip onboarding modals on state init
+- Founder limit: `FOUNDING_COMPETITOR_LIMIT` env (default 10000)
+
 ## Adding a campaign type
 
 1. Add type to migration check constraint if new enum value needed

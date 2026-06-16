@@ -9,8 +9,10 @@ import {
   updateCampaignById,
 } from "./PromotionService";
 import { applyReferral, ensurePersonalReferralCode, getMyReferral, syncReferralQualification } from "./ReferralService";
+import { AutomationEngine } from "./automation";
 import { processSignupBonuses, redeemPromoCode } from "./RedemptionService";
 import { fetchSquarePassAnalytics } from "./adapters/analyticsAdapter";
+import { fetchAutomationCompletionStats } from "./automation/adapters/commandCenterAdapter";
 import type {
   ApplyReferralInput,
   CreateCampaignInput,
@@ -37,6 +39,15 @@ export const SquarePassEngine = {
   createCode: (input: CreateCodeInput) => createPromoCode(input),
   listCodes: (campaignId: string) => listPromoCodes(campaignId),
   getAnalytics: () => fetchSquarePassAnalytics(),
+  getAutomationCompletionStats: () => fetchAutomationCompletionStats(),
+
+  /** New Competitor Automated Experience™ */
+  getAutomationQueue: (email: string) => AutomationEngine.getQueue(email),
+  completeAutomationStep: AutomationEngine.completeStep,
+  revealMysterySquarePass: AutomationEngine.revealMystery,
+  getDailySquarePass: AutomationEngine.getDailyBonus,
+  revealFlashEvent: AutomationEngine.revealFlash,
+  revealSurpriseReward: AutomationEngine.revealSurprise,
 };
 
 export type SquarePassEngineType = typeof SquarePassEngine;
