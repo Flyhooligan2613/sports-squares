@@ -4,7 +4,8 @@ import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { COMPETITOR_CARD_COPY } from "@/lib/competitorCard/copy";
 import type { CommunityPanelData } from "@/lib/competitorCard/types";
-import { SectionCard, SectionEmpty } from "./shared";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
+import { SectionCard } from "./shared";
 
 interface CommunityPanelProps {
   community: CommunityPanelData;
@@ -29,11 +30,14 @@ export default function CommunityPanel({ community }: CommunityPanelProps) {
           </div>
         </dl>
         {community.featuredFollowers.length === 0 ? (
-          <SectionEmpty
+          <GenesisEmptyState
             emoji="👥"
-            title={COMPETITOR_CARD_COPY.empty.community.title}
-            body={COMPETITOR_CARD_COPY.empty.community.body}
-            actionLabel={COMPETITOR_CARD_COPY.shareProfile}
+            title="Build your competitive network"
+            description="Follow competitors in The Huddle, share picks, and grow your follower count — community reputation boosts your Competitor Score."
+            actionLabel="Open The Huddle"
+            actionHref="/huddle"
+            context="community"
+            compact
           />
         ) : (
           <ul className="space-y-2" role="list" aria-label="Featured followers">

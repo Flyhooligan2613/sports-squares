@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
 import {
   achievementStats,
   CATEGORY_LABELS,
@@ -16,6 +17,18 @@ export default function AchievementsPanel() {
   const { data, loading } = useRewardsCenter();
   const [filter, setFilter] = useState<AchievementCategory | "all">("all");
   const [showLocked, setShowLocked] = useState(true);
+  const [genesisIds, setGenesisIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    void fetch("/api/genesis/progress", { cache: "no-store", credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.starterAchievements) {
+          setGenesisIds(json.starterAchievements.map((a: { id: string }) => a.id));
+        }
+      })
+      .catch(() => undefined);
+  }, []);
 
   const achievements = useMemo(() => {
     if (!data?.legacy) return [];
@@ -35,8 +48,9 @@ export default function AchievementsPanel() {
       qualifiedReferrals: data.referral.qualifiedReferrals,
       loginStreakDays: data.legacy.loginStreakDays,
       lifetimeTierCredits: data.dashboard.account.lifetimeTierCredits,
+      genesisAchievementIds: genesisIds,
     });
-  }, [data]);
+  }, [data, genesisIds]);
 
   const stats = achievementStats(achievements);
 
@@ -90,9 +104,22 @@ export default function AchievementsPanel() {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {filtered.map((achievement) => (
-          <AchievementCard key={achievement.id} achievement={achievement} />
-        ))}
+        {filtered.length === 0 ? (
+          <div className="sm:col-span-2 lg:col-span-3">
+            <GenesisEmptyState
+              emoji="🎖️"
+              title="More achievements await"
+              description="Filter hidden locked badges — or compete in contests to unlock wins, streaks, and Square Drop milestones."
+              actionLabel="Browse contests"
+              actionHref="/contest-center"
+              context="achievements"
+            />
+          </div>
+        ) : (
+          filtered.map((achievement) => (
+            <AchievementCard key={achievement.id} achievement={achievement} />
+          ))
+        )}
       </div>
     </div>
   );

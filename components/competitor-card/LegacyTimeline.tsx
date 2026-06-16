@@ -4,7 +4,8 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { COMPETITOR_CARD_COPY } from "@/lib/competitorCard/copy";
 import type { LegacyTimelineEvent } from "@/lib/competitorCard/types";
 import { CONTEST_CTAS } from "@/lib/platform/language";
-import { SectionCard, SectionEmpty } from "./shared";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
+import { SectionCard } from "./shared";
 
 interface LegacyTimelineProps {
   events: LegacyTimelineEvent[];
@@ -14,12 +15,14 @@ export default function LegacyTimeline({ events }: LegacyTimelineProps) {
   return (
     <SectionCard id="legacy-timeline" title={COMPETITOR_CARD_COPY.legacyTimeline}>
       {events.length === 0 ? (
-        <SectionEmpty
+        <GenesisEmptyState
           emoji="📜"
-          title={COMPETITOR_CARD_COPY.empty.timeline.title}
-          body={COMPETITOR_CARD_COPY.empty.timeline.body}
+          title="Your legacy timeline starts now"
+          description="Every contest, win, and achievement will appear here — your competitive story in one place."
           actionLabel={CONTEST_CTAS.joinTheContest}
           actionHref="/games/nfl"
+          context="profile"
+          compact
         />
       ) : (
         <div className="player-timeline space-y-0">

@@ -34,6 +34,8 @@ export interface CompetitorScore {
   rankTitle: CompetitorScoreRankTitle;
   breakdown: CompetitorScoreBreakdown;
   percentiles: CompetitorScorePercentiles;
+  /** Rookie Season merit floor before first contest (Project Genesis™). */
+  genesisStartingBonus?: number;
 }
 
 export interface CompetitorIdentity {

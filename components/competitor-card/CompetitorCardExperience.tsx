@@ -20,6 +20,14 @@ import SeasonDashboard from "./SeasonDashboard";
 import TierProgressCard from "./TierProgressCard";
 import TrophyRoom from "./TrophyRoom";
 import { CardSkeleton } from "./shared";
+import {
+  CareerProgressTracker,
+  DailyMotivationBanner,
+  MissionCenterPanel,
+  RookieWelcomeBanner,
+  useGenesisPageVisit,
+} from "@/components/genesis";
+import GenesisProfileCustomization from "@/components/genesis/GenesisProfileCustomization";
 
 interface CompetitorCardExperienceProps {
   mode: CompetitorCardMode;
@@ -93,8 +101,37 @@ export default function CompetitorCardExperience({
 
   if (!data) return null;
 
+  const showGenesis = data.isOwner;
+
+  return (
+    <>
+      <GenesisRookieHooks active={showGenesis} />
+      <CompetitorCardBody data={data} className={className} />
+    </>
+  );
+}
+
+function GenesisRookieHooks({ active }: { active: boolean }) {
+  useGenesisPageVisit(active ? "visit_trophy_room" : null);
+  return null;
+}
+
+function CompetitorCardBody({
+  data,
+  className,
+}: {
+  data: CompetitorCardData;
+  className: string;
+}) {
   return (
     <article className={`cc-experience space-y-8 sm:space-y-10 ${className}`} aria-label={COMPETITOR_CARD_COPY.title}>
+      {data.isOwner ? (
+        <>
+          <RookieWelcomeBanner />
+          <DailyMotivationBanner />
+          <CareerProgressTracker />
+        </>
+      ) : null}
       <CompetitorHeader data={data} />
       <CompetitorScoreCard score={data.score} />
       <HeroStats stats={data.heroStats} />
@@ -133,8 +170,18 @@ export default function CompetitorCardExperience({
         <AchievementsGrid achievements={data.achievements} />
       </DeferredMount>
 
+      {data.isOwner ? (
+        <DeferredMount minHeight="12rem">
+          <MissionCenterPanel />
+        </DeferredMount>
+      ) : null}
+
       <DeferredMount minHeight="8rem">
-        <CustomizationPanel customization={data.customization} isOwner={data.isOwner} />
+        {data.isOwner ? (
+          <GenesisProfileCustomization />
+        ) : (
+          <CustomizationPanel customization={data.customization} isOwner={data.isOwner} />
+        )}
       </DeferredMount>
     </article>
   );

@@ -49,7 +49,7 @@ export const EMPTY_STATE = {
     cta: "Share Profile",
   },
   noActivity: {
-    title: "No activity yet",
+    title: "Your legacy timeline starts now",
     body: "Join your first contest — every competition adds to your legacy.",
     cta: CONTEST_CTAS.joinTheContest,
   },

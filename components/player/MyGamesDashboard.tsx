@@ -11,6 +11,8 @@ import UpcomingGameCard from "@/components/player/UpcomingGameCard";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
+import NextStepCard from "@/components/genesis/NextStepCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayerDashboardData } from "@/lib/player/dashboardTypes";
 import { CONTEST_CTAS, EMPTY_STATE } from "@/lib/platform/language";
@@ -110,15 +112,20 @@ export default function MyGamesDashboard() {
               ))}
             </div>
           ) : (
-            <LandingGlassCard glow className="p-8 sm:p-10">
-              <SectionEmptyState
+            <>
+              <GenesisEmptyState
                 emoji="🏈"
                 title={EMPTY_STATE.noGamesAvailable.title}
                 description={EMPTY_STATE.noGamesAvailable.body}
                 actionLabel={`${CONTEST_CTAS.browseContests} →`}
                 actionHref="/games/nfl"
+                context="my_games"
+                compact
               />
-            </LandingGlassCard>
+              <div className="mt-6">
+                <NextStepCard context="my_games" />
+              </div>
+            </>
           )}
         </section>
 

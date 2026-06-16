@@ -3,8 +3,8 @@
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { COMPETITOR_CARD_COPY } from "@/lib/competitorCard/copy";
 import type { PlayerAchievement } from "@/lib/player/legacyTypes";
-import { CONTEST_CTAS } from "@/lib/platform/language";
-import { SectionCard, SectionEmpty } from "./shared";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
+import { SectionCard } from "./shared";
 
 interface AchievementsGridProps {
   achievements: PlayerAchievement[];
@@ -14,12 +14,14 @@ export default function AchievementsGrid({ achievements }: AchievementsGridProps
   return (
     <SectionCard id="achievements" title={COMPETITOR_CARD_COPY.achievements}>
       {achievements.length === 0 ? (
-        <SectionEmpty
+        <GenesisEmptyState
           emoji="🎖️"
-          title={COMPETITOR_CARD_COPY.empty.achievements.title}
-          body={COMPETITOR_CARD_COPY.empty.achievements.body}
-          actionLabel={CONTEST_CTAS.joinTheContest}
+          title="Starter achievements unlocked"
+          description="You earned genesis badges at signup. Compete in contests and open your Weekly Reward Drop to unlock more achievements."
+          actionLabel="View all achievements"
           actionHref="/my-games/rewards/achievements"
+          context="achievements"
+          compact
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">

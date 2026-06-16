@@ -140,6 +140,9 @@ export async function registerPlayerAccount(payload: SignupPayload): Promise<Sig
     : DEFAULT_AVATAR;
   await setPlayerAvatar(email, avatar);
 
+  const { initializeGenesisAccount } = await import("@/lib/platform/engines/genesis");
+  await initializeGenesisAccount(email).catch(() => undefined);
+
   return {
     email,
     slug,

@@ -1,5 +1,6 @@
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
 import type { PlayerRecentWin } from "@/lib/player/dashboardTypes";
 import { CONTEST_CTAS } from "@/lib/platform/language";
 
@@ -16,15 +17,15 @@ function payoutLabel(status: PlayerRecentWin["payoutStatus"]): string {
 export default function RecentWinsTimeline({ wins }: RecentWinsTimelineProps) {
   if (wins.length === 0) {
     return (
-      <LandingGlassCard glow className="p-6 sm:p-8">
-        <SectionEmptyState
-          emoji="🏆"
-          title="No wins yet"
-          description="The next winner could be you. Browse today's live boards."
-          actionLabel={CONTEST_CTAS.browseContests}
-          actionHref="/games/nfl"
-        />
-      </LandingGlassCard>
+      <GenesisEmptyState
+        emoji="🏆"
+        title="Your first win is waiting"
+        description="The next winner could be you. Browse today's live boards and start building your legacy timeline."
+        actionLabel={CONTEST_CTAS.browseContests}
+        actionHref="/games/nfl"
+        context="my_games"
+        compact
+      />
     );
   }
 

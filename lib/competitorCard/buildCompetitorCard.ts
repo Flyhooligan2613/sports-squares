@@ -21,6 +21,10 @@ import { normalizeEmail } from "@/lib/player/statsCore";
 import { CONTEST_TERMS } from "@/lib/platform/language";
 import type { PlayerAchievement } from "@/lib/player/legacyTypes";
 import { getPodiumCareerStats } from "@/lib/platform/engines/podium/recordFinishes";
+import { applyGenesisStartingScore } from "@/lib/platform/engines/genesis/score";
+import { fetchGenesisProfile } from "@/lib/platform/engines/genesis/repository";
+import { buildRookieSeasonState } from "@/lib/platform/engines/genesis/RookieSeasonService";
+import { GENESIS_STARTER_ACHIEVEMENTS } from "@/lib/platform/engines/genesis/config";
 
 export interface BuildCompetitorCardOptions {
   email: string;
@@ -212,7 +216,7 @@ export async function buildCompetitorCard(
   const viewer = options.viewerEmail ? normalizeEmail(options.viewerEmail) : null;
   const isOwner = viewer === email || options.mode === "own";
 
-  const [legacy, dashboard, identity, social, podiumStats] = await Promise.all([
+  const [legacy, dashboard, identity, social, podiumStats, genesisProfile] = await Promise.all([
     getPlayerLegacy(email),
     getEcosystemDashboard(email).catch(() => null),
     getPlayerPublicIdentity(email).catch(() => null),
@@ -224,6 +228,7 @@ export async function buildCompetitorCard(
       topTen: 0,
       nearPerfect: 0,
     })),
+    fetchGenesisProfile(email).catch(() => null),
   ]);
 
   if (!legacy) return null;
@@ -240,24 +245,51 @@ export async function buildCompetitorCard(
   const unlockedAchievements = legacy.achievements.filter((a) => a.unlocked);
   const winHighlights = social?.winHighlights ?? [];
 
-  const score = computeCompetitorScore({
-    boardsPlayed: legacy.stats.boardsPlayed,
-    lifetimeWins: legacy.stats.lifetimeWins,
-    unlockedAchievements: unlockedAchievements.length,
-    longestWinStreak: legacy.stats.longestWinStreak,
-    tierSortOrder: tier?.sortOrder ?? 1,
-    followerCount: huddleSummary?.followerCount ?? account?.followerCount ?? 0,
-    communityReputation: huddleSummary?.communityReputation ?? 0,
-    qualifiedReferrals: dashboard?.referral.qualifiedReferrals ?? 0,
-    state: null,
-    city: null,
-    friendCount: social?.followingCount ?? 0,
-    friendRank: null,
-    podiumChampionships: podiumStats.championships,
-    podiumRunnerUp: podiumStats.runnerUp,
-    podiumThird: podiumStats.thirdPlace,
-    nearPerfect: podiumStats.nearPerfect,
-  });
+  const score = applyGenesisStartingScore(
+    computeCompetitorScore({
+      boardsPlayed: legacy.stats.boardsPlayed,
+      lifetimeWins: legacy.stats.lifetimeWins,
+      unlockedAchievements: unlockedAchievements.length,
+      longestWinStreak: legacy.stats.longestWinStreak,
+      tierSortOrder: tier?.sortOrder ?? 1,
+      followerCount: huddleSummary?.followerCount ?? account?.followerCount ?? 0,
+      communityReputation: huddleSummary?.communityReputation ?? 0,
+      qualifiedReferrals: dashboard?.referral.qualifiedReferrals ?? 0,
+      state: null,
+      city: null,
+      friendCount: social?.followingCount ?? 0,
+      friendRank: null,
+      podiumChampionships: podiumStats.championships,
+      podiumRunnerUp: podiumStats.runnerUp,
+      podiumThird: podiumStats.thirdPlace,
+      nearPerfect: podiumStats.nearPerfect,
+    }),
+    {
+      genesisActive: Boolean(
+        genesisProfile?.genesisInitializedAt &&
+          buildRookieSeasonState(
+            genesisProfile.rookieSeasonStartedAt,
+            genesisProfile.rookieSeasonEndsAt
+          ).active
+      ),
+      boardsPlayed: legacy.stats.boardsPlayed,
+    }
+  );
+
+  const genesisAchievements: PlayerAchievement[] = (genesisProfile?.genesisAchievements ?? [])
+    .filter((id): id is keyof typeof GENESIS_STARTER_ACHIEVEMENTS => id in GENESIS_STARTER_ACHIEVEMENTS)
+    .map((id) => ({
+      id,
+      title: GENESIS_STARTER_ACHIEVEMENTS[id].title,
+      description: GENESIS_STARTER_ACHIEVEMENTS[id].description,
+      emoji: GENESIS_STARTER_ACHIEVEMENTS[id].emoji,
+      unlocked: true,
+    }));
+
+  const mergedAchievements = [
+    ...genesisAchievements,
+    ...unlockedAchievements.filter((a) => !genesisAchievements.some((g) => g.id === a.id)),
+  ];
 
   const card: CompetitorCardData = {
     mode: options.mode,
@@ -332,11 +364,11 @@ export async function buildCompetitorCard(
         tierName: f.tierName,
       })),
     },
-    achievements: unlockedAchievements,
+    achievements: mergedAchievements,
     stats: legacy.stats,
     customization: {
       profileFrameId: account?.profileFrameId ?? null,
-      featuredAchievementIds: unlockedAchievements.slice(0, 3).map((a) => a.id),
+      featuredAchievementIds: mergedAchievements.slice(0, 3).map((a) => a.id),
       favoriteTeam: huddleSummary?.favoriteTeam ?? null,
       bio: identity?.profileBio ?? null,
     },

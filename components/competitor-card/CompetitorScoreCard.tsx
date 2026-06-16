@@ -3,6 +3,7 @@
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { COMPETITOR_CARD_COPY } from "@/lib/competitorCard/copy";
 import type { CompetitorScore } from "@/lib/competitorCard/types";
+import CompetitorScoreExplainer from "@/components/genesis/CompetitorScoreExplainer";
 import { AnimatedStatValue, formatPercentile, SectionCard } from "./shared";
 
 interface CompetitorScoreCardProps {
@@ -42,6 +43,7 @@ export default function CompetitorScoreCard({ score }: CompetitorScoreCardProps)
           ))}
         </dl>
       </LandingGlassCard>
+      <CompetitorScoreExplainer score={score} />
     </SectionCard>
   );
 }

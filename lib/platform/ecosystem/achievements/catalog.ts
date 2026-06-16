@@ -11,7 +11,8 @@ export type AchievementCategory =
   | "pickem"
   | "seasons"
   | "community"
-  | "legend";
+  | "legend"
+  | "genesis";
 
 export interface EcosystemAchievement {
   id: string;
@@ -34,6 +35,7 @@ export interface AchievementContext {
   pickemPerfectWeeks?: number;
   wnbaPickemWins?: number;
   wnbaSquaresPurchased?: number;
+  genesisAchievementIds?: string[];
 }
 
 interface AchievementDef {
@@ -215,6 +217,51 @@ const NAMED: AchievementDef[] = [
     rarity: "immortal",
     check: (c) => c.loginStreakDays >= 17 * 7,
   },
+  {
+    id: "genesis_welcome",
+    title: "Welcome to SquareBoards",
+    description: "Your competitive journey begins here.",
+    emoji: "👋",
+    category: "genesis",
+    rarity: "common",
+    check: (c) => c.genesisAchievementIds?.includes("genesis_welcome") ?? false,
+  },
+  {
+    id: "genesis_official_competitor",
+    title: "Official Competitor",
+    description: "You're on the roster — welcome to the arena.",
+    emoji: "🎖️",
+    category: "genesis",
+    rarity: "common",
+    check: (c) => c.genesisAchievementIds?.includes("genesis_official_competitor") ?? false,
+  },
+  {
+    id: "genesis_account_created",
+    title: "Account Created",
+    description: "Your SquareBoards identity is live.",
+    emoji: "✅",
+    category: "genesis",
+    rarity: "common",
+    check: (c) => c.genesisAchievementIds?.includes("genesis_account_created") ?? false,
+  },
+  {
+    id: "genesis_career_started",
+    title: "Career Started",
+    description: "Rookie Season is underway — build your legacy.",
+    emoji: "🚀",
+    category: "genesis",
+    rarity: "common",
+    check: (c) => c.genesisAchievementIds?.includes("genesis_career_started") ?? false,
+  },
+  {
+    id: "genesis_profile_created",
+    title: "Profile Created",
+    description: "Your Competitor Card is ready to grow.",
+    emoji: "🪪",
+    category: "genesis",
+    rarity: "common",
+    check: (c) => c.genesisAchievementIds?.includes("genesis_profile_created") ?? false,
+  },
 ];
 
 const DEFINITIONS: AchievementDef[] = [
@@ -269,4 +316,5 @@ export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
   seasons: "Seasons",
   community: "Community",
   legend: "Legend",
+  genesis: "Genesis",
 };

@@ -13,6 +13,7 @@ import QuickJoinBanner, {
 } from "@/components/contest-center/QuickJoinBanner";
 import PrivateContestsSection from "@/components/contest-center/PrivateContestsSection";
 import { LiveContestsSection } from "@/components/contest-center/ContestEmptyState";
+import GenesisVisitTracker from "@/components/genesis/GenesisVisitTracker";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
@@ -156,6 +157,7 @@ export default function ContestCenterExperience() {
 
   return (
     <div className="cc-page lwc-page min-h-screen flex flex-col">
+      <GenesisVisitTracker missionId="view_todays_contests" />
       <AppMenuBar />
 
       <main className="flex-1 relative overflow-hidden pb-20 lg:pb-10">

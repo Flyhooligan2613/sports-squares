@@ -1,0 +1,32 @@
+---
+description: Project Genesis™ — first 30 minutes rookie experience (Platform Build Spec #008)
+globs:
+  - lib/platform/engines/genesis/**
+  - components/genesis/**
+  - app/api/genesis/**
+---
+
+# Project Genesis™ (Platform Build Spec #008)
+
+First 30 minutes experience — **integrated into existing flows**, not a separate wizard.
+
+## Rules
+
+- Route genesis data through `GenesisEngine` — not direct Supabase in UI
+- Replace empty states with `GenesisEmptyState` + `NextStepCard` for rookies
+- Initialize on signup via `initializeGenesisAccount` — never skip for new accounts
+- Starting Competitor Score floor: **200** merit only (`applyGenesisStartingScore`)
+- Visit missions: `GenesisVisitTracker` or `useGenesisPageVisit`
+
+## Adding a mission
+
+1. Add definition in `lib/platform/engines/genesis/config.ts`
+2. Implement auto-complete in `syncAutoCompletableMissions` if data-driven
+3. Wire visit tracker on the target page if visit-based
+4. Update `NextStepEngine` context map if needed
+
+## API
+
+All routes require authenticated player session. See `app/api/genesis/*`.
+
+Full spec: `docs/project-legacy/PROJECT_GENESIS.md`

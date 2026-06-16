@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import PickPostCard from "@/components/huddle/PickPostCard";
 import PickOfWeekBanner from "@/components/huddle/PickOfWeekBanner";
 import SurvivorPostCard from "@/components/huddle/SurvivorPostCard";
+import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
+import GenesisVisitTracker from "@/components/genesis/GenesisVisitTracker";
 import type { HuddleFeedResponse, HuddleFeedSort } from "@/lib/huddle/types";
 import { HUDDLE_TAGLINE } from "@/lib/huddle/types";
 
@@ -53,6 +55,7 @@ export default function HuddleClient() {
 
   return (
     <div className="space-y-6">
+      <GenesisVisitTracker missionId="open_community_feed" />
       <LandingGlassCard className="p-6 border border-purple-500/20">
         <p className="text-xs uppercase tracking-[0.25em] text-purple-300 mb-2">👥 The Huddle</p>
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Community Pick Feed</h1>
@@ -103,12 +106,14 @@ export default function HuddleClient() {
       {loading ? (
         <p className="text-center text-sb-muted py-16 animate-pulse">Loading The Huddle…</p>
       ) : !data?.items.length ? (
-        <LandingGlassCard className="p-10 text-center">
-          <p className="text-white font-semibold mb-2">No posts yet this week</p>
-          <p className="text-sm text-sb-muted">
-            Publish a Pick&apos;em card or share your Survivor pick after kickoff.
-          </p>
-        </LandingGlassCard>
+        <GenesisEmptyState
+          emoji="💬"
+          title="The Huddle is warming up"
+          description="While you find your first picks, explore trending posts from competitors across Pick'em and Survivor X — or publish your card after kickoff."
+          actionLabel="Browse Pick'em"
+          actionHref="/pickem/week"
+          context="community"
+        />
       ) : (
         <div className="space-y-4">
           {data.items.map((item) =>
