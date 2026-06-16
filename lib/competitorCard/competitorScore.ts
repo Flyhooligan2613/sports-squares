@@ -22,6 +22,10 @@ export interface CompetitorScoreInput {
   city?: string | null;
   friendCount?: number;
   friendRank?: number | null;
+  podiumChampionships?: number;
+  podiumRunnerUp?: number;
+  podiumThird?: number;
+  nearPerfect?: number;
 }
 
 /**
@@ -53,6 +57,13 @@ export function computeCompetitorScore(input: CompetitorScoreInput): CompetitorS
       w.communityCap
     ),
     referrals: Math.min(input.qualifiedReferrals * w.referralPerQualified, w.referralCap),
+    podium: Math.min(
+      (input.podiumChampionships ?? 0) * w.podiumChampionship +
+        (input.podiumRunnerUp ?? 0) * w.podiumRunnerUp +
+        (input.podiumThird ?? 0) * w.podiumThird +
+        (input.nearPerfect ?? 0) * w.nearPerfect,
+      w.podiumChampionshipCap + w.podiumRunnerUpCap + w.podiumThirdCap + w.nearPerfectCap
+    ),
   };
 
   const total = Object.values(breakdown).reduce((sum, n) => sum + n, 0);

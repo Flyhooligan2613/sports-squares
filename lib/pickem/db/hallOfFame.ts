@@ -170,5 +170,14 @@ export async function archivePickemSeason(input: {
 
   if (standingsError) throw standingsError;
 
+  const { resolvePickemSeasonPodium } = await import(
+    "@/lib/platform/podium/integrations/pickem"
+  );
+  await resolvePickemSeasonPodium({
+    sport: input.sport,
+    seasonYear: input.seasonYear,
+    archiveId,
+  }).catch(() => undefined);
+
   return { archived: true, archiveId };
 }

@@ -20,6 +20,7 @@ import { publicProfilePath } from "@/lib/player/slug";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { CONTEST_TERMS } from "@/lib/platform/language";
 import type { PlayerAchievement } from "@/lib/player/legacyTypes";
+import { getPodiumCareerStats } from "@/lib/platform/podium/awardPodium";
 
 export interface BuildCompetitorCardOptions {
   email: string;
@@ -165,15 +166,24 @@ function buildCareerShowcase(
   return items.slice(0, 6);
 }
 
-function buildCareerRecords(stats: {
-  lifetimeWins: number;
-  lifetimeWinnings: number;
-  longestWinStreak: number;
-  boardsPlayed: number;
-  seasonsPlayed: number;
-  squaresWon: number;
-}): CareerRecord[] {
-  return [
+function buildCareerRecords(
+  stats: {
+    lifetimeWins: number;
+    lifetimeWinnings: number;
+    longestWinStreak: number;
+    boardsPlayed: number;
+    seasonsPlayed: number;
+    squaresWon: number;
+  },
+  podium: {
+    championships: number;
+    runnerUp: number;
+    thirdPlace: number;
+    topTen: number;
+    nearPerfect: number;
+  }
+): CareerRecord[] {
+  const records: CareerRecord[] = [
     { id: "wins", label: "Lifetime Wins", value: stats.lifetimeWins.toLocaleString(), highlight: stats.lifetimeWins >= 5 },
     { id: "winnings", label: CONTEST_TERMS.lifetimeContestWinnings, value: `$${stats.lifetimeWinnings.toFixed(0)}`, highlight: stats.lifetimeWinnings >= 100 },
     { id: "streak", label: "Longest Streak", value: String(stats.longestWinStreak), highlight: stats.longestWinStreak >= 3 },
@@ -181,6 +191,18 @@ function buildCareerRecords(stats: {
     { id: "seasons", label: "Seasons Competed", value: String(stats.seasonsPlayed) },
     { id: "squares", label: "Squares Won", value: stats.squaresWon.toLocaleString() },
   ];
+
+  if (podium.championships + podium.runnerUp + podium.thirdPlace > 0) {
+    records.unshift(
+      { id: "podium-gold", label: "🥇 Championships", value: String(podium.championships), highlight: podium.championships >= 1 },
+      { id: "podium-silver", label: "🥈 Runner-Up", value: String(podium.runnerUp), highlight: podium.runnerUp >= 1 },
+      { id: "podium-bronze", label: "🥉 Third Place", value: String(podium.thirdPlace) },
+      { id: "podium-top10", label: "Top 10 Finishes", value: String(podium.topTen) },
+      { id: "near-perfect", label: "Near Perfect™", value: String(podium.nearPerfect), highlight: podium.nearPerfect >= 1 }
+    );
+  }
+
+  return records;
 }
 
 export async function buildCompetitorCard(

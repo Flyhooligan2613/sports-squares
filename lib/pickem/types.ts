@@ -22,7 +22,10 @@ export type PickemPlayerWeekStatus =
   | "eliminated"
   | "tiebreaker"
   | "winner"
-  | "prize_split";
+  | "prize_split"
+  | "runner_up"
+  | "third_place"
+  | "near_perfect";
 
 export type PickemTiebreakerStatus =
   | "pending"

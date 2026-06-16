@@ -19,6 +19,7 @@ export interface CompetitorScoreBreakdown {
   tier: number;
   community: number;
   referrals: number;
+  podium: number;
 }
 
 export interface CompetitorScorePercentiles {

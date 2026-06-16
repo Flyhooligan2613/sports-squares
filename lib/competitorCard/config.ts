@@ -17,6 +17,14 @@ export const COMPETITOR_SCORE_WEIGHTS = {
   communityCap: 600,
   referralPerQualified: 50,
   referralCap: 500,
+  podiumChampionship: 120,
+  podiumChampionshipCap: 1200,
+  podiumRunnerUp: 60,
+  podiumRunnerUpCap: 600,
+  podiumThird: 40,
+  podiumThirdCap: 400,
+  nearPerfect: 25,
+  nearPerfectCap: 250,
 } as const;
 
 export const COMPETITOR_SCORE_RANK_THRESHOLDS: {

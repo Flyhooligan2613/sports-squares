@@ -17,6 +17,7 @@ import {
 } from "@/lib/pickem/db/stats";
 import { getPickemSportConfig } from "@/lib/pickem/config";
 import type { PickemContest, PickemSport } from "@/lib/pickem/types";
+import type { PodiumCashPayout, PodiumPlacement } from "@/lib/platform/podium/types";
 
 export interface PickemPayoutResult {
   contestId: string;
@@ -42,9 +43,10 @@ function formatPayoutError(err: unknown, fallback: string): string {
 function payoutIdempotencyKey(
   contestId: string,
   leagueId: string,
-  email: string
+  email: string,
+  place: number = 1
 ): string {
-  return `pickem:${contestId}:${leagueId}:${normalizeEmail(email)}:winner`;
+  return `pickem:${contestId}:${leagueId}:${normalizeEmail(email)}:p${place}`;
 }
 
 /**
@@ -106,6 +108,80 @@ export async function processLeagueWinnerPayouts(input: {
     if (paid) payoutsPaid += 1;
     else if (paid === false) {
       errors.push(`Payout queued for ${email}`);
+    }
+  }
+
+  return {
+    contestId: input.contestId,
+    payoutsCreated,
+    payoutsPaid,
+    skipped: false,
+    errors,
+  };
+}
+
+/** Process multi-placement podium cash payouts (1st / 2nd). */
+export async function processLeaguePodiumPayouts(input: {
+  contestId: string;
+  leagueId: string;
+  payouts: PodiumCashPayout[];
+}): Promise<PickemPayoutResult> {
+  const errors: string[] = [];
+  const contest = await getPickemContestById(input.contestId);
+  if (!contest) {
+    return {
+      contestId: input.contestId,
+      payoutsCreated: 0,
+      payoutsPaid: 0,
+      skipped: true,
+      errors: ["Contest not found"],
+    };
+  }
+
+  if (!input.payouts.length) {
+    return {
+      contestId: input.contestId,
+      payoutsCreated: 0,
+      payoutsPaid: 0,
+      skipped: true,
+      errors: [],
+    };
+  }
+
+  let payoutsCreated = 0;
+  let payoutsPaid = 0;
+
+  for (const payout of input.payouts) {
+    if (payout.amountCents <= 0) continue;
+
+    const key = payoutIdempotencyKey(
+      input.contestId,
+      input.leagueId,
+      payout.email,
+      payout.placement
+    );
+
+    const created = await enqueuePickemPayout({
+      contestId: input.contestId,
+      leagueId: input.leagueId,
+      email: payout.email,
+      place: payout.placement,
+      amountCents: payout.amountCents,
+      idempotencyKey: key,
+    });
+
+    if (created) payoutsCreated += 1;
+
+    const paid = await attemptPickemStripePayout({
+      contest,
+      email: payout.email,
+      amountCents: payout.amountCents,
+      idempotencyKey: key,
+    });
+
+    if (paid) payoutsPaid += 1;
+    else if (paid === false) {
+      errors.push(`Payout queued for ${payout.email} (p${payout.placement})`);
     }
   }
 
@@ -189,6 +265,43 @@ export async function recordPickemWinStats(input: {
       stats.bestFinish == null ? 1 : Math.min(stats.bestFinish, 1),
     bestWeeklyRecord: isBetterRecord ? input.weeklyRecord : stats.bestWeeklyRecord,
     seasonChampionships: stats.seasonChampionships + 1,
+  };
+
+  await upsertPickemPlayerStats(updated);
+}
+
+export async function recordPickemPodiumStats(input: {
+  email: string;
+  sport: PickemSport;
+  seasonYear: number;
+  earningsCents: number;
+  tiebreakerWin: boolean;
+  weeklyRecord: string;
+  placement: PodiumPlacement;
+}): Promise<void> {
+  const email = normalizeEmail(input.email);
+  const stats = await getPickemPlayerStats(email, input.sport, input.seasonYear);
+
+  const isBetterRecord =
+    !stats.bestWeeklyRecord ||
+    compareRecords(input.weeklyRecord, stats.bestWeeklyRecord) > 0;
+
+  const updated = {
+    ...stats,
+    lifetimeEarningsCents: stats.lifetimeEarningsCents + input.earningsCents,
+    mondayTiebreakerWins:
+      stats.mondayTiebreakerWins + (input.tiebreakerWin ? 1 : 0),
+    bestFinish:
+      stats.bestFinish == null
+        ? input.placement
+        : Math.min(stats.bestFinish, input.placement),
+    bestWeeklyRecord: isBetterRecord ? input.weeklyRecord : stats.bestWeeklyRecord,
+    ...(input.placement === 1
+      ? {
+          lifetimePickemWins: stats.lifetimePickemWins + 1,
+          seasonChampionships: stats.seasonChampionships + 1,
+        }
+      : {}),
   };
 
   await upsertPickemPlayerStats(updated);

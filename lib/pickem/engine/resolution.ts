@@ -32,6 +32,7 @@ import {
   processLeagueWinnerPayouts,
   recordPickemWinStats,
 } from "@/lib/pickem/payouts";
+import { resolvePickemLeaguePodium } from "@/lib/platform/podium/integrations/pickem";
 import type { PickemPlayerWeekStatus } from "@/lib/pickem/types";
 
 export interface ContestResolutionResult {
@@ -344,6 +345,34 @@ async function declareWinners(input: {
   contest: NonNullable<Awaited<ReturnType<typeof getPickemContestById>>>;
   league: NonNullable<Awaited<ReturnType<typeof getPickemLeagueById>>>;
 }): Promise<void> {
+  const podiumResult = await resolvePickemLeaguePodium({
+    contestId: input.contestId,
+    leagueId: input.leagueId,
+    contest: input.contest,
+    league: input.league,
+    winnerEmails: input.winnerEmails,
+    splitEqually: input.splitEqually,
+    tiebreakerUsed: input.tiebreakerUsed,
+  });
+
+  if (podiumResult.podiumEnabled) {
+    await updatePickemLeagueResolutionStatus(input.leagueId, "complete");
+
+    const remaining = await countUnresolvedLeagues(input.contestId);
+    if (remaining === 0) {
+      const supabase = getSupabaseAdmin();
+      await supabase
+        .from("pickem_contests")
+        .update({
+          status: "complete",
+          payout_status: "paid",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", input.contestId);
+    }
+    return;
+  }
+
   const winnerCount = input.winnerEmails.length;
   const perPlayerCents = Math.floor(input.league.prizePoolCents / winnerCount);
   const status: PickemPlayerWeekStatus = input.splitEqually ? "prize_split" : "winner";

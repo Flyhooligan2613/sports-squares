@@ -30,6 +30,11 @@ export const NOTIFICATION_TEMPLATES = {
   pickemPayoutSent: "Contest winnings sent to your account.",
   pickemWinStreak: "Win streak active — keep your momentum going.",
   pickemPerfectWeek: "Perfect week — flawless picks.",
+  podiumFirst: "🥇 Podium finish — champion crowned in {contest}.",
+  podiumSecond: "🥈 Runner-up — podium finish in {contest}.",
+  podiumThird: "🥉 Third place — premium platform rewards earned in {contest}.",
+  podiumNearPerfect: "Near Perfect™ — you narrowly missed the podium in {contest}.",
+  podiumHuddleHighlight: "{player} reached the podium in {contest} — celebrate in the Huddle.",
 } as const;
 
 export type NotificationTemplateKey = keyof typeof NOTIFICATION_TEMPLATES;
