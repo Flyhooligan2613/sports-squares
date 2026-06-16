@@ -15,14 +15,23 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
     failedCount: 0,
     completedTodayCount: 0,
     recentTransactions: [],
+    walletTotalWallets: 0,
+    walletAvgAvailableCents: 0,
+    walletLifetimeDepositsCents: 0,
+    walletLifetimeWithdrawalsCents: 0,
+    walletUtilizationPercent: 0,
   };
 
   if (!isSupabaseAdminConfigured()) return empty;
 
+  const { fetchWalletAnalytics } = await import(
+    "@/lib/platform/engines/payment/wallet/repository"
+  );
+
   const supabase = getSupabaseAdmin();
   const today = startOfTodayIso();
 
-  const [recentRes, depositsRes, withdrawalsRes, pendingRes, failedRes, completedTodayRes] =
+  const [recentRes, depositsRes, withdrawalsRes, pendingRes, failedRes, completedTodayRes, walletAnalytics] =
     await Promise.all([
       supabase
         .from("payment_transactions")
@@ -54,6 +63,13 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
         .select("id", { count: "exact", head: true })
         .in("status", ["completed", "captured"])
         .gte("created_at", today),
+      fetchWalletAnalytics().catch(() => ({
+        totalWallets: 0,
+        avgAvailableCents: 0,
+        totalDepositsCents: 0,
+        totalWithdrawalsCents: 0,
+        utilizationPercent: 0,
+      })),
     ]);
 
   const recentTransactions: PaymentCenterTransaction[] = (recentRes.data ?? []).map((row) => ({
@@ -81,5 +97,10 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
     failedCount: failedRes.count ?? 0,
     completedTodayCount: completedTodayRes.count ?? 0,
     recentTransactions,
+    walletTotalWallets: walletAnalytics.totalWallets,
+    walletAvgAvailableCents: walletAnalytics.avgAvailableCents,
+    walletLifetimeDepositsCents: walletAnalytics.totalDepositsCents,
+    walletLifetimeWithdrawalsCents: walletAnalytics.totalWithdrawalsCents,
+    walletUtilizationPercent: walletAnalytics.utilizationPercent,
   };
 }

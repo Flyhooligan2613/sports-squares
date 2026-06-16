@@ -147,6 +147,9 @@ export async function registerPlayerAccount(payload: SignupPayload): Promise<Sig
   await SquarePassEngine.ensurePersonalCode(email).catch(() => undefined);
   await SquarePassEngine.processSignupBonuses(email).catch(() => undefined);
 
+  const { SquareWalletEngine } = await import("@/lib/platform/engines/payment/wallet");
+  await SquareWalletEngine.ensureWallet(email).catch(() => undefined);
+
   return {
     email,
     slug,

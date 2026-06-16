@@ -102,7 +102,11 @@ export {
   sendPrizePayout,
 } from "@/lib/platform/engines/payment/PaymentEngine";
 
-export { stripeAdapter } from "@/lib/platform/engines/payment/adapters/stripe/StripeAdapter";
+export {
+  SquareWalletEngine,
+  getWalletSummaryForLegacy,
+} from "@/lib/platform/engines/payment/wallet";
+export type { SquareWalletDashboard, SmartWalletRecommendation } from "@/lib/platform/engines/payment/wallet";
 
 export type { PlayerConnectStatus, ConnectOnboardResponse } from "@/lib/platform/engines/payment/adapters/stripe/connectTypes";
 

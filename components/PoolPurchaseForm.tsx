@@ -103,11 +103,31 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
       });
 
       const raw = await response.text();
-      let payload: { url?: string; error?: string } = {};
+      let payload: {
+        url?: string;
+        error?: string;
+        needsFunds?: boolean;
+        addFundsUrl?: string;
+        ok?: boolean;
+        inviteUrl?: string;
+        fundedViaWallet?: boolean;
+      } = {};
       try {
-        payload = raw ? (JSON.parse(raw) as { url?: string; error?: string }) : {};
+        payload = raw
+          ? (JSON.parse(raw) as typeof payload)
+          : {};
       } catch {
         payload = {};
+      }
+
+      if (payload.needsFunds && payload.addFundsUrl) {
+        window.location.href = payload.addFundsUrl;
+        return;
+      }
+
+      if (payload.ok && payload.inviteUrl) {
+        window.location.href = payload.inviteUrl;
+        return;
       }
 
       if (!response.ok || !payload.url) {
@@ -167,7 +187,17 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
         }),
       });
 
-      const payload = (await response.json()) as { inviteUrl?: string; error?: string };
+      const payload = (await response.json()) as {
+        inviteUrl?: string;
+        error?: string;
+        needsFunds?: boolean;
+        addFundsUrl?: string;
+        ok?: boolean;
+      };
+      if (payload.needsFunds && payload.addFundsUrl) {
+        window.location.href = payload.addFundsUrl;
+        return;
+      }
       if (!response.ok || !payload.inviteUrl) {
         setError(payload.error ?? "Fast checkout failed.");
         setLoading(false);

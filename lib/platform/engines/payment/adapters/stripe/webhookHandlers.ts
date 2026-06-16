@@ -9,6 +9,7 @@ import {
 } from "@/lib/pickem/entryPurchase";
 import {
   PURCHASE_TYPE_PICKEM_ENTRY,
+  PURCHASE_TYPE_WALLET_DEPOSIT,
   resolvePurchaseType,
 } from "@/lib/platform/core/checkoutMetadata";
 import {
@@ -92,12 +93,37 @@ async function handlePickemEntryCheckout(session: Stripe.Checkout.Session) {
   });
 }
 
+async function handleWalletDepositCheckout(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== "paid") {
+    throw new Error("Checkout session is not paid.");
+  }
+
+  const metadata = session.metadata ?? {};
+  const email = metadata.email ?? session.customer_details?.email;
+  if (!email || !session.id) {
+    throw new Error("Missing wallet deposit metadata.");
+  }
+
+  const { SquareWalletEngine } = await import("@/lib/platform/engines/payment/wallet");
+  await SquareWalletEngine.syncDepositFromSession({
+    email: normalizeEmail(email),
+    sessionId: session.id,
+    amountCents: session.amount_total ?? 0,
+    paymentIntentId:
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id ?? null,
+  });
+}
+
 export async function handleStripeCheckoutCompleted(session: Stripe.Checkout.Session) {
   const purchaseType = resolvePurchaseType(
     (session.metadata ?? {}) as Record<string, string | undefined>
   );
 
-  if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
+  if (purchaseType === PURCHASE_TYPE_WALLET_DEPOSIT) {
+    await handleWalletDepositCheckout(session);
+  } else if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
     await handlePickemEntryCheckout(session);
   } else {
     await handleSquaresCheckout(session);

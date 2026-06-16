@@ -114,6 +114,11 @@ export interface PaymentCenterSummary {
   failedCount: number;
   completedTodayCount: number;
   recentTransactions: PaymentCenterTransaction[];
+  walletTotalWallets: number;
+  walletAvgAvailableCents: number;
+  walletLifetimeDepositsCents: number;
+  walletLifetimeWithdrawalsCents: number;
+  walletUtilizationPercent: number;
 }
 
 export interface PaymentCenterTransaction {

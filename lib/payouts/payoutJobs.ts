@@ -88,6 +88,47 @@ export async function completePayoutJobManually(
     .in("status", ["queued", "failed", "processing"]);
 }
 
+async function attemptWalletPayout(
+  job: PayoutJobRow
+): Promise<{ ok: boolean; transferId?: string; error?: string; retryable?: boolean }> {
+  try {
+    const recipient = await resolvePayoutRecipient({
+      poolId: job.pool_id,
+      winningSquare: job.winning_square,
+      winningPlayer: job.winning_player,
+    });
+
+    if (!recipient.ok) {
+      return {
+        ok: false,
+        retryable: recipient.reason === "no_connect_account",
+        error: recipient.message,
+      };
+    }
+
+    const { SquareWalletEngine } = await import("@/lib/platform/engines/payment/wallet");
+    const credit = await SquareWalletEngine.creditWinnings({
+      email: recipient.recipient.email,
+      amountCents: job.amount_cents,
+      poolId: job.pool_id,
+      description: `Contest winnings — ${job.quarter}`,
+      releaseImmediately: false,
+    });
+
+    if (!credit.ok) {
+      return { ok: false, retryable: true, error: "Could not credit SquareWallet winnings." };
+    }
+
+    return { ok: true, transferId: credit.ledgerId ?? `wallet_${job.id}` };
+  } catch (err) {
+    return {
+      ok: false,
+      retryable: true,
+      error: err instanceof Error ? err.message : "Wallet payout failed.",
+    };
+  }
+}
+
 async function attemptStripeTransfer(
   job: PayoutJobRow
 ): Promise<{ ok: boolean; transferId?: string; error?: string; retryable?: boolean }> {
@@ -197,7 +238,10 @@ export async function processPayoutJobs(limit = 20): Promise<PayoutWorkerResult>
     }
 
     try {
-      const transfer = await attemptStripeTransfer(raw);
+      const transfer =
+        process.env.SQUARE_WALLET_LEGACY_STRIPE_PAYOUTS === "true"
+          ? await attemptStripeTransfer(raw)
+          : await attemptWalletPayout(raw);
 
       if (transfer.ok && transfer.transferId) {
         await supabase

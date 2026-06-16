@@ -1,0 +1,35 @@
+---
+description: SquareWallet™ 2.0 ledger-backed player financial hub
+globs:
+  - lib/platform/engines/payment/wallet/**
+  - app/api/square-wallet/**
+  - components/square-wallet/**
+  - app/my-games/**/wallet/**
+---
+
+# SquareWallet™ 2.0 (Platform Build Spec #011)
+
+Competitors fund **SquareWallet™**, not contests directly. All financial flows through SquareWallet → PaymentEngine → adapters.
+
+## Rules
+
+- Route all wallet operations through `SquareWalletEngine` — not direct Supabase in UI
+- **No direct Stripe imports** in wallet layer — use `PaymentEngine` only
+- Contest checkout tries `ContestFundingService.chargeForEntry()` before merchant checkout
+- Insufficient balance → redirect to `/my-games/wallet?deposit=` (not direct Stripe for contest)
+- Winnings credit via `WinningsService.creditWinnings()` — do not alter payout amounts
+- Rebrand user-facing copy to SquareWallet™ — never expose merchant names
+- Post-win: celebration first, never push withdrawal immediately
+
+## Adding a balance type
+
+1. Add to migration check constraint + `SquareWalletBalanceType` in `types.ts`
+2. Add to `ALL_SQUARE_WALLET_BALANCE_TYPES` in `config.ts`
+3. Update `balancesFromRows` in `repository.ts`
+4. Set deduction priority in `CONTEST_FUNDING_PRIORITY` if spendable
+
+## API
+
+Player routes require session via `getSquareWalletAuthorizedEmail()`.
+
+Full spec: `docs/project-legacy/SQUARE_WALLET.md`

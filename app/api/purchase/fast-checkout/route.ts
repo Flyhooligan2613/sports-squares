@@ -169,6 +169,61 @@ export async function POST(request: Request) {
 
     const amountCents = Math.round(costPerSquare * 100 * squaresCount);
 
+    const { SquareWalletEngine } = await import("@/lib/platform/engines/payment/wallet");
+    const walletCharge = await SquareWalletEngine.chargeForEntry({
+      email,
+      amountCents,
+      poolId,
+      description: `${pool.name} — ${squaresCount} square${squaresCount === 1 ? "" : "s"}`,
+      idempotencyKey: `fast_pool_${poolId}_${email}_${squaresCount}`,
+    });
+
+    if (walletCharge.ok) {
+      const sessionKey = `wallet_${walletCharge.paymentTransactionId ?? Date.now()}`;
+      const result = await fulfillPurchase({
+        poolId,
+        name,
+        email,
+        phone,
+        squaresCount,
+        stripeCheckoutSessionId: sessionKey,
+        amountPaidCents: amountCents,
+        stripePaymentIntentId: walletCharge.paymentTransactionId ?? null,
+      });
+
+      await notifySecurityEvent({
+        email,
+        eventType: "purchase_confirmed",
+        metadata: {
+          type: "squares",
+          pool: pool.name,
+          amount: `$${(amountCents / 100).toFixed(2)}`,
+          squares: squaresCount,
+          fundedViaWallet: true,
+        },
+      });
+
+      return NextResponse.json({
+        ok: true,
+        fundedViaWallet: true,
+        inviteUrl: result.inviteUrl,
+        playerId: result.playerId,
+        alreadyFulfilled: result.alreadyFulfilled,
+      });
+    }
+
+    if (walletCharge.insufficient) {
+      return NextResponse.json(
+        {
+          error: "Insufficient SquareWallet balance.",
+          needsFunds: true,
+          shortfallCents: walletCharge.shortfallCents ?? amountCents,
+          addFundsUrl: `/my-games/wallet?deposit=${walletCharge.shortfallCents ?? amountCents}&returnPool=${poolId}`,
+        },
+        { status: 402 }
+      );
+    }
+
     const payment = await PaymentEngine.fastCheckout({
       email,
       amountCents,

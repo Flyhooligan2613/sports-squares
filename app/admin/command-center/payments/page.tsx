@@ -53,6 +53,25 @@ export default function PaymentCenterPage() {
         <AdminStatCard label="Completed Today" value={summary.completedTodayCount} accent="success" />
       </div>
 
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <AdminStatCard label="Active Wallets" value={summary.walletTotalWallets} accent="purple" />
+        <AdminStatCard
+          label="Avg Available"
+          value={formatCents(summary.walletAvgAvailableCents)}
+          accent="success"
+        />
+        <AdminStatCard
+          label="Wallet Utilization"
+          value={`${summary.walletUtilizationPercent}%`}
+          accent="gold"
+        />
+        <AdminStatCard
+          label="Lifetime Withdrawals"
+          value={formatCents(summary.walletLifetimeWithdrawalsCents)}
+          accent="muted"
+        />
+      </div>
+
       <LandingGlassCard className="p-4 sm:p-5">
         <h3 className="text-white font-semibold mb-4">Recent Transactions</h3>
         {summary.recentTransactions.length === 0 ? (

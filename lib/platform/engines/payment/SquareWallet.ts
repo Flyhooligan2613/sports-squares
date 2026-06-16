@@ -1,5 +1,6 @@
 import { getPlayerWallet, formatSavedPaymentLabel } from "@/lib/platform/engines/payment/adapters/stripe/playerWallet";
 import { listPaymentTransactionsForPlayer } from "@/lib/platform/engines/payment/TransactionCenter";
+import { getWalletSummaryForLegacy } from "@/lib/platform/engines/payment/wallet";
 import { getPaymentProviderId } from "@/lib/platform/engines/payment/config";
 import type {
   PaymentTransactionRecord,
@@ -77,6 +78,8 @@ function aggregateTransactionBalances(
 
 async function buildSquareWalletBalances(email: string): Promise<SquareWalletBalanceBreakdown> {
   const normalized = normalizeEmail(email);
+  const ledgerSummary = await getWalletSummaryForLegacy(normalized).catch(() => null);
+
   const [transactions, playerDash, ecosystem, inventory] = await Promise.all([
     listPaymentTransactionsForPlayer(normalized, 500).catch(() => [] as PaymentTransactionRecord[]),
     getPlayerDashboard(normalized).catch(() => null),
@@ -86,29 +89,32 @@ async function buildSquareWalletBalances(email: string): Promise<SquareWalletBal
 
   const txAgg = aggregateTransactionBalances(transactions);
 
-  const contestWinningsCents = Math.round((playerDash?.stats.totalWinnings ?? 0) * 100);
-  const pendingPayoutCents = Math.round(
-    (playerDash?.recentWins ?? [])
-      .filter((w) => w.payoutStatus === "pending")
-      .reduce((sum, w) => sum + w.amount, 0) * 100
-  );
+  const contestWinningsCents =
+    ledgerSummary?.lifetime?.winningsCents ??
+    Math.round((playerDash?.stats.totalWinnings ?? 0) * 100);
+  const pendingPayoutCents = ledgerSummary
+    ? ledgerSummary.pendingBalanceCents
+    : Math.round(
+        (playerDash?.recentWins ?? [])
+          .filter((w) => w.payoutStatus === "pending")
+          .reduce((sum, w) => sum + w.amount, 0) * 100
+      );
 
   const marketplaceCreditsCents =
     (ecosystem?.account.squareCreditsCents ?? 0) + (ecosystem?.account.pickemCreditsCents ?? 0);
-  const promotionalCreditsCents = inventory?.counts.promo_credit ?? 0;
+  const promotionalCreditsCents =
+    ledgerSummary?.balances.promotional ?? inventory?.counts.promo_credit ?? 0;
 
-  /**
-   * SquareBoards does not custodial-hold player cash — winnings flow to linked cash-out accounts.
-   * availableBalanceCents stays 0 until a dedicated cash ledger ships (phase 2).
-   */
   return {
-    availableBalanceCents: 0,
+    availableBalanceCents: ledgerSummary?.availableBalanceCents ?? 0,
     pendingBalanceCents: txAgg.pendingBalanceCents + pendingPayoutCents,
-    contestEntriesCents: txAgg.contestEntriesCents,
+    contestEntriesCents:
+      ledgerSummary?.lifetime?.contestEntriesCents ?? txAgg.contestEntriesCents,
     contestWinningsCents,
-    depositsCents: txAgg.depositsCents,
-    withdrawalsCents: txAgg.withdrawalsCents,
-    rewardCreditsCents: txAgg.rewardCreditsCents,
+    depositsCents: ledgerSummary?.lifetime?.depositsCents ?? txAgg.depositsCents,
+    withdrawalsCents: ledgerSummary?.lifetime?.withdrawalsCents ?? txAgg.withdrawalsCents,
+    rewardCreditsCents:
+      (ledgerSummary?.balances.rewardCredits ?? 0) + txAgg.rewardCreditsCents,
     marketplaceCreditsCents,
     promotionalCreditsCents,
     refundsCents: txAgg.refundsCents,

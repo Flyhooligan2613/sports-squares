@@ -110,6 +110,9 @@ export default function ProfileWalletSection() {
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
+            <Button href="/my-games/wallet" variant="primary" size="sm">
+              Open SquareWallet™
+            </Button>
             <Button href="/my-games/winnings" variant="secondary" size="sm">
               {connect?.ready ? "Manage cash-out" : "Set up cash-out"}
             </Button>

@@ -1,4 +1,5 @@
 import { GenesisProvider, FirstWinCelebration } from "@/components/genesis";
+import { SquareWalletWinExperience } from "@/components/square-wallet";
 import { OnboardingQueueProvider } from "@/components/onboarding-queue";
 import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
 import QuickUnlockGate from "@/components/player/QuickUnlockGate";
@@ -54,6 +55,7 @@ export default async function MyGamesDashboardLayout({
             <OnboardingQueueProvider>
               {children}
               <FirstWinCelebration />
+              <SquareWalletWinExperience />
             </OnboardingQueueProvider>
           </GenesisProvider>
         </QuickUnlockGate>
