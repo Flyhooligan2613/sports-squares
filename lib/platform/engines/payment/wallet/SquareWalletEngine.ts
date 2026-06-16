@@ -13,10 +13,18 @@ import {
 import { creditWinnings, releasePendingWinnings, buildPostWinPayload } from "./WinningsService";
 import { listPendingWithdrawals, requestWithdrawal, requiresWithdrawalReview } from "./WithdrawalService";
 import {
+  filterLossEntries,
+  isLossCategory,
+  resolveLedgerEntryTypes,
+  type WalletHistoryCategory,
+  type WalletTransactionTypeFilter,
+} from "./ledgerCategories";
+import {
   balancesFromRows,
   emptyBalances,
   fetchBalanceRows,
   findWalletByEmail,
+  listAllLedgerEntries,
   listLedgerEntries,
 } from "./repository";
 import type { SquareWalletDashboard } from "./types";
@@ -99,16 +107,75 @@ async function listWalletTransactions(input: {
   limit?: number;
   offset?: number;
   search?: string;
+  category?: WalletHistoryCategory;
+  type?: WalletTransactionTypeFilter;
 }) {
   const wallet = await findWalletByEmail(input.email);
   if (!wallet) return { entries: [], total: 0 };
+
+  const limit = input.limit ?? 50;
+  const offset = input.offset ?? 0;
+  const search = input.search;
+
+  if (isLossCategory(input.category)) {
+    const [entries, wins] = await Promise.all([
+      listAllLedgerEntries({
+        walletId: wallet.id,
+        entryTypes: ["contest_entry"],
+        direction: "debit",
+        search,
+      }),
+      listAllLedgerEntries({
+        walletId: wallet.id,
+        entryTypes: ["winnings_credit"],
+      }),
+    ]);
+    const losses = filterLossEntries(entries, wins);
+    return {
+      entries: losses.slice(offset, offset + limit),
+      total: losses.length,
+    };
+  }
+
+  const entryTypes = resolveLedgerEntryTypes({
+    category: input.category ?? null,
+    type: input.type ?? null,
+  });
+
+  const direction =
+    input.category === "contest_bets" || input.type === "contest_entry" ? "debit" : undefined;
+
+  if (entryTypes) {
+    const allMatching = await listAllLedgerEntries({
+      walletId: wallet.id,
+      entryTypes,
+      direction,
+      search,
+    });
+    return {
+      entries: allMatching.slice(offset, offset + limit),
+      total: allMatching.length,
+    };
+  }
+
   const entries = await listLedgerEntries({
     walletId: wallet.id,
-    limit: input.limit ?? 50,
-    offset: input.offset ?? 0,
-    search: input.search,
+    limit,
+    offset,
+    search,
   });
   return { entries, total: entries.length };
+}
+
+export async function getWalletBalancePreview(email: string): Promise<{
+  ready: boolean;
+  availableCents: number;
+}> {
+  const { balances } = await getWalletBalances(email);
+  return {
+    ready: true,
+    availableCents: balances.available,
+  };
 }
 
 export async function getWalletSummaryForLegacy(email: string) {

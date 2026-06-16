@@ -1,5 +1,9 @@
 export { default as SquareWalletDashboard } from "./SquareWalletDashboard";
 export { default as WalletBalanceCards } from "./WalletBalanceCards";
+export { default as WalletBalanceChip } from "./WalletBalanceChip";
+export { default as WalletCreditBreakdown } from "./WalletCreditBreakdown";
+export { default as WalletPaymentMethodsPanel } from "./WalletPaymentMethodsPanel";
+export { default as WalletHistoryTabs } from "./WalletHistoryTabs";
 export { default as AddFundsPanel } from "./AddFundsPanel";
 export { default as WithdrawPanel } from "./WithdrawPanel";
 export { default as TransactionHistory } from "./TransactionHistory";

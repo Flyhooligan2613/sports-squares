@@ -42,6 +42,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { href: "/my-games/rewards/inventory", label: "Inventory", icon: "🎒", requiresAuth: true },
       { href: "/my-games/rewards/square-drop", label: "Weekly Reward Drop", icon: "🎁", requiresAuth: true },
       { href: "/my-games/referrals", label: "Invite Friends", icon: "👥", requiresAuth: true },
+      { href: "/my-games/wallet", label: "SquareWallet™", icon: "💳", requiresAuth: true },
       { href: "/my-games/winnings", label: PLATFORM_TERMS.contestWinnings, icon: "💰", requiresAuth: true },
       { href: "/my-games/history", label: PLATFORM_TERMS.competitionHistory, icon: "📜", requiresAuth: true },
     ],

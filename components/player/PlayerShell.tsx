@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import PlayerHeaderQuickActions from "@/components/nav/PlayerHeaderQuickActions";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
+import { WalletBalanceChip } from "@/components/square-wallet";
 import { usePlayerShellAvatarSafe } from "@/components/player/PlayerShellAvatarProvider";
 import { GAME_ROOM_HREF } from "@/lib/home/hubSections";
 
@@ -40,6 +41,7 @@ export default function PlayerShell({
         rightSlot={
           <div className="flex items-center gap-0.5 sm:gap-1">
             <PlayerHeaderQuickActions />
+            {userEmail ? <WalletBalanceChip /> : null}
             <Link
               href={profileHref}
               className="flex items-center gap-1.5 sm:gap-2 shrink-0 rounded-full border border-white/10 bg-white/5 px-1.5 sm:px-2 py-1 hover:border-purple-400/40 hover:bg-purple-500/10 transition-colors"

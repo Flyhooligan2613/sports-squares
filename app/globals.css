@@ -6272,6 +6272,59 @@ html.sb-splash-pending body {
   }
 }
 
+.wallet-balance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(251, 191, 36, 0.22);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(255, 255, 255, 0.04));
+  color: #fff;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.wallet-balance-chip:hover {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.14), rgba(255, 255, 255, 0.06));
+}
+
+.wallet-balance-chip-amount {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.wallet-balance-chip-loading {
+  min-width: 4.5rem;
+  pointer-events: none;
+}
+
+.wallet-balance-chip-skeleton {
+  display: block;
+  width: 3.5rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.wallet-balance-chip-fallback {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (min-width: 640px) {
+  .wallet-balance-chip {
+    padding: 0.4rem 0.75rem;
+  }
+
+  .wallet-balance-chip-amount {
+    font-size: 0.8125rem;
+  }
+}
+
 .learn-step-badge {
   width: 2rem;
   height: 2rem;

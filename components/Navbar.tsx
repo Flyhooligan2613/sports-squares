@@ -6,6 +6,7 @@ import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
 import NotificationBell from "@/components/nav/NotificationBell";
 import PlayerAccountNavButton from "@/components/nav/PlayerAccountNavButton";
 import PlayerHeaderQuickActions from "@/components/nav/PlayerHeaderQuickActions";
+import { WalletBalanceChip } from "@/components/square-wallet";
 import { useNavDrawerSafe } from "@/components/nav/NavDrawerProvider";
 import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
 
@@ -38,6 +39,7 @@ export default function Navbar() {
             <GlobalSearchTrigger compact className="md:hidden app-menu-bar-mobile-search" />
           ) : null}
           {signedIn ? <PlayerHeaderQuickActions /> : null}
+          {signedIn ? <WalletBalanceChip /> : null}
           <NotificationBell />
           <PlayerAccountNavButton />
         </div>

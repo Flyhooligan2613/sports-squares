@@ -226,6 +226,43 @@ export async function listLedgerEntries(input: {
   limit?: number;
   offset?: number;
   search?: string;
+  entryTypes?: LedgerEntryType[];
+  direction?: LedgerDirection;
+}): Promise<SquareWalletLedgerEntry[]> {
+  const supabase = getSupabaseAdmin();
+  let query = supabase
+    .from(LEDGER)
+    .select("*")
+    .eq("wallet_id", input.walletId)
+    .order("created_at", { ascending: false });
+
+  if (input.entryTypes?.length) {
+    query = query.in("entry_type", input.entryTypes);
+  }
+  if (input.direction) {
+    query = query.eq("direction", input.direction);
+  }
+  if (input.search?.trim()) {
+    query = query.or(
+      `description.ilike.%${input.search.trim()}%,entry_type.ilike.%${input.search.trim()}%`
+    );
+  }
+
+  const offset = input.offset ?? 0;
+  const limit = input.limit ?? 50;
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).map((row) => mapLedger(row as Record<string, unknown>));
+}
+
+export async function listAllLedgerEntries(input: {
+  walletId: string;
+  entryTypes?: LedgerEntryType[];
+  direction?: LedgerDirection;
+  search?: string;
+  maxRows?: number;
 }): Promise<SquareWalletLedgerEntry[]> {
   const supabase = getSupabaseAdmin();
   let query = supabase
@@ -233,8 +270,14 @@ export async function listLedgerEntries(input: {
     .select("*")
     .eq("wallet_id", input.walletId)
     .order("created_at", { ascending: false })
-    .range(input.offset ?? 0, (input.offset ?? 0) + (input.limit ?? 50) - 1);
+    .limit(input.maxRows ?? 500);
 
+  if (input.entryTypes?.length) {
+    query = query.in("entry_type", input.entryTypes);
+  }
+  if (input.direction) {
+    query = query.eq("direction", input.direction);
+  }
   if (input.search?.trim()) {
     query = query.or(
       `description.ilike.%${input.search.trim()}%,entry_type.ilike.%${input.search.trim()}%`
