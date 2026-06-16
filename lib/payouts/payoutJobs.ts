@@ -1,12 +1,8 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { dbUpdateWinnerPayoutStatus } from "@/lib/database/services/winners";
-import {
-  createConnectTransfer,
-  isStripeConnectEnabled,
-} from "@/lib/stripe/connect";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 import { resolvePayoutRecipient } from "@/lib/payouts/recipient";
 import type { ScoringPeriod, WinnerResult } from "@/lib/types";
-import Stripe from "stripe";
 
 const TABLE = "payout_jobs";
 const MAX_ATTEMPTS = 5;
@@ -95,7 +91,7 @@ export async function completePayoutJobManually(
 async function attemptStripeTransfer(
   job: PayoutJobRow
 ): Promise<{ ok: boolean; transferId?: string; error?: string; retryable?: boolean }> {
-  if (!isStripeConnectEnabled()) {
+  if (!PaymentEngine.isConnectEnabled()) {
     return {
       ok: false,
       retryable: true,
@@ -118,7 +114,8 @@ async function attemptStripeTransfer(
   }
 
   try {
-    const transfer = await createConnectTransfer({
+    const transfer = await PaymentEngine.createPayout({
+      email: recipient.recipient.email,
       amountCents: job.amount_cents,
       destinationAccountId: recipient.recipient.connectAccountId,
       idempotencyKey: job.idempotency_key,
@@ -130,21 +127,16 @@ async function attemptStripeTransfer(
       },
     });
 
-    return { ok: true, transferId: transfer.id };
-  } catch (err) {
-    if (err instanceof Stripe.errors.StripeError) {
-      const retryable =
-        err.type === "StripeConnectionError" ||
-        err.type === "StripeRateLimitError" ||
-        err.code === "balance_insufficient";
-
+    if (!transfer.ok || !transfer.providerTransactionId) {
       return {
         ok: false,
-        retryable,
-        error: err.message,
+        retryable: transfer.error?.retryable ?? true,
+        error: transfer.error?.message ?? "Transfer failed.",
       };
     }
 
+    return { ok: true, transferId: transfer.providerTransactionId };
+  } catch (err) {
     return {
       ok: false,
       retryable: true,

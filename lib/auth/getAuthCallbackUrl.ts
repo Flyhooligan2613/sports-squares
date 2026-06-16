@@ -1,4 +1,4 @@
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAppUrl } from "@/lib/platform/engines/payment";
 
 /** Redirect target for Supabase magic links and OAuth callbacks. */
 export function getAuthCallbackUrl(): string {

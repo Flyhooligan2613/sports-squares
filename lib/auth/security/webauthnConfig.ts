@@ -1,4 +1,4 @@
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAppUrl } from "@/lib/platform/engines/payment";
 
 export function getWebAuthnRpId(): string {
   const configured = process.env.WEBAUTHN_RP_ID?.trim();

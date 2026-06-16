@@ -9,10 +9,9 @@ import {
 } from "@/lib/database/services/stripeConnect";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import {
-  isStripeConnectEnabled,
-  isStripeConnectV2PayoutsEnabled,
-} from "@/lib/stripe/connect";
-import { isStripeConfigured } from "@/lib/stripe/config";
+  PaymentEngine,
+  isStripeConfigured,
+} from "@/lib/platform/engines/payment";
 import {
   diagnoseWinnerConnectV2Account,
   repairWinnerConnectV2Account,
@@ -65,11 +64,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Server not configured." }, { status: 503 });
   }
 
-  if (!isStripeConnectEnabled()) {
+  if (!PaymentEngine.isConnectEnabled()) {
     return NextResponse.json({ error: "Stripe Connect is disabled." }, { status: 503 });
   }
 
-  if (!isStripeConnectV2PayoutsEnabled()) {
+  if (!PaymentEngine.isConnectV2PayoutsEnabled()) {
     return NextResponse.json({
       error: "Connect diagnostics only applies to Accounts v2 payouts (STRIPE_CONNECT_V2_PAYOUTS=true).",
     }, { status: 400 });
@@ -105,7 +104,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server not configured." }, { status: 503 });
   }
 
-  if (!isStripeConnectV2PayoutsEnabled()) {
+  if (!PaymentEngine.isConnectV2PayoutsEnabled()) {
     return NextResponse.json({ error: "Accounts v2 payouts not enabled." }, { status: 400 });
   }
 

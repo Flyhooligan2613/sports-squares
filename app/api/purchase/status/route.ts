@@ -5,14 +5,13 @@ import {
 } from "@/lib/purchases/fulfill";
 import { buildPurchaseStatusPayload } from "@/lib/purchases/statusPayload";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { getStripe } from "@/lib/stripe/client";
-import { isStripeConfigured } from "@/lib/stripe/config";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  if (!isStripeConfigured() || !isSupabaseAdminConfigured()) {
+  if (!PaymentEngine.isConfigured() || !isSupabaseAdminConfigured()) {
     return NextResponse.json(
       { error: "Purchase status is not configured." },
       { status: 503 }
@@ -28,9 +27,9 @@ export async function GET(request: Request) {
     let result = await getFulfillmentBySessionId(sessionId);
 
     if (!result) {
-      const session = await getStripe().checkout.sessions.retrieve(sessionId);
+      const session = await PaymentEngine.retrieveCheckoutSession(sessionId);
 
-      if (session.payment_status === "paid" && session.metadata) {
+      if (session?.paid && session.metadata) {
         const metadata = session.metadata;
         result = await fulfillPurchase({
           poolId: metadata.poolId,
@@ -38,8 +37,8 @@ export async function GET(request: Request) {
           email: metadata.email,
           phone: metadata.phone || undefined,
           squaresCount: Number(metadata.squaresCount),
-          stripeCheckoutSessionId: session.id,
-          amountPaidCents: session.amount_total ?? 0,
+          stripeCheckoutSessionId: sessionId,
+          amountPaidCents: session.amountCents,
         });
       }
     }

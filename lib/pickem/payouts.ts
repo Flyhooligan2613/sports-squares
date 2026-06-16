@@ -2,10 +2,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { upsertPlayerGameStats } from "@/lib/database/services/playerGameStats";
 import { getConnectAccountIdForEmail } from "@/lib/database/services/stripeConnect";
-import {
-  createConnectTransfer,
-  isStripeConnectEnabled,
-} from "@/lib/stripe/connect";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 import {
   getPickemContestById,
   updatePickemContestPayoutStatus,
@@ -344,7 +341,7 @@ async function attemptPickemStripePayout(input: {
   amountCents: number;
   idempotencyKey: string;
 }): Promise<boolean | null> {
-  if (!isStripeConnectEnabled()) return null;
+  if (!PaymentEngine.isConnectEnabled()) return null;
 
   const supabase = getSupabaseAdmin();
   const email = normalizeEmail(input.email);
@@ -362,7 +359,8 @@ async function attemptPickemStripePayout(input: {
   }
 
   try {
-    const transfer = await createConnectTransfer({
+    const transfer = await PaymentEngine.createPayout({
+      email,
       amountCents: input.amountCents,
       destinationAccountId: connectAccountId,
       idempotencyKey: input.idempotencyKey,
@@ -373,11 +371,15 @@ async function attemptPickemStripePayout(input: {
       },
     });
 
+    if (!transfer.ok || !transfer.providerTransactionId) {
+      throw new Error(transfer.error?.message ?? "Payout failed");
+    }
+
     await supabase
       .from("pickem_payouts")
       .update({
         status: "paid",
-        stripe_transfer_id: transfer.id,
+        stripe_transfer_id: transfer.providerTransactionId,
         updated_at: new Date().toISOString(),
       })
       .eq("idempotency_key", input.idempotencyKey);

@@ -5,8 +5,7 @@ import {
   fulfillPickemEntryPurchase,
   getPickemEntryPurchaseBySession,
 } from "@/lib/pickem/entryPurchase";
-import { getStripe } from "@/lib/stripe/client";
-import { isStripeConfigured } from "@/lib/stripe/config";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 
@@ -40,21 +39,18 @@ export async function GET(request: Request) {
 
     if (
       purchase?.status !== "paid" &&
-      isStripeConfigured() &&
+      PaymentEngine.isConfigured() &&
       purchase?.email === normalizeEmail(user.email)
     ) {
-      const session = await getStripe().checkout.sessions.retrieve(sessionId);
-      if (session.payment_status === "paid" && session.metadata?.contestId) {
+      const session = await PaymentEngine.retrieveCheckoutSession(sessionId);
+      if (session?.paid && session.metadata?.contestId) {
         await fulfillPickemEntryPurchase({
           contestId: session.metadata.contestId,
           email: session.metadata.email ?? user.email,
           entryTierCents: Number(session.metadata.entryTierCents ?? 1000),
-          stripeCheckoutSessionId: session.id,
-          amountPaidCents: session.amount_total ?? 0,
-          stripePaymentIntentId:
-            typeof session.payment_intent === "string"
-              ? session.payment_intent
-              : session.payment_intent?.id ?? null,
+          stripeCheckoutSessionId: sessionId,
+          amountPaidCents: session.amountCents,
+          stripePaymentIntentId: session.paymentIntentId,
         });
         purchase = await getPickemEntryPurchaseBySession(sessionId);
       }

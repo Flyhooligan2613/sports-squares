@@ -1,14 +1,12 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getAppUrl, getCheckoutMissingConfig } from "@/lib/stripe/config";
-import { getStripe } from "@/lib/stripe/client";
 import { PURCHASE_TYPE_SQUARES } from "@/lib/platform/core/checkoutMetadata";
 import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
 import { getSupabaseConfig } from "@/lib/supabase";
 import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 import { normalizeEmail, displayNameFromEmail } from "@/lib/player/statsCore";
-import { getOrCreateStripeCustomer } from "@/lib/stripe/playerWallet";
+import { PaymentEngine, getAppUrl } from "@/lib/platform/engines/payment";
 
 type CheckoutPool = {
   id: string;
@@ -44,7 +42,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   noStore();
-  const missing = getCheckoutMissingConfig();
+  const missing = PaymentEngine.getMissingConfig();
   if (missing.length > 0) {
     return NextResponse.json(
       {
@@ -167,30 +165,22 @@ export async function POST(request: Request) {
 
     const unitAmount = Math.round(costPerSquare * 100);
     const appUrl = getAppUrl();
-    const stripe = getStripe();
-    const customerId = await getOrCreateStripeCustomer(email);
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer: customerId,
-      line_items: [
+    const result = await PaymentEngine.deposit({
+      email,
+      amountCents: unitAmount * squaresCount,
+      description: `${pool.name} — Sports Square`,
+      successUrl: `${appUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${appUrl}/pool/${poolId}`,
+      setupFutureUsage: true,
+      lineItems: [
         {
-          price_data: {
-            currency: "usd",
-            unit_amount: unitAmount,
-            product_data: {
-              name: `${pool.name} — Sports Square`,
-              description: `${squaresCount} square${squaresCount === 1 ? "" : "s"} at $${costPerSquare.toFixed(2)} each`,
-            },
-          },
+          name: `${pool.name} — Sports Square`,
+          description: `${squaresCount} square${squaresCount === 1 ? "" : "s"} at $${costPerSquare.toFixed(2)} each`,
+          unitAmountCents: unitAmount,
           quantity: squaresCount,
         },
       ],
-      success_url: `${appUrl}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pool/${poolId}`,
-      payment_intent_data: {
-        setup_future_usage: "off_session",
-      },
       metadata: {
         purchaseType: PURCHASE_TYPE_SQUARES,
         poolId,
@@ -202,14 +192,14 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!session.url) {
+    if (!result.ok || !result.checkoutUrl) {
       return NextResponse.json(
-        { error: "Could not create checkout session." },
+        { error: result.error?.userMessage ?? "Could not create checkout session." },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ url: session.url, sessionId: session.id });
+    return NextResponse.json({ url: result.checkoutUrl, sessionId: result.sessionId });
   } catch (err) {
     return NextResponse.json(
       {

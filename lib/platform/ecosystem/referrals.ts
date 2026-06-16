@@ -1,4 +1,4 @@
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAppUrl } from "@/lib/platform/engines/payment";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { getAdminConfig } from "@/lib/platform/ecosystem/adminConfig";

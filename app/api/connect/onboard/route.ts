@@ -11,17 +11,15 @@ import {
 import {
   createConnectAccountLink,
   createExpressConnectAccount,
-  isStripeConnectEnabled,
-  isStripeConnectV2PayoutsEnabled,
-} from "@/lib/stripe/connect";
+} from "@/lib/platform/engines/payment/adapters/stripe/connect";
 import {
   createWinnerConnectV2Account,
   createWinnerConnectV2AccountLink,
-} from "@/lib/stripe/connectV2Payouts";
+} from "@/lib/platform/engines/payment/adapters/stripe/connectV2Payouts";
 import {
-  isStripeConfigured,
+  PaymentEngine,
   isStripeProductionMisconfigured,
-} from "@/lib/stripe/config";
+} from "@/lib/platform/engines/payment";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
 import { notifySecurityEvent } from "@/lib/auth/security/notify";
@@ -31,14 +29,14 @@ import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  if (!isStripeConfigured() || !isSupabaseAdminConfigured()) {
+  if (!PaymentEngine.isConfigured() || !isSupabaseAdminConfigured()) {
     return NextResponse.json(
       { error: "Payout setup is unavailable — server not configured." },
       { status: 503 }
     );
   }
 
-  if (!isStripeConnectEnabled()) {
+  if (!PaymentEngine.isConnectEnabled()) {
     return NextResponse.json(
       { error: "Stripe Connect payouts are not enabled yet." },
       { status: 503 }
@@ -73,7 +71,6 @@ export async function POST(request: Request) {
 
   const stepUp = await requireStepUpFromRequest(request, "payout_change");
   const hasPasskey = await emailHasPasskey(user.email);
-  // First-time Stripe Connect onboarding is already identity-gated by Stripe — do not block on WebAuthn.
   if (hasPasskey && !stepUp.ok && !isFirstTimeSetup) {
     return NextResponse.json({ error: stepUp.error, requiresStepUp: true }, { status: 403 });
   }
@@ -81,7 +78,7 @@ export async function POST(request: Request) {
   try {
     let status = existingStatus;
     let accountId = status.accountId;
-    const useV2 = isStripeConnectV2PayoutsEnabled();
+    const useV2 = PaymentEngine.isConnectV2PayoutsEnabled();
     const prefill = await getPlayerConnectIdentityPrefill(email);
 
     if (!accountId) {

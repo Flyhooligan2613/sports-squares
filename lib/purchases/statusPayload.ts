@@ -7,7 +7,7 @@ import {
   type PurchaseSuccessSummary,
 } from "@/lib/purchases/successSummary";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getStripe } from "@/lib/stripe/client";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 
 export interface PurchaseStatusPayload {
   status: "fulfilled";
@@ -52,22 +52,23 @@ export async function buildPurchaseStatusPayload(
   sessionId: string,
   result: PurchaseFulfillmentResult
 ): Promise<PurchaseStatusPayload> {
-  const stripeSession = await getStripe().checkout.sessions.retrieve(sessionId);
+  const stripeSession = await PaymentEngine.retrieveCheckoutSession(sessionId);
+  if (!stripeSession) {
+    throw new Error("Checkout session not found.");
+  }
   const metadata = stripeSession.metadata ?? {};
   const player = await loadPlayerBySession(sessionId);
   const poolId = String(metadata.poolId ?? player?.pool_id ?? "");
   const pool = poolId ? await loadPool(poolId) : null;
 
-  const email = String(
-    metadata.email ?? player?.email ?? stripeSession.customer_email ?? ""
-  )
+  const email = String(metadata.email ?? player?.email ?? "")
     .trim()
     .toLowerCase();
 
   const squaresPurchased = Number(metadata.squaresCount ?? player?.credits_allocated ?? 0);
   const totalPaid =
-    stripeSession.amount_total != null
-      ? stripeSession.amount_total / 100
+    stripeSession.amountCents != null
+      ? stripeSession.amountCents / 100
       : Number(player?.amount_paid ?? 0);
 
   const kickoffAt = pool?.kickoff_at ?? null;

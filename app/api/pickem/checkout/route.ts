@@ -13,9 +13,10 @@ import {
   isValidEntryTierCents,
 } from "@/lib/platform/core/entryTiers";
 import { normalizeEmail } from "@/lib/player/statsCore";
-import { getAppUrl, getCheckoutMissingConfig } from "@/lib/stripe/config";
-import { getStripe } from "@/lib/stripe/client";
-import { getOrCreateStripeCustomer } from "@/lib/stripe/playerWallet";
+import {
+  PaymentEngine,
+  getAppUrl,
+} from "@/lib/platform/engines/payment";
 import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   noStore();
 
-  const missing = getCheckoutMissingConfig();
+  const missing = PaymentEngine.getMissingConfig();
   if (missing.length > 0) {
     return NextResponse.json(
       { error: `Checkout is not configured. Missing: ${missing.join(", ")}` },
@@ -87,30 +88,22 @@ export async function POST(request: Request) {
     const amountCents = pickemEntryAmountCents(entryTierCents);
     const tierLabel = formatTierCents(entryTierCents);
     const appUrl = getAppUrl();
-    const stripe = getStripe();
-    const customerId = await getOrCreateStripeCustomer(email);
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer: customerId,
-      line_items: [
+    const result = await PaymentEngine.deposit({
+      email,
+      amountCents,
+      description: `Pick'em ${contest.label} — ${tierLabel} Entry`,
+      successUrl: `${appUrl}/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}&entry_session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${appUrl}/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}`,
+      setupFutureUsage: true,
+      lineItems: [
         {
-          price_data: {
-            currency: "usd",
-            unit_amount: amountCents,
-            product_data: {
-              name: `Pick'em ${contest.label} — ${tierLabel} Entry`,
-              description: `Weekly NFL Pick'em entry at the ${tierLabel} tier. Picks lock at kickoff.`,
-            },
-          },
+          name: `Pick'em ${contest.label} — ${tierLabel} Entry`,
+          description: `Weekly NFL Pick'em entry at the ${tierLabel} tier. Picks lock at kickoff.`,
+          unitAmountCents: amountCents,
           quantity: 1,
         },
       ],
-      success_url: `${appUrl}/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}&entry_session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pickem/week?contestId=${encodeURIComponent(contestId)}&tier=${entryTierCents}`,
-      payment_intent_data: {
-        setup_future_usage: "off_session",
-      },
       metadata: {
         purchaseType: PURCHASE_TYPE_PICKEM_ENTRY,
         contestId,
@@ -119,8 +112,11 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!session.url || !session.id) {
-      return NextResponse.json({ error: "Could not create checkout session." }, { status: 500 });
+    if (!result.ok || !result.checkoutUrl || !result.sessionId) {
+      return NextResponse.json(
+        { error: result.error?.userMessage ?? "Could not create checkout session." },
+        { status: 500 }
+      );
     }
 
     await reservePickemEntryPurchase({
@@ -128,14 +124,11 @@ export async function POST(request: Request) {
       email,
       entryTierCents,
       amountCents,
-      sessionId: session.id,
-      paymentIntentId:
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : session.payment_intent?.id ?? null,
+      sessionId: result.sessionId,
+      paymentIntentId: null,
     });
 
-    return NextResponse.json({ url: session.url, sessionId: session.id });
+    return NextResponse.json({ url: result.checkoutUrl, sessionId: result.sessionId });
   } catch (err) {
     console.error("[pickem/checkout]", err);
     return NextResponse.json(

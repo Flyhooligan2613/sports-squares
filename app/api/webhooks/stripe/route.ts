@@ -1,218 +1,35 @@
 import { NextResponse } from "next/server";
-import {
-  fulfillPurchase,
-  reversePurchaseBySession,
-} from "@/lib/purchases/fulfill";
-import {
-  fulfillPickemEntryPurchase,
-  reversePickemEntryBySession,
-} from "@/lib/pickem/entryPurchase";
-import { recordWebhookEvent } from "@/lib/purchases/ledger";
-import {
-  PURCHASE_TYPE_PICKEM_ENTRY,
-  resolvePurchaseType,
-} from "@/lib/platform/core/checkoutMetadata";
-import {
-  syncConnectAccountFromStripe,
-  syncConnectAccountFromStripeV2,
-} from "@/lib/database/services/stripeConnect";
-import { isStripeConnectV2PayoutsEnabled } from "@/lib/stripe/connect";
-import { retrieveWinnerConnectV2Account } from "@/lib/stripe/connectV2Payouts";
-import { syncPlayerWalletFromCheckoutSession } from "@/lib/stripe/playerWallet";
-import { getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/config";
-import { getStripe } from "@/lib/stripe/client";
+import { PaymentEngine, PaymentError } from "@/lib/platform/engines/payment";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { normalizeEmail } from "@/lib/player/statsCore";
-import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function parseSquaresCount(raw: string | undefined): number | null {
-  const value = Math.floor(Number(raw));
-  if (!Number.isFinite(value) || value < 1 || value > 100) return null;
-  return value;
-}
-
-async function handleSquaresCheckout(session: Stripe.Checkout.Session) {
-  if (session.payment_status !== "paid") {
-    throw new Error("Checkout session is not paid.");
-  }
-
-  const metadata = session.metadata ?? {};
-  const poolId = metadata.poolId;
-  const name = metadata.name;
-  const email = metadata.email;
-  const phone = metadata.phone || undefined;
-  const squaresCount = parseSquaresCount(metadata.squaresCount);
-
-  if (!poolId || !name || !email || !session.id || squaresCount === null) {
-    throw new Error("Missing or invalid session metadata.");
-  }
-
-  await fulfillPurchase({
-    poolId,
-    name,
-    email,
-    phone,
-    squaresCount,
-    stripeCheckoutSessionId: session.id,
-    amountPaidCents: session.amount_total ?? 0,
-    stripePaymentIntentId:
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : session.payment_intent?.id ?? null,
-  });
-}
-
-async function handlePickemEntryCheckout(session: Stripe.Checkout.Session) {
-  if (session.payment_status !== "paid") {
-    throw new Error("Checkout session is not paid.");
-  }
-
-  const metadata = session.metadata ?? {};
-  const contestId = metadata.contestId;
-  const email = metadata.email;
-  const entryTierCents = Math.floor(Number(metadata.entryTierCents));
-
-  if (!contestId || !email || !session.id || !Number.isFinite(entryTierCents)) {
-    throw new Error("Missing or invalid Pick'em entry metadata.");
-  }
-
-  await fulfillPickemEntryPurchase({
-    contestId,
-    email,
-    entryTierCents,
-    stripeCheckoutSessionId: session.id,
-    amountPaidCents: session.amount_total ?? 0,
-    stripePaymentIntentId:
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : session.payment_intent?.id ?? null,
-  });
-}
-
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const purchaseType = resolvePurchaseType(
-    (session.metadata ?? {}) as Record<string, string | undefined>
-  );
-
-  if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
-    await handlePickemEntryCheckout(session);
-  } else {
-    await handleSquaresCheckout(session);
-  }
-
-  try {
-    await syncPlayerWalletFromCheckoutSession(session);
-  } catch (err) {
-    console.error("[stripe/webhook] wallet sync failed", err);
-  }
-}
-
-async function handleChargeRefunded(charge: Stripe.Charge) {
-  const paymentIntentId =
-    typeof charge.payment_intent === "string"
-      ? charge.payment_intent
-      : charge.payment_intent?.id;
-
-  if (!paymentIntentId) return;
-
-  const stripe = getStripe();
-  const sessions = await stripe.checkout.sessions.list({
-    payment_intent: paymentIntentId,
-    limit: 1,
-  });
-
-  const sessionId = sessions.data[0]?.id;
-  if (!sessionId) return;
-
-  const session = sessions.data[0];
-  const purchaseType = resolvePurchaseType(
-    (session.metadata ?? {}) as Record<string, string | undefined>
-  );
-
-  if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
-    await reversePickemEntryBySession(sessionId);
-    return;
-  }
-
-  await reversePurchaseBySession(sessionId);
-}
-
-async function handleAccountUpdated(account: Stripe.Account) {
-  const rawEmail = account.metadata?.email;
-  if (!rawEmail?.trim()) return;
-
-  const email = normalizeEmail(rawEmail);
-
-  if (isStripeConnectV2PayoutsEnabled()) {
-    try {
-      const v2Account = await retrieveWinnerConnectV2Account(account.id);
-      await syncConnectAccountFromStripeV2(email, v2Account);
-      return;
-    } catch (v2Err) {
-      console.warn("[stripe/webhook] V2 account sync failed, trying Express:", v2Err);
-    }
-  }
-
-  await syncConnectAccountFromStripe(email, account);
-}
-
 export async function POST(request: Request) {
-  if (!isStripeConfigured() || !isSupabaseAdminConfigured()) {
+  if (!PaymentEngine.isConfigured() || !isSupabaseAdminConfigured()) {
     return NextResponse.json({ error: "Webhook not configured." }, { status: 503 });
-  }
-
-  const webhookSecret = getStripeWebhookSecret();
-  if (!webhookSecret) {
-    return NextResponse.json(
-      { error: "STRIPE_WEBHOOK_SECRET is not configured." },
-      { status: 503 }
-    );
   }
 
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
   if (!signature) {
-    return NextResponse.json({ error: "Missing Stripe signature." }, { status: 400 });
+    return NextResponse.json({ error: "Missing webhook signature." }, { status: 400 });
   }
 
-  let event: Stripe.Event;
-
   try {
-    event = getStripe().webhooks.constructEvent(body, signature, webhookSecret);
+    const result = await PaymentEngine.processWebhook({ body, signature });
+
+    return NextResponse.json({
+      received: true,
+      duplicate: result.duplicate ?? false,
+    });
   } catch (err) {
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error ? err.message : "Invalid webhook signature.",
-      },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const dedup = await recordWebhookEvent(event.id, event.type);
-    if (dedup === "duplicate") {
-      return NextResponse.json({ received: true, duplicate: true });
+    if (err instanceof PaymentError && err.code === "webhook_invalid_signature") {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
-  } catch (err) {
-    console.error("Webhook dedup failed:", err);
-    return NextResponse.json({ error: "Webhook dedup failed." }, { status: 500 });
-  }
 
-  try {
-    if (event.type === "checkout.session.completed") {
-      await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
-    } else if (event.type === "charge.refunded") {
-      await handleChargeRefunded(event.data.object as Stripe.Charge);
-    } else if (event.type === "account.updated") {
-      await handleAccountUpdated(event.data.object as Stripe.Account);
-    }
-  } catch (err) {
-    console.error(`Stripe webhook ${event.type} failed:`, err);
+    console.error("Payment webhook failed:", err);
     return NextResponse.json(
       {
         error: err instanceof Error ? err.message : "Webhook handler failed.",
@@ -220,6 +37,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ received: true });
 }

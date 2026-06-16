@@ -1,0 +1,36 @@
+---
+description: PaymentEngine™ provider-agnostic financial architecture
+globs:
+  - lib/platform/engines/payment/**
+  - app/api/**/checkout/**
+  - app/api/webhooks/**
+  - app/api/connect/**
+  - app/api/player/wallet/**
+---
+
+# PaymentEngine™ (Core Platform Engine #005)
+
+Provider-agnostic financial pipeline: SquareWallet™ → PaymentEngine™ → Adapter → Merchant.
+
+## Rules
+
+- **No direct Stripe imports** in app routes or business lib — use `PaymentEngine` / `getSquareWallet`
+- Adapters contain **transport only** — no contest logic or payout calculations
+- Route all deposits, fast checkout, payouts, webhooks through `PaymentEngine`
+- `PAYMENT_PROVIDER` env selects adapter (default `stripe`)
+- Never store raw PAN/bank numbers — last4 + brand only
+- Do not remove Stripe — it remains the default adapter
+
+## Adding a provider
+
+1. Implement `PaymentProvider` in `adapters/<name>/`
+2. Register in `registry.ts`
+3. Set `PAYMENT_PROVIDER=<id>`
+
+## Integration
+
+```typescript
+import { PaymentEngine, getSquareWallet } from "@/lib/platform/engines/payment";
+```
+
+Full spec: `docs/project-legacy/PAYMENT_ENGINE.md`

@@ -5,7 +5,7 @@ import RecentWinsTimeline from "@/components/player/RecentWinsTimeline";
 import { getPlayerDashboard } from "@/lib/database/services/playerDashboard";
 import { createClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/purchases/successSummary";
-import { isStripeConnectEnabled } from "@/lib/stripe/connect";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 import { BRAND_NAME } from "@/lib/brand";
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 
@@ -33,7 +33,7 @@ export default async function MyWinningsPage() {
       {dashboard && (
         <PlayerPayoutSetup
           initialStatus={dashboard.connectStatus}
-          connectEnabled={dashboard.connectEnabled ?? isStripeConnectEnabled()}
+          connectEnabled={dashboard.connectEnabled ?? PaymentEngine.isConnectEnabled()}
         />
       )}
 

@@ -16,8 +16,7 @@ import {
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
 import { notifySecurityEvent } from "@/lib/auth/security/notify";
-import { chargeSavedPaymentMethod } from "@/lib/stripe/playerWallet";
-import { getCheckoutMissingConfig } from "@/lib/stripe/config";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +25,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   noStore();
 
-  const missing = getCheckoutMissingConfig();
+  const missing = PaymentEngine.getMissingConfig();
   if (missing.length > 0) {
     return NextResponse.json(
       { error: `Checkout is not configured. Missing: ${missing.join(", ")}` },
@@ -97,10 +96,11 @@ export async function POST(request: Request) {
     const amountCents = pickemEntryAmountCents(entryTierCents);
     const tierLabel = formatTierCents(entryTierCents);
 
-    const paymentIntent = await chargeSavedPaymentMethod({
+    const payment = await PaymentEngine.fastCheckout({
       email,
       amountCents,
       description: `Pick'em ${contest.label} — ${tierLabel}`,
+      contestId,
       metadata: {
         purchaseType: PURCHASE_TYPE_PICKEM_ENTRY,
         contestId,
@@ -109,18 +109,21 @@ export async function POST(request: Request) {
       },
     });
 
-    if (paymentIntent.status !== "succeeded") {
-      return NextResponse.json({ error: "Payment could not be completed." }, { status: 402 });
+    if (!payment.ok) {
+      return NextResponse.json(
+        { error: payment.error?.userMessage ?? "Payment could not be completed." },
+        { status: 402 }
+      );
     }
 
-    const sessionKey = `pi_${paymentIntent.id}`;
+    const sessionKey = `pi_${payment.providerTransactionId}`;
     const result = await fulfillPickemEntryPurchase({
       contestId,
       email,
       entryTierCents,
       stripeCheckoutSessionId: sessionKey,
       amountPaidCents: amountCents,
-      stripePaymentIntentId: paymentIntent.id,
+      stripePaymentIntentId: payment.providerTransactionId,
     });
 
     await notifySecurityEvent({

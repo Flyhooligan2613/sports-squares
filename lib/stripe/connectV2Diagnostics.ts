@@ -4,9 +4,9 @@ import {
   ensureWinnerConnectV2AccountReady,
   readWinnerV2ConnectFlags,
   retrieveWinnerConnectV2AccountDetailed,
-} from "@/lib/stripe/connectV2Payouts";
+} from "@/lib/platform/engines/payment/adapters/stripe/connectV2Payouts";
 import type { PlayerConnectIdentityPrefill } from "@/lib/database/services/stripeConnect";
-import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
+import type { PlayerConnectStatus } from "@/lib/platform/engines/payment/adapters/stripe/connectTypes";
 
 export type ConnectV2DiagnosticIssue = {
   field: string;

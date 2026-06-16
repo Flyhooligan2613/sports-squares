@@ -3,7 +3,7 @@ import { sendPlayerMagicLinkEmail } from "@/lib/auth/playerMagicLink";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import { TABLES } from "@/lib/database/config";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { isStripeConfigured } from "@/lib/stripe/config";
+import { isStripeConfigured } from "@/lib/platform/engines/payment";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

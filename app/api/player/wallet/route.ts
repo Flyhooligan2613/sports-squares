@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import {
-  formatSavedPaymentLabel,
-  getPlayerWallet,
-} from "@/lib/stripe/playerWallet";
+  getSquareWallet,
+  formatSquareWalletPaymentLabel,
+} from "@/lib/platform/engines/payment";
 
 export const dynamic = "force-dynamic";
 
@@ -22,14 +22,14 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const wallet = await getPlayerWallet(user.email);
+  const wallet = await getSquareWallet(user.email);
 
   return NextResponse.json({
     savedPayment: wallet.fastCheckoutAvailable
       ? {
-          brand: wallet.brand,
-          last4: wallet.last4,
-          label: formatSavedPaymentLabel(wallet),
+          brand: wallet.paymentMethodBrand,
+          last4: wallet.paymentMethodLast4,
+          label: formatSquareWalletPaymentLabel(wallet),
         }
       : null,
     fastCheckoutAvailable: wallet.fastCheckoutAvailable,

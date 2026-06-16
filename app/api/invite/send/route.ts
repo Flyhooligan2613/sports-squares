@@ -7,7 +7,7 @@ import { TABLES } from "@/lib/database/config";
 import { sendInviteEmail } from "@/lib/email/resend";
 import { buildInvitePath } from "@/lib/invites";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAppUrl } from "@/lib/platform/engines/payment";
 import { generateInviteToken } from "@/lib/utils";
 import type { PlayerRow } from "@/lib/database/types";
 

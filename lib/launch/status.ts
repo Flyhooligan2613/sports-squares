@@ -5,7 +5,7 @@ import {
   isStripeConfigured,
   isStripeProductionMisconfigured,
   isStripeTestMode,
-} from "@/lib/stripe/config";
+} from "@/lib/platform/engines/payment";
 import { isResendConfigured } from "@/lib/email/resend";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getSupabaseConfig } from "@/lib/supabase";

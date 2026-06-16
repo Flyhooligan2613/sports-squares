@@ -16,7 +16,7 @@ import type {
   PlayerRecentWin,
 } from "@/lib/player/dashboardTypes";
 import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
-import { isStripeConnectEnabled } from "@/lib/stripe/connect";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import type { EspnLiveGame, Pool, PoolStatus, ScoringPeriod } from "@/lib/types";
 
@@ -134,7 +134,7 @@ export async function getPlayerDashboard(
         upcomingGames: 0,
       },
       connectStatus,
-      connectEnabled: isStripeConnectEnabled(),
+      connectEnabled: PaymentEngine.isConnectEnabled(),
       activeGames: [],
       upcomingGames: [],
       recentWins: [],
@@ -353,7 +353,7 @@ export async function getPlayerDashboard(
       upcomingGames: upcomingGames.length,
     },
     connectStatus,
-    connectEnabled: isStripeConnectEnabled(),
+    connectEnabled: PaymentEngine.isConnectEnabled(),
     activeGames,
     upcomingGames,
     recentWins: recentWins.slice(0, 8),

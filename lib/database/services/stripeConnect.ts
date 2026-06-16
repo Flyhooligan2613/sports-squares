@@ -5,13 +5,13 @@ import {
   readConnectFlags,
   retrieveConnectAccount,
   isStripeConnectV2PayoutsEnabled,
-} from "@/lib/stripe/connect";
+} from "@/lib/platform/engines/payment/adapters/stripe/connect";
 import {
   readWinnerV2ConnectFlags,
   retrieveWinnerConnectV2Account,
   type WinnerConnectV2Account,
-} from "@/lib/stripe/connectV2Payouts";
-import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
+} from "@/lib/platform/engines/payment/adapters/stripe/connectV2Payouts";
+import type { PlayerConnectStatus } from "@/lib/platform/engines/payment/adapters/stripe/connectTypes";
 import { buildPlayerSlug } from "@/lib/player/slug";
 import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
 import type Stripe from "stripe";

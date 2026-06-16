@@ -1,6 +1,6 @@
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
-import { getPlayerWallet } from "@/lib/stripe/playerWallet";
+import { getSquareWallet } from "@/lib/platform/engines/payment";
 import { normalizeEmail } from "@/lib/player/statsCore";
 
 export type PlayEligibilityBlocker = "sign_in_required" | "payout_account_required";
@@ -22,7 +22,7 @@ export async function getPlayEligibility(email: string): Promise<PlayEligibility
 
   const [connect, wallet] = await Promise.all([
     getPlayerConnectStatus(normalized),
-    getPlayerWallet(normalized),
+    getSquareWallet(normalized),
   ]);
 
   const payoutsReady = connect.ready;
@@ -31,8 +31,8 @@ export async function getPlayEligibility(email: string): Promise<PlayEligibility
   if (!payoutsReady) blockers.push("payout_account_required");
 
   const savedPaymentLabel =
-    wallet.last4 && wallet.brand
-      ? `${wallet.brand.charAt(0).toUpperCase()}${wallet.brand.slice(1)} ···· ${wallet.last4}`
+    wallet.paymentMethodLast4 && wallet.paymentMethodBrand
+      ? `${wallet.paymentMethodBrand.charAt(0).toUpperCase()}${wallet.paymentMethodBrand.slice(1)} ···· ${wallet.paymentMethodLast4}`
       : null;
 
   return {

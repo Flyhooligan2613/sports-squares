@@ -6,12 +6,11 @@ import { fulfillPurchase } from "@/lib/purchases/fulfill";
 import { PURCHASE_TYPE_SQUARES } from "@/lib/platform/core/checkoutMetadata";
 import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
 import { getSupabaseConfig } from "@/lib/supabase";
-import { getCheckoutMissingConfig } from "@/lib/stripe/config";
 import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
 import { notifySecurityEvent } from "@/lib/auth/security/notify";
-import { chargeSavedPaymentMethod } from "@/lib/stripe/playerWallet";
 import { normalizeEmail, displayNameFromEmail } from "@/lib/player/statsCore";
 import { requirePlayEligible } from "@/lib/payments/requirePlayEligible";
+import { PaymentEngine } from "@/lib/platform/engines/payment";
 
 type CheckoutPool = {
   id: string;
@@ -48,7 +47,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   noStore();
 
-  const missing = getCheckoutMissingConfig();
+  const missing = PaymentEngine.getMissingConfig();
   if (missing.length > 0) {
     return NextResponse.json(
       { error: `Checkout is not configured. Missing: ${missing.join(", ")}` },
@@ -170,9 +169,10 @@ export async function POST(request: Request) {
 
     const amountCents = Math.round(costPerSquare * 100 * squaresCount);
 
-    const paymentIntent = await chargeSavedPaymentMethod({
+    const payment = await PaymentEngine.fastCheckout({
       email,
       amountCents,
+      poolId,
       description: `${pool.name} — ${squaresCount} square${squaresCount === 1 ? "" : "s"}`,
       metadata: {
         purchaseType: PURCHASE_TYPE_SQUARES,
@@ -185,11 +185,14 @@ export async function POST(request: Request) {
       },
     });
 
-    if (paymentIntent.status !== "succeeded") {
-      return NextResponse.json({ error: "Payment could not be completed." }, { status: 402 });
+    if (!payment.ok) {
+      return NextResponse.json(
+        { error: payment.error?.userMessage ?? "Payment could not be completed." },
+        { status: 402 }
+      );
     }
 
-    const sessionKey = `pi_${paymentIntent.id}`;
+    const sessionKey = `pi_${payment.providerTransactionId}`;
     const result = await fulfillPurchase({
       poolId,
       name,
@@ -198,7 +201,7 @@ export async function POST(request: Request) {
       squaresCount,
       stripeCheckoutSessionId: sessionKey,
       amountPaidCents: amountCents,
-      stripePaymentIntentId: paymentIntent.id,
+      stripePaymentIntentId: payment.providerTransactionId,
     });
 
     await notifySecurityEvent({

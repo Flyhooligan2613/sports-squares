@@ -12,7 +12,7 @@ import type {
   SmsDeliveryStatus,
 } from "@/lib/types";
 import { generateId, generateInviteToken, getInitials, pickColor } from "@/lib/utils";
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAppUrl } from "@/lib/platform/engines/payment";
 import {
   findPurchaseBySession,
   markPurchaseFailed,

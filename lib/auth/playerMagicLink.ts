@@ -1,6 +1,6 @@
 import { sendPlayerSignInEmail } from "@/lib/email/resend";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { getAppUrl } from "@/lib/stripe/config";
+import { getAppUrl } from "@/lib/platform/engines/payment";
 import { TABLES } from "@/lib/database/config";
 
 function normalizeEmail(email: string): string {
