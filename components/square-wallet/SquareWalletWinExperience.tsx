@@ -19,20 +19,33 @@ export default function SquareWalletWinExperience() {
   const [ledgerId, setLedgerId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/square-wallet/dashboard", { cache: "no-store" })
+    let cancelled = false;
+
+    void fetch("/api/square-wallet/dashboard", { cache: "no-store" })
       .then(async (res) => {
-        if (!res.ok) return;
-        const data = (await res.json()) as {
-          dashboard?: { pendingWin?: { amountCents: number; contestName: string; ledgerId: string } | null };
-        };
-        if (data.dashboard?.pendingWin) {
-          setAmountCents(data.dashboard.pendingWin.amountCents);
-          setContestName(data.dashboard.pendingWin.contestName);
-          setLedgerId(data.dashboard.pendingWin.ledgerId);
-          setCelebrationOpen(true);
+        if (!res.ok) return null;
+        try {
+          return (await res.json()) as {
+            dashboard?: {
+              pendingWin?: { amountCents: number; contestName: string; ledgerId: string } | null;
+            } | null;
+          };
+        } catch {
+          return null;
         }
       })
+      .then((data) => {
+        if (cancelled || !data?.dashboard?.pendingWin) return;
+        setAmountCents(data.dashboard.pendingWin.amountCents);
+        setContestName(data.dashboard.pendingWin.contestName);
+        setLedgerId(data.dashboard.pendingWin.ledgerId);
+        setCelebrationOpen(true);
+      })
       .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function dismiss() {

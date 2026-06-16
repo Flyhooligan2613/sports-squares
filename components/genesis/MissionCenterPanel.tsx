@@ -9,8 +9,9 @@ export default function MissionCenterPanel() {
 
   if (loading || !progress?.rookieSeason.active) return null;
 
+  const missions = progress.missions ?? [];
   const completed = new Set(
-    progress.missions.filter((m) => m.status === "completed").map((m) => m.missionId)
+    missions.filter((m) => m.status === "completed").map((m) => m.missionId)
   );
 
   return (
@@ -20,7 +21,7 @@ export default function MissionCenterPanel() {
       </h2>
       <div className="grid sm:grid-cols-2 gap-3">
         {GENESIS_MISSIONS.map((def, index) => {
-          const row = progress.missions.find((m) => m.missionId === def.id);
+          const row = missions.find((m) => m.missionId === def.id);
           const done = row?.status === "completed" || completed.has(def.id);
           const locked = def.unlockAfter?.some((id) => !completed.has(id));
 

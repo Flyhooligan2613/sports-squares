@@ -10,8 +10,12 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await SquareWalletEngine.ensureWallet(email);
-  const dashboard = await SquareWalletEngine.getDashboard(email);
-
-  return NextResponse.json({ dashboard });
+  try {
+    await SquareWalletEngine.ensureWallet(email);
+    const dashboard = await SquareWalletEngine.getDashboard(email);
+    return NextResponse.json({ dashboard });
+  } catch (err) {
+    console.error("[square-wallet/dashboard]", err);
+    return NextResponse.json({ dashboard: null });
+  }
 }

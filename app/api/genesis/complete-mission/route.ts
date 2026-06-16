@@ -10,21 +10,31 @@ export async function POST(request: Request) {
   const email = await getGenesisAuthorizedEmail();
   if (email instanceof NextResponse) return email;
 
-  const body = (await request.json()) as { missionId?: string };
+  let body: { missionId?: string };
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
+  }
   const missionId = body.missionId as GenesisMissionId | undefined;
 
   if (!missionId || !(missionId in GENESIS_MISSION_MAP)) {
     return NextResponse.json({ error: "Invalid mission." }, { status: 400 });
   }
 
-  const result = await GenesisEngine.trackPageVisit(email, missionId).catch(async () =>
-    GenesisEngine.completeMission(email, missionId)
-  );
+  try {
+    const result = await GenesisEngine.trackPageVisit(email, missionId).catch(async () =>
+      GenesisEngine.completeMission(email, missionId)
+    );
 
-  if (!result.ok) {
-    return NextResponse.json({ error: result.error ?? "Could not complete mission." }, { status: 400 });
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error ?? "Could not complete mission." }, { status: 400 });
+    }
+
+    const progress = await GenesisEngine.getProgress(email).catch(() => null);
+    return NextResponse.json({ ...result, progress: progress ?? { initialized: false } });
+  } catch (err) {
+    console.error("[genesis/complete-mission]", err);
+    return NextResponse.json({ error: "Could not complete mission." }, { status: 500 });
   }
-
-  const progress = await GenesisEngine.getProgress(email);
-  return NextResponse.json({ ...result, progress });
 }

@@ -1,6 +1,8 @@
 import { GenesisProvider, FirstWinCelebration } from "@/components/genesis";
+import { GenesisErrorBoundary } from "@/components/genesis/GenesisErrorBoundary";
 import { SquareWalletWinExperience } from "@/components/square-wallet";
 import { OnboardingQueueProvider } from "@/components/onboarding-queue";
+import { ProviderErrorBoundary } from "@/components/ui/ProviderErrorBoundary";
 import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
 import QuickUnlockGate from "@/components/player/QuickUnlockGate";
 import PushNotificationPrompt from "@/components/player/PushNotificationPrompt";
@@ -54,8 +56,12 @@ export default async function MyGamesDashboardLayout({
           <GenesisProvider>
             <OnboardingQueueProvider>
               {children}
-              <FirstWinCelebration />
-              <SquareWalletWinExperience />
+              <GenesisErrorBoundary name="GenesisFirstWin">
+                <FirstWinCelebration />
+              </GenesisErrorBoundary>
+              <ProviderErrorBoundary name="SquareWalletWinExperience">
+                <SquareWalletWinExperience />
+              </ProviderErrorBoundary>
             </OnboardingQueueProvider>
           </GenesisProvider>
         </QuickUnlockGate>

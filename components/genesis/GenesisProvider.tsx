@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { GenesisMissionId, GenesisProgressSnapshot } from "@/lib/platform/engines/genesis";
+import { normalizeGenesisProgress } from "@/lib/platform/engines/genesis/normalizeProgress";
 
 interface GenesisContextValue {
   progress: GenesisProgressSnapshot | null;
@@ -21,13 +22,9 @@ export function GenesisProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/genesis/progress", { cache: "no-store", credentials: "include" });
       if (!res.ok) return;
       const json = (await res.json()) as GenesisProgressSnapshot & { initialized?: boolean };
-      if (json.initialized === false) {
-        setProgress(null);
-        return;
-      }
-      setProgress(json);
-    } catch {
-      /* optional */
+      setProgress(normalizeGenesisProgress(json));
+    } catch (err) {
+      console.warn("[genesis] progress fetch failed", err);
     } finally {
       setLoading(false);
     }
@@ -78,9 +75,8 @@ export function useGenesisPageVisit(missionId: GenesisMissionId | null) {
 
   useEffect(() => {
     if (!missionId || !ctx?.progress?.rookieSeason.active) return;
-    const done = ctx.progress.missions.some(
-      (m) => m.missionId === missionId && m.status === "completed"
-    );
+    const missions = ctx.progress.missions ?? [];
+    const done = missions.some((m) => m.missionId === missionId && m.status === "completed");
     if (done) return;
     void ctx.completeMission(missionId);
   }, [missionId, ctx]);

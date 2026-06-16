@@ -1,4 +1,5 @@
 export { GenesisProvider, useGenesis, useGenesisOptional, useGenesisPageVisit, useGenesisNextStep } from "./GenesisProvider";
+export { GenesisErrorBoundary } from "./GenesisErrorBoundary";
 export { default as RookieWelcomeBanner } from "./RookieWelcomeBanner";
 export { default as CareerProgressTracker } from "./CareerProgressTracker";
 export { default as MissionCenterPanel } from "./MissionCenterPanel";

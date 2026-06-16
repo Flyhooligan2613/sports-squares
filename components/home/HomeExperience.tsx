@@ -185,7 +185,7 @@ export default function HomeExperience() {
     );
   }
 
-  const liveStripItems = data.liveActivity.map((e) => ({
+  const liveStripItems = (data.liveActivity ?? []).map((e) => ({
     id: e.id,
     emoji: e.emoji,
     message: e.message,

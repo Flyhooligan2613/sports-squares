@@ -28,6 +28,7 @@ import {
   useGenesisPageVisit,
 } from "@/components/genesis";
 import GenesisProfileCustomization from "@/components/genesis/GenesisProfileCustomization";
+import { ProviderErrorBoundary } from "@/components/ui/ProviderErrorBoundary";
 
 interface CompetitorCardExperienceProps {
   mode: CompetitorCardMode;
@@ -126,11 +127,13 @@ function CompetitorCardBody({
   return (
     <article className={`cc-experience space-y-8 sm:space-y-10 ${className}`} aria-label={COMPETITOR_CARD_COPY.title}>
       {data.isOwner ? (
-        <>
-          <RookieWelcomeBanner />
-          <DailyMotivationBanner />
-          <CareerProgressTracker />
-        </>
+        <ProviderErrorBoundary name="GenesisProfileBanners">
+          <>
+            <RookieWelcomeBanner />
+            <DailyMotivationBanner />
+            <CareerProgressTracker />
+          </>
+        </ProviderErrorBoundary>
       ) : null}
       <CompetitorHeader data={data} />
       <CompetitorScoreCard score={data.score} />
@@ -172,13 +175,17 @@ function CompetitorCardBody({
 
       {data.isOwner ? (
         <DeferredMount minHeight="12rem">
-          <MissionCenterPanel />
+          <ProviderErrorBoundary name="GenesisMissionCenter">
+            <MissionCenterPanel />
+          </ProviderErrorBoundary>
         </DeferredMount>
       ) : null}
 
       <DeferredMount minHeight="8rem">
         {data.isOwner ? (
-          <GenesisProfileCustomization />
+          <ProviderErrorBoundary name="GenesisProfileCustomization">
+            <GenesisProfileCustomization />
+          </ProviderErrorBoundary>
         ) : (
           <CustomizationPanel customization={data.customization} isOwner={data.isOwner} />
         )}

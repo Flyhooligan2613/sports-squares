@@ -8,6 +8,11 @@ export async function GET() {
   const email = await getGenesisAuthorizedEmail();
   if (email instanceof NextResponse) return email;
 
-  const progress = await GenesisEngine.getProgress(email);
-  return NextResponse.json(progress ?? { initialized: false });
+  try {
+    const progress = await GenesisEngine.getProgress(email);
+    return NextResponse.json(progress ?? { initialized: false });
+  } catch (err) {
+    console.error("[genesis/progress]", err);
+    return NextResponse.json({ initialized: false });
+  }
 }

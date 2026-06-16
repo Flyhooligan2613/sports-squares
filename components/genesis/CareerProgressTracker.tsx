@@ -8,7 +8,8 @@ export default function CareerProgressTracker({ compact = false }: { compact?: b
 
   if (loading || !progress?.rookieSeason.active) return null;
 
-  const { career } = progress;
+  const career = progress.career;
+  if (!career) return null;
 
   return (
     <LandingGlassCard className={compact ? "p-4" : "p-5 sm:p-6"}>

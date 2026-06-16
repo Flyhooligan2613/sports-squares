@@ -26,6 +26,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid context." }, { status: 400 });
   }
 
-  const nextStep = await GenesisEngine.getNextStep(email, context);
-  return NextResponse.json({ context, nextStep });
+  try {
+    const nextStep = await GenesisEngine.getNextStep(email, context);
+    return NextResponse.json({ context, nextStep });
+  } catch (err) {
+    console.error("[genesis/next-step]", err);
+    return NextResponse.json({ context, nextStep: null });
+  }
 }
