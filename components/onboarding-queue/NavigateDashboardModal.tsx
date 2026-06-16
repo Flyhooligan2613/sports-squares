@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ONBOARDING_COPY } from "@/lib/platform/engines/onboardingQueue";
 import AutomationModalShell, { ContinueJourneyButton } from "@/components/square-pass/automation/AutomationModalShell";
 import { useSquarePassSound } from "@/components/square-pass/automation/useSquarePassSound";
@@ -11,6 +12,14 @@ interface NavigateDashboardModalProps {
 
 export default function NavigateDashboardModal({ open, onContinue }: NavigateDashboardModalProps) {
   const sound = useSquarePassSound();
+  const [continuing, setContinuing] = useState(false);
+
+  function handleContinue() {
+    if (continuing) return;
+    setContinuing(true);
+    sound.playCelebration();
+    onContinue();
+  }
 
   return (
     <AutomationModalShell open={open} confettiTrigger={open ? 1 : 0} confettiTier="large">
@@ -21,10 +30,8 @@ export default function NavigateDashboardModal({ open, onContinue }: NavigateDas
         <h2 className="text-2xl font-bold text-white">{ONBOARDING_COPY.navigateTitle}</h2>
         <p className="text-sm text-sb-muted">{ONBOARDING_COPY.navigateMessage}</p>
         <ContinueJourneyButton
-          onClick={() => {
-            sound.playCelebration();
-            onContinue();
-          }}
+          onClick={handleContinue}
+          loading={continuing}
           label="Enter Dashboard"
         />
       </div>

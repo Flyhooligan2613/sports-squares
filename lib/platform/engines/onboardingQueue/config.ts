@@ -58,4 +58,11 @@ export const JOURNEY_OPTIONS = [
 ] as const;
 
 /** Safe post-onboarding landing — always a valid dashboard route. */
-export const ONBOARDING_DASHBOARD_HREF = "/my-games" as const;
+export const ONBOARDING_DASHBOARD_HREF = "/my-games?mode=home" as const;
+
+/** Engagement modals deferred until dashboard navigation settles. */
+export const POST_ONBOARDING_ENGAGEMENT_MODULES = [
+  "daily_bonus",
+  "flash_event",
+  "surprise",
+] as const;

@@ -1,7 +1,7 @@
 import type { OnboardingEligibilityContext, OnboardingModuleId, OnboardingQueueState } from "./types";
-import { MANDATORY_ONBOARDING_ORDER } from "./config";
 import { CompletionTracker } from "./CompletionTracker";
 import { EligibilityResolver } from "./EligibilityResolver";
+import { QueueRegistry } from "./QueueRegistry";
 
 export function recoverInterruptedStep(state: OnboardingQueueState): OnboardingModuleId | null {
   if (state.interruptedAt && state.currentStepId) {
@@ -16,13 +16,10 @@ export async function resolveResumeStepId(
   ctx: OnboardingEligibilityContext
 ): Promise<OnboardingModuleId | null> {
   const interrupted = recoverInterruptedStep(ctx.state);
-  if (interrupted) return interrupted;
-
-  for (const stepId of MANDATORY_ONBOARDING_ORDER) {
-    if (CompletionTracker.isFinished(stepId, ctx.state)) continue;
-    const module = ctx.state.completedSteps.includes(stepId) ? null : stepId;
-    if (module) {
-      return stepId;
+  if (interrupted) {
+    const module = QueueRegistry.get(interrupted);
+    if (module && (await EligibilityResolver.isEligible(module, ctx))) {
+      return interrupted;
     }
   }
 

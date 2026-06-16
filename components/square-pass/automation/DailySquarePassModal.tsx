@@ -20,6 +20,7 @@ export default function DailySquarePassModal({ open, onContinue }: DailySquarePa
   const [confetti, setConfetti] = useState(0);
 
   async function reveal() {
+    if (loading) return;
     setLoading(true);
     sound.playReveal();
     try {
@@ -33,6 +34,8 @@ export default function DailySquarePassModal({ open, onContinue }: DailySquarePa
         setConfetti(1);
         sound.playCelebration();
       }
+    } catch {
+      /* keep modal open for retry */
     } finally {
       setLoading(false);
     }

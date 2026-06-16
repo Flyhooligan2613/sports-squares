@@ -1,8 +1,5 @@
-export {
-  OnboardingQueueProvider,
-  useOnboardingQueue,
-  useOnboardingQueueOptional,
-} from "./OnboardingQueueProvider";
+export { OnboardingQueueProvider, useOnboardingQueue, useOnboardingQueueOptional } from "./OnboardingQueueProvider";
+export { OnboardingQueueErrorBoundary } from "./OnboardingQueueErrorBoundary";
 
 /** @deprecated Use OnboardingQueueProvider */
 export { OnboardingQueueProvider as SquarePassAutomationProvider } from "./OnboardingQueueProvider";

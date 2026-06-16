@@ -42,12 +42,18 @@ export async function buildOnboardingQueue(email: string): Promise<OnboardingQue
     if (step) queue.push(step);
   }
 
-  const nextId = resumeId ?? (queue[0]?.id ?? null);
-  const nextModule = nextId ? await buildStep(nextId, ctx) : null;
+  const nextId = resumeId ?? queue[0]?.id ?? null;
+  let nextModule: OnboardingQueueStep | null = null;
+  if (nextId) {
+    const module = QueueRegistry.get(nextId);
+    if (module && (await EligibilityResolver.isEligible(module, ctx))) {
+      nextModule = await buildStep(nextId, ctx);
+    }
+  }
 
-  if (nextId && ctx.state.currentStepId !== nextId) {
+  if (nextModule?.id && ctx.state.currentStepId !== nextModule.id) {
     ctx.state = await upsertQueueState(email, {
-      currentStepId: nextId,
+      currentStepId: nextModule.id,
       interruptedAt: new Date().toISOString(),
     });
   }

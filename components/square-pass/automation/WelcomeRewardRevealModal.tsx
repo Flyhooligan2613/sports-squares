@@ -23,9 +23,12 @@ export default function WelcomeRewardRevealModal({
 
   useEffect(() => {
     if (!open) return;
+    let cancelled = false;
+
     void fetch("/api/square-pass/signup-bonus", { credentials: "include" })
       .then((res) => (res.ok ? res.json() : { bonuses: [] }))
       .then((json) => {
+        if (cancelled) return;
         const items = (json.bonuses ?? []) as Array<{ rewards: SquarePassGrantedReward[] }>;
         const all = items.flatMap((b) => b.rewards);
         setRewards(all);
@@ -34,7 +37,13 @@ export default function WelcomeRewardRevealModal({
           sound.playCelebration();
         }
       })
-      .finally(() => setLoaded(true));
+      .finally(() => {
+        if (!cancelled) setLoaded(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 

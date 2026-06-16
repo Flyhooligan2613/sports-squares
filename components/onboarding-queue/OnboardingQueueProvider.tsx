@@ -1,9 +1,20 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { usePathname, useRouter } from "next/navigation";
 import type { OnboardingModuleId, OnboardingQueueStep } from "@/lib/platform/engines/onboardingQueue";
-import { ONBOARDING_DASHBOARD_HREF } from "@/lib/platform/engines/onboardingQueue/config";
+import {
+  ONBOARDING_DASHBOARD_HREF,
+  POST_ONBOARDING_ENGAGEMENT_MODULES,
+} from "@/lib/platform/engines/onboardingQueue/config";
 import WelcomeCelebrationModal from "@/components/square-pass/automation/WelcomeCelebrationModal";
 import MysterySquarePassModal from "@/components/square-pass/automation/MysterySquarePassModal";
 import WelcomeRewardRevealModal from "@/components/square-pass/automation/WelcomeRewardRevealModal";
@@ -18,6 +29,7 @@ import CompetitorScoreOnboardingModal from "./CompetitorScoreOnboardingModal";
 import BirthdayRewardModal from "./BirthdayRewardModal";
 import SeasonEventModal from "./SeasonEventModal";
 import NavigateDashboardModal from "./NavigateDashboardModal";
+import { OnboardingQueueErrorBoundary } from "./OnboardingQueueErrorBoundary";
 
 interface OnboardingQueueContextValue {
   current: OnboardingQueueStep | null;
@@ -27,6 +39,14 @@ interface OnboardingQueueContextValue {
 }
 
 const OnboardingQueueContext = createContext<OnboardingQueueContextValue | null>(null);
+
+const ENGAGEMENT_DEFER_MS = 900;
+const REFRESH_MIN_MS = 2500;
+const ENGAGEMENT_SET = new Set<string>(POST_ONBOARDING_ENGAGEMENT_MODULES);
+
+function isPostOnboardingEngagement(id: OnboardingModuleId): boolean {
+  return ENGAGEMENT_SET.has(id);
+}
 
 async function postComplete(
   moduleId: OnboardingModuleId,
@@ -39,15 +59,26 @@ async function postComplete(
       credentials: "include",
       body: JSON.stringify({ moduleId, metadata }),
     });
+    if (!res.ok) {
+      console.warn("[onboarding-queue] complete failed", moduleId, res.status);
+    }
     return res.ok;
-  } catch {
+  } catch (err) {
+    console.warn("[onboarding-queue] complete error", moduleId, err);
     return false;
   }
 }
 
-export function OnboardingQueueProvider({ children }: { children: React.ReactNode }) {
+function OnboardingQueueProviderInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const mountedRef = useRef(true);
+  const completingRef = useRef(false);
+  const deferEngagementRef = useRef(false);
+  const pendingEngagementRef = useRef<OnboardingQueueStep | null>(null);
+  const engagementTimerRef = useRef<number | null>(null);
+  const lastRefreshAtRef = useRef(0);
+
   const [current, setCurrent] = useState<OnboardingQueueStep | null>(null);
   const [loading, setLoading] = useState(true);
   const [debugMode, setDebugMode] = useState(false);
@@ -56,10 +87,32 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      if (engagementTimerRef.current != null) {
+        window.clearTimeout(engagementTimerRef.current);
+      }
     };
   }, []);
 
-  const refresh = useCallback(async () => {
+  const applyQueueStep = useCallback((step: OnboardingQueueStep | null) => {
+    if (!mountedRef.current) return;
+
+    if (step && deferEngagementRef.current && isPostOnboardingEngagement(step.id)) {
+      pendingEngagementRef.current = step;
+      setCurrent(null);
+      return;
+    }
+
+    pendingEngagementRef.current = null;
+    setCurrent(step);
+  }, []);
+
+  const refresh = useCallback(async (force = false) => {
+    const now = Date.now();
+    if (!force && now - lastRefreshAtRef.current < REFRESH_MIN_MS) {
+      return;
+    }
+    lastRefreshAtRef.current = now;
+
     try {
       const res = await fetch("/api/onboarding-queue/queue", {
         cache: "no-store",
@@ -74,48 +127,84 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
         nextModule?: OnboardingQueueStep | null;
         debugMode?: boolean;
       };
-      setCurrent(json.nextModule ?? null);
+      const next = json.nextModule;
+      if (next && typeof next.id !== "string") {
+        applyQueueStep(null);
+      } else {
+        applyQueueStep(next ?? null);
+      }
       setDebugMode(Boolean(json.debugMode));
-    } catch {
+    } catch (err) {
+      console.warn("[onboarding-queue] refresh error", err);
       if (mountedRef.current) setCurrent(null);
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, []);
+  }, [applyQueueStep]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
+  const scheduleDeferredEngagement = useCallback(() => {
+    if (engagementTimerRef.current != null) {
+      window.clearTimeout(engagementTimerRef.current);
+    }
+
+    engagementTimerRef.current = window.setTimeout(() => {
+      engagementTimerRef.current = null;
+      if (!mountedRef.current) return;
+
+      deferEngagementRef.current = false;
+      const pending = pendingEngagementRef.current;
+      if (pending) {
+        pendingEngagementRef.current = null;
+        setCurrent(pending);
+        return;
+      }
+      void refresh(true);
+    }, ENGAGEMENT_DEFER_MS);
+  }, [refresh]);
+
   const handleComplete = useCallback(
     async (moduleId: OnboardingModuleId, metadata?: Record<string, unknown>) => {
-      const ok = await postComplete(moduleId, metadata);
-      if (!ok || !mountedRef.current) return;
+      if (completingRef.current || !mountedRef.current) return;
+      completingRef.current = true;
 
-      await refresh();
+      try {
+        const ok = await postComplete(moduleId, metadata);
+        if (!ok || !mountedRef.current) return;
 
-      if (moduleId === "navigate_dashboard" && mountedRef.current) {
-        router.replace(ONBOARDING_DASHBOARD_HREF);
+        if (moduleId === "navigate_dashboard") {
+          deferEngagementRef.current = true;
+          setCurrent(null);
+        }
+
+        await refresh(true);
+
+        if (moduleId === "navigate_dashboard" && mountedRef.current) {
+          router.replace(ONBOARDING_DASHBOARD_HREF);
+          scheduleDeferredEngagement();
+        }
+      } finally {
+        completingRef.current = false;
       }
     },
-    [refresh, router]
+    [refresh, router, scheduleDeferredEngagement]
   );
+
+  useEffect(() => {
+    if (!deferEngagementRef.current || !pathname?.startsWith("/my-games")) return;
+    scheduleDeferredEngagement();
+  }, [pathname, scheduleDeferredEngagement]);
 
   const value = useMemo(
     () => ({ current, loading, debugMode, refresh }),
     [current, loading, debugMode, refresh]
   );
 
-  if (loading || !current) {
-    return (
-      <OnboardingQueueContext.Provider value={value}>{children}</OnboardingQueueContext.Provider>
-    );
-  }
-
-  return (
-    <OnboardingQueueContext.Provider value={value}>
-      {children}
-
+  const modals = current ? (
+    <>
       <WelcomeCelebrationModal
         open={current.id === "welcome"}
         onContinue={() => void handleComplete("welcome")}
@@ -207,8 +296,23 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
           })
         }
       />
+    </>
+  ) : null;
+
+  return (
+    <OnboardingQueueContext.Provider value={value}>
+      {children}
+      {!loading && current ? (
+        <OnboardingQueueErrorBoundary name="OnboardingQueueModals">
+          {modals}
+        </OnboardingQueueErrorBoundary>
+      ) : null}
     </OnboardingQueueContext.Provider>
   );
+}
+
+export function OnboardingQueueProvider({ children }: { children: React.ReactNode }) {
+  return <OnboardingQueueProviderInner>{children}</OnboardingQueueProviderInner>;
 }
 
 export function useOnboardingQueue() {
