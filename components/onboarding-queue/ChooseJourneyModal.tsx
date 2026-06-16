@@ -1,6 +1,6 @@
 "use client";
 
-import { ONBOARDING_COPY } from "@/lib/platform/engines/onboardingQueue";
+import { JOURNEY_OPTIONS, ONBOARDING_COPY } from "@/lib/platform/engines/onboardingQueue";
 import AutomationModalShell, { ContinueJourneyButton } from "@/components/square-pass/automation/AutomationModalShell";
 
 interface ChooseJourneyModalProps {
@@ -10,7 +10,7 @@ interface ChooseJourneyModalProps {
 }
 
 export default function ChooseJourneyModal({ open, options, onSelect }: ChooseJourneyModalProps) {
-  const journeys = options ?? [];
+  const journeys = options?.length ? options : [...JOURNEY_OPTIONS];
 
   return (
     <AutomationModalShell open={open}>

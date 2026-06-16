@@ -49,9 +49,13 @@ export const ONBOARDING_COPY = {
   continueJourney: "Continue Journey",
 } as const;
 
+/** First-arena choices — hrefs must match `PLATFORM_GAMES` playable routes. */
 export const JOURNEY_OPTIONS = [
-  { id: "nfl_squares", title: "NFL Squares", emoji: "🏈", href: "/my-games/nfl-squares" },
-  { id: "mlb_squares", title: "MLB Squares", emoji: "⚾", href: "/my-games/mlb-squares" },
-  { id: "pickem", title: "Pick'em Contests", emoji: "🎯", href: "/my-games/pickem" },
-  { id: "marketplace", title: "Contest Marketplace", emoji: "🏟️", href: "/my-games/marketplace" },
+  { id: "nfl_squares", title: "NFL Squares", emoji: "🏈", href: "/games/nfl" },
+  { id: "mlb_squares", title: "MLB Squares", emoji: "⚾", href: "/games/mlb" },
+  { id: "pickem", title: "Pick'em Contests", emoji: "🎯", href: "/pickem" },
+  { id: "marketplace", title: "Contest Marketplace", emoji: "🏟️", href: "/contest-center" },
 ] as const;
+
+/** Safe post-onboarding landing — always a valid dashboard route. */
+export const ONBOARDING_DASHBOARD_HREF = "/my-games" as const;

@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { OnboardingModuleId, OnboardingQueueStep } from "@/lib/platform/engines/onboardingQueue";
+import { ONBOARDING_DASHBOARD_HREF } from "@/lib/platform/engines/onboardingQueue/config";
 import WelcomeCelebrationModal from "@/components/square-pass/automation/WelcomeCelebrationModal";
 import MysterySquarePassModal from "@/components/square-pass/automation/MysterySquarePassModal";
 import WelcomeRewardRevealModal from "@/components/square-pass/automation/WelcomeRewardRevealModal";
@@ -30,20 +31,33 @@ const OnboardingQueueContext = createContext<OnboardingQueueContextValue | null>
 async function postComplete(
   moduleId: OnboardingModuleId,
   metadata?: Record<string, unknown>
-) {
-  await fetch("/api/onboarding-queue/complete", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ moduleId, metadata }),
-  });
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/onboarding-queue/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ moduleId, metadata }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export function OnboardingQueueProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const mountedRef = useRef(true);
   const [current, setCurrent] = useState<OnboardingQueueStep | null>(null);
   const [loading, setLoading] = useState(true);
   const [debugMode, setDebugMode] = useState(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const refresh = useCallback(async () => {
     try {
@@ -51,6 +65,7 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
         cache: "no-store",
         credentials: "include",
       });
+      if (!mountedRef.current) return;
       if (!res.ok) {
         setCurrent(null);
         return;
@@ -62,9 +77,9 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
       setCurrent(json.nextModule ?? null);
       setDebugMode(Boolean(json.debugMode));
     } catch {
-      setCurrent(null);
+      if (mountedRef.current) setCurrent(null);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
@@ -74,11 +89,14 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
 
   const handleComplete = useCallback(
     async (moduleId: OnboardingModuleId, metadata?: Record<string, unknown>) => {
-      await postComplete(moduleId, metadata);
-      if (moduleId === "choose_journey" && metadata?.journeyHref) {
-        router.push(String(metadata.journeyHref));
-      }
+      const ok = await postComplete(moduleId, metadata);
+      if (!ok || !mountedRef.current) return;
+
       await refresh();
+
+      if (moduleId === "navigate_dashboard" && mountedRef.current) {
+        router.replace(ONBOARDING_DASHBOARD_HREF);
+      }
     },
     [refresh, router]
   );
@@ -172,10 +190,7 @@ export function OnboardingQueueProvider({ children }: { children: React.ReactNod
 
       <NavigateDashboardModal
         open={current.id === "navigate_dashboard"}
-        onContinue={() => {
-          void handleComplete("navigate_dashboard");
-          router.push("/my-games");
-        }}
+        onContinue={() => void handleComplete("navigate_dashboard")}
       />
 
       <DailySquarePassModal
