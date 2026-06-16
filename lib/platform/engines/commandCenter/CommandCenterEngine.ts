@@ -10,6 +10,7 @@ import { fetchAuditLog } from "./services/AuditLogService";
 import { fetchSystemHealth } from "./services/HealthService";
 import { searchCommandCenter } from "./services/SearchService";
 import { getGrowthFundStats } from "@/lib/platform/core/growthFund";
+import { fetchSquarePassAnalytics } from "@/lib/platform/engines/squarePass/adapters/analyticsAdapter";
 import type { ExecutiveDashboardSummary } from "./types";
 
 /** CommandCenterEngine™ — orchestrates read-only adapters across platform engines. */
@@ -23,6 +24,7 @@ export const CommandCenterEngine = {
   listAlerts: listCommandCenterAlerts,
   updateAlert: updateCommandCenterAlert,
   getSystemHealth: fetchSystemHealth,
+  getSquarePassAnalytics: fetchSquarePassAnalytics,
 
   async getExecutiveSummary(): Promise<ExecutiveDashboardSummary> {
     const [stats, payments, alerts, growthFund] = await Promise.all([

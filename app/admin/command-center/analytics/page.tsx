@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import SectionPlaceholder from "@/components/admin/commandCenter/SectionPlaceholder";
+import SquarePassAnalyticsPanel from "@/components/admin/commandCenter/SquarePassAnalyticsPanel";
 
 const AnalyticsCharts = dynamic(
   () => import("@/components/admin/commandCenter/AnalyticsCharts"),
@@ -23,6 +24,7 @@ export default function AnalyticsCenterPage() {
           "Cohort retention views",
         ]}
       />
+      <SquarePassAnalyticsPanel />
       <AnalyticsCharts />
     </div>
   );

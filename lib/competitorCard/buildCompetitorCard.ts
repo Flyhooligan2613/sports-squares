@@ -22,6 +22,8 @@ import { CONTEST_TERMS } from "@/lib/platform/language";
 import type { PlayerAchievement } from "@/lib/player/legacyTypes";
 import { getPodiumCareerStats } from "@/lib/platform/engines/podium/recordFinishes";
 import { applyGenesisStartingScore } from "@/lib/platform/engines/genesis/score";
+import { applySquarePassScoreBoost } from "@/lib/platform/engines/squarePass/scoreBoost";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { fetchGenesisProfile } from "@/lib/platform/engines/genesis/repository";
 import { buildRookieSeasonState } from "@/lib/platform/engines/genesis/RookieSeasonService";
 import { GENESIS_STARTER_ACHIEVEMENTS } from "@/lib/platform/engines/genesis/config";
@@ -245,7 +247,20 @@ export async function buildCompetitorCard(
   const unlockedAchievements = legacy.achievements.filter((a) => a.unlocked);
   const winHighlights = social?.winHighlights ?? [];
 
-  const score = applyGenesisStartingScore(
+  let scoreBoost = 0;
+  try {
+    const { data } = await getSupabaseAdmin()
+      .from("player_profiles")
+      .select("competitor_score_bonus")
+      .eq("email", email)
+      .maybeSingle();
+    scoreBoost = Number(data?.competitor_score_bonus ?? 0);
+  } catch {
+    scoreBoost = 0;
+  }
+
+  const score = applySquarePassScoreBoost(
+    applyGenesisStartingScore(
     computeCompetitorScore({
       boardsPlayed: legacy.stats.boardsPlayed,
       lifetimeWins: legacy.stats.lifetimeWins,
@@ -274,6 +289,8 @@ export async function buildCompetitorCard(
       ),
       boardsPlayed: legacy.stats.boardsPlayed,
     }
+  ),
+    scoreBoost
   );
 
   const genesisAchievements: PlayerAchievement[] = (genesisProfile?.genesisAchievements ?? [])

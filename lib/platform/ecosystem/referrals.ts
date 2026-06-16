@@ -194,6 +194,18 @@ async function finalizeReferralReward(referrerEmail: string, referralId: string)
   });
 
   await rewardReferralMilestones(referrerEmail);
+
+  const { syncReferralQualification } = await import(
+    "@/lib/platform/engines/squarePass/ReferralService"
+  );
+  const { data: referralRow } = await supabase
+    .from("player_referrals")
+    .select("referee_email")
+    .eq("id", referralId)
+    .single();
+  if (referralRow?.referee_email) {
+    await syncReferralQualification(referralRow.referee_email as string).catch(() => undefined);
+  }
 }
 
 export async function getReferralSummary(email: string): Promise<ReferralSummary> {

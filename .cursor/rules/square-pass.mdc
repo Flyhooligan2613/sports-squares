@@ -1,0 +1,35 @@
+---
+description: SquarePass™ promotion & referral engine patterns
+globs:
+  - lib/platform/engines/squarePass/**
+  - app/api/square-pass/**
+  - app/api/admin/square-pass/**
+  - components/square-pass/**
+  - app/admin/square-pass/**
+---
+
+# SquarePass™ (Platform Build Spec #009)
+
+Dynamic promotion & referral engine — **admin-configured campaigns**, no hardcoded promo logic in app code.
+
+## Rules
+
+- Route all promo/referral data through `SquarePassEngine` — not direct Supabase in UI
+- Frame rewards as **exclusive opportunities**, never discounts
+- Campaign rewards are JSON in `square_pass_campaigns.rewards`
+- Fraud checks via `FraudGuardService` before every redemption
+- Signup bonuses are idempotent via `square_pass_redemptions` audit rows
+
+## Adding a campaign type
+
+1. Add type to migration check constraint if new enum value needed
+2. Extend `SquarePassRewardType` in `types.ts`
+3. Handle in `RewardDistributionService.distributeRewards`
+4. Seed template in migration only — activate via admin
+
+## API
+
+Player routes require authenticated session via `getSquarePassAuthorizedEmail()`.  
+Admin routes require `getAuthorizedAdminUser()` or `requireCommandCenterAdmin("analytics")`.
+
+Full spec: `docs/project-legacy/SQUARE_PASS.md`

@@ -77,8 +77,8 @@ export async function POST(request: Request) {
     }
 
     if (body.referralCode?.trim()) {
-      const { applyReferralCode } = await import("@/lib/platform/ecosystem/referrals");
-      await applyReferralCode({
+      const { SquarePassEngine } = await import("@/lib/platform/engines/squarePass");
+      await SquarePassEngine.applyReferral({
         refereeEmail: email,
         referralCode: body.referralCode.trim(),
         deviceKey: body.deviceKey,

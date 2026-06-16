@@ -143,6 +143,10 @@ export async function registerPlayerAccount(payload: SignupPayload): Promise<Sig
   const { initializeGenesisAccount } = await import("@/lib/platform/engines/genesis");
   await initializeGenesisAccount(email).catch(() => undefined);
 
+  const { SquarePassEngine } = await import("@/lib/platform/engines/squarePass");
+  await SquarePassEngine.ensurePersonalCode(email).catch(() => undefined);
+  await SquarePassEngine.processSignupBonuses(email).catch(() => undefined);
+
   return {
     email,
     slug,
