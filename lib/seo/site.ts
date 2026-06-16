@@ -3,7 +3,15 @@ import { BRAND_NAME } from "@/lib/brand";
 
 /** Canonical production origin — override via SITE_URL for previews/staging. */
 export const SITE_URL =
-  process.env.SITE_URL?.replace(/\/$/, "") ?? "https://squareboards.pro";
+  process.env.SITE_URL?.replace(/\/$/, "") ?? "https://www.squareboards.pro";
+
+/** Facebook App ID for `fb:app_id` — optional; set FACEBOOK_APP_ID or NEXT_PUBLIC_FACEBOOK_APP_ID. */
+export function getFacebookAppId(): string | undefined {
+  const id =
+    process.env.FACEBOOK_APP_ID?.trim() ||
+    process.env.NEXT_PUBLIC_FACEBOOK_APP_ID?.trim();
+  return id || undefined;
+}
 
 export const SITE_DESCRIPTION =
   "Premium Multi-Game Competitive Sports Platform";
@@ -33,9 +41,10 @@ export function profileUrl(username: string): string {
 /** Root layout metadata defaults — extend per-route via generateMetadata. */
 export function buildRootMetadata(): Metadata {
   const canonical = SITE_URL;
+  const facebookAppId = getFacebookAppId();
 
   return {
-    metadataBase: new URL(SITE_URL),
+    metadataBase: new URL(canonical),
     title: {
       default: BRAND_NAME,
       template: `%s | ${BRAND_NAME}`,
@@ -75,5 +84,6 @@ export function buildRootMetadata(): Metadata {
       statusBarStyle: "black-translucent",
       title: BRAND_NAME,
     },
+    ...(facebookAppId ? { facebook: { appId: facebookAppId } } : {}),
   };
 }

@@ -24,7 +24,7 @@ export default function RewardShareCard({ rewards, boxType, dropId }: RewardShar
   const visual = BOX_VISUALS[boxType];
   const rarity = RARITY_COLORS[best.rarity];
   const shareText = `🎁 Just pulled a ${rarity.label} ${best.label} from my ${visual.label} on SquareBoards! #SquareBoards #SquareDrop`;
-  const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://squareboards.pro";
+  const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://www.squareboards.pro";
 
   async function shareNative() {
     if (navigator.share) {
