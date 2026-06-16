@@ -52,6 +52,10 @@ export const LOADING_CONTEXTS = {
     "Tuning into live action…",
     "Checking live scores…",
   ],
+  wallet: [
+    "Loading SquareWallet™…",
+    "Checking your balances…",
+  ],
 } as const;
 
 export type LoadingContext = keyof typeof LOADING_CONTEXTS;

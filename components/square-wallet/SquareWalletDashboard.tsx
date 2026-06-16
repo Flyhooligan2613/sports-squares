@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Wallet } from "lucide-react";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import { Button } from "@/components/ui/Button";
 import type { SmartWalletRecommendation, SquareWalletDashboard } from "@/lib/platform/engines/payment/wallet";
 import type { WalletHistoryCategory } from "@/lib/platform/engines/payment/wallet/ledgerCategories";
 import WalletCreditBreakdown from "./WalletCreditBreakdown";
@@ -13,6 +14,48 @@ import WalletPaymentMethodsPanel from "./WalletPaymentMethodsPanel";
 import WalletHistoryTabs from "./WalletHistoryTabs";
 import SmartWalletRecommendations from "./SmartWalletRecommendations";
 import DepositSuccessAnimation from "./DepositSuccessAnimation";
+
+const WALLET_FETCH_TIMEOUT_MS = 2500;
+
+function createFallbackDashboard(): SquareWalletDashboard {
+  const now = new Date().toISOString();
+  return {
+    wallet: {
+      id: "local-fallback",
+      playerEmail: "",
+      status: "active",
+      lifetimeDepositsCents: 0,
+      lifetimeWithdrawalsCents: 0,
+      lifetimeContestEntriesCents: 0,
+      lifetimeWinningsCents: 0,
+      createdAt: now,
+      updatedAt: now,
+    },
+    balances: {
+      available: 0,
+      pendingWinnings: 0,
+      pendingWithdrawals: 0,
+      contestCredits: 0,
+      bonusCredits: 0,
+      rewardCredits: 0,
+      promotional: 0,
+      referral: 0,
+    },
+    withdrawableCents: 0,
+    lifetime: {
+      depositsCents: 0,
+      withdrawalsCents: 0,
+      contestEntriesCents: 0,
+      winningsCents: 0,
+    },
+    recentTransactions: [],
+    paymentMethod: {
+      brand: null,
+      last4: null,
+      fastCheckoutAvailable: false,
+    },
+  };
+}
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -63,25 +106,61 @@ export default function SquareWalletDashboard() {
   const [dashboard, setDashboard] = useState<SquareWalletDashboard | null>(null);
   const [recommendations, setRecommendations] = useState<SmartWalletRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<WalletTab>("overview");
   const [historyCategory, setHistoryCategory] = useState<WalletHistoryCategory>("deposits");
   const [suggestedDeposit, setSuggestedDeposit] = useState<number | undefined>();
 
-  const refresh = useCallback(async () => {
-    const [dashRes, recRes] = await Promise.all([
-      fetch("/api/square-wallet/dashboard", { cache: "no-store" }),
-      fetch("/api/square-wallet/smart-recommendations", { cache: "no-store" }),
-    ]);
-    if (dashRes.ok) {
-      const data = (await dashRes.json()) as { dashboard: SquareWalletDashboard | null };
-      setDashboard(data.dashboard);
-    }
-    if (recRes.ok) {
+  const loadRecommendations = useCallback(async () => {
+    try {
+      const recRes = await fetch("/api/square-wallet/smart-recommendations", {
+        cache: "no-store",
+        signal: AbortSignal.timeout(WALLET_FETCH_TIMEOUT_MS),
+      });
+      if (!recRes.ok) return;
       const data = (await recRes.json()) as { recommendations: SmartWalletRecommendation[] };
-      setRecommendations(data.recommendations);
+      setRecommendations(data.recommendations ?? []);
+    } catch {
+      // Recommendations are optional — never block the wallet shell.
     }
-    setLoading(false);
   }, []);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const dashRes = await fetch("/api/square-wallet/dashboard", {
+        cache: "no-store",
+        signal: AbortSignal.timeout(WALLET_FETCH_TIMEOUT_MS),
+      });
+
+      if (dashRes.status === 401) {
+        setLoadError("Sign in to view your SquareWallet™.");
+        setDashboard(createFallbackDashboard());
+        return;
+      }
+
+      if (dashRes.ok) {
+        const data = (await dashRes.json()) as { dashboard: SquareWalletDashboard | null };
+        if (data.dashboard) {
+          setDashboard(data.dashboard);
+        } else {
+          setDashboard(createFallbackDashboard());
+          setLoadError("Could not load wallet data. Balances may be out of date.");
+        }
+      } else {
+        setDashboard(createFallbackDashboard());
+        setLoadError("Could not load wallet data. Balances may be out of date.");
+      }
+    } catch {
+      setDashboard((prev) => prev ?? createFallbackDashboard());
+      setLoadError("Could not load wallet data. Balances may be out of date.");
+    } finally {
+      setLoading(false);
+    }
+
+    void loadRecommendations();
+  }, [loadRecommendations]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -104,26 +183,26 @@ export default function SquareWalletDashboard() {
     window.history.replaceState({}, "", query ? `?${query}` : window.location.pathname);
   }
 
-  if (loading) {
+  if (loading || !dashboard) {
     return (
       <div className="py-20">
-        <BrandedLoadingLabel context="general" className="text-center text-sb-muted animate-pulse" />
+        <BrandedLoadingLabel context="wallet" className="text-center text-sb-muted animate-pulse" />
       </div>
-    );
-  }
-
-  if (!dashboard) {
-    return (
-      <LandingGlassCard className="p-8 text-center">
-        <p className="text-sb-muted mb-2">SquareWallet™ is getting ready.</p>
-        <p className="text-sm text-sb-muted">Refresh in a moment or contact support if this persists.</p>
-      </LandingGlassCard>
     );
   }
 
   return (
     <div className="space-y-8">
       <DepositSuccessAnimation />
+
+      {loadError ? (
+        <LandingGlassCard className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-amber-200/90">{loadError}</p>
+          <Button variant="secondary" size="sm" onClick={() => void refresh()}>
+            Retry
+          </Button>
+        </LandingGlassCard>
+      ) : null}
 
       <header>
         <div className="flex items-center gap-2 mb-2">
