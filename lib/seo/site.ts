@@ -18,11 +18,15 @@ export const SITE_DESCRIPTION =
 
 export const SITE_TAGLINE = "Compete. Build Your Legacy.";
 
+/** Public OG asset — must stay reachable at `${SITE_URL}/og-image.png` for link previews. */
+export const DEFAULT_OG_IMAGE_PATH = "/og-image.png";
+
 export const DEFAULT_OG_IMAGE = {
-  url: "/og-image.png",
-  width: 1200,
-  height: 630,
+  url: DEFAULT_OG_IMAGE_PATH,
+  width: 1536,
+  height: 1024,
   alt: `${BRAND_NAME} — ${SITE_TAGLINE}`,
+  type: "image/png",
 } as const;
 
 export function absoluteUrl(path: string): string {
@@ -61,13 +65,21 @@ export function buildRootMetadata(): Metadata {
       siteName: BRAND_NAME,
       title: BRAND_NAME,
       description: SITE_DESCRIPTION,
-      images: [DEFAULT_OG_IMAGE],
+      images: [
+        {
+          url: absoluteUrl(DEFAULT_OG_IMAGE_PATH),
+          width: DEFAULT_OG_IMAGE.width,
+          height: DEFAULT_OG_IMAGE.height,
+          alt: DEFAULT_OG_IMAGE.alt,
+          type: DEFAULT_OG_IMAGE.type,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: BRAND_NAME,
       description: SITE_DESCRIPTION,
-      images: [DEFAULT_OG_IMAGE.url],
+      images: [absoluteUrl(DEFAULT_OG_IMAGE_PATH)],
     },
     icons: {
       icon: [
