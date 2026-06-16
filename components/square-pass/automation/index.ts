@@ -1,10 +1,8 @@
-export { SquarePassAutomationProvider, useSquarePassAutomation, useSquarePassAutomationOptional } from "./SquarePassAutomationProvider";
-export { default as WelcomeCelebrationModal } from "./WelcomeCelebrationModal";
-export { default as MysterySquarePassModal } from "./MysterySquarePassModal";
-export { default as WelcomeRewardRevealModal } from "./WelcomeRewardRevealModal";
-export { default as FounderRecognitionModal } from "./FounderRecognitionModal";
-export { default as WhatsNextModal } from "./WhatsNextModal";
-export { default as ProfileCustomizationPrompt } from "./ProfileCustomizationPrompt";
-export { default as DailySquarePassModal } from "./DailySquarePassModal";
-export { default as FlashEventModal } from "./FlashEventModal";
-export { default as SurpriseRewardModal } from "./SurpriseRewardModal";
+export {
+  OnboardingQueueProvider,
+  useOnboardingQueue,
+  useOnboardingQueueOptional,
+  SquarePassAutomationProvider,
+  useSquarePassAutomation,
+  useSquarePassAutomationOptional,
+} from "@/components/onboarding-queue";

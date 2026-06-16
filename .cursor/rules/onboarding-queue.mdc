@@ -1,0 +1,29 @@
+---
+description: OnboardingQueue™ — centralized competitor onboarding (Spec #010)
+globs:
+  - lib/platform/engines/onboardingQueue/**
+  - components/onboarding-queue/**
+  - app/api/onboarding-queue/**
+  - app/api/admin/onboarding-queue/**
+  - app/admin/onboarding-queue/**
+---
+
+# OnboardingQueue™ (Platform Build Spec #010)
+
+**No onboarding logic outside the queue.** All modal sequencing routes through `OnboardingQueueEngine`.
+
+## Rules
+
+- Wire dashboard via `OnboardingQueueProvider` inside `GenesisProvider`
+- Register new steps via `Queue.add()` in `modules/` — never hardcode order in UI
+- Mandatory order is fixed in `MANDATORY_ONBOARDING_ORDER` — conditional steps skip when ineligible
+- Only **one popup at a time** — provider renders `nextModule` only
+- Resume interrupted onboarding from `onboarding_queue_state.current_step_id`
+- SquarePass services (MysterySquarePass, Founder, Flash) are reward **backends** — queue decides WHEN
+
+## API
+
+Player routes: authenticated session via `getSquarePassAuthorizedEmail()`.  
+Admin routes: `getAuthorizedAdminUser()`.
+
+Full spec: `docs/project-legacy/ONBOARDING_QUEUE.md`

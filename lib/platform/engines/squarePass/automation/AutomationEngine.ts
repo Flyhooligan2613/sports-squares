@@ -1,11 +1,10 @@
-import { buildEligibilityContext } from "./EligibilityService";
-import { buildExperienceQueue } from "./ExperienceQueue";
-import { revealMysterySquarePass } from "./MysterySquarePassService";
-import { grantFounderRecognition } from "./FounderRecognitionService";
+import { OnboardingQueueEngine } from "@/lib/platform/engines/onboardingQueue";
+import type { OnboardingModuleId } from "@/lib/platform/engines/onboardingQueue";
+import { legacyStepToModuleId } from "./ExperienceQueue";
 import { grantDailyBonus, checkDailyBonus } from "./DailyBonusService";
 import { grantFlashEventReward } from "./FlashEventService";
 import { distributeRewards } from "../RewardDistributionService";
-import { upsertAutomationState } from "./repository";
+import { fetchAutomationState } from "./repository";
 import type {
   SquarePassAutomationQueueResult,
   SquarePassCompleteStepId,
@@ -13,27 +12,34 @@ import type {
   SquarePassMysteryRevealResult,
 } from "./types";
 
-const STEP_TIMESTAMP_MAP: Partial<
-  Record<SquarePassCompleteStepId, keyof Awaited<ReturnType<typeof upsertAutomationState>>>
-> = {
-  welcome: "welcomeCompletedAt",
-  mystery: "mysteryRevealedAt",
-  reward_reveal: "rewardRevealCompletedAt",
-  founder: "founderClaimedAt",
-  whats_next: "whatsNextCompletedAt",
-  profile_customization: "profileCustomizationCompletedAt",
+const LEGACY_ID_MAP: Partial<Record<OnboardingModuleId, SquarePassExperienceId>> = {
+  mystery_pass: "mystery",
+  profile: "profile_customization",
+  missions: "whats_next",
 };
 
+function toModuleId(stepId: SquarePassCompleteStepId): OnboardingModuleId {
+  const mapped = legacyStepToModuleId(stepId as SquarePassExperienceId);
+  if (mapped) return mapped;
+  return stepId as OnboardingModuleId;
+}
+
 export async function getAutomationQueue(email: string): Promise<SquarePassAutomationQueueResult> {
-  const ctx = await buildEligibilityContext(email);
-  const queue = await buildExperienceQueue(email, ctx);
+  const result = await OnboardingQueueEngine.getQueue(email);
+  const automationState = await fetchAutomationState(email);
+
+  const queue = result.queue.map((step) => ({
+    id: LEGACY_ID_MAP[step.id] ?? (step.id as SquarePassExperienceId),
+    title: step.title,
+    payload: step.payload,
+  }));
 
   return {
     queue,
     state: {
-      welcomeCompletedAt: ctx.state.welcomeCompletedAt,
-      mysteryRevealedAt: ctx.state.mysteryRevealedAt,
-      lastDailyBonusAt: ctx.state.lastDailyBonusAt,
+      welcomeCompletedAt: automationState?.welcomeCompletedAt ?? null,
+      mysteryRevealedAt: automationState?.mysteryRevealedAt ?? null,
+      lastDailyBonusAt: automationState?.lastDailyBonusAt ?? null,
     },
   };
 }
@@ -43,58 +49,15 @@ export async function completeAutomationStep(
   stepId: SquarePassCompleteStepId,
   metadata?: { flashCampaignSlug?: string; surpriseSlug?: string }
 ): Promise<{ ok: true }> {
-  const ctx = await buildEligibilityContext(email);
-  const now = new Date().toISOString();
-  const completed = new Set(ctx.state.experiencesCompleted);
-  completed.add(stepId);
-
-  const patch: Parameters<typeof upsertAutomationState>[1] = {
-    experiencesCompleted: Array.from(completed),
-  };
-
-  const tsKey = STEP_TIMESTAMP_MAP[stepId];
-  if (tsKey) {
-    (patch as Record<string, unknown>)[tsKey] = now;
-  }
-
-  if (stepId === "daily_bonus") {
-    patch.lastDailyBonusAt = now;
-  }
-
-  if (stepId === "flash_event" && metadata?.flashCampaignSlug) {
-    patch.flashEventsSeen = [
-      ...ctx.state.flashEventsSeen,
-      metadata.flashCampaignSlug,
-    ];
-  }
-
-  if (stepId === "surprise" && metadata?.surpriseSlug) {
-    patch.surprisesClaimed = [...ctx.state.surprisesClaimed, metadata.surpriseSlug];
-  }
-
-  if (stepId === "founder" && !ctx.state.founderClaimedAt) {
-    await grantFounderRecognition(email);
-    patch.founderClaimedAt = now;
-  }
-
-  if (stepId === "flash_event" && metadata?.flashCampaignSlug) {
-    await grantFlashEventReward(email, metadata.flashCampaignSlug);
-  }
-
-  if (stepId === "surprise" && metadata?.surpriseSlug) {
-    await handleSurpriseReveal(email, metadata.surpriseSlug);
-  }
-
-  await upsertAutomationState(email, patch);
+  await OnboardingQueueEngine.completeModule(email, {
+    moduleId: toModuleId(stepId),
+    metadata,
+  });
   return { ok: true };
 }
 
 export async function revealMystery(email: string): Promise<SquarePassMysteryRevealResult> {
-  const result = await revealMysterySquarePass(email);
-  await upsertAutomationState(email, {
-    mysteryRevealedAt: new Date().toISOString(),
-  });
-  return result;
+  return OnboardingQueueEngine.revealMystery(email);
 }
 
 export async function handleDailyBonus(email: string) {
@@ -115,7 +78,7 @@ export async function handleSurpriseReveal(email: string, surpriseSlug: string) 
   return { rewards };
 }
 
-/** SquarePassAutomationEngine™ — New Competitor Automated Experience orchestrator. */
+/** SquarePassAutomationEngine™ — delegates onboarding to OnboardingQueueEngine. */
 export const AutomationEngine = {
   getQueue: getAutomationQueue,
   completeStep: completeAutomationStep,

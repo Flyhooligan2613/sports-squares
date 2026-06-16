@@ -1,5 +1,5 @@
 import { GenesisProvider, FirstWinCelebration } from "@/components/genesis";
-import { SquarePassAutomationProvider } from "@/components/square-pass/automation";
+import { OnboardingQueueProvider } from "@/components/onboarding-queue";
 import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
 import QuickUnlockGate from "@/components/player/QuickUnlockGate";
 import PushNotificationPrompt from "@/components/player/PushNotificationPrompt";
@@ -51,10 +51,10 @@ export default async function MyGamesDashboardLayout({
         <PlayerHomeNav />
         <QuickUnlockGate>
           <GenesisProvider>
-            <SquarePassAutomationProvider>
+            <OnboardingQueueProvider>
               {children}
               <FirstWinCelebration />
-            </SquarePassAutomationProvider>
+            </OnboardingQueueProvider>
           </GenesisProvider>
         </QuickUnlockGate>
         <PushNotificationPrompt />
