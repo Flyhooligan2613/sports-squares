@@ -7,6 +7,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Crown, Medal } from "lucide-react";
+import { podiumMedalForRank } from "@/lib/platform/podium";
 import type {
   PickemLeaderboardBoard,
   PickemLeaderboardPeriod,
@@ -189,7 +190,11 @@ export default function PickemLeaderboardsClient({ sport = "nfl" }: { sport?: Pi
                       }`}
                     >
                       <div className="w-10 shrink-0 flex items-center justify-center gap-1">
-                        {entry.rank === 1 ? (
+                        {podiumMedalForRank(entry.rank) ? (
+                          <span className="text-base" aria-hidden>
+                            {podiumMedalForRank(entry.rank)}
+                          </span>
+                        ) : entry.rank === 1 ? (
                           <Crown className="w-4 h-4 text-sb-gold" />
                         ) : entry.rank <= 3 ? (
                           <Medal className={`w-4 h-4 ${rankAccent(entry.rank)}`} />

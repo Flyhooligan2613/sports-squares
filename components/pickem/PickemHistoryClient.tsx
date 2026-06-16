@@ -11,6 +11,7 @@ import { PROFILE_LABELS } from "@/lib/platform/language";
 import type { PickemWeekHistoryEntry, PickemSport } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath } from "@/lib/pickem/routes";
 import { pickemTiebreakerHistoryLabel } from "@/lib/pickem/copy";
+import { podiumMedalForRank } from "@/lib/platform/podium";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -155,7 +156,10 @@ export default function PickemHistoryClient({ sport = "nfl" }: { sport?: PickemS
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-semibold text-white capitalize">
-                          {week.status.replace("_", " ")}
+                          {week.finishPlace != null && podiumMedalForRank(week.finishPlace)
+                            ? `${podiumMedalForRank(week.finishPlace)} `
+                            : ""}
+                          {week.status.replace(/_/g, " ")}
                         </p>
                         {week.earningsCents > 0 ? (
                           <p className="text-xs text-emerald-400">
