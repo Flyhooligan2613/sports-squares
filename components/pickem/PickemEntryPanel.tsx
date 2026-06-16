@@ -77,7 +77,7 @@ export default function PickemEntryPanel({
           <p className="text-sb-muted text-sm mt-1 max-w-xl">
             One {priceLabel} entry unlocks all picks for this week at the {tierLabel} tier.
             {TRUST_MESSAGES.competitionNotWagering} SquareBoards does not hold balances — entry
-            fees and winnings flow through Stripe automatically.
+            fees and winnings flow through SquareWallet™ automatically.
           </p>
         </div>
         <div className="text-right">
@@ -119,7 +119,7 @@ export default function PickemEntryPanel({
 
       <p className="flex items-center gap-1.5 text-xs text-sb-muted mt-4">
         <ShieldCheck className="w-3.5 h-3.5 text-emerald-400/80" />
-        Secured by Stripe · Administrators cannot alter results
+        {TRUST_MESSAGES.squareWalletSecured} · Administrators cannot alter results
       </p>
 
       {error ? <p className="text-xs text-red-400 mt-3">{error}</p> : null}

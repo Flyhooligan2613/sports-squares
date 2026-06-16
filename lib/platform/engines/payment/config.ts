@@ -5,6 +5,10 @@ const VALID_PROVIDERS: PaymentProviderId[] = [
   "future_gaming",
   "future_fantasy_sports",
   "future_ach",
+  "future_bank_transfer",
+  "future_apple_pay",
+  "future_google_pay",
+  "future_crypto",
 ];
 
 /** Active payment provider — swap adapters without code changes. */

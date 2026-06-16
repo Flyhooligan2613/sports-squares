@@ -12,10 +12,6 @@ import {
   PaymentEngine,
   isStripeConfigured,
 } from "@/lib/platform/engines/payment";
-import {
-  diagnoseWinnerConnectV2Account,
-  repairWinnerConnectV2Account,
-} from "@/lib/stripe/connectV2Diagnostics";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -83,7 +79,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const report = await diagnoseWinnerConnectV2Account(lookup);
+    const report = await PaymentEngine.diagnoseConnectAccount(lookup);
     return NextResponse.json({
       ...report,
       connectV2Enabled: true,
@@ -129,14 +125,14 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Cannot sync without a linked player email." }, { status: 400 });
       }
       const dbStatus = await refreshPlayerConnectStatus(lookup.playerEmail);
-      const report = await diagnoseWinnerConnectV2Account({
+      const report = await PaymentEngine.diagnoseConnectAccount({
         ...lookup,
         dbStatus,
       });
       return NextResponse.json({ ok: true, action: "sync", ...report });
     }
 
-    const report = await repairWinnerConnectV2Account(
+    const report = await PaymentEngine.repairConnectAccount(
       lookup.accountId,
       lookup.playerEmail
         ? await getPlayerConnectIdentityPrefill(lookup.playerEmail)

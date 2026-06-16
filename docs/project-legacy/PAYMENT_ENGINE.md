@@ -60,7 +60,7 @@ Standardized `PaymentProviderResult` responses with `PaymentError` user messages
 ## Configuration
 
 ```env
-PAYMENT_PROVIDER=stripe   # stripe | future_gaming | future_fantasy_sports | future_ach
+PAYMENT_PROVIDER=stripe   # stripe | future_gaming | future_fantasy_sports | future_ach | future_bank_transfer | future_apple_pay | future_google_pay | future_crypto
 STRIPE_SECRET_KEY=...
 STRIPE_WEBHOOK_SECRET=...
 STRIPE_CONNECT_ENABLED=false
@@ -106,6 +106,30 @@ Tracks: transaction id, player, contest/pool, provider, wallet type, payment met
 3. **Never store raw payment info** — last4 + brand only
 4. **Stripe remains** as default adapter — not removed
 5. Connect-sample demo routes are exempt (Stripe Accounts v2 sandbox)
+
+---
+
+## SquareWallet™ balance types
+
+Ledger-backed from `payment_transactions`, player dashboard, and ecosystem tables:
+
+- Available / pending balance (pending includes in-flight payouts + pending transactions)
+- Contest entries / winnings
+- Deposits, withdrawals, refunds
+- Reward / marketplace / promotional credits
+- Transaction history via `getSquareWalletTransactionHistory()`
+
+**Phase 2 placeholders** (null until implemented): gift cards, team/family wallets, subscription credits.  
+**Cash custodial balance** stays 0 — SquareBoards does not hold player funds; winnings route to linked cash-out accounts.
+
+## Stub adapters
+
+Registered in `registry.ts` — all throw `provider_not_implemented`:
+
+- `future_gaming`, `future_fantasy_sports`, `future_ach`
+- `future_bank_transfer`, `future_apple_pay`, `future_google_pay`, `future_crypto`
+
+Swap providers: implement adapter + set `PAYMENT_PROVIDER`.
 
 ---
 

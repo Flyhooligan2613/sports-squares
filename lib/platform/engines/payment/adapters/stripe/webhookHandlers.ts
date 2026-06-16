@@ -22,6 +22,10 @@ import { retrieveWinnerConnectV2Account } from "@/lib/platform/engines/payment/a
 import { syncPlayerWalletFromCheckoutSession } from "@/lib/platform/engines/payment/adapters/stripe/playerWallet";
 import { getStripe } from "@/lib/platform/engines/payment/adapters/stripe/client";
 import { getStripeWebhookSecret } from "@/lib/platform/engines/payment/adapters/stripe/config";
+import {
+  orchestrateCheckoutSessionCompleted,
+  orchestrateWebhookRefund,
+} from "@/lib/platform/engines/payment/orchestrator";
 import { normalizeEmail } from "@/lib/player/statsCore";
 
 function parseSquaresCount(raw: string | undefined): number | null {
@@ -104,6 +108,19 @@ export async function handleStripeCheckoutCompleted(session: Stripe.Checkout.Ses
   } catch (err) {
     console.error("[payment/webhook] wallet sync failed", err);
   }
+
+  try {
+    await orchestrateCheckoutSessionCompleted({
+      sessionId: session.id,
+      paymentIntentId:
+        typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : session.payment_intent?.id ?? null,
+      amountCents: session.amount_total ?? 0,
+    });
+  } catch (err) {
+    console.error("[payment/webhook] transaction center sync failed", err);
+  }
 }
 
 export async function handleStripeChargeRefunded(charge: Stripe.Charge) {
@@ -130,10 +147,19 @@ export async function handleStripeChargeRefunded(charge: Stripe.Charge) {
 
   if (purchaseType === PURCHASE_TYPE_PICKEM_ENTRY) {
     await reversePickemEntryBySession(sessionId);
-    return;
+  } else {
+    await reversePurchaseBySession(sessionId);
   }
 
-  await reversePurchaseBySession(sessionId);
+  try {
+    await orchestrateWebhookRefund({
+      paymentIntentId,
+      amountCents: charge.amount_refunded ?? 0,
+      sessionId,
+    });
+  } catch (err) {
+    console.error("[payment/webhook] refund transaction record failed", err);
+  }
 }
 
 export async function handleStripeAccountUpdated(account: Stripe.Account) {

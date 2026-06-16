@@ -2,15 +2,130 @@ import { getPlayerWallet, formatSavedPaymentLabel } from "@/lib/platform/engines
 import { listPaymentTransactionsForPlayer } from "@/lib/platform/engines/payment/TransactionCenter";
 import { getPaymentProviderId } from "@/lib/platform/engines/payment/config";
 import type {
+  PaymentTransactionRecord,
+  SquareWalletBalanceBreakdown,
   SquareWalletSummary,
   SquareWalletTransaction,
 } from "@/lib/platform/engines/payment/types";
 import { normalizeEmail } from "@/lib/player/statsCore";
+import { getPlayerDashboard } from "@/lib/database/services/playerDashboard";
+import { getEcosystemDashboard } from "@/lib/platform/ecosystem/dashboard";
+import { getInventorySummary } from "@/lib/platform/ecosystem/inventory";
+
+const FUTURE_PLACEHOLDER = null;
+
+function aggregateTransactionBalances(
+  transactions: PaymentTransactionRecord[]
+): Pick<
+  SquareWalletBalanceBreakdown,
+  | "pendingBalanceCents"
+  | "contestEntriesCents"
+  | "depositsCents"
+  | "withdrawalsCents"
+  | "refundsCents"
+  | "rewardCreditsCents"
+> {
+  let pendingBalanceCents = 0;
+  let contestEntriesCents = 0;
+  let depositsCents = 0;
+  let withdrawalsCents = 0;
+  let refundsCents = 0;
+  let rewardCreditsCents = 0;
+
+  for (const tx of transactions) {
+    const amount = tx.amountCents;
+    const isPending = tx.status === "pending" || tx.status === "authorized";
+
+    if (isPending) {
+      pendingBalanceCents += amount;
+    }
+
+    switch (tx.transactionType) {
+      case "contest_entry":
+        if (tx.status === "completed" || tx.status === "captured") {
+          contestEntriesCents += amount;
+        }
+        break;
+      case "deposit":
+        if (tx.status === "completed" || tx.status === "captured") {
+          depositsCents += amount;
+        }
+        break;
+      case "withdrawal":
+        if (tx.status === "completed") withdrawalsCents += amount;
+        break;
+      case "refund":
+        if (tx.status === "refunded" || tx.status === "completed") refundsCents += amount;
+        break;
+      case "reward_credit":
+        if (tx.status === "completed") rewardCreditsCents += amount;
+        break;
+      default:
+        break;
+    }
+  }
+
+  return {
+    pendingBalanceCents,
+    contestEntriesCents,
+    depositsCents,
+    withdrawalsCents,
+    refundsCents,
+    rewardCreditsCents,
+  };
+}
+
+async function buildSquareWalletBalances(email: string): Promise<SquareWalletBalanceBreakdown> {
+  const normalized = normalizeEmail(email);
+  const [transactions, playerDash, ecosystem, inventory] = await Promise.all([
+    listPaymentTransactionsForPlayer(normalized, 500).catch(() => [] as PaymentTransactionRecord[]),
+    getPlayerDashboard(normalized).catch(() => null),
+    getEcosystemDashboard(normalized).catch(() => null),
+    getInventorySummary(normalized).catch(() => null),
+  ]);
+
+  const txAgg = aggregateTransactionBalances(transactions);
+
+  const contestWinningsCents = Math.round((playerDash?.stats.totalWinnings ?? 0) * 100);
+  const pendingPayoutCents = Math.round(
+    (playerDash?.recentWins ?? [])
+      .filter((w) => w.payoutStatus === "pending")
+      .reduce((sum, w) => sum + w.amount, 0) * 100
+  );
+
+  const marketplaceCreditsCents =
+    (ecosystem?.account.squareCreditsCents ?? 0) + (ecosystem?.account.pickemCreditsCents ?? 0);
+  const promotionalCreditsCents = inventory?.counts.promo_credit ?? 0;
+
+  /**
+   * SquareBoards does not custodial-hold player cash — winnings flow to linked cash-out accounts.
+   * availableBalanceCents stays 0 until a dedicated cash ledger ships (phase 2).
+   */
+  return {
+    availableBalanceCents: 0,
+    pendingBalanceCents: txAgg.pendingBalanceCents + pendingPayoutCents,
+    contestEntriesCents: txAgg.contestEntriesCents,
+    contestWinningsCents,
+    depositsCents: txAgg.depositsCents,
+    withdrawalsCents: txAgg.withdrawalsCents,
+    rewardCreditsCents: txAgg.rewardCreditsCents,
+    marketplaceCreditsCents,
+    promotionalCreditsCents,
+    refundsCents: txAgg.refundsCents,
+    giftCardBalanceCents: FUTURE_PLACEHOLDER,
+    teamWalletBalanceCents: FUTURE_PLACEHOLDER,
+    familyWalletBalanceCents: FUTURE_PLACEHOLDER,
+    subscriptionCreditsCents: FUTURE_PLACEHOLDER,
+  };
+}
 
 /** SquareWallet™ — platform-owned wallet experience layer. */
 export async function getSquareWallet(email: string): Promise<SquareWalletSummary> {
   const normalized = normalizeEmail(email);
-  const wallet = await getPlayerWallet(normalized);
+  const [wallet, balances] = await Promise.all([
+    getPlayerWallet(normalized),
+    buildSquareWalletBalances(normalized),
+  ]);
 
   return {
     email: normalized,
@@ -20,8 +135,9 @@ export async function getSquareWallet(email: string): Promise<SquareWalletSummar
     paymentMethodLast4: wallet.last4,
     fastCheckoutAvailable: wallet.fastCheckoutAvailable,
     accountSuspended: wallet.accountSuspended,
-    availableBalanceCents: 0,
-    pendingBalanceCents: 0,
+    availableBalanceCents: balances.availableBalanceCents,
+    pendingBalanceCents: balances.pendingBalanceCents,
+    balances,
   };
 }
 

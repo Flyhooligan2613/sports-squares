@@ -4,7 +4,11 @@ export type PaymentProviderId =
   | "stripe"
   | "future_gaming"
   | "future_fantasy_sports"
-  | "future_ach";
+  | "future_ach"
+  | "future_bank_transfer"
+  | "future_apple_pay"
+  | "future_google_pay"
+  | "future_crypto";
 
 export type PaymentTransactionStatus =
   | "pending"
@@ -177,6 +181,25 @@ export interface CancelTransactionInput {
   providerTransactionId: string;
 }
 
+/** SquareWallet™ balance categories — ledger-backed where tables exist. */
+export interface SquareWalletBalanceBreakdown {
+  availableBalanceCents: number;
+  pendingBalanceCents: number;
+  contestEntriesCents: number;
+  contestWinningsCents: number;
+  depositsCents: number;
+  withdrawalsCents: number;
+  rewardCreditsCents: number;
+  marketplaceCreditsCents: number;
+  promotionalCreditsCents: number;
+  refundsCents: number;
+  /** Phase 2 — not yet implemented. */
+  giftCardBalanceCents: number | null;
+  teamWalletBalanceCents: number | null;
+  familyWalletBalanceCents: number | null;
+  subscriptionCreditsCents: number | null;
+}
+
 /** SquareWallet™ — platform-owned wallet view (no raw PAN/bank numbers). */
 export interface SquareWalletSummary {
   email: string;
@@ -188,6 +211,7 @@ export interface SquareWalletSummary {
   accountSuspended: boolean;
   availableBalanceCents: number;
   pendingBalanceCents: number;
+  balances: SquareWalletBalanceBreakdown;
 }
 
 export interface SquareWalletTransaction {

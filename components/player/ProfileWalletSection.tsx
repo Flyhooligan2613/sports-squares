@@ -76,8 +76,8 @@ export default function ProfileWalletSection() {
       ) : (
         <div className="space-y-4">
           <p className="text-xs text-sb-muted leading-relaxed">
-            SquareBoards does not hold player balances. Connect a Stripe cash-out account before
-            playing — Stripe handles card linking, identity verification, and fraud prevention.
+            SquareBoards does not hold player balances. Connect your SquareWallet™ cash-out account before
+            playing — SquareWallet handles card linking, identity verification, and fraud prevention.
           </p>
 
           <div>
@@ -86,7 +86,7 @@ export default function ProfileWalletSection() {
             </p>
             {connect?.ready ? (
               <p className="text-sm text-emerald-300">
-                Stripe connected — winnings deposit automatically to your linked account.
+                SquareWallet connected — winnings deposit automatically to your linked account.
               </p>
             ) : (
               <p className="text-sm text-amber-200/90 leading-relaxed">
@@ -104,7 +104,7 @@ export default function ProfileWalletSection() {
               <p className="text-sm text-white">{wallet.savedPayment.label} on file</p>
             ) : (
               <p className="text-sm text-sb-muted leading-relaxed">
-                Saved automatically at checkout. Stripe verifies your card when you pay.
+                Saved automatically at checkout. SquareWallet verifies your card when you pay.
               </p>
             )}
           </div>

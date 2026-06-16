@@ -197,8 +197,8 @@ export default function PlayerPayoutSetup({
             </h2>
             <p className="text-sm text-sb-muted leading-relaxed max-w-xl">
               {status?.ready
-                ? "Winnings deposit automatically via Stripe. Card linking and identity checks are handled by Stripe."
-                : "Required before you can place squares or picks. Tap below — Stripe opens in your browser to verify identity and link your bank. Use the same name and address from sign-up."}
+                ? "Winnings deposit automatically via SquareWallet™. Card linking and identity checks are handled securely."
+                : "Required before you can place squares or picks. Tap below — a secure window opens to verify identity and link your bank. Use the same name and address from sign-up."}
             </p>
             <p className="text-xs text-emerald-300/85 mt-3 leading-relaxed max-w-xl">
               {TRUST_MESSAGES.cashOutDebitTip}
@@ -212,7 +212,7 @@ export default function PlayerPayoutSetup({
               disabled={starting || payoutBlocked}
               className="shrink-0"
             >
-              {starting ? "Opening Stripe…" : "Set up cash-out"}
+              {starting ? "Opening secure setup…" : "Set up cash-out"}
             </Button>
           )}
 
@@ -223,7 +223,7 @@ export default function PlayerPayoutSetup({
               disabled={starting || payoutBlocked}
               className="shrink-0"
             >
-              {starting ? "Opening Stripe…" : "Update payout details"}
+              {starting ? "Opening secure setup…" : "Update payout details"}
             </Button>
           )}
         </div>
@@ -238,7 +238,7 @@ export default function PlayerPayoutSetup({
           subtitle="Verify with biometrics or Quick PIN before changing payout details."
           kicker="Security check"
           pinTitle="Confirm payout change"
-          pinSubtitle="Enter your Quick PIN to continue to Stripe"
+          pinSubtitle="Enter your Quick PIN to continue to cash-out setup"
           onClose={() => {
             setShowStepUp(false);
             setStarting(false);

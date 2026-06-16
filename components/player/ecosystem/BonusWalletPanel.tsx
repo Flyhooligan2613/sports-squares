@@ -15,7 +15,7 @@ export default function BonusWalletPanel() {
 
   const rows = [
     { label: "Cash Balance", value: `$${(w.cashBalanceCents / 100).toFixed(2)}`, href: "/my-games/winnings" },
-    { label: "Pending Stripe Payouts", value: `$${(w.pendingPayoutCents / 100).toFixed(2)}` },
+    { label: "Pending SquareWallet Payouts", value: `$${(w.pendingPayoutCents / 100).toFixed(2)}` },
     { label: "Square Credits", value: `$${(w.squareCreditsCents / 100).toFixed(2)}` },
     { label: "Pick'em Credits", value: `$${(w.pickemCreditsCents / 100).toFixed(2)}` },
     { label: "Tier Credits", value: w.tierCredits.toLocaleString() },

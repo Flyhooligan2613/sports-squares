@@ -46,3 +46,7 @@ function notImplemented(id: PaymentProviderId): PaymentProvider {
 export const futureGamingProviderAdapter = notImplemented("future_gaming");
 export const futureFantasySportsAdapter = notImplemented("future_fantasy_sports");
 export const futureACHProviderAdapter = notImplemented("future_ach");
+export const futureBankTransferAdapter = notImplemented("future_bank_transfer");
+export const futureApplePayAdapter = notImplemented("future_apple_pay");
+export const futureGooglePayAdapter = notImplemented("future_google_pay");
+export const futureCryptoAdapter = notImplemented("future_crypto");

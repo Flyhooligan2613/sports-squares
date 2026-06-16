@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 
 const FEATURES = [
-  "Secure Stripe Payments",
+  "Secure SquareWallet™ Payments",
   "Instant Square Selection",
   "Live Game Scoring",
   "Automatic Winner Tracking",

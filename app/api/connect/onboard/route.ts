@@ -9,14 +9,6 @@ import {
   syncConnectAccountFromStripeV2,
 } from "@/lib/database/services/stripeConnect";
 import {
-  createConnectAccountLink,
-  createExpressConnectAccount,
-} from "@/lib/platform/engines/payment/adapters/stripe/connect";
-import {
-  createWinnerConnectV2Account,
-  createWinnerConnectV2AccountLink,
-} from "@/lib/platform/engines/payment/adapters/stripe/connectV2Payouts";
-import {
   PaymentEngine,
   isStripeProductionMisconfigured,
 } from "@/lib/platform/engines/payment";
@@ -24,7 +16,7 @@ import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
 import { notifySecurityEvent } from "@/lib/auth/security/notify";
 import { emailHasPasskey } from "@/lib/auth/security/webauthn";
-import { displayNameFromEmail, normalizeEmail } from "@/lib/player/statsCore";
+import { normalizeEmail } from "@/lib/player/statsCore";
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +75,7 @@ export async function POST(request: Request) {
 
     if (!accountId) {
       if (useV2) {
-        const account = await createWinnerConnectV2Account({
+        const account = await PaymentEngine.createConnectV2WinnerAccount({
           email,
           displayName: prefill.displayName,
           prefill,
@@ -92,7 +84,7 @@ export async function POST(request: Request) {
         await ensureConnectAccountId(email, accountId);
         await syncConnectAccountFromStripeV2(email, account);
       } else {
-        const account = await createExpressConnectAccount(email);
+        const account = await PaymentEngine.createConnectExpressAccount(email);
         accountId = account.id;
         await ensureConnectAccountId(email, accountId);
       }
@@ -108,18 +100,18 @@ export async function POST(request: Request) {
     }
 
     if (!accountId) {
-      throw new Error("Could not save Stripe Connect account for this player.");
-    }
-
-    if (useV2) {
-      const url = await createWinnerConnectV2AccountLink({ accountId, prefill });
-      return NextResponse.json({ url });
+      throw new Error("Could not save Connect cash-out account for this player.");
     }
 
     const linkType = status.payoutsEnabled ? "account_update" : "account_onboarding";
-    const link = await createConnectAccountLink(accountId, linkType);
+    const url = await PaymentEngine.createConnectOnboardingLink({
+      accountId,
+      useV2,
+      linkType,
+      prefill,
+    });
 
-    return NextResponse.json({ url: link.url });
+    return NextResponse.json({ url });
   } catch (err) {
     console.error("[connect/onboard]", err);
     return NextResponse.json(

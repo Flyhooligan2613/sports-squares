@@ -26,6 +26,7 @@ export type {
   GetTransactionInput,
   CancelTransactionInput,
   SquareWalletSummary,
+  SquareWalletBalanceBreakdown,
   SquareWalletTransaction,
   PaymentTransactionRecord,
   PaymentAuditEntry,
@@ -76,11 +77,21 @@ export {
   orchestrateDeposit,
   orchestrateFastCheckout,
   orchestratePayout,
+  orchestrateWithdraw,
+  orchestrateAuthorize,
+  orchestrateCapture,
+  orchestrateRefund,
+  orchestrateSavePaymentMethod,
+  orchestrateDeletePaymentMethod,
+  orchestrateGetTransaction,
+  orchestrateCancelTransaction,
   orchestrateVerifyIdentity,
   orchestrateCreateCustomer,
   orchestrateRetrieveCheckoutSession,
   orchestrateIsConnectEnabled,
   orchestrateIsConnectV2PayoutsEnabled,
+  orchestrateCheckoutSessionCompleted,
+  orchestrateWebhookRefund,
 } from "@/lib/platform/engines/payment/orchestrator";
 
 export {
@@ -102,6 +113,8 @@ export {
   getStripeWebhookSecret,
   getStripeKeyMode,
 } from "@/lib/platform/engines/payment/adapters/stripe/config";
+
+export type { ConnectV2DiagnosticReport } from "@/lib/platform/engines/payment/adapters/stripe/connectV2Diagnostics";
 
 export {
   isStripeConnectEnabled,

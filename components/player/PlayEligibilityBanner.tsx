@@ -22,7 +22,7 @@ function blockerMessage(blockers: PlayEligibilityBlocker[]): string {
     return "Sign in to set up your cash-out account and play.";
   }
   if (blockers.includes("payout_account_required")) {
-    return "Connect your cash-out account through Stripe before placing squares or picks. SquareBoards does not hold balances — Stripe handles deposits, identity checks, and payouts.";
+    return "Connect your cash-out account through SquareWallet™ before placing squares or picks. SquareBoards does not hold balances — SquareWallet handles deposits, identity checks, and payouts.";
   }
   return "Complete cash-out setup before playing.";
 }
@@ -72,7 +72,7 @@ export default function PlayEligibilityBanner({
             <p className="text-sm text-emerald-200 font-medium">Ready to play</p>
             <p className="text-xs text-sb-muted mt-1">
               Cash-out connected
-              {status?.savedPaymentLabel ? ` · ${status.savedPaymentLabel}` : ""}. Stripe
+              {status?.savedPaymentLabel ? ` · ${status.savedPaymentLabel}` : ""}. SquareWallet
               verifies your card and identity — SquareBoards does not hold player balances.
             </p>
             <p className="text-xs text-emerald-300/80 mt-2">{TRUST_MESSAGES.cashOutDebitTip}</p>
@@ -103,7 +103,7 @@ export default function PlayEligibilityBanner({
             {!compact ? (
               <p className="text-xs text-sb-muted mt-2">
                 SquareBoards is a competition platform only. All payment verification and fraud
-                prevention is handled by Stripe.
+                prevention is handled by SquareWallet™.
               </p>
             ) : null}
             <p className="text-xs text-amber-200/80 mt-2">{TRUST_MESSAGES.cashOutDebitTip}</p>

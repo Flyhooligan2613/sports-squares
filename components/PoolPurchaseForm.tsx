@@ -16,6 +16,7 @@ import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
 import PlatformHostingFeeNote from "@/components/platform/PlatformHostingFeeNote";
 import { normalizeEntryTierCents } from "@/lib/platform/core/entryTiers";
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
+import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 
 interface PoolPurchaseFormProps {
   pool: Pool;
@@ -187,10 +188,10 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
           title="Purchase Squares"
           subtitle={
             !authenticated
-              ? "Sign in and connect your Stripe cash-out account before purchasing."
+              ? "Sign in and connect your SquareWallet™ cash-out account before purchasing."
               : savedPaymentLabel
-                ? "Confirm instantly with biometrics or use Stripe checkout."
-                : "Pay securely with Stripe after your cash-out account is connected."
+                ? "Confirm instantly with biometrics or use SquareWallet checkout."
+                : TRUST_MESSAGES.squareWalletCheckout
           }
         />
 
@@ -250,7 +251,7 @@ export default function PoolPurchaseForm({ pool }: PoolPurchaseFormProps) {
             </div>
             <div className="flex items-center gap-2 text-sb-muted text-xs">
               <ShieldCheck className="w-4 h-4 text-sb-success" />
-              Secured by Stripe
+              {TRUST_MESSAGES.squareWalletSecured}
             </div>
           </div>
 

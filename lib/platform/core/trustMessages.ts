@@ -4,7 +4,7 @@ export const TRUST_MESSAGES = {
   officialScores:
     "Scores provided by official league data feeds.",
   stripePayouts:
-    "Payouts processed automatically through Stripe.",
+    "Payouts processed automatically through SquareWallet™.",
   adminNeutral:
     "Administrators cannot alter game results.",
   fullyAutomated: "SquareBoards is fully automated.",
@@ -21,9 +21,13 @@ export const TRUST_MESSAGES = {
   squaresLottery:
     "Squares is lottery-style among participants — random digits, official scores, automated payouts.",
   connectRequired:
-    "Stripe Connect cash-out accounts are required so winners receive automated payouts directly.",
+    "SquareWallet™ cash-out accounts are required so winners receive automated payouts directly.",
   cashOutDebitTip:
-    "Major debit cards recommended for the fastest cash-outs. SquareBoards is built for massive payouts — winnings deposit straight to your Stripe cash-out account.",
+    "Major debit cards recommended for the fastest cash-outs. SquareBoards is built for massive payouts — winnings deposit straight to your SquareWallet™ cash-out account.",
+  squareWalletSecured:
+    "Secured by SquareWallet™",
+  squareWalletCheckout:
+    "Pay securely with SquareWallet™ after your cash-out account is connected.",
 } as const;
 
 export type TrustMessageKey = keyof typeof TRUST_MESSAGES;
