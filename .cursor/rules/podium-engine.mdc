@@ -1,0 +1,25 @@
+---
+description: PodiumEngine™ — Core Platform Engine for ranked competition finishes
+globs: lib/platform/engines/podium/**,lib/platform/podium/**
+alwaysApply: false
+---
+
+# PodiumEngine™ (Core Platform Engine)
+
+Permanent Core Platform Engine for ranked competition finishes — not Pick'em-specific.
+
+## Rules
+
+- Contests register **adapters** — never duplicate reward logic in adapters
+- Resolution calls `PodiumEngine.process()` / `processContestPodium()` only
+- All career stats via `recordPodiumFinishes` single path
+- Default **disabled** — preserve legacy single-winner when `enabled: false`
+- Publish `podium.ceremony`, `podium.awarded`, `podium.near_perfect` via EventEngine
+
+## Adding a contest
+
+1. Create adapter (`resolveStandings`, `getPrizePool`, optional `onAwarded`)
+2. Register in `adapters/index.ts`
+3. Call `processContestPodium` at resolution
+
+Full spec: `docs/project-legacy/PODIUM_ENGINE.md`
