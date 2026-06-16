@@ -25,6 +25,7 @@ export default function PlayerPayoutSetup({
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [showStepUp, setShowStepUp] = useState(false);
+  const [productionMisconfigured, setProductionMisconfigured] = useState(false);
   const autostartedRef = useRef(false);
 
   useEffect(() => {
@@ -38,13 +39,16 @@ export default function PlayerPayoutSetup({
         if (bootstrap.email) setEmail(bootstrap.email);
 
         if (statusRes.ok) {
-          const json = (await statusRes.json()) as PlayerConnectStatus;
+          const json = (await statusRes.json()) as PlayerConnectStatus & {
+            productionMisconfigured?: boolean;
+          };
           setStatus({
             accountId: json.accountId,
             detailsSubmitted: json.detailsSubmitted,
             payoutsEnabled: json.payoutsEnabled,
             ready: json.ready,
           });
+          if (json.productionMisconfigured) setProductionMisconfigured(true);
         }
       } catch {
         // Keep last known status.
@@ -164,9 +168,25 @@ export default function PlayerPayoutSetup({
   if (loading) return null;
   if (status?.ready && !showWhenReady) return null;
 
+  const payoutBlocked = productionMisconfigured;
+
   return (
     <>
       <LandingGlassCard glow className="p-6 sm:p-7 mb-6">
+        {payoutBlocked && (
+          <div
+            className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100/95 leading-relaxed"
+            role="alert"
+          >
+            Cash-out setup is temporarily unavailable. The platform is running in Stripe test mode,
+            which only shows fake test banks — not real institutions like Chase or Wells Fargo.
+            Please contact{" "}
+            <a href="mailto:support@squareboards.pro" className="underline font-medium">
+              support@squareboards.pro
+            </a>{" "}
+            if you need help.
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-wider text-emerald-400/90 mb-2">
@@ -187,7 +207,11 @@ export default function PlayerPayoutSetup({
           </div>
 
           {!status?.ready && (
-            <Button onClick={() => void startOnboarding()} disabled={starting} className="shrink-0">
+            <Button
+              onClick={() => void startOnboarding()}
+              disabled={starting || payoutBlocked}
+              className="shrink-0"
+            >
               {starting ? "Opening Stripe…" : "Set up cash-out"}
             </Button>
           )}
@@ -196,7 +220,7 @@ export default function PlayerPayoutSetup({
             <Button
               variant="secondary"
               onClick={() => void startOnboarding()}
-              disabled={starting}
+              disabled={starting || payoutBlocked}
               className="shrink-0"
             >
               {starting ? "Opening Stripe…" : "Update payout details"}

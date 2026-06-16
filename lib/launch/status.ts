@@ -1,7 +1,10 @@
 import {
   getCheckoutMissingConfig,
+  getStripeKeyMode,
   getStripeWebhookSecret,
   isStripeConfigured,
+  isStripeProductionMisconfigured,
+  isStripeTestMode,
 } from "@/lib/stripe/config";
 import { isResendConfigured } from "@/lib/email/resend";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -21,10 +24,14 @@ export function getLaunchReadinessChecks(): LaunchCheck[] {
   );
 
   const stripeMissing = getCheckoutMissingConfig();
+  const stripeKeyMode = getStripeKeyMode();
+  const stripeLiveInProduction =
+    !isStripeProductionMisconfigured() && stripeKeyMode !== "unknown";
   const stripeOk =
     isStripeConfigured() &&
     stripeMissing.length === 0 &&
-    Boolean(getStripeWebhookSecret());
+    Boolean(getStripeWebhookSecret()) &&
+    stripeLiveInProduction;
 
   const resendOk = isResendConfigured();
   const serviceRoleOk = isSupabaseAdminConfigured();
@@ -45,10 +52,14 @@ export function getLaunchReadinessChecks(): LaunchCheck[] {
       label: "Stripe",
       ok: stripeOk,
       detail: stripeOk
-        ? "Checkout and webhook secret configured."
-        : stripeMissing.length
-          ? `Missing: ${stripeMissing.join(", ")}${!getStripeWebhookSecret() ? ", STRIPE_WEBHOOK_SECRET" : ""}`
-          : "Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.",
+        ? `Checkout, webhooks, and live keys configured (${stripeKeyMode} mode).`
+        : isStripeProductionMisconfigured()
+          ? "Production requires sk_live_ keys — test keys only show fake banks in Connect onboarding."
+          : stripeMissing.length
+            ? `Missing: ${stripeMissing.join(", ")}${!getStripeWebhookSecret() ? ", STRIPE_WEBHOOK_SECRET" : ""}`
+            : isStripeTestMode()
+              ? "Using sk_test_ keys — OK for local dev, not for production payouts."
+              : "Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.",
     },
     {
       id: "supabase",

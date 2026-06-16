@@ -18,7 +18,10 @@ import {
   createWinnerConnectV2Account,
   createWinnerConnectV2AccountLink,
 } from "@/lib/stripe/connectV2Payouts";
-import { isStripeConfigured } from "@/lib/stripe/config";
+import {
+  isStripeConfigured,
+  isStripeProductionMisconfigured,
+} from "@/lib/stripe/config";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { requireStepUpFromRequest } from "@/lib/auth/security/stepUp";
 import { notifySecurityEvent } from "@/lib/auth/security/notify";
@@ -38,6 +41,18 @@ export async function POST(request: Request) {
   if (!isStripeConnectEnabled()) {
     return NextResponse.json(
       { error: "Stripe Connect payouts are not enabled yet." },
+      { status: 503 }
+    );
+  }
+
+  if (isStripeProductionMisconfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Cash-out setup is unavailable — production is using Stripe test keys. Test mode only shows fake banks (Chase, Wells Fargo, etc. require live keys). Contact support@squareboards.pro.",
+        stripeMode: "test",
+        productionMisconfigured: true,
+      },
       { status: 503 }
     );
   }

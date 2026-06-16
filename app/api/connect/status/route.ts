@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getPlayerConnectStatus } from "@/lib/database/services/stripeConnect";
 import { isStripeConnectEnabled } from "@/lib/stripe/connect";
+import {
+  getStripeKeyMode,
+  isStripeProductionMisconfigured,
+} from "@/lib/stripe/config";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +33,8 @@ export async function GET() {
     return NextResponse.json({
       ...status,
       connectEnabled: isStripeConnectEnabled(),
+      stripeMode: getStripeKeyMode(),
+      productionMisconfigured: isStripeProductionMisconfigured(),
     });
   } catch (err) {
     console.error("[connect/status]", err);
