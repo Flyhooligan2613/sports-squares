@@ -18,11 +18,13 @@ import {
   Shield,
   Sparkles,
   Bell,
+  Radar,
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import { signOutAdmin } from "@/lib/auth/adminAuthClient";
 
 const NAV = [
+  { href: "/admin/command-center", label: "Command Center", exact: false, icon: Radar },
   { href: "/admin", label: "Dashboard", exact: true, icon: LayoutDashboard },
   { href: "/admin/pools", label: "Pools", exact: false, icon: Trophy },
   { href: "/admin/financial", label: "Financial", exact: false, icon: Wallet },

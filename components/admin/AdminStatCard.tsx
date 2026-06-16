@@ -3,7 +3,7 @@ import KpiCard from "@/components/ui/KpiCard";
 
 interface AdminStatCardProps {
   label: string;
-  value: number;
+  value: string | number;
   accent?: "purple" | "success" | "gold" | "muted";
   icon?: LucideIcon;
   delay?: number;

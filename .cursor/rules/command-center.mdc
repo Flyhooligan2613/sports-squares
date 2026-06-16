@@ -1,0 +1,36 @@
+---
+description: Command Center™ internal ops orchestration architecture
+globs:
+  - lib/platform/engines/commandCenter/**
+  - app/admin/command-center/**
+  - app/api/admin/command-center/**
+---
+
+# Command Center™ (Platform Build Spec #007)
+
+Internal-only ops hub — admin/ops roles, **never player-facing**.
+
+## Rules
+
+- **Orchestrate, don't duplicate** — read from PaymentEngine, `platform_audit_log`, existing DB tables
+- Route admin data through `CommandCenterEngine` — not direct Supabase in UI routes
+- Gate all API routes with `getAuthorizedAdminUser()` + `requireCommandCenterAdmin(section)`
+- Activity feed aggregates existing sources — no duplicate event persistence
+- Payment data via Transaction Center (`payment_transactions`) only
+
+## Adding a section
+
+1. Add nav item + role gate in `config.ts`
+2. Add adapter/service if new data source needed
+3. Expose via `CommandCenterEngine` + API route
+4. Create page under `app/admin/command-center/`
+
+## Roles
+
+```env
+COMMAND_CENTER_ROLE_MAP={"ops@example.com":"operations"}
+```
+
+Default role: `operations` (full access).
+
+Full spec: `docs/project-legacy/COMMAND_CENTER.md`
