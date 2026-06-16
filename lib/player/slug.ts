@@ -22,7 +22,7 @@ export function buildPlayerSlug(displayName: string, email: string): string {
 }
 
 export function publicProfilePath(slug: string): string {
-  return `/player/${slug}`;
+  return `/profile/${slug}`;
 }
 
 export function publicProfileUrl(slug: string, appUrl?: string): string {

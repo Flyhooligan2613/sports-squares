@@ -11,7 +11,7 @@ import PwaRegister from "@/components/PwaRegister";
 import AppOpenSplash from "@/components/AppOpenSplash";
 import AppPullToRefresh from "@/components/ui/AppPullToRefresh";
 import { APP_OPEN_SPLASH_PENDING_SCRIPT } from "@/lib/pwa/isPwaDisplayMode";
-import { BRAND_NAME } from "@/lib/brand";
+import { buildRootMetadata } from "@/lib/seo/site";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -19,21 +19,7 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: BRAND_NAME,
-  description:
-    "Buy sports squares online — secure checkout, live scores, and instant access to your board.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: BRAND_NAME,
-  },
-  icons: {
-    icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icons/icon-192.png", sizes: "192x192" }],
-  },
-};
+export const metadata: Metadata = buildRootMetadata();
 
 export const viewport: Viewport = {
   themeColor: "#030712",
