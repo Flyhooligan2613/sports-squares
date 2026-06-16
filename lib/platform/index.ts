@@ -22,6 +22,15 @@ export {
   legacyStatsToSquareBoardsGameStats,
 } from "@/lib/platform/statsAdapter";
 
+export {
+  DEFAULT_PODIUM_CONFIG,
+  getPodiumConfig,
+  resolvePodium,
+  awardPodium,
+  getPodiumCareerStats,
+  podiumMedalForRank,
+} from "@/lib/platform/podium";
+
 export { getPlatformPlayerStats } from "@/lib/platform/getPlatformPlayerStats";
 
 export {

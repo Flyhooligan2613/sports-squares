@@ -17,7 +17,8 @@ import {
   upsertPlayerWeekResult,
 } from "@/lib/pickem/db/playerWeekResults";
 import { savePickemWeekHistory } from "@/lib/pickem/db/history";
-import type { PickemContest, PickemLeague, PickemSport } from "@/lib/pickem/types";
+import type { PickemLeague } from "@/lib/pickem/db/leagues";
+import type { PickemContest, PickemSport } from "@/lib/pickem/types";
 
 export interface PickemLeaguePodiumResult {
   resolution: PodiumResolution;

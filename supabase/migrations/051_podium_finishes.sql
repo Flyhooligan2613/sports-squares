@@ -39,3 +39,20 @@ create policy "podium_finishes_service" on public.podium_finishes
 
 comment on table public.podium_finishes is
   'Podium Reward Engine™ — 1st/2nd/3rd and Near Perfect™ finishes for Competitor Card stats.';
+
+-- Extend Pick'em weekly status values for podium placements.
+alter table public.pickem_player_week_results
+  drop constraint if exists pickem_player_week_results_status_check;
+
+alter table public.pickem_player_week_results
+  add constraint pickem_player_week_results_status_check
+  check (status in (
+    'active',
+    'eliminated',
+    'tiebreaker',
+    'winner',
+    'prize_split',
+    'runner_up',
+    'third_place',
+    'near_perfect'
+  ));

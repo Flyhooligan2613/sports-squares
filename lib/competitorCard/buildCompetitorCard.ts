@@ -212,11 +212,18 @@ export async function buildCompetitorCard(
   const viewer = options.viewerEmail ? normalizeEmail(options.viewerEmail) : null;
   const isOwner = viewer === email || options.mode === "own";
 
-  const [legacy, dashboard, identity, social] = await Promise.all([
+  const [legacy, dashboard, identity, social, podiumStats] = await Promise.all([
     getPlayerLegacy(email),
     getEcosystemDashboard(email).catch(() => null),
     getPlayerPublicIdentity(email).catch(() => null),
     getPlayerSocialProfile(options.slug, viewer).catch(() => null),
+    getPodiumCareerStats(email).catch(() => ({
+      championships: 0,
+      runnerUp: 0,
+      thirdPlace: 0,
+      topTen: 0,
+      nearPerfect: 0,
+    })),
   ]);
 
   if (!legacy) return null;
@@ -246,6 +253,10 @@ export async function buildCompetitorCard(
     city: null,
     friendCount: social?.followingCount ?? 0,
     friendRank: null,
+    podiumChampionships: podiumStats.championships,
+    podiumRunnerUp: podiumStats.runnerUp,
+    podiumThird: podiumStats.thirdPlace,
+    nearPerfect: podiumStats.nearPerfect,
   });
 
   const card: CompetitorCardData = {
@@ -308,7 +319,7 @@ export async function buildCompetitorCard(
       boardsThisSeason: legacy.stats.boardsPlayed,
       winsThisSeason: null,
     },
-    careerRecords: buildCareerRecords(legacy.stats),
+    careerRecords: buildCareerRecords(legacy.stats, podiumStats),
     rivalries: [],
     community: {
       followerCount: social?.followerCount ?? huddleSummary?.followerCount ?? 0,
