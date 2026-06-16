@@ -18,9 +18,12 @@ const config: CapacitorConfig = {
           "localhost",
           "127.0.0.1",
           "10.0.2.2",
+          "www.squareboards.pro",
           "*.squareboards.pro",
           "squareboards.pro",
           "*.stripe.com",
+          "checkout.stripe.com",
+          "connect.stripe.com",
           "*.supabase.co",
         ],
       }
@@ -28,11 +31,14 @@ const config: CapacitorConfig = {
         url: productionUrl,
         androidScheme: "https",
         allowNavigation: [
+          "www.squareboards.pro",
           "*.squareboards.pro",
           "squareboards.pro",
           "*.stripe.com",
-          "*.supabase.co",
           "checkout.stripe.com",
+          "connect.stripe.com",
+          "billing.stripe.com",
+          "*.supabase.co",
         ],
       },
   plugins: {
