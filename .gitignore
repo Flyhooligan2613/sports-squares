@@ -31,3 +31,17 @@ yarn-error.log*
 next-env.d.ts
 tsconfig.tsbuildinfo
 .vercel
+
+# capacitor / native build outputs (commit android/ and ios/ source)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.idea/
+ios/App/build/
+ios/App/Pods/
+ios/DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+build-output.txt

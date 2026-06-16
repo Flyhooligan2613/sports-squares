@@ -8,6 +8,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import GlobalStaffPortalHint from "@/components/GlobalStaffPortalHint";
 import { AnnouncementProvider } from "@/components/announcements/AnnouncementProvider";
 import PwaRegister from "@/components/PwaRegister";
+import NativeShellInit from "@/components/NativeShellInit";
 import AppOpenSplash from "@/components/AppOpenSplash";
 import AppPullToRefresh from "@/components/ui/AppPullToRefresh";
 import { APP_OPEN_SPLASH_PENDING_SCRIPT } from "@/lib/pwa/isPwaDisplayMode";
@@ -52,6 +53,7 @@ export default function RootLayout({
         <InstallPrompt />
         <GlobalStaffPortalHint />
         <PwaRegister />
+        <NativeShellInit />
       </body>
     </html>
   );
