@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { initNativeShell } from "@/mobile/native/init";
 
 export default function NativeShellInit() {
   useEffect(() => {
-    void initNativeShell();
+    void import("@/mobile/native/init").then(({ initNativeShell }) =>
+      initNativeShell()
+    );
   }, []);
 
   return null;
