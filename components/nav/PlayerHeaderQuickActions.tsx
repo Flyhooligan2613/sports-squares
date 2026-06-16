@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CircleDollarSign, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { PLAYER_TERMS } from "@/lib/platform/language";
 
 const iconLinkClass =
@@ -23,14 +23,6 @@ export default function PlayerHeaderQuickActions({
         title={PLAYER_TERMS.competitorProfile}
       >
         <UserRound className="w-5 h-5" strokeWidth={1.75} aria-hidden />
-      </Link>
-      <Link
-        href="/my-games/referrals"
-        className={iconLinkClass}
-        aria-label="Referrals and invite rewards"
-        title="Referrals"
-      >
-        <CircleDollarSign className="w-5 h-5" strokeWidth={1.75} aria-hidden />
       </Link>
     </div>
   );

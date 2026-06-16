@@ -14,6 +14,24 @@ interface WalletBalanceChipProps {
   className?: string;
 }
 
+const ZERO_BALANCE: BalanceResponse = {
+  ready: true,
+  availableCents: 0,
+  formattedAvailable: "$0.00",
+};
+
+function formatBalanceCents(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+function resolveDisplayAmount(balance: BalanceResponse | null): string {
+  if (balance?.formattedAvailable) return balance.formattedAvailable;
+  if (balance && Number.isFinite(balance.availableCents)) {
+    return formatBalanceCents(balance.availableCents);
+  }
+  return ZERO_BALANCE.formattedAvailable!;
+}
+
 export default function WalletBalanceChip({ className = "" }: WalletBalanceChipProps) {
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState<BalanceResponse | null>(null);
@@ -26,10 +44,18 @@ export default function WalletBalanceChip({ className = "" }: WalletBalanceChipP
         return;
       }
       if (res.ok) {
-        setBalance((await res.json()) as BalanceResponse);
+        const data = (await res.json()) as BalanceResponse;
+        setBalance({
+          ready: true,
+          availableCents: data.availableCents ?? 0,
+          formattedAvailable:
+            data.formattedAvailable ?? formatBalanceCents(data.availableCents ?? 0),
+        });
+        return;
       }
+      setBalance(ZERO_BALANCE);
     } catch {
-      setBalance({ ready: false, availableCents: 0, formattedAvailable: null });
+      setBalance(ZERO_BALANCE);
     } finally {
       setLoading(false);
     }
@@ -42,44 +68,36 @@ export default function WalletBalanceChip({ className = "" }: WalletBalanceChipP
     return () => window.removeEventListener("focus", onFocus);
   }, [refresh]);
 
-  if (loading) {
-    return (
-      <span
-        className={["wallet-balance-chip wallet-balance-chip-loading", className]
-          .filter(Boolean)
-          .join(" ")}
-        aria-hidden
-      >
-        <span className="wallet-balance-chip-skeleton" />
-      </span>
-    );
+  if (!loading && !balance) {
+    return null;
   }
 
-  if (!balance?.ready || !balance.formattedAvailable) {
-    return (
-      <Link
-        href="/my-games/wallet"
-        className={["wallet-balance-chip wallet-balance-chip-fallback", className]
-          .filter(Boolean)
-          .join(" ")}
-        aria-label="Open SquareWallet"
-        title="SquareWallet™"
-      >
-        <Wallet className="w-4 h-4 shrink-0 text-sb-gold" strokeWidth={1.75} aria-hidden />
-        <span className="hidden sm:inline text-xs font-semibold text-sb-muted">Wallet</span>
-      </Link>
-    );
-  }
+  const displayAmount = resolveDisplayAmount(balance);
 
   return (
     <Link
       href="/my-games/wallet"
-      className={["wallet-balance-chip", className].filter(Boolean).join(" ")}
-      aria-label={`SquareWallet available balance ${balance.formattedAvailable}`}
+      className={[
+        "wallet-balance-chip",
+        loading ? "wallet-balance-chip-loading" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-label={`SquareWallet available balance ${displayAmount}`}
       title="SquareWallet™ — view account"
     >
       <Wallet className="w-4 h-4 shrink-0 text-sb-gold" strokeWidth={1.75} aria-hidden />
-      <span className="wallet-balance-chip-amount tabular-nums">{balance.formattedAvailable}</span>
+      <span
+        className={[
+          "wallet-balance-chip-amount tabular-nums",
+          loading ? "wallet-balance-chip-amount-loading" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {displayAmount}
+      </span>
     </Link>
   );
 }

@@ -4,6 +4,16 @@ import { getSquareWalletAuthorizedEmail } from "@/lib/platform/engines/payment/w
 
 export const dynamic = "force-dynamic";
 
+function zeroBalanceResponse() {
+  return {
+    ready: true,
+    availableCents: 0,
+    availableBalanceCents: 0,
+    formattedAvailable: "$0.00",
+    formatted: "$0.00",
+  };
+}
+
 export async function GET() {
   const email = await getSquareWalletAuthorizedEmail();
   if (!email) {
@@ -13,19 +23,18 @@ export async function GET() {
   try {
     await SquareWalletEngine.ensureWallet(email);
     const summary = await getWalletSummaryForLegacy(email);
-    const availableCents = summary.availableBalanceCents;
+    const availableCents = summary.availableBalanceCents ?? 0;
+    const formattedAvailable = `$${(availableCents / 100).toFixed(2)}`;
 
     return NextResponse.json({
       ready: true,
       availableCents,
-      formattedAvailable: `$${(availableCents / 100).toFixed(2)}`,
+      availableBalanceCents: availableCents,
+      formattedAvailable,
+      formatted: formattedAvailable,
     });
   } catch (err) {
     console.error("[square-wallet/balance]", err);
-    return NextResponse.json({
-      ready: false,
-      availableCents: 0,
-      formattedAvailable: null,
-    });
+    return NextResponse.json(zeroBalanceResponse());
   }
 }
