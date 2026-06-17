@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Trophy } from "lucide-react";
@@ -26,7 +26,7 @@ type PurchaseStatus =
       summary: PurchaseSuccessSummary;
     };
 
-export default function PurchaseSuccessContent() {
+function PurchaseSuccessContentInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -301,5 +301,13 @@ export default function PurchaseSuccessContent() {
         ) : null}
       </div>
     </main>
+  );
+}
+
+export default function PurchaseSuccessContent() {
+  return (
+    <Suspense fallback={null}>
+      <PurchaseSuccessContentInner />
+    </Suspense>
   );
 }

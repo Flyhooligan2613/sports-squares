@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, Grid3X3, Radio } from "lucide-react";
@@ -39,7 +39,7 @@ function parseSportParam(value: string | null): MarketplaceSportFilter {
   return "all";
 }
 
-export default function MarketplaceSports() {
+function MarketplaceSportsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [stats, setStats] = useState<MarketplaceSportStats[]>([]);
@@ -273,5 +273,13 @@ export default function MarketplaceSports() {
         </div>
       )}
     </LandingSection>
+  );
+}
+
+export default function MarketplaceSports() {
+  return (
+    <Suspense fallback={null}>
+      <MarketplaceSportsInner />
+    </Suspense>
   );
 }

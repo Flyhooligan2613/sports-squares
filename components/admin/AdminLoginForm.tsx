@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Logo from "@/components/Logo";
@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { signInAdmin } from "@/lib/auth/adminAuthClient";
 
-export default function AdminLoginForm() {
+function AdminLoginFormInner() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -102,5 +102,13 @@ export default function AdminLoginForm() {
         </p>
       </div>
     </main>
+  );
+}
+
+export default function AdminLoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginFormInner />
+    </Suspense>
   );
 }

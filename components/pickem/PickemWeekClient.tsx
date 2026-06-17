@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
@@ -131,7 +131,7 @@ function MyPicksPanel({ summary }: { summary: PickemMyPicksSummary }) {
   );
 }
 
-export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSport }) {
+function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
   const router = useRouter();
   const basePath = pickemBasePath(sport);
   const sportLabel = pickemSportLabel(sport);
@@ -582,5 +582,13 @@ export default function PickemWeekClient({ sport = "nfl" }: { sport?: PickemSpor
         onConfirmed={executeFastEntryCheckout}
       />
     </div>
+  );
+}
+
+export default function PickemWeekClient(props: { sport?: PickemSport }) {
+  return (
+    <Suspense fallback={null}>
+      <PickemWeekClientInner {...props} />
+    </Suspense>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
@@ -46,7 +46,7 @@ import { fastFetchJson, isDocumentVisible } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import { GAME_DAY_SECTION_TABS, peekPendingHubHash } from "@/lib/home/hubSections";
 
-export default function HomeExperience() {
+function HomeExperienceInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewMode = searchParams.get("mode");
@@ -287,5 +287,13 @@ export default function HomeExperience() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HomeExperience() {
+  return (
+    <Suspense fallback={null}>
+      <HomeExperienceInner />
+    </Suspense>
   );
 }

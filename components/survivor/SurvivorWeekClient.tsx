@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
@@ -42,7 +42,7 @@ interface WeekOption {
   isCurrent: boolean;
 }
 
-export default function SurvivorWeekClient() {
+function SurvivorWeekClientInner() {
   const searchParams = useSearchParams();
   const leagueIdParam = searchParams.get("leagueId") ?? undefined;
   const sport = parseSurvivorSport(searchParams.get("sport"));
@@ -616,5 +616,13 @@ export default function SurvivorWeekClient() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SurvivorWeekClient() {
+  return (
+    <Suspense fallback={null}>
+      <SurvivorWeekClientInner />
+    </Suspense>
   );
 }

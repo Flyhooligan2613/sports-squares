@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import { parseEntryTierParam } from "@/lib/platform/core/entryTiers";
@@ -9,7 +10,7 @@ interface SportEntryTierNavProps {
   className?: string;
 }
 
-export default function SportEntryTierNav({ sport, className = "" }: SportEntryTierNavProps) {
+function SportEntryTierNavInner({ sport, className = "" }: SportEntryTierNavProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCents = parseEntryTierParam(searchParams.get("tier"));
@@ -26,5 +27,13 @@ export default function SportEntryTierNav({ sport, className = "" }: SportEntryT
       onSelect={(tier) => selectTier(tier.cents)}
       className={className}
     />
+  );
+}
+
+export default function SportEntryTierNav(props: SportEntryTierNavProps) {
+  return (
+    <Suspense fallback={null}>
+      <SportEntryTierNavInner {...props} />
+    </Suspense>
   );
 }

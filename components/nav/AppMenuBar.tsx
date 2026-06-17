@@ -10,7 +10,7 @@ import NotificationBell from "@/components/nav/NotificationBell";
 import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
 import { GAME_ROOM_HREF, navigateHomeMode } from "@/lib/home/hubSections";
 
-export default function AppMenuBar({
+function AppMenuBarInner({
   logoHref = GAME_ROOM_HREF,
   rightSlot,
   hideMobileSearch = false,
@@ -43,9 +43,7 @@ export default function AppMenuBar({
       >
         <div className="app-menu-bar-brand flex items-center gap-1 sm:gap-2 min-w-0 shrink">
           <NavDrawerTrigger />
-          <Suspense fallback={null}>
-            <NavBackButton />
-          </Suspense>
+          <NavBackButton />
           <Logo
             href={logoHref}
             variant="icon"
@@ -70,6 +68,18 @@ export default function AppMenuBar({
         </div>
       </div>
     </header>
+  );
+}
+
+export default function AppMenuBar(props: {
+  logoHref?: string;
+  rightSlot?: React.ReactNode;
+  hideMobileSearch?: boolean;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <AppMenuBarInner {...props} />
+    </Suspense>
   );
 }
 

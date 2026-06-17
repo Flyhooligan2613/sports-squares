@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { formatNavHref, pushNavEntry } from "@/lib/navigation/historyStack";
 
-export default function NavHistoryTracker() {
+function NavHistoryTrackerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -13,4 +13,12 @@ export default function NavHistoryTracker() {
   }, [pathname, searchParams]);
 
   return null;
+}
+
+export default function NavHistoryTracker() {
+  return (
+    <Suspense fallback={null}>
+      <NavHistoryTrackerInner />
+    </Suspense>
+  );
 }

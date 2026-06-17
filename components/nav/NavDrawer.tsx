@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LogOut } from "lucide-react";
@@ -30,7 +30,7 @@ function badgeForItem(
   return null;
 }
 
-export default function NavDrawer() {
+function NavDrawerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const viewMode = searchParams.get("mode");
@@ -208,5 +208,13 @@ export default function NavDrawer() {
         </div>
       </aside>
     </div>
+  );
+}
+
+export default function NavDrawer() {
+  return (
+    <Suspense fallback={null}>
+      <NavDrawerInner />
+    </Suspense>
   );
 }

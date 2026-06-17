@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import SignupWelcomeModal from "@/components/auth/SignupWelcomeModal";
 import { getOrCreateDeviceKey } from "@/lib/auth/security/deviceClient";
@@ -16,7 +16,7 @@ function shouldSkipRoute(pathname: string): boolean {
   return pathname.startsWith("/admin") || pathname.startsWith("/auth");
 }
 
-export default function SignupWelcomeGate() {
+function SignupWelcomeGateInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -82,5 +82,13 @@ export default function SignupWelcomeGate() {
       onClose={() => setOpen(false)}
       referralCode={referralCode}
     />
+  );
+}
+
+export default function SignupWelcomeGate() {
+  return (
+    <Suspense fallback={null}>
+      <SignupWelcomeGateInner />
+    </Suspense>
   );
 }

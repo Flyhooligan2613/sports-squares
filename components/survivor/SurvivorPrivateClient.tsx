@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Copy, KeyRound, Users } from "lucide-react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
@@ -35,7 +35,7 @@ interface PrivateLeagueRow {
   } | null;
 }
 
-export default function SurvivorPrivateClient() {
+function SurvivorPrivateClientInner() {
   const searchParams = useSearchParams();
   const codeFromUrl = searchParams.get("code") ?? "";
 
@@ -384,5 +384,13 @@ export default function SurvivorPrivateClient() {
         </LandingSection>
       </div>
     </div>
+  );
+}
+
+export default function SurvivorPrivateClient() {
+  return (
+    <Suspense fallback={null}>
+      <SurvivorPrivateClientInner />
+    </Suspense>
   );
 }

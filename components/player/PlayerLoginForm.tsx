@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
@@ -24,7 +24,7 @@ import {
 } from "@/lib/auth/security/webauthnClient";
 import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 
-export default function PlayerLoginForm() {
+function PlayerLoginFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
@@ -351,5 +351,13 @@ export default function PlayerLoginForm() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function PlayerLoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <PlayerLoginFormInner />
+    </Suspense>
   );
 }

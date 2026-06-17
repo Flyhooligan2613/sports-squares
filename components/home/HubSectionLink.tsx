@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense, type ComponentProps } from "react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import type { ComponentProps } from "react";
 import {
   hubViewModesMatch,
   scrollToHubSection,
@@ -26,7 +26,7 @@ function parseHubHref(href: string) {
   };
 }
 
-export default function HubSectionLink({
+function HubSectionLinkInner({
   href,
   onClick,
   scroll,
@@ -70,5 +70,13 @@ export default function HubSectionLink({
       }}
       {...props}
     />
+  );
+}
+
+export default function HubSectionLink(props: HubSectionLinkProps) {
+  return (
+    <Suspense fallback={null}>
+      <HubSectionLinkInner {...props} />
+    </Suspense>
   );
 }

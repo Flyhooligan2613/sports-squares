@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingSection from "@/components/landing/LandingSection";
@@ -30,7 +30,7 @@ interface LeagueRow {
   } | null;
 }
 
-export default function SurvivorLeaguesClient() {
+function SurvivorLeaguesClientInner() {
   const searchParams = useSearchParams();
   const sport = parseSurvivorSport(searchParams.get("sport"));
 
@@ -157,5 +157,13 @@ export default function SurvivorLeaguesClient() {
         </LandingSection>
       </div>
     </div>
+  );
+}
+
+export default function SurvivorLeaguesClient() {
+  return (
+    <Suspense fallback={null}>
+      <SurvivorLeaguesClientInner />
+    </Suspense>
   );
 }

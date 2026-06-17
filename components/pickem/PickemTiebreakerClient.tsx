@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -84,7 +84,7 @@ interface TiebreakerPayload {
   playersRemaining: number;
 }
 
-export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: PickemSport }) {
+function PickemTiebreakerClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
   const basePath = pickemBasePath(sport);
   const searchParams = useSearchParams();
   const contestId = searchParams.get("contestId");
@@ -344,5 +344,13 @@ export default function PickemTiebreakerClient({ sport = "nfl" }: { sport?: Pick
         ) : null}
       </div>
     </div>
+  );
+}
+
+export default function PickemTiebreakerClient(props: { sport?: PickemSport }) {
+  return (
+    <Suspense fallback={null}>
+      <PickemTiebreakerClientInner {...props} />
+    </Suspense>
   );
 }

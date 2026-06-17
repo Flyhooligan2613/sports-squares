@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   GAME_DAY_HREF,
@@ -17,7 +18,7 @@ function isGameDayModeActive(pathname: string, mode: string | null): boolean {
   return mode === "gameday" || mode === null;
 }
 
-export default function HomeModeSwitcher({
+function HomeModeSwitcherInner({
   isGameDay,
   atmosphereLabel,
   variant = "badges",
@@ -91,5 +92,17 @@ export default function HomeModeSwitcher({
         {gameDayLabel}
       </Link>
     </nav>
+  );
+}
+
+export default function HomeModeSwitcher(props: {
+  isGameDay?: boolean;
+  atmosphereLabel?: string;
+  variant?: "badges" | "bar";
+}) {
+  return (
+    <Suspense fallback={null}>
+      <HomeModeSwitcherInner {...props} />
+    </Suspense>
   );
 }

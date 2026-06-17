@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingSection from "@/components/landing/LandingSection";
@@ -35,7 +36,7 @@ const PILLARS = [
   },
 ];
 
-export default function SurvivorLandingClient() {
+function SurvivorLandingClientInner() {
   const searchParams = useSearchParams();
   const sport = parseSurvivorSport(searchParams.get("sport"));
   const sportDef = getSurvivorSportDefinition(sport);
@@ -111,5 +112,13 @@ export default function SurvivorLandingClient() {
         </LandingSection>
       </div>
     </div>
+  );
+}
+
+export default function SurvivorLandingClient() {
+  return (
+    <Suspense fallback={null}>
+      <SurvivorLandingClientInner />
+    </Suspense>
   );
 }

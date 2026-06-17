@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { resolveNavBackTarget } from "@/lib/navigation/back";
 import { consumePreviousNav, formatNavHref } from "@/lib/navigation/historyStack";
 
-export default function NavBackButton() {
+function NavBackButtonInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,5 +41,13 @@ export default function NavBackButton() {
       <ChevronLeft className="nav-back-btn-icon" aria-hidden />
       <span className="nav-back-btn-label hidden sm:inline">{target.label}</span>
     </button>
+  );
+}
+
+export default function NavBackButton() {
+  return (
+    <Suspense fallback={null}>
+      <NavBackButtonInner />
+    </Suspense>
   );
 }

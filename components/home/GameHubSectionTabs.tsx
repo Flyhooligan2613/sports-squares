@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import HubSectionLink from "@/components/home/HubSectionLink";
 import {
   HUB_SECTION,
@@ -16,7 +17,7 @@ interface GameHubSectionTabsProps {
   mode: "gameday" | "home";
 }
 
-export default function GameHubSectionTabs({ tabs, mode }: GameHubSectionTabsProps) {
+function GameHubSectionTabsInner({ tabs, mode }: GameHubSectionTabsProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeHash = parseHubHash();
@@ -83,5 +84,13 @@ export default function GameHubSectionTabs({ tabs, mode }: GameHubSectionTabsPro
         })}
       </div>
     </nav>
+  );
+}
+
+export default function GameHubSectionTabs(props: GameHubSectionTabsProps) {
+  return (
+    <Suspense fallback={null}>
+      <GameHubSectionTabsInner {...props} />
+    </Suspense>
   );
 }

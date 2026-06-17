@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { parseTournamentKey, TOURNAMENT_DEFINITIONS } from "@/lib/tournamentRoyale/config";
 import { tournamentRoyalePath } from "@/lib/tournamentRoyale/routes";
 
-export default function TournamentRoyaleTournamentSwitcher() {
+function TournamentRoyaleTournamentSwitcherInner() {
   const searchParams = useSearchParams();
   const active = parseTournamentKey(searchParams.get("tournament"));
 
@@ -32,5 +33,13 @@ export default function TournamentRoyaleTournamentSwitcher() {
         );
       })}
     </div>
+  );
+}
+
+export default function TournamentRoyaleTournamentSwitcher() {
+  return (
+    <Suspense fallback={null}>
+      <TournamentRoyaleTournamentSwitcherInner />
+    </Suspense>
   );
 }
