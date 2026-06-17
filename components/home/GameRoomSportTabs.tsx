@@ -55,7 +55,7 @@ export default function GameRoomSportTabs() {
           role="tabpanel"
           aria-labelledby={`gameroom-sport-tab-${activeSport.id}`}
         >
-          <SportBackdrop sportId={activeSport.id} variant="panel" />
+          <SportBackdrop sportId={activeSport.id} variant="panel" className="sport-backdrop--panel-raised" />
 
           <div className="gameroom-sport-panel-content">
             <p className="gameroom-sport-panel-title">

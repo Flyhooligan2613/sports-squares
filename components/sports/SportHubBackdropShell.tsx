@@ -16,9 +16,13 @@ export default function SportHubBackdropShell({
   children,
 }: SportHubBackdropShellProps) {
   return (
-    <div className={["sport-hub-shell relative flex flex-col", className].filter(Boolean).join(" ")}>
+    <div
+      className={["sport-hub-shell relative isolate flex flex-col", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <SportBackdrop sportId={sportId} variant="full" fixed />
-      <div className="sport-hub-shell-content relative z-10 flex flex-col flex-1">{children}</div>
+      <div className="sport-hub-shell-content relative z-[1] flex flex-col flex-1">{children}</div>
     </div>
   );
 }

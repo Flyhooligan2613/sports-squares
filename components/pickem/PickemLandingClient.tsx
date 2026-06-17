@@ -78,9 +78,9 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
   usePullRefresh(load);
 
   return (
-    <div className="pickem-page min-h-screen relative overflow-x-hidden">
-      <SportBackdrop sportId={pickemSportToBackdropId(sport)} variant="full" fixed />
+    <div className="pickem-page min-h-screen relative overflow-x-hidden isolate">
       <AmbientBackground className={ambientClass} fixed />
+      <SportBackdrop sportId={pickemSportToBackdropId(sport)} variant="full" fixed />
       <AppMenuBar logoHref={basePath} />
 
       <div className="relative z-10">

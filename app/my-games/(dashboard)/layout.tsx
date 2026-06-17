@@ -28,7 +28,8 @@ export default async function MyGamesDashboardLayout({
   } = await supabase.auth.getUser();
 
   let avatarEmoji: string | undefined;
-  let profileHref = "/my-games/profile";
+  let publicProfileHref = "/my-games/profile";
+  const competitorCardHref = "/my-games/profile";
   let followerCount = 0;
   if (user?.email && isSupabaseAdminConfigured()) {
     const [identity, account] = await Promise.all([
@@ -37,7 +38,7 @@ export default async function MyGamesDashboardLayout({
     ]);
     avatarEmoji = identity?.avatarEmoji;
     if (account?.slug) {
-      profileHref = publicProfilePath(account.slug);
+      publicProfileHref = publicProfilePath(account.slug);
     }
     followerCount = account?.followerCount ?? 0;
   }
@@ -47,7 +48,8 @@ export default async function MyGamesDashboardLayout({
       <PlayerShell
         userEmail={user?.email ?? undefined}
         avatarEmoji={avatarEmoji}
-        profileHref={profileHref}
+        publicProfileHref={publicProfileHref}
+        competitorCardHref={competitorCardHref}
         followerCount={followerCount}
       >
         <PlayerAuthBootstrap />

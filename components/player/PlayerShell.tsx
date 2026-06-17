@@ -19,7 +19,10 @@ interface PlayerShellProps {
   userEmail?: string;
   displayName?: string;
   avatarEmoji?: string;
-  profileHref?: string;
+  /** Public profile page, e.g. `/profile/username-slug` */
+  publicProfileHref?: string;
+  /** Competitor Card hub — customization, bio, emojis, settings */
+  competitorCardHref?: string;
   followerCount?: number;
 }
 
@@ -27,7 +30,8 @@ export default function PlayerShell({
   children,
   userEmail,
   avatarEmoji,
-  profileHref = "/my-games/profile",
+  publicProfileHref = "/my-games/profile",
+  competitorCardHref = "/my-games/profile",
   followerCount = 0,
 }: PlayerShellProps) {
   const avatarCtx = usePlayerShellAvatarSafe();
@@ -40,10 +44,10 @@ export default function PlayerShell({
         hideMobileSearch
         rightSlot={
           <div className="flex items-center gap-0.5 sm:gap-1">
-            <PlayerHeaderQuickActions profileHref={profileHref} />
+            <PlayerHeaderQuickActions competitorCardHref={competitorCardHref} />
             {userEmail ? <WalletBalanceChip /> : null}
             <Link
-              href={profileHref}
+              href={publicProfileHref}
               className="flex items-center gap-1.5 sm:gap-2 shrink-0 rounded-full border border-white/10 bg-white/5 px-1.5 sm:px-2 py-1 hover:border-purple-400/40 hover:bg-purple-500/10 transition-colors"
               aria-label={`Profile · ${followerCount.toLocaleString()} followers`}
             >
@@ -68,7 +72,8 @@ export function PlayerShellFromData({
     email: string;
     displayName?: string;
     avatarEmoji?: string;
-    profileHref?: string;
+    publicProfileHref?: string;
+    competitorCardHref?: string;
     followerCount?: number;
   };
   children: React.ReactNode;
@@ -78,7 +83,8 @@ export function PlayerShellFromData({
       userEmail={data.email}
       displayName={data.displayName}
       avatarEmoji={data.avatarEmoji}
-      profileHref={data.profileHref}
+      publicProfileHref={data.publicProfileHref}
+      competitorCardHref={data.competitorCardHref}
       followerCount={data.followerCount}
     >
       {children}

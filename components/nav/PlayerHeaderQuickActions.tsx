@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { UserRound } from "lucide-react";
-import { useNavDrawerSafe } from "@/components/nav/NavDrawerProvider";
+import { IdCard } from "lucide-react";
 import { PLAYER_TERMS } from "@/lib/platform/language";
 
 const iconLinkClass =
@@ -11,55 +9,23 @@ const iconLinkClass =
 
 interface PlayerHeaderQuickActionsProps {
   className?: string;
-  /** Canonical player profile path, e.g. `/profile/username-slug` */
-  profileHref?: string;
+  /** Competitor Card hub — customization, bio, emojis, settings */
+  competitorCardHref?: string;
 }
 
 export default function PlayerHeaderQuickActions({
   className = "",
-  profileHref: profileHrefProp,
+  competitorCardHref = "/my-games/profile",
 }: PlayerHeaderQuickActionsProps) {
-  const nav = useNavDrawerSafe();
-  const userEmail = nav?.userEmail ?? null;
-  const [fetchedProfileHref, setFetchedProfileHref] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (profileHrefProp || !userEmail) {
-      setFetchedProfileHref(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadProfileHref() {
-      const res = await fetch("/api/ecosystem/player-card", { cache: "no-store" }).catch(
-        () => null
-      );
-      if (!res?.ok || cancelled) return;
-
-      const data = (await res.json()) as { sharePath?: string };
-      if (cancelled || !data.sharePath) return;
-
-      setFetchedProfileHref(data.sharePath);
-    }
-
-    void loadProfileHref();
-    return () => {
-      cancelled = true;
-    };
-  }, [profileHrefProp, userEmail]);
-
-  const profileHref = profileHrefProp ?? fetchedProfileHref ?? "/my-games/profile";
-
   return (
     <div className={["flex items-center gap-0.5 sm:gap-1", className].filter(Boolean).join(" ")}>
       <Link
-        href={profileHref}
+        href={competitorCardHref}
         className={iconLinkClass}
-        aria-label={PLAYER_TERMS.competitorProfile}
-        title={PLAYER_TERMS.competitorProfile}
+        aria-label={PLAYER_TERMS.competitorCard}
+        title={PLAYER_TERMS.competitorCard}
       >
-        <UserRound className="w-5 h-5" strokeWidth={1.75} aria-hidden />
+        <IdCard className="w-5 h-5" strokeWidth={1.75} aria-hidden />
       </Link>
     </div>
   );

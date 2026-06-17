@@ -53,6 +53,13 @@ export function navigateHomeMode(
     return;
   }
 
+  // Query-only hub mode switches need a full navigation so searchParams remount
+  // (Capacitor WebView and soft router.push often keep the previous mode).
+  if (pathname === "/my-games" && target.pathname === "/my-games") {
+    window.location.assign(target.hrefString);
+    return;
+  }
+
   router.push(target.hrefString, { scroll: false });
   if (pathname === "/my-games") {
     router.refresh();
