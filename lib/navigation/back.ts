@@ -23,6 +23,8 @@ const GAME_ROOTS = [
   "/games/nfl",
   "/games/mlb",
   "/games/nba",
+  "/games/wnba",
+  "/games/ncaab",
   "/games/ncaaf",
 ];
 

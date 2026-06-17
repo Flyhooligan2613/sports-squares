@@ -1,5 +1,5 @@
 import SportHubBackdropShell from "@/components/sports/SportHubBackdropShell";
-import Link from "next/link";
+import PageHistoryBackLink from "@/components/nav/PageHistoryBackLink";
 import { Suspense } from "react";
 import Footer from "@/components/Footer";
 import GameBoardRow from "@/components/marketplace/GameBoardRow";
@@ -68,12 +68,7 @@ export default async function SportGamesPage({
       <SportHubBackdropShell sportId={sport} className="min-h-[calc(100vh-3.5rem)]">
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12">
           <div className="mb-8 sb-xp-hero-enter">
-            <Link
-              href="/#marketplace"
-              className="text-sm text-sb-muted hover:text-white transition-colors"
-            >
-              ← Back to marketplace
-            </Link>
+            <PageHistoryBackLink className="text-sm text-sb-muted hover:text-white transition-colors" />
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-4">
               <h1 className="text-3xl sm:text-4xl font-bold text-white">
                 {config.label} Squares
@@ -130,12 +125,7 @@ export default async function SportGamesPage({
       <SportGamesIntro sport={sport} />
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12">
         <div className="mb-8 sb-xp-hero-enter">
-          <Link
-            href="/#marketplace"
-            className="text-sm text-sb-muted hover:text-white transition-colors"
-          >
-            ← Back to marketplace
-          </Link>
+          <PageHistoryBackLink className="text-sm text-sb-muted hover:text-white transition-colors" />
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mt-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
