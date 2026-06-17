@@ -153,7 +153,7 @@ export default function GiftShopPanel() {
         <div className="flex items-center justify-between gap-3 mb-3">
           <h3 className="text-lg font-semibold text-white">Your bonus items</h3>
           <Link href="/my-games/rewards/inventory" className="text-xs text-sb-glow hover:underline">
-            Full inventory →
+            🏆 My Trophies →
           </Link>
         </div>
         {claimableInventory.length ? (

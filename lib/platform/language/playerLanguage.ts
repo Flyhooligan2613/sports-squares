@@ -32,6 +32,7 @@ export const REWARD_LABELS = {
   competitionReward: "Competition Reward",
   referralReward: "Referral Reward",
   myRewards: "My Rewards",
+  myTrophies: "My Trophies",
 } as const;
 
 export const COMMUNITY_LABELS = {

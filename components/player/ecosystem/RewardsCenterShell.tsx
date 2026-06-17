@@ -4,18 +4,36 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
 import { RewardsCenterProvider, useRewardsCenter } from "./RewardsCenterProvider";
-import { MY_REWARDS_NAME, REWARDS_CENTER_SECTIONS, SQUARE_DROP_NAME } from "@/lib/platform/ecosystem/squareDropBrand";
+import {
+  MY_REWARDS_NAME,
+  MY_TROPHIES_EMOJI,
+  MY_TROPHIES_NAME,
+  REWARDS_CENTER_SECTIONS,
+  SQUARE_DROP_EMOJI,
+  SQUARE_DROP_NAME,
+} from "@/lib/platform/ecosystem/squareDropBrand";
 import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropCountdownBanner";
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data, loading } = useRewardsCenter();
+  const isInventory =
+    pathname === "/my-games/rewards/inventory" ||
+    pathname.startsWith("/my-games/rewards/inventory/");
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
       <PageHeader
-        title={`🎁 ${MY_REWARDS_NAME}`}
-        subtitle={`Your home for earning, claiming, and spending rewards — featuring ${SQUARE_DROP_NAME}™`}
+        title={
+          isInventory
+            ? `${MY_TROPHIES_EMOJI} ${MY_TROPHIES_NAME}`
+            : `${SQUARE_DROP_EMOJI} ${MY_REWARDS_NAME}`
+        }
+        subtitle={
+          isInventory
+            ? "Your earned badges, cosmetics, and bonus items from across the platform."
+            : `Your home for earning, claiming, and spending rewards — featuring ${SQUARE_DROP_NAME}™`
+        }
       />
 
       {!loading && data ? (
