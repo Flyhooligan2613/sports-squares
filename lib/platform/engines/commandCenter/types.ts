@@ -120,6 +120,7 @@ export interface PaymentCenterSummary {
   walletLifetimeDepositsCents: number;
   walletLifetimeWithdrawalsCents: number;
   walletUtilizationPercent: number;
+  pendingWithdrawalHolds: number;
 }
 
 export interface FinancialHealthSummary {

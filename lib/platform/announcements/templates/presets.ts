@@ -13,17 +13,17 @@ export interface AnnouncementPreset {
 
 export const BUILTIN_ANNOUNCEMENT_PRESETS: AnnouncementPreset[] = [
   {
-    slug: "live-trial-launch",
-    name: "Live Trial Launch",
-    description: "Top banner for the first-20 public live trial.",
+    slug: "deposit-match-bonus",
+    name: "First Deposit Match",
+    description: "Top banner for the first-deposit 100% match bonus.",
     payload: {
-      title: "SquareBoards Live Trial — Now Open",
-      subtitle: "First 20 sign-ups · Real money · Start on $1 boards",
+      title: "100% First Deposit Match",
+      subtitle: "Up to $100 bonus · Play-only funds · Winnings are real cash",
       displayType: "top_banner",
       category: "promotion",
       audience: "all",
-      buttonText: "Join Trial",
-      destinationHref: "/my-games/login",
+      buttonText: "Claim Bonus",
+      destinationHref: "/my-games/wallet?tab=deposit",
       priorityLevel: "critical",
       frequency: "always",
       animationStyle: "fade",

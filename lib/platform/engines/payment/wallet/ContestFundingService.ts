@@ -52,6 +52,7 @@ export async function chargeForEntry(input: {
 
   let remaining = amountCents;
   const ledgerEntryIds: string[] = [];
+  let bonusCentsUsed = 0;
 
   for (const balanceType of CONTEST_FUNDING_PRIORITY) {
     if (remaining <= 0) break;
@@ -69,8 +70,15 @@ export async function chargeForEntry(input: {
       referenceType: input.poolId ? "pool" : "contest",
       referenceId: input.poolId ?? input.contestId ?? null,
       description: input.description,
+      metadata: {
+        fundedFrom: balanceType,
+        playOnly: balanceType === "bonus_credits",
+      },
     });
     ledgerEntryIds.push(entry.id);
+    if (balanceType === "bonus_credits") {
+      bonusCentsUsed += slice;
+    }
     remaining -= slice;
     balances[key] = available - slice;
   }
@@ -86,7 +94,10 @@ export async function chargeForEntry(input: {
     status: "completed",
     idempotencyKey: input.idempotencyKey ?? `wallet_entry_${ledgerEntryIds.join("_")}`,
     auditAction: "square_wallet_contest_entry",
-    auditDetail: input.description,
+    auditDetail:
+      bonusCentsUsed > 0
+        ? `${input.description} (bonus-funded: $${(bonusCentsUsed / 100).toFixed(2)})`
+        : input.description,
   });
 
   if (walletId) {

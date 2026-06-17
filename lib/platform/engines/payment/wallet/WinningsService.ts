@@ -1,8 +1,41 @@
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { normalizeEmail } from "@/lib/player/statsCore";
 import { recordPaymentTransaction } from "@/lib/platform/engines/payment/TransactionCenter";
 import { getPaymentProviderId } from "@/lib/platform/engines/payment/config";
 import { creditBalance, transferBalance } from "./WalletLedgerService";
 import { ensureSquareWallet } from "./WalletLifecycleService";
+import { findWalletByEmail } from "./repository";
 import type { WinningsCreditInput } from "./types";
+
+async function entryUsedBonusCredits(
+  email: string,
+  poolId?: string | null,
+  contestId?: string | null
+): Promise<boolean> {
+  if (!poolId && !contestId) return false;
+
+  const wallet = await findWalletByEmail(email);
+  if (!wallet) return false;
+
+  const supabase = getSupabaseAdmin();
+  let query = supabase
+    .from("square_wallet_ledger_entries")
+    .select("id")
+    .eq("wallet_id", wallet.id)
+    .eq("balance_type", "bonus_credits")
+    .eq("entry_type", "contest_entry")
+    .eq("direction", "debit")
+    .limit(1);
+
+  if (poolId) {
+    query = query.eq("reference_type", "pool").eq("reference_id", poolId);
+  } else if (contestId) {
+    query = query.eq("reference_type", "contest").eq("reference_id", contestId);
+  }
+
+  const { data } = await query.maybeSingle();
+  return Boolean(data?.id);
+}
 
 /** Credit contest winnings — pending first, optional immediate release to available. */
 export async function creditWinnings(input: WinningsCreditInput): Promise<{ ok: boolean; ledgerId?: string }> {
@@ -10,11 +43,17 @@ export async function creditWinnings(input: WinningsCreditInput): Promise<{ ok: 
   if (amountCents <= 0) return { ok: false };
 
   const wallet = await ensureSquareWallet(input.email);
+  const releaseToAvailable =
+    input.releaseImmediately === true
+      ? true
+      : input.releaseImmediately === false
+        ? false
+        : await entryUsedBonusCredits(input.email, input.poolId, input.contestId);
 
   const entry = await creditBalance({
     email: input.email,
     walletId: wallet.id,
-    balanceType: input.releaseImmediately ? "available" : "pending_winnings",
+    balanceType: releaseToAvailable ? "available" : "pending_winnings",
     amountCents,
     entryType: "winnings_credit",
     referenceType: input.poolId ? "pool" : "contest",
@@ -24,6 +63,8 @@ export async function creditWinnings(input: WinningsCreditInput): Promise<{ ok: 
     metadata: {
       contestId: input.contestId,
       poolId: input.poolId,
+      bonusFundedWin: releaseToAvailable,
+      winningsToCash: releaseToAvailable,
     },
   });
 
@@ -32,7 +73,7 @@ export async function creditWinnings(input: WinningsCreditInput): Promise<{ ok: 
     contestId: input.contestId ?? null,
     poolId: input.poolId ?? null,
     provider: getPaymentProviderId(),
-    walletType: input.releaseImmediately ? "available" : "pending",
+    walletType: releaseToAvailable ? "available" : "pending",
     transactionType: "prize_payout",
     amountCents,
     status: "completed",

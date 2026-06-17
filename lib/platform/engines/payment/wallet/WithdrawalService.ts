@@ -3,7 +3,7 @@ import { recordPaymentTransaction } from "@/lib/platform/engines/payment/Transac
 import { getPaymentProviderId } from "@/lib/platform/engines/payment/config";
 import { getConnectAccountIdForEmail } from "@/lib/database/services/stripeConnect";
 import { normalizeEmail } from "@/lib/player/statsCore";
-import { MIN_WITHDRAWAL_CENTS } from "./config";
+import { LARGE_WITHDRAWAL_REVIEW_CENTS, MIN_WITHDRAWAL_CENTS } from "./config";
 import {
   computeWithdrawableCents,
   creditBalance,
@@ -11,10 +11,14 @@ import {
   getWalletBalances,
 } from "./WalletLedgerService";
 import { ensureSquareWallet } from "./WalletLifecycleService";
+import {
+  evaluateWithdrawalReview,
+  recordWithdrawalReviewHold,
+} from "./WithdrawalHoldService";
 import { requiresWithdrawalReview as bankRequiresReview } from "@/lib/platform/engines/squareBank/ComplianceService";
 import type { WithdrawalRequestResult } from "./types";
 
-/** ComplianceEngine hook — delegates to SquareBank ComplianceService. */
+/** ComplianceEngine hook — large-withdrawal threshold only (sync). */
 export function requiresWithdrawalReview(amountCents: number): boolean {
   return bankRequiresReview(amountCents);
 }
@@ -43,7 +47,12 @@ export async function requestWithdrawal(input: {
     return { ok: false, error: "Insufficient available balance." };
   }
 
-  const pendingReview = requiresWithdrawalReview(amountCents);
+  const review = await evaluateWithdrawalReview({
+    email: input.email,
+    amountCents,
+    largeWithdrawalThresholdCents: LARGE_WITHDRAWAL_REVIEW_CENTS,
+  });
+  const pendingReview = review.requiresReview;
   const idempotencyKey = `withdraw_${wallet.id}_${Date.now()}_${amountCents}`;
 
   const debitEntry = await debitBalance({
@@ -55,7 +64,11 @@ export async function requestWithdrawal(input: {
     description: pendingReview
       ? "Withdrawal pending compliance review"
       : "Withdrawal to linked cash-out account",
-    metadata: { pendingReview },
+    metadata: {
+      pendingReview,
+      reviewReason: review.reason ?? null,
+      holdUntil: review.holdUntil?.toISOString() ?? null,
+    },
   });
 
   await creditBalance({
@@ -65,10 +78,38 @@ export async function requestWithdrawal(input: {
     amountCents,
     entryType: "withdrawal_request",
     description: "Pending withdrawal",
-    metadata: { pendingReview, debitLedgerId: debitEntry.id },
+    metadata: {
+      pendingReview,
+      reviewReason: review.reason ?? null,
+      debitLedgerId: debitEntry.id,
+    },
   });
 
   if (pendingReview) {
+    const holdUntil =
+      review.holdUntil ??
+      new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+    if (review.reason) {
+      await recordWithdrawalReviewHold({
+        email: input.email,
+        walletId: wallet.id,
+        holdReason: review.reason,
+        withdrawalLedgerId: debitEntry.id,
+        withdrawalAmountCents: amountCents,
+        holdUntil,
+        depositLedgerId: review.recentDeposit?.ledgerId,
+        depositAt: review.recentDeposit?.depositedAt,
+        depositAmountCents: review.recentDeposit?.amountCents,
+        metadata: { reviewReason: review.reason },
+      });
+    }
+
+    const auditDetail =
+      review.reason === "rapid_deposit_withdraw"
+        ? `Rapid deposit→withdraw hold — $${(amountCents / 100).toFixed(2)} (review until ${holdUntil.toISOString()})`
+        : `Large withdrawal review — $${(amountCents / 100).toFixed(2)}`;
+
     await recordPaymentTransaction({
       playerEmail: input.email,
       provider: getPaymentProviderId(),
@@ -77,8 +118,11 @@ export async function requestWithdrawal(input: {
       amountCents,
       status: "pending",
       idempotencyKey,
-      auditAction: "withdrawal_review_required",
-      auditDetail: `Large withdrawal review — $${(amountCents / 100).toFixed(2)}`,
+      auditAction:
+        review.reason === "rapid_deposit_withdraw"
+          ? "withdrawal_hold_rapid_deposit"
+          : "withdrawal_review_required",
+      auditDetail,
     });
     return { ok: true, pendingReview: true, ledgerEntryId: debitEntry.id };
   }

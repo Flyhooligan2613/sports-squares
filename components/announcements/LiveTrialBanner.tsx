@@ -54,7 +54,7 @@ export default function LiveTrialBanner() {
           type="button"
           onClick={dismiss}
           className="sb-announcement-dismiss shrink-0"
-          aria-label="Dismiss live trial banner"
+          aria-label="Dismiss deposit match banner"
         >
           <X className="w-4 h-4" />
         </button>

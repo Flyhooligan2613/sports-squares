@@ -45,10 +45,11 @@ export default function PaymentCenterPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <AdminStatCard label="Deposits Today" value={formatCents(summary.depositsTodayCents)} accent="success" />
         <AdminStatCard label="Withdrawals Today" value={formatCents(summary.withdrawalsTodayCents)} accent="muted" />
         <AdminStatCard label="Pending" value={summary.pendingCount} accent="gold" />
+        <AdminStatCard label="Withdrawal Holds" value={summary.pendingWithdrawalHolds} accent="purple" />
         <AdminStatCard label="Failed" value={summary.failedCount} accent="purple" />
         <AdminStatCard label="Completed Today" value={summary.completedTodayCount} accent="success" />
       </div>

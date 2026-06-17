@@ -25,7 +25,7 @@ const CREDIT_CARDS: Array<{
   accent: string;
 }> = [
   { key: "contestCredits", label: "Contest Credits", accent: "text-purple-200" },
-  { key: "bonusCredits", label: "Bonus Credits", accent: "text-sky-200" },
+  { key: "bonusCredits", label: "Play-Only Bonus", accent: "text-sky-200" },
   { key: "rewardCredits", label: "Reward Credits", accent: "text-pink-200" },
   { key: "promotional", label: "Promotional", accent: "text-orange-200" },
   { key: "referral", label: "Referral", accent: "text-teal-200" },

@@ -29,3 +29,13 @@ export const LARGE_WITHDRAWAL_REVIEW_CENTS = Number(
 
 export const MIN_DEPOSIT_CENTS = Number(process.env.SQUARE_WALLET_MIN_DEPOSIT_CENTS ?? "500");
 export const MIN_WITHDRAWAL_CENTS = Number(process.env.SQUARE_WALLET_MIN_WITHDRAWAL_CENTS ?? "1000");
+
+/** First-deposit 100% match cap — play-only bonus_credits (default $100). */
+export const FIRST_DEPOSIT_MATCH_MAX_CENTS = Number(
+  process.env.SQUARE_WALLET_FIRST_DEPOSIT_MATCH_MAX_CENTS ?? "10000"
+);
+
+/** Hours after deposit before withdrawal auto-review window closes (default 48h). */
+export const DEPOSIT_WITHDRAW_HOLD_HOURS = Number(
+  process.env.SQUARE_WALLET_DEPOSIT_WITHDRAW_HOLD_HOURS ?? "48"
+);

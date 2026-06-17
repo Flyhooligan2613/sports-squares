@@ -50,8 +50,8 @@ export default function AddFundsPanel({
         Add Funds to SquareWallet™
       </h3>
       <p className="text-xs text-sb-muted mb-4 leading-relaxed">
-        Fund your wallet once — join contests without re-entering card details. All deposits flow
-        through SquareWallet™ and PaymentEngine™.
+        Fund your wallet once — join contests without re-entering card details. First deposit gets a
+        100% match up to $100 in play-only bonus funds. Bonus winnings convert to withdrawable cash.
       </p>
 
       <div className="flex flex-wrap gap-2 mb-4">

@@ -3,6 +3,7 @@ import { recordPaymentTransaction } from "@/lib/platform/engines/payment/Transac
 import { getPaymentProviderId } from "@/lib/platform/engines/payment/config";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { MIN_DEPOSIT_CENTS } from "./config";
+import { grantFirstDepositMatchBonus } from "./DepositBonusService";
 import { creditBalance } from "./WalletLedgerService";
 import { ensureSquareWallet } from "./WalletLifecycleService";
 import { findWalletByEmail } from "./repository";
@@ -95,6 +96,14 @@ export async function confirmDeposit(input: {
     referenceId: input.sessionId,
     description: "SquareWallet™ deposit",
     lifetimeField: "lifetimeDepositsCents",
+  });
+
+  await grantFirstDepositMatchBonus({
+    email: input.email,
+    walletId: wallet.id,
+    depositAmountCents: input.amountCents,
+    depositReferenceId: input.sessionId,
+    paymentTransactionId: tx.id,
   });
 }
 

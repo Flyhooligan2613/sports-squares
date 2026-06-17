@@ -20,6 +20,7 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
     walletLifetimeDepositsCents: 0,
     walletLifetimeWithdrawalsCents: 0,
     walletUtilizationPercent: 0,
+    pendingWithdrawalHolds: 0,
   };
 
   if (!isSupabaseAdminConfigured()) return empty;
@@ -31,7 +32,7 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
   const supabase = getSupabaseAdmin();
   const today = startOfTodayIso();
 
-  const [recentRes, depositsRes, withdrawalsRes, pendingRes, failedRes, completedTodayRes, walletAnalytics] =
+  const [recentRes, depositsRes, withdrawalsRes, pendingRes, failedRes, completedTodayRes, walletAnalytics, pendingHolds] =
     await Promise.all([
       supabase
         .from("payment_transactions")
@@ -70,6 +71,9 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
         totalWithdrawalsCents: 0,
         totalPendingCents: 0,
       })),
+      import("@/lib/platform/engines/payment/wallet/WithdrawalHoldService").then((m) =>
+        m.countPendingWithdrawalHolds().catch(() => 0)
+      ),
     ]);
 
   const recentTransactions: PaymentCenterTransaction[] = (recentRes.data ?? []).map((row) => ({
@@ -109,5 +113,6 @@ export async function fetchPaymentCenterSummary(limit = 25): Promise<PaymentCent
               100
           )
         : 0,
+    pendingWithdrawalHolds: pendingHolds,
   };
 }
