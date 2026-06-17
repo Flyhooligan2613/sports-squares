@@ -90,6 +90,6 @@ export async function buildPlayerCard(email: string) {
           loginStreakDays: Number(profile?.login_streak_days ?? 0),
         }
       : null,
-    sharePath: `/player/${dashboard.account.slug}`,
+    sharePath: `/profile/${dashboard.account.slug}`,
   };
 }

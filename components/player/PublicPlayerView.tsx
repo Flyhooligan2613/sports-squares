@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import { CompetitorCardExperience } from "@/components/competitor-card";
+import { Button } from "@/components/ui/Button";
 import type { CompetitorCardData } from "@/lib/competitorCard/types";
 import { COMMUNITY_LABELS, PLAYER_TERMS } from "@/lib/platform/language";
 
@@ -20,6 +21,16 @@ export default function PublicPlayerView({
       <main className="flex-1 relative overflow-hidden">
         <AmbientBackground />
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+          {initialCompetitorCard.isOwner ? (
+            <div className="mb-6 flex flex-wrap gap-2 justify-end">
+              <Button href="/my-games/profile#settings" variant="secondary" size="sm">
+                Edit Profile
+              </Button>
+              <Button href="/my-games/profile" variant="ghost" size="sm">
+                {PLAYER_TERMS.competitorCard}
+              </Button>
+            </div>
+          ) : null}
           <CompetitorCardExperience
             mode="public"
             slug={slug}

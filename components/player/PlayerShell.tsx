@@ -40,7 +40,7 @@ export default function PlayerShell({
         hideMobileSearch
         rightSlot={
           <div className="flex items-center gap-0.5 sm:gap-1">
-            <PlayerHeaderQuickActions />
+            <PlayerHeaderQuickActions profileHref={profileHref} />
             {userEmail ? <WalletBalanceChip /> : null}
             <Link
               href={profileHref}
