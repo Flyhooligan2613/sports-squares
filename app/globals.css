@@ -9373,11 +9373,23 @@ html.sb-splash-pending body {
 
 .gd-live-ribbon {
   position: sticky;
-  top: 0;
+  top: calc(3rem + 2.35rem);
   z-index: 30;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(8, 12, 22, 0.92);
   backdrop-filter: blur(10px);
+}
+
+@media (min-width: 640px) {
+  .gd-live-ribbon {
+    top: calc(3.5rem + 2.35rem);
+  }
+}
+
+@media (min-width: 768px) {
+  .gd-live-ribbon {
+    top: calc(4rem + 2.35rem);
+  }
 }
 
 .gd-live-strip {
@@ -9729,6 +9741,9 @@ html.sb-splash-pending body {
 }
 
 .player-home-nav {
+  position: sticky;
+  top: 3rem;
+  z-index: 40;
   display: flex;
   justify-content: center;
   gap: 0.35rem;
@@ -9736,6 +9751,18 @@ html.sb-splash-pending body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(3, 7, 18, 0.72);
   backdrop-filter: blur(12px);
+}
+
+@media (min-width: 640px) {
+  .player-home-nav {
+    top: 3.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .player-home-nav {
+    top: 4rem;
+  }
 }
 
 .player-home-nav-link {

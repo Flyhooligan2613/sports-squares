@@ -1,22 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
 import PlayerAvatar from "@/components/player/PlayerAvatar";
-import HomeModeSwitcher from "@/components/home/HomeModeSwitcher";
+import { GAME_DAY_HREF } from "@/lib/home/hubSections";
 
 export default function GameRoomHero({
   greeting,
   subtitle,
   avatarEmoji,
   isGameDay,
-  atmosphereLabel,
 }: {
   greeting: string;
   subtitle: string;
   avatarEmoji: string;
   isGameDay: boolean;
-  atmosphereLabel: string;
 }) {
   return (
     <header className="gameroom-hero mb-6 sm:mb-8">
@@ -47,18 +44,13 @@ export default function GameRoomHero({
             <p className="gameroom-neon-sign mb-3" aria-hidden>
               Game Room
             </p>
-            <div className="mb-3">
-              <Suspense fallback={null}>
-                <HomeModeSwitcher isGameDay={isGameDay} atmosphereLabel={atmosphereLabel} />
-              </Suspense>
-            </div>
             <h1 className="gameroom-greeting">{greeting}</h1>
             <p className="text-sb-muted text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
               {subtitle}
             </p>
           </div>
 
-          <Link href="/my-games?mode=gameday" className="gameroom-gameday-chip hidden sm:inline-flex">
+          <Link href={GAME_DAY_HREF} className="gameroom-gameday-chip hidden sm:inline-flex">
             {isGameDay ? "🔴 Game Day Live" : "📅 Game Day"} →
           </Link>
         </div>

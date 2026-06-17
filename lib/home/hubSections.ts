@@ -25,6 +25,40 @@ export type HubSectionKey = keyof typeof HUB_SECTION;
 export const GAME_DAY_HREF = "/my-games?mode=gameday";
 export const GAME_ROOM_HREF = "/my-games?mode=home";
 
+type HomeModeRouter = {
+  push: (href: string, options?: { scroll?: boolean }) => void;
+  refresh: () => void;
+};
+
+export function parseHomeModeHref(href: string) {
+  const url = new URL(href, "http://localhost");
+  return {
+    pathname: url.pathname,
+    mode: url.searchParams.get("mode"),
+    hrefString: `${url.pathname}${url.search}`,
+  };
+}
+
+/** Query-only `/my-games` mode switches need refresh so client trees remount (Capacitor WebView). */
+export function navigateHomeMode(
+  router: HomeModeRouter,
+  pathname: string,
+  href: string,
+  currentMode?: string | null
+) {
+  const target = parseHomeModeHref(href);
+
+  if (pathname === target.pathname && hubViewModesMatch(currentMode, target.mode)) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  router.push(target.hrefString, { scroll: false });
+  if (pathname === "/my-games") {
+    router.refresh();
+  }
+}
+
 export const HUB_PENDING_HASH_KEY = "squareboards:hub-pending-hash";
 
 export function gameDaySection(section: HubSectionKey): string {

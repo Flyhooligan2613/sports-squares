@@ -8,6 +8,11 @@ import Logo from "@/components/Logo";
 import NavGamesSection from "@/components/platform/NavGamesSection";
 import { useGlobalSearchSafe } from "@/components/search/GlobalSearchProvider";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
+import {
+  GAME_DAY_HREF,
+  GAME_ROOM_HREF,
+  navigateHomeMode,
+} from "@/lib/home/hubSections";
 import { isNavItemActive, NAV_SECTIONS, type NavItem } from "@/lib/navigation";
 import { useNavDrawer } from "./NavDrawerProvider";
 
@@ -132,11 +137,11 @@ export default function NavDrawer() {
                   <ul className="space-y-1">
                     {visibleItems.map((item) => {
                       let active = isNavItemActive(pathname, item.href);
-                      if (item.href === "/my-games?mode=gameday") {
+                      if (item.href === GAME_DAY_HREF) {
                         active =
                           pathname === "/my-games" &&
                           (viewMode === "gameday" || viewMode === null);
-                      } else if (item.href === "/my-games?mode=home") {
+                      } else if (item.href === GAME_ROOM_HREF) {
                         active = pathname === "/my-games" && viewMode === "home";
                       }
                       const badge = badgeForItem(
@@ -146,11 +151,20 @@ export default function NavDrawer() {
                         unreadNotifications
                       );
 
+                      const isHomeModeLink =
+                        item.href === GAME_DAY_HREF || item.href === GAME_ROOM_HREF;
+
                       return (
                         <li key={item.href}>
                           <Link
                             href={item.href}
-                            onClick={close}
+                            onClick={(event) => {
+                              close();
+                              if (isHomeModeLink) {
+                                event.preventDefault();
+                                navigateHomeMode(router, pathname, item.href, viewMode);
+                              }
+                            }}
                             className={[
                               "nav-drawer-link",
                               active ? "nav-drawer-link-active" : "",

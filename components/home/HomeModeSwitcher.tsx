@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-
-const HOME_HREF = "/my-games?mode=home";
-const GAME_DAY_HREF = "/my-games?mode=gameday";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  GAME_DAY_HREF,
+  GAME_ROOM_HREF,
+  navigateHomeMode,
+} from "@/lib/home/hubSections";
 
 function isHomeModeActive(pathname: string, mode: string | null): boolean {
   return pathname === "/my-games" && mode === "home";
@@ -25,18 +27,25 @@ export default function HomeModeSwitcher({
   variant?: "badges" | "bar";
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
   const homeActive = isHomeModeActive(pathname, mode);
   const gameDayActive = isGameDayModeActive(pathname, mode);
   const gameDayLabel = isGameDay ? "Game Day Live" : atmosphereLabel ?? "Game Day";
 
+  function handleModeClick(event: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    event.preventDefault();
+    navigateHomeMode(router, pathname, href, mode);
+  }
+
   if (variant === "bar") {
     return (
       <nav className="player-home-nav" aria-label="Game Room and Game Day">
         <Link
-          href={HOME_HREF}
+          href={GAME_ROOM_HREF}
           scroll={false}
+          onClick={(event) => handleModeClick(event, GAME_ROOM_HREF)}
           className={`player-home-nav-link ${homeActive ? "player-home-nav-link-active" : ""}`}
           aria-current={homeActive ? "page" : undefined}
         >
@@ -45,6 +54,7 @@ export default function HomeModeSwitcher({
         <Link
           href={GAME_DAY_HREF}
           scroll={false}
+          onClick={(event) => handleModeClick(event, GAME_DAY_HREF)}
           className={`player-home-nav-link ${gameDayActive ? "player-home-nav-link-active" : ""}`}
           aria-current={gameDayActive ? "page" : undefined}
         >
@@ -57,8 +67,9 @@ export default function HomeModeSwitcher({
   return (
     <nav className="flex flex-wrap items-center gap-2" aria-label="Game Room and Game Day">
       <Link
-        href={HOME_HREF}
+        href={GAME_ROOM_HREF}
         scroll={false}
+        onClick={(event) => handleModeClick(event, GAME_ROOM_HREF)}
         className={`home-badge home-badge-link ${homeActive ? "home-badge-active" : ""}`}
         aria-current={homeActive ? "page" : undefined}
       >
@@ -67,6 +78,7 @@ export default function HomeModeSwitcher({
       <Link
         href={GAME_DAY_HREF}
         scroll={false}
+        onClick={(event) => handleModeClick(event, GAME_DAY_HREF)}
         className={[
           "home-badge home-badge-link",
           isGameDay ? "home-badge-live" : "home-badge-calm",

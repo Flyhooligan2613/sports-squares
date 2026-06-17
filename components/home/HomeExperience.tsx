@@ -170,10 +170,11 @@ export default function HomeExperience() {
   const continueItems = prioritizeContinueItems(data.continuePlaying);
   const rewardDropGlow = hasRewardDropReady(continueItems);
   const stagger = homeRevealed;
+  const modeKey = viewMode ?? "gameday";
 
   if (isGameRoom) {
     return (
-      <>
+      <div key={modeKey}>
         <PlayerShellAvatarSync avatarEmoji={data.avatarEmoji} />
         <GameRoomExperience
           data={data}
@@ -181,7 +182,7 @@ export default function HomeExperience() {
           continueItems={continueItems}
           rewardDropGlow={rewardDropGlow}
         />
-      </>
+      </div>
     );
   }
 
@@ -192,7 +193,7 @@ export default function HomeExperience() {
   }));
 
   return (
-    <>
+    <div key={modeKey}>
       <PlayerShellAvatarSync avatarEmoji={data.avatarEmoji} />
       <div className={`home-page home-page-revealed gd-page gd-theme-${data.atmosphere.theme}`}>
         <AmbientBackground />
@@ -209,8 +210,6 @@ export default function HomeExperience() {
               greeting={data.greeting}
               subtitle={data.greetingSubtitle}
               avatarEmoji={data.avatarEmoji}
-              isGameDay={data.isGameDay}
-              atmosphereLabel={data.atmosphere.label}
             />
           </HomeStagger>
 
@@ -287,6 +286,6 @@ export default function HomeExperience() {
           </HomeStagger>
         </div>
       </div>
-    </>
+    </div>
   );
 }
