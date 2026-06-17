@@ -11,6 +11,8 @@ import { PlayerShellAvatarProvider } from "@/components/player/PlayerShellAvatar
 import PlayerHomeNav from "@/components/home/PlayerHomeNav";
 import { createClient } from "@/lib/supabase/server";
 import { ensureEcosystemAccount } from "@/lib/platform/ecosystem/account";
+import { getPlayerLegacy } from "@/lib/database/services/playerLegacy";
+import { ensurePlayerProfile } from "@/lib/database/services/playerProfiles";
 import { getPlayerPublicIdentity } from "@/lib/player/publicIdentity";
 import { publicProfilePath } from "@/lib/player/slug";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -32,15 +34,22 @@ export default async function MyGamesDashboardLayout({
   const competitorCardHref = "/my-games/profile";
   let followerCount = 0;
   if (user?.email && isSupabaseAdminConfigured()) {
-    const [identity, account] = await Promise.all([
+    const [identity, account, legacy] = await Promise.all([
       getPlayerPublicIdentity(user.email).catch(() => null),
       ensureEcosystemAccount(user.email).catch(() => null),
+      getPlayerLegacy(user.email).catch(() => null),
     ]);
     avatarEmoji = identity?.avatarEmoji;
-    if (account?.slug) {
-      publicProfileHref = publicProfilePath(account.slug);
-    }
     followerCount = account?.followerCount ?? 0;
+
+    let slug = account?.slug ?? null;
+    if (!slug && legacy) {
+      slug =
+        (await ensurePlayerProfile(user.email, legacy.publicLabel).catch(() => null)) ?? null;
+    }
+    if (slug) {
+      publicProfileHref = publicProfilePath(slug);
+    }
   }
 
   return (

@@ -22,7 +22,7 @@ export default function SportHubBackdropShell({
         .join(" ")}
     >
       <SportBackdrop sportId={sportId} variant="full" fixed />
-      <div className="sport-hub-shell-content relative z-[1] flex flex-col flex-1">{children}</div>
+      <div className="sport-hub-shell-content relative z-10 flex flex-col flex-1">{children}</div>
     </div>
   );
 }

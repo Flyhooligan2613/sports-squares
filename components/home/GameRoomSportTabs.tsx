@@ -1,14 +1,17 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import SportBackdrop from "@/components/sports/SportBackdrop";
 import { Button } from "@/components/ui/Button";
 import { GAME_ROOM_SPORTS } from "@/lib/home/gameRoomSports";
+import { getSportBackdrop } from "@/lib/sports/sportBackdrops";
 
 export default function GameRoomSportTabs() {
   const [activeId, setActiveId] = useState(GAME_ROOM_SPORTS[0]?.id ?? "nfl");
   const activeSport = GAME_ROOM_SPORTS.find((sport) => sport.id === activeId) ?? GAME_ROOM_SPORTS[0];
+  const activeBackdrop = getSportBackdrop(activeSport?.id);
 
   if (!activeSport) return null;
 
@@ -54,6 +57,11 @@ export default function GameRoomSportTabs() {
           className="gameroom-sport-panel"
           role="tabpanel"
           aria-labelledby={`gameroom-sport-tab-${activeSport.id}`}
+          style={
+            activeBackdrop
+              ? ({ "--sport-panel-accent": activeBackdrop.accentColor } as CSSProperties)
+              : undefined
+          }
         >
           <SportBackdrop sportId={activeSport.id} variant="panel" className="sport-backdrop--panel-raised" />
 

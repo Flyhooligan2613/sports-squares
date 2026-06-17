@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PublicPlayerView from "@/components/player/PublicPlayerView";
-import { buildCompetitorCardBySlug } from "@/lib/competitorCard/buildCompetitorCard";
-import { getEmailForPlayerSlug } from "@/lib/database/services/playerProfiles";
+import { getPublicPlayerProfile } from "@/lib/database/services/playerProfiles";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND_NAME } from "@/lib/brand";
 import { PLAYER_TERMS } from "@/lib/platform/language";
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const title = `${profile.displayName} · ${PLAYER_TERMS.competitorCard}`;
+  const title = `${profile.displayName} · ${PLAYER_TERMS.competitorProfile}`;
   const description = profile.headline;
   const url = profileUrl(profile.username);
 
@@ -53,21 +52,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const email = await getEmailForPlayerSlug(params.username).catch(() => null);
-  if (!email) notFound();
-
-  const competitorCard = await buildCompetitorCardBySlug(
-    params.username,
-    user?.email,
-    "public"
-  ).catch(() => null);
-
-  if (!competitorCard) notFound();
+  const profile = await getPublicPlayerProfile(params.username, user?.email).catch(() => null);
+  if (!profile) notFound();
 
   return (
     <PublicPlayerView
-      slug={params.username}
-      initialCompetitorCard={competitorCard}
+      profile={profile}
+      ownerEmail={profile.isOwner ? user?.email ?? undefined : undefined}
     />
   );
 }

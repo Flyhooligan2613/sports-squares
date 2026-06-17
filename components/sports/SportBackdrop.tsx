@@ -36,6 +36,7 @@ export default function SportBackdrop({
         .filter(Boolean)
         .join(" ")}
       aria-hidden
+      data-sport-id={backdrop.id}
       style={{ "--sport-backdrop-accent": backdrop.accentColor } as CSSProperties}
     >
       {backdrop.imagePath ? (

@@ -6,6 +6,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import PickPostCard from "@/components/huddle/PickPostCard";
 import { Button } from "@/components/ui/Button";
 import { CREATOR_LEVEL_LABELS } from "@/lib/huddle/types";
+import { publicProfilePath } from "@/lib/player/slug";
 import type { PlayerSocialProfile } from "@/lib/huddle/profileSocial";
 import type { PublicPlayerProfile } from "@/lib/player/publicProfileTypes";
 import { getTierVisual } from "@/lib/platform/ecosystem/tierVisuals";
@@ -174,7 +175,7 @@ export default function ProfileSocialView({
                   />
                 ) : (
                   <Button
-                    href={embedded ? "#settings" : "/my-games/profile"}
+                    href={embedded ? "#settings" : `${publicProfilePath(profile.slug)}#settings`}
                     variant="secondary"
                     size="sm"
                   >
