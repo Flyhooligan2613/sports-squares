@@ -21,6 +21,8 @@ export interface SportBackdropConfig {
   accentColor: string;
   gradientClass: string;
   patternClass?: string;
+  /** Sport-specific decorative art layer (field lines, diamond, court, etc.) */
+  artClass?: string;
 }
 
 const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
@@ -31,6 +33,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#22c55e",
     gradientClass: "sport-backdrop-gradient-nfl",
     patternClass: "sport-backdrop-pattern-field",
+    artClass: "sport-backdrop-art-nfl",
   },
   nba: {
     id: "nba",
@@ -39,6 +42,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#f97316",
     gradientClass: "sport-backdrop-gradient-nba",
     patternClass: "sport-backdrop-pattern-court",
+    artClass: "sport-backdrop-art-nba",
   },
   wnba: {
     id: "wnba",
@@ -47,6 +51,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#e879f9",
     gradientClass: "sport-backdrop-gradient-wnba",
     patternClass: "sport-backdrop-pattern-court",
+    artClass: "sport-backdrop-art-wnba",
   },
   mlb: {
     id: "mlb",
@@ -55,6 +60,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#38bdf8",
     gradientClass: "sport-backdrop-gradient-mlb",
     patternClass: "sport-backdrop-pattern-field",
+    artClass: "sport-backdrop-art-mlb",
   },
   ncaaf: {
     id: "ncaaf",
@@ -63,6 +69,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#dc2626",
     gradientClass: "sport-backdrop-gradient-ncaaf",
     patternClass: "sport-backdrop-pattern-field",
+    artClass: "sport-backdrop-art-ncaaf",
   },
   soccer: {
     id: "soccer",
@@ -71,6 +78,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#10b981",
     gradientClass: "sport-backdrop-gradient-soccer",
     patternClass: "sport-backdrop-pattern-pitch",
+    artClass: "sport-backdrop-art-soccer",
   },
   football: {
     id: "football",
@@ -79,6 +87,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#10b981",
     gradientClass: "sport-backdrop-gradient-soccer",
     patternClass: "sport-backdrop-pattern-pitch",
+    artClass: "sport-backdrop-art-soccer",
   },
   nhl: {
     id: "nhl",
@@ -87,6 +96,7 @@ const SPORT_BACKDROPS: Record<SportBackdropId, SportBackdropConfig> = {
     accentColor: "#60a5fa",
     gradientClass: "sport-backdrop-gradient-nhl",
     patternClass: "sport-backdrop-pattern-ice",
+    artClass: "sport-backdrop-art-nhl",
   },
 };
 

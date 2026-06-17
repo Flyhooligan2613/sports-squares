@@ -55,6 +55,9 @@ export default function SportBackdrop({
       {backdrop.patternClass ? (
         <div className={["sport-backdrop-pattern", backdrop.patternClass].join(" ")} />
       ) : null}
+      {backdrop.artClass ? (
+        <div className={["sport-backdrop-art", backdrop.artClass].join(" ")} />
+      ) : null}
       <div className="sport-backdrop-overlay" />
     </div>
   );

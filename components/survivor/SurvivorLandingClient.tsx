@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
+import SportBackdrop from "@/components/sports/SportBackdrop";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
@@ -16,6 +17,7 @@ import SurvivorSportSwitcher from "@/components/survivor/SurvivorSportSwitcher";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { getSurvivorSportDefinition, parseSurvivorSport } from "@/lib/survivor/sports";
 import { survivorPath } from "@/lib/survivor/routes";
+import { pickemSportToBackdropId } from "@/lib/sports/sportBackdrops";
 
 const PILLARS = [
   {
@@ -44,8 +46,9 @@ function SurvivorLandingClientInner() {
     sport === "nfl" ? survivorPath("week") : `${survivorPath("week")}?sport=${sport}`;
 
   return (
-    <div className="survivor-page min-h-screen relative overflow-x-hidden">
+    <div className="survivor-page min-h-screen relative overflow-x-hidden isolate">
       <AmbientBackground className="survivor-ambient-amber" fixed />
+      <SportBackdrop sportId={pickemSportToBackdropId(sport)} variant="full" fixed />
       <AppMenuBar logoHref={survivorPath()} />
 
       <div className="relative z-10">

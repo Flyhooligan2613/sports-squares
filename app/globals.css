@@ -5092,7 +5092,7 @@ html.sb-splash-pending body {
 
 /* ── Pick'em ── */
 .pickem-page {
-  background: #030712;
+  background: transparent;
   min-height: 100dvh;
 }
 
@@ -5213,7 +5213,7 @@ html.sb-splash-pending body {
 
 /* ── Survivor X™ ── */
 .survivor-page {
-  background: #030712;
+  background: transparent;
   min-height: 100dvh;
 }
 
@@ -10247,7 +10247,7 @@ html.sb-splash-pending body {
   padding-bottom: 1rem;
   min-height: 11rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 10, 18, 0.35);
+  background: rgba(8, 10, 18, 0.12);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
@@ -10359,7 +10359,7 @@ html.sb-splash-pending body {
   pointer-events: none;
 }
 
-/* Sport backdrops — stadium-night gradients with readable overlays */
+/* Sport backdrops — vivid stadium gradients with sport-specific art */
 .sport-backdrop {
   position: absolute;
   inset: 0;
@@ -10400,6 +10400,7 @@ html.sb-splash-pending body {
 
 .sport-backdrop-gradient,
 .sport-backdrop-pattern,
+.sport-backdrop-art,
 .sport-backdrop-overlay {
   position: absolute;
   inset: 0;
@@ -10408,96 +10409,110 @@ html.sb-splash-pending body {
 .sport-backdrop-gradient {
   transition: opacity 0.45s ease;
   opacity: 1;
+  filter: saturate(1.35) brightness(1.12);
 }
 
 .sport-backdrop--panel .sport-backdrop-gradient {
-  filter: saturate(1.25) brightness(1.08);
+  filter: saturate(1.45) brightness(1.18);
 }
 
 .sport-backdrop-pattern {
-  opacity: 0.34;
-  mix-blend-mode: soft-light;
+  opacity: 0.52;
+  mix-blend-mode: screen;
+}
+
+.sport-backdrop-art {
+  opacity: 0.72;
+  mix-blend-mode: screen;
+  mask-image: radial-gradient(ellipse 95% 80% at 50% 42%, #000 25%, transparent 82%);
 }
 
 .sport-backdrop-overlay {
   background: linear-gradient(
     180deg,
-    rgba(8, 10, 18, 0.42) 0%,
-    rgba(8, 10, 18, 0.68) 55%,
-    rgba(8, 10, 18, 0.82) 100%
+    rgba(8, 10, 18, 0.28) 0%,
+    rgba(8, 10, 18, 0.48) 55%,
+    rgba(8, 10, 18, 0.62) 100%
   );
 }
 
 .sport-backdrop--panel .sport-backdrop-overlay {
   background: linear-gradient(
     145deg,
-    rgba(8, 10, 18, 0.22) 0%,
-    rgba(8, 10, 18, 0.55) 70%,
-    rgba(8, 10, 18, 0.68) 100%
+    rgba(8, 10, 18, 0.12) 0%,
+    rgba(8, 10, 18, 0.38) 70%,
+    rgba(8, 10, 18, 0.52) 100%
   );
 }
 
 .sport-backdrop--full .sport-backdrop-overlay {
   background:
-    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(8, 10, 18, 0.35), transparent 55%),
-    linear-gradient(180deg, rgba(8, 10, 18, 0.45) 0%, rgba(8, 10, 18, 0.88) 100%);
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(8, 10, 18, 0.18), transparent 58%),
+    linear-gradient(180deg, rgba(8, 10, 18, 0.22) 0%, rgba(8, 10, 18, 0.58) 100%);
 }
 
 .sport-backdrop-gradient-nfl {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(234, 179, 8, 0.42), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 85% 35%, rgba(34, 197, 94, 0.32), transparent 50%),
-    linear-gradient(165deg, #0f2f1c 0%, #101a2e 45%, #0a1018 100%);
+    radial-gradient(ellipse 75% 50% at 50% -5%, rgba(234, 179, 8, 0.58), transparent 58%),
+    radial-gradient(ellipse 60% 45% at 85% 35%, rgba(34, 197, 94, 0.48), transparent 52%),
+    radial-gradient(ellipse 50% 40% at 10% 70%, rgba(22, 163, 74, 0.32), transparent 48%),
+    linear-gradient(165deg, #14532d 0%, #1a2e1a 35%, #101a2e 65%, #0a1018 100%);
 }
 
 .sport-backdrop-gradient-nba {
   background:
-    radial-gradient(ellipse 65% 45% at 50% -8%, rgba(249, 115, 22, 0.48), transparent 55%),
-    radial-gradient(ellipse 50% 35% at 15% 60%, rgba(234, 88, 12, 0.26), transparent 45%),
-    linear-gradient(165deg, #2a1608 0%, #1a1020 50%, #100818 100%);
+    radial-gradient(ellipse 70% 50% at 50% -8%, rgba(249, 115, 22, 0.62), transparent 58%),
+    radial-gradient(ellipse 55% 40% at 15% 60%, rgba(234, 88, 12, 0.42), transparent 48%),
+    radial-gradient(ellipse 45% 35% at 88% 45%, rgba(251, 146, 60, 0.28), transparent 45%),
+    linear-gradient(165deg, #431407 0%, #2a1608 40%, #1a1020 70%, #100818 100%);
 }
 
 .sport-backdrop-gradient-wnba {
   background:
-    radial-gradient(ellipse 65% 45% at 50% -8%, rgba(232, 121, 249, 0.44), transparent 55%),
-    radial-gradient(ellipse 50% 35% at 80% 55%, rgba(168, 85, 247, 0.28), transparent 45%),
-    linear-gradient(165deg, #2a0f30 0%, #1c1024 50%, #100818 100%);
+    radial-gradient(ellipse 70% 50% at 50% -8%, rgba(232, 121, 249, 0.58), transparent 58%),
+    radial-gradient(ellipse 55% 40% at 80% 55%, rgba(168, 85, 247, 0.44), transparent 48%),
+    radial-gradient(ellipse 45% 35% at 12% 50%, rgba(217, 70, 239, 0.28), transparent 45%),
+    linear-gradient(165deg, #4a044e 0%, #2a0f30 40%, #1c1024 70%, #100818 100%);
 }
 
 .sport-backdrop-gradient-mlb {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(56, 189, 248, 0.42), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 20% 65%, rgba(34, 197, 94, 0.22), transparent 45%),
-    linear-gradient(165deg, #0f1e38 0%, #101a2e 50%, #0a1018 100%);
+    radial-gradient(ellipse 75% 50% at 50% -5%, rgba(56, 189, 248, 0.55), transparent 58%),
+    radial-gradient(ellipse 60% 45% at 20% 65%, rgba(34, 197, 94, 0.38), transparent 48%),
+    radial-gradient(ellipse 50% 40% at 82% 40%, rgba(14, 165, 233, 0.28), transparent 45%),
+    linear-gradient(165deg, #0c2d48 0%, #0f1e38 40%, #101a2e 70%, #0a1018 100%);
 }
 
 .sport-backdrop-gradient-ncaaf {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(250, 204, 21, 0.4), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 75% 40%, rgba(220, 38, 38, 0.34), transparent 50%),
-    linear-gradient(165deg, #2a1010 0%, #1a1020 50%, #100818 100%);
+    radial-gradient(ellipse 75% 50% at 50% -5%, rgba(250, 204, 21, 0.55), transparent 58%),
+    radial-gradient(ellipse 60% 45% at 75% 40%, rgba(220, 38, 38, 0.48), transparent 52%),
+    radial-gradient(ellipse 50% 40% at 15% 65%, rgba(34, 197, 94, 0.22), transparent 45%),
+    linear-gradient(165deg, #450a0a 0%, #2a1010 40%, #1a1020 70%, #100818 100%);
 }
 
 .sport-backdrop-gradient-soccer {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(16, 185, 129, 0.42), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 10% 55%, rgba(45, 212, 191, 0.24), transparent 45%),
-    linear-gradient(165deg, #0a241c 0%, #101a2e 50%, #0a1018 100%);
+    radial-gradient(ellipse 75% 50% at 50% -5%, rgba(16, 185, 129, 0.55), transparent 58%),
+    radial-gradient(ellipse 60% 45% at 10% 55%, rgba(45, 212, 191, 0.38), transparent 48%),
+    radial-gradient(ellipse 50% 40% at 88% 50%, rgba(52, 211, 153, 0.28), transparent 45%),
+    linear-gradient(165deg, #064e3b 0%, #0a241c 40%, #101a2e 70%, #0a1018 100%);
 }
 
 .sport-backdrop-gradient-nhl {
   background:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(96, 165, 250, 0.44), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 85% 50%, rgba(147, 197, 253, 0.22), transparent 45%),
-    linear-gradient(165deg, #0f1e38 0%, #122030 50%, #0a1018 100%);
+    radial-gradient(ellipse 75% 50% at 50% -5%, rgba(96, 165, 250, 0.58), transparent 58%),
+    radial-gradient(ellipse 60% 45% at 85% 50%, rgba(147, 197, 253, 0.38), transparent 48%),
+    radial-gradient(ellipse 50% 40% at 12% 55%, rgba(59, 130, 246, 0.28), transparent 45%),
+    linear-gradient(165deg, #0c2d48 0%, #0f1e38 40%, #122030 70%, #0a1018 100%);
 }
 
 .sport-backdrop-pattern-field {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+    linear-gradient(rgba(255, 255, 255, 0.08) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 2px, transparent 2px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, #000 20%, transparent 78%);
 }
 
 .sport-backdrop-pattern-court {
@@ -10506,25 +10521,83 @@ html.sb-splash-pending body {
       0deg,
       transparent,
       transparent 47px,
-      rgba(255, 255, 255, 0.05) 47px,
-      rgba(255, 255, 255, 0.05) 48px
+      rgba(255, 255, 255, 0.1) 47px,
+      rgba(255, 255, 255, 0.1) 49px
     );
-  mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 15%, transparent 70%);
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 15%, transparent 72%);
 }
 
 .sport-backdrop-pattern-pitch {
   background-image:
-    radial-gradient(circle at 50% 55%, transparent 38%, rgba(255, 255, 255, 0.06) 38.5%, transparent 39%),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+    radial-gradient(circle at 50% 55%, transparent 36%, rgba(255, 255, 255, 0.1) 36.5%, transparent 37.5%),
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 100% 100%, 56px 56px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, #000 20%, transparent 78%);
 }
 
 .sport-backdrop-pattern-ice {
   background-image:
-    linear-gradient(115deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0.04) 75%, transparent 75%);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+    linear-gradient(115deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.08) 75%, transparent 75%);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 40%, #000 20%, transparent 78%);
+}
+
+/* Sport-specific decorative art — field lines, diamond, court markings */
+.sport-backdrop-art-nfl,
+.sport-backdrop-art-ncaaf {
+  background-image:
+    linear-gradient(90deg, transparent 49.5%, rgba(255, 255, 255, 0.22) 49.5%, rgba(255, 255, 255, 0.22) 50.5%, transparent 50.5%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 9.8%,
+      rgba(255, 255, 255, 0.14) 9.8%,
+      rgba(255, 255, 255, 0.14) 10.2%,
+      transparent 10.2%
+    ),
+    radial-gradient(ellipse 55% 28% at 50% 58%, rgba(34, 197, 94, 0.22), transparent 72%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+.sport-backdrop-art-mlb {
+  background-image:
+    conic-gradient(from 225deg at 50% 62%, transparent 0deg, rgba(255, 255, 255, 0.16) 45deg, transparent 90deg),
+    conic-gradient(from 315deg at 50% 62%, transparent 0deg, rgba(255, 255, 255, 0.16) 45deg, transparent 90deg),
+    radial-gradient(ellipse 42% 22% at 50% 62%, transparent 58%, rgba(255, 255, 255, 0.18) 59%, transparent 62%),
+    linear-gradient(180deg, transparent 58%, rgba(34, 197, 94, 0.18) 58%, rgba(34, 197, 94, 0.18) 62%, transparent 62%);
+  background-size: 100% 100%;
+}
+
+.sport-backdrop-art-nba {
+  background-image:
+    radial-gradient(circle at 50% 58%, transparent 28%, rgba(249, 115, 22, 0.2) 28.5%, transparent 30%),
+    radial-gradient(circle at 50% 58%, transparent 18%, rgba(255, 255, 255, 0.14) 18.5%, transparent 20%),
+    linear-gradient(90deg, transparent 49%, rgba(255, 255, 255, 0.12) 49%, rgba(255, 255, 255, 0.12) 51%, transparent 51%),
+    linear-gradient(0deg, transparent 56%, rgba(249, 115, 22, 0.16) 56%, rgba(249, 115, 22, 0.16) 58%, transparent 58%);
+}
+
+.sport-backdrop-art-wnba {
+  background-image:
+    radial-gradient(circle at 50% 58%, transparent 28%, rgba(232, 121, 249, 0.22) 28.5%, transparent 30%),
+    radial-gradient(circle at 50% 58%, transparent 18%, rgba(255, 255, 255, 0.14) 18.5%, transparent 20%),
+    linear-gradient(90deg, transparent 49%, rgba(255, 255, 255, 0.12) 49%, rgba(255, 255, 255, 0.12) 51%, transparent 51%),
+    linear-gradient(0deg, transparent 56%, rgba(232, 121, 249, 0.18) 56%, rgba(232, 121, 249, 0.18) 58%, transparent 58%);
+}
+
+.sport-backdrop-art-soccer {
+  background-image:
+    radial-gradient(circle at 50% 55%, transparent 14%, rgba(255, 255, 255, 0.16) 14.5%, transparent 16%),
+    linear-gradient(90deg, transparent 49%, rgba(255, 255, 255, 0.14) 49%, rgba(255, 255, 255, 0.14) 51%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, rgba(255, 255, 255, 0.14) 49%, rgba(255, 255, 255, 0.14) 51%, transparent 51%),
+    linear-gradient(90deg, transparent 18%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0.1) 20%, transparent 20%, transparent 80%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0.1) 82%, transparent 82%);
+}
+
+.sport-backdrop-art-nhl {
+  background-image:
+    radial-gradient(circle at 50% 55%, transparent 12%, rgba(255, 255, 255, 0.16) 12.5%, transparent 14%),
+    linear-gradient(90deg, transparent 49%, rgba(96, 165, 250, 0.22) 49%, rgba(96, 165, 250, 0.22) 51%, transparent 51%),
+    linear-gradient(0deg, transparent 38%, rgba(96, 165, 250, 0.14) 38%, rgba(96, 165, 250, 0.14) 40%, transparent 40%, transparent 60%, rgba(96, 165, 250, 0.14) 60%, rgba(96, 165, 250, 0.14) 62%, transparent 62%),
+    linear-gradient(90deg, transparent 24%, rgba(239, 68, 68, 0.12) 24%, rgba(239, 68, 68, 0.12) 26%, transparent 26%, transparent 74%, rgba(239, 68, 68, 0.12) 74%, rgba(239, 68, 68, 0.12) 76%, transparent 76%);
 }
 
 .sport-backdrop:not(.sport-backdrop--reduced) .sport-backdrop-gradient {
@@ -10535,6 +10608,15 @@ html.sb-splash-pending body {
   min-height: calc(100vh - 3.5rem);
   isolation: isolate;
   background: transparent;
+}
+
+.sport-hub-shell > .sport-backdrop {
+  z-index: 0;
+}
+
+.sport-hub-shell-content {
+  position: relative;
+  z-index: 1;
 }
 
 .gameroom-sport-panel-content {
