@@ -3,7 +3,7 @@ import { fetchTeamStandings, type StatsHubSport } from "@/lib/statsHub/standings
 
 export const dynamic = "force-dynamic";
 
-const VALID: StatsHubSport[] = ["nfl", "nba", "mlb", "nhl", "soccer"];
+const VALID: StatsHubSport[] = ["nfl", "nba", "wnba", "mlb", "nhl", "soccer"];
 
 export async function GET(request: Request) {
   const sport = (new URL(request.url).searchParams.get("sport") ?? "nfl") as StatsHubSport;

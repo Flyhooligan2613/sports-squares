@@ -1,4 +1,4 @@
-export type StatsHubSport = "nfl" | "nba" | "mlb" | "nhl" | "soccer";
+export type StatsHubSport = "nfl" | "nba" | "wnba" | "mlb" | "nhl" | "soccer";
 
 export interface TeamStandingRow {
   rank: number;
@@ -26,6 +26,7 @@ export interface TeamStandingRow {
 const STANDINGS_URL: Record<StatsHubSport, string> = {
   nfl: "https://site.api.espn.com/apis/v2/sports/football/nfl/standings",
   nba: "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings",
+  wnba: "https://site.api.espn.com/apis/v2/sports/basketball/wnba/standings",
   mlb: "https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings",
   nhl: "https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings",
   soccer: "https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings",
