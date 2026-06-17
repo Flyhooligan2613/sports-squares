@@ -5,12 +5,14 @@ interface LogoProps {
   variant?: "full" | "icon";
   className?: string;
   href?: string | false;
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 export default function Logo({
   variant = "full",
   className = "",
   href = "/",
+  onClick,
 }: LogoProps) {
   const content = (
     <>
@@ -49,7 +51,7 @@ export default function Logo({
   }
 
   return (
-    <Link href={href} className={`${classes} group`}>
+    <Link href={href} onClick={onClick} className={`${classes} group`}>
       {content}
     </Link>
   );

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { Suspense } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Logo from "@/components/Logo";
 import NavBackButton from "@/components/nav/NavBackButton";
 import NavDrawerTrigger from "@/components/nav/NavDrawerTrigger";
 import NotificationBell from "@/components/nav/NotificationBell";
 import GlobalSearchTrigger from "@/components/search/GlobalSearchTrigger";
-import { GAME_ROOM_HREF } from "@/lib/home/hubSections";
+import { GAME_ROOM_HREF, navigateHomeMode } from "@/lib/home/hubSections";
 
 export default function AppMenuBar({
   logoHref = GAME_ROOM_HREF,
@@ -19,6 +20,17 @@ export default function AppMenuBar({
   /** Hide the mobile search chip when profile/actions already fill the header */
   hideMobileSearch?: boolean;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const hubMode = searchParams.get("mode");
+
+  function handleLogoClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (logoHref !== GAME_ROOM_HREF) return;
+    event.preventDefault();
+    navigateHomeMode(router, pathname, GAME_ROOM_HREF, hubMode);
+  }
+
   return (
     <header className="app-menu-bar sticky top-0 z-50 border-b border-white/[0.08] bg-sb-bg/88 backdrop-blur-2xl">
       <div
@@ -34,8 +46,17 @@ export default function AppMenuBar({
           <Suspense fallback={null}>
             <NavBackButton />
           </Suspense>
-          <Logo href={logoHref} variant="icon" className="sb-logo-nav shrink-0 md:hidden" />
-          <Logo href={logoHref} className="sb-logo-nav shrink-0 hidden md:inline-flex" />
+          <Logo
+            href={logoHref}
+            variant="icon"
+            className="sb-logo-nav shrink-0 md:hidden"
+            onClick={handleLogoClick}
+          />
+          <Logo
+            href={logoHref}
+            className="sb-logo-nav shrink-0 hidden md:inline-flex"
+            onClick={handleLogoClick}
+          />
         </div>
         <div className="hidden md:flex flex-1 justify-center px-3 min-w-0 max-w-xl">
           <GlobalSearchTrigger className="w-full" />

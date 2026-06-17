@@ -64,7 +64,6 @@ export default function GameRoomExperience({
             subtitle="Your hub for every game on SquareBoards — pick a table, chase rewards, and run it back."
             avatarEmoji={data.avatarEmoji}
             isGameDay={data.isGameDay}
-            atmosphereLabel={data.atmosphere.label}
           />
         </HomeStagger>
 
