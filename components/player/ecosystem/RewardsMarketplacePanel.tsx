@@ -5,7 +5,14 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
 
+function extractLeadingEmoji(title: string): string | null {
+  const first = title.trim().split(/\s+/)[0] ?? "";
+  if (!first || /^[A-Za-z0-9$]/.test(first)) return null;
+  return first;
+}
+
 const CATEGORY_LABELS: Record<string, string> = {
+  premium_emojis: "Premium Profile Emojis",
   square_credits: "Square Credits",
   pickem_credits: "Pick'em Credits",
   free_entries: "Free Entries",
@@ -68,17 +75,44 @@ export default function RewardsMarketplacePanel() {
 
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
 
-      {Object.entries(byCategory).map(([category, items]) => (
+      {Object.entries(byCategory)
+        .sort(([a], [b]) => {
+          if (a === "premium_emojis") return -1;
+          if (b === "premium_emojis") return 1;
+          return 0;
+        })
+        .map(([category, items]) => (
         <section key={category}>
           <h3 className="text-lg font-semibold text-white mb-3">
             {CATEGORY_LABELS[category] ?? category}
           </h3>
+          {category === "premium_emojis" ? (
+            <p className="text-xs text-sb-muted mb-3 max-w-2xl">
+              Exclusive Competitor Card emojis — also purchasable with wallet cash from Profile
+              settings.
+            </p>
+          ) : null}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {items.map((item) => (
-              <LandingGlassCard key={item.id} className="p-4 flex flex-col gap-3">
-                <div>
-                  <p className="text-white font-medium">{item.title}</p>
-                  <p className="text-xs text-sb-muted mt-1">{item.description}</p>
+            {items.map((item) => {
+              const emojiChar =
+                category === "premium_emojis" ? extractLeadingEmoji(item.title) : null;
+              return (
+              <LandingGlassCard
+                key={item.id}
+                className={`p-4 flex flex-col gap-3 ${
+                  category === "premium_emojis" ? "border-amber-500/25" : ""
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  {emojiChar ? (
+                    <span className="text-3xl shrink-0" aria-hidden>
+                      {emojiChar}
+                    </span>
+                  ) : null}
+                  <div>
+                    <p className="text-white font-medium">{item.title}</p>
+                    <p className="text-xs text-sb-muted mt-1">{item.description}</p>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-auto">
                   <span className="text-sm text-sb-purple-light font-semibold">
@@ -93,7 +127,8 @@ export default function RewardsMarketplacePanel() {
                   </Button>
                 </div>
               </LandingGlassCard>
-            ))}
+            );
+            })}
           </div>
         </section>
       ))}

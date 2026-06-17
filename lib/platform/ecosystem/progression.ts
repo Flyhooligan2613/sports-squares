@@ -51,9 +51,19 @@ export async function recordDailyLogin(email: string): Promise<{ streakDays: num
 }
 
 export async function setPlayerAvatar(email: string, emoji: string): Promise<string> {
-  const value = isValidAvatar(emoji) ? emoji : DEFAULT_AVATAR;
-  await updateEcosystemProfile(email, { avatar_emoji: value });
-  return value;
+  if (isValidAvatar(emoji)) {
+    await updateEcosystemProfile(email, { avatar_emoji: emoji });
+    return emoji;
+  }
+
+  const { canUseAvatarEmoji } = await import("@/lib/platform/ecosystem/premiumEmojis");
+  if (await canUseAvatarEmoji(email, emoji)) {
+    await updateEcosystemProfile(email, { avatar_emoji: emoji });
+    return emoji;
+  }
+
+  const current = await getPlayerAvatar(email);
+  return current || DEFAULT_AVATAR;
 }
 
 export async function getPlayerAvatar(email: string): Promise<string> {

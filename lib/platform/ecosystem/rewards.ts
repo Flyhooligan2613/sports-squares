@@ -130,13 +130,26 @@ export async function redeemReward(input: {
     });
   }
 
-  await addInventoryItem({
-    email: input.email,
-    itemType: "tier_reward",
-    title: `Redeemed: ${catalog.title}`,
-    source: "marketplace",
-    metadata: { redemptionId: redemption.id as string },
-  });
+  if (catalog.rewardType === "premium_emoji") {
+    const { grantPremiumEmojiFromCredits } = await import("@/lib/platform/ecosystem/premiumEmojis");
+    await grantPremiumEmojiFromCredits({
+      email: input.email,
+      emojiSlug: catalog.rewardValue.emojiSlug as string | undefined,
+      emojiSlugs: catalog.rewardValue.emojiSlugs as string[] | undefined,
+      creditsSpent: catalog.creditCost,
+      catalogSlug: catalog.slug,
+    });
+  }
+
+  if (catalog.rewardType !== "premium_emoji") {
+    await addInventoryItem({
+      email: input.email,
+      itemType: "tier_reward",
+      title: `Redeemed: ${catalog.title}`,
+      source: "marketplace",
+      metadata: { redemptionId: redemption.id as string },
+    });
+  }
 
   await incrementLifetimeRewards(input.email, catalog.creditCost);
 

@@ -5,7 +5,14 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
 
+function extractLeadingEmoji(title: string): string | null {
+  const first = title.trim().split(/\s+/)[0] ?? "";
+  if (!first || /^[A-Za-z0-9$]/.test(first)) return null;
+  return first;
+}
+
 const CATEGORY_LABELS: Record<string, string> = {
+  premium_emojis: "Premium Profile Emojis",
   game_items: "Game Items — Squares, Lines & Shields",
   square_credits: "Square Credits",
   pickem_credits: "Pick'em Credits",
@@ -20,6 +27,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_ORDER = [
+  "premium_emojis",
   "game_items",
   "square_credits",
   "pickem_credits",
@@ -110,30 +118,50 @@ export default function CreditShopPanel() {
       {sortedCategories.map((category) => {
         const items = byCategory[category] ?? [];
         const isGameItems = category === "game_items";
+        const isPremiumEmojis = category === "premium_emojis";
         return (
           <section key={category}>
             <h3 className="text-lg font-semibold text-white mb-3">
               {CATEGORY_LABELS[category] ?? category}
             </h3>
+            {isPremiumEmojis ? (
+              <p className="text-xs text-sb-muted mb-3 max-w-2xl">
+                Unlock exclusive profile emojis for your Competitor Card — same premiums available
+                with SquareWallet cash via Profile → Premiums.
+              </p>
+            ) : null}
             <div
               className={
-                isGameItems
+                isGameItems || isPremiumEmojis
                   ? "grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
                   : "grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
               }
             >
               {items.map((item) => {
                 const canAfford = data.wallet.tierCredits >= item.creditCost;
+                const emojiChar =
+                  item.category === "premium_emojis" ? extractLeadingEmoji(item.title) : null;
                 return (
                   <LandingGlassCard
                     key={item.id}
                     className={`p-4 flex flex-col gap-3 ${
-                      isGameItems ? "border-cyan-500/25 credit-shop-game-item" : ""
+                      isGameItems
+                        ? "border-cyan-500/25 credit-shop-game-item"
+                        : isPremiumEmojis
+                          ? "border-amber-500/25"
+                          : ""
                     }`}
                   >
-                    <div>
-                      <p className="text-white font-medium">{item.title}</p>
-                      <p className="text-xs text-sb-muted mt-1 leading-relaxed">{item.description}</p>
+                    <div className="flex items-start gap-3">
+                      {emojiChar ? (
+                        <span className="text-3xl shrink-0" aria-hidden>
+                          {emojiChar}
+                        </span>
+                      ) : null}
+                      <div>
+                        <p className="text-white font-medium">{item.title}</p>
+                        <p className="text-xs text-sb-muted mt-1 leading-relaxed">{item.description}</p>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-auto">
                       <span className="text-sm text-sb-purple-light font-semibold tabular-nums">
