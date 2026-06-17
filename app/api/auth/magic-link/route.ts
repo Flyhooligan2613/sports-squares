@@ -4,6 +4,11 @@ import { sendPlayerMagicLinkEmail } from "@/lib/auth/playerMagicLink";
 import { playerEmailCanSignIn } from "@/lib/auth/playerAccess";
 import { isResendConfigured } from "@/lib/email/resend";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import {
+  enforceRateLimit,
+  RATE_LIMITS,
+  resolveClientIpFromRequest,
+} from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -25,6 +30,13 @@ export async function POST(request: Request) {
       { status: 503 }
     );
   }
+
+  const rateLimited = enforceRateLimit(
+    "auth:magic-link",
+    resolveClientIpFromRequest(request),
+    RATE_LIMITS.magicLink
+  );
+  if (rateLimited) return rateLimited;
 
   try {
     const body = (await request.json()) as {

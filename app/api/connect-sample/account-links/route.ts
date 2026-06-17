@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/errors";
 import { createConnectSampleAccountLink } from "@/lib/stripe/connectSample/v2Accounts";
 import { getConnectSampleBaseUrlFromRequest } from "@/lib/stripe/connectSample/config";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 
 /** POST — Create a hosted onboarding Account Link (V2 API) */
 export async function POST(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const body = (await request.json()) as { accountId?: string };
     const accountId = body.accountId?.trim();

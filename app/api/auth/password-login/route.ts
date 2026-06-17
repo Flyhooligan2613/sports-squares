@@ -9,6 +9,11 @@ import {
   resolveClientIp,
   resolveLoginLocation,
 } from "@/lib/auth/security/securityCenter";
+import {
+  enforceRateLimit,
+  RATE_LIMITS,
+  resolveClientIpFromRequest,
+} from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +21,13 @@ export async function POST(request: Request) {
   if (!isSupabaseAdminConfigured()) {
     return NextResponse.json({ error: "Sign-in is not configured." }, { status: 503 });
   }
+
+  const rateLimited = enforceRateLimit(
+    "auth:password-login",
+    resolveClientIpFromRequest(request),
+    RATE_LIMITS.login
+  );
+  if (rateLimited) return rateLimited;
 
   try {
     const body = (await request.json()) as {

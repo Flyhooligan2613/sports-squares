@@ -10,6 +10,11 @@ import {
   resolveClientIp,
   resolveLoginLocation,
 } from "@/lib/auth/security/securityCenter";
+import {
+  enforceRateLimit,
+  RATE_LIMITS,
+  resolveClientIpFromRequest,
+} from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +22,13 @@ export async function POST(request: Request) {
   if (!isSupabaseAdminConfigured()) {
     return NextResponse.json({ error: "Sign-up is not configured." }, { status: 503 });
   }
+
+  const rateLimited = enforceRateLimit(
+    "auth:signup",
+    resolveClientIpFromRequest(request),
+    RATE_LIMITS.signup
+  );
+  if (rateLimited) return rateLimited;
 
   try {
     const body = (await request.json()) as {

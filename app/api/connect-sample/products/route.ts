@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/errors";
 import { createConnectSampleProduct } from "@/lib/stripe/connectSample/products";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 
 /** POST — Create a product on the connected account (Stripe-Account header) */
 export async function POST(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const body = (await request.json()) as {
       accountId?: string;

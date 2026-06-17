@@ -4,6 +4,7 @@ import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/
 import { getStripeClient } from "@/lib/stripe/connectSample/client";
 import { getSubscriptionWebhookSecret } from "@/lib/stripe/connectSample/config";
 import { handleConnectSampleSubscriptionEvent } from "@/lib/stripe/connectSample/webhooks/subscriptionEvents";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,6 +14,9 @@ export const runtime = "nodejs";
  * Listen for customer.subscription.* and invoice.paid in Stripe Dashboard.
  */
 export async function POST(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   const webhookSecret = getSubscriptionWebhookSecret();
   if (!webhookSecret) {
     return jsonError(

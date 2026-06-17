@@ -12,6 +12,7 @@ import {
 import {
   parseConnectSampleThinEvent,
 } from "@/lib/stripe/connectSample/v2Accounts";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -23,6 +24,9 @@ export const runtime = "nodejs";
  * stripe listen --thin-events 'v2.core.account[requirements].updated,v2.core.account[configuration.merchant].capability_status_updated,v2.core.account[configuration.customer].capability_status_updated' --forward-thin-to http://localhost:3000/api/connect-sample/webhooks/thin
  */
 export async function POST(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   const webhookSecret = getThinWebhookSecret();
   if (!webhookSecret) {
     return jsonError(

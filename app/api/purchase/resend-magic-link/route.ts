@@ -4,6 +4,11 @@ import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import { TABLES } from "@/lib/database/config";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { isStripeConfigured } from "@/lib/platform/engines/payment";
+import {
+  enforceRateLimit,
+  RATE_LIMITS,
+  resolveClientIpFromRequest,
+} from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,6 +20,13 @@ export async function POST(request: Request) {
       { status: 503 }
     );
   }
+
+  const rateLimited = enforceRateLimit(
+    "purchase:resend-magic-link",
+    resolveClientIpFromRequest(request),
+    RATE_LIMITS.magicLink
+  );
+  if (rateLimited) return rateLimited;
 
   try {
     const body = (await request.json()) as { sessionId?: string };

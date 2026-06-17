@@ -9,11 +9,15 @@ import {
   parseConnectSampleAccountStatus,
 } from "@/lib/stripe/connectSample/accountStatus";
 import { saveConnectSampleAccountMapping } from "@/lib/stripe/connectSample/database";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 
 /** POST — Create a V2 connected account and store demo user → account mapping */
 export async function POST(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const body = (await request.json()) as {
       displayName?: string;
@@ -66,6 +70,9 @@ export async function POST(request: Request) {
 
 /** GET — Live account status from Stripe API (never from DB) */
 export async function GET(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const accountId = new URL(request.url).searchParams.get("accountId")?.trim();
     if (!accountId) {

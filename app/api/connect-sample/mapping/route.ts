@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/errors";
 import { getConnectSampleAccountByEmail } from "@/lib/stripe/connectSample/database";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 
 /** GET — Load stored demo user → account mapping (account ID only; status comes from Stripe API) */
 export async function GET(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const email = new URL(request.url).searchParams.get("email")?.trim().toLowerCase();
     if (!email) {

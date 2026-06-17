@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/errors";
 import { listConnectSampleProducts } from "@/lib/stripe/connectSample/products";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,9 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ accountId: string }> }
 ) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const { accountId } = await context.params;
     if (!accountId?.trim()) {

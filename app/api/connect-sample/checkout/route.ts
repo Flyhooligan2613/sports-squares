@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { ConnectSampleConfigError, jsonError } from "@/lib/stripe/connectSample/errors";
 import { createConnectSampleCheckoutSession } from "@/lib/stripe/connectSample/checkout";
+import { connectSampleDisabledResponse } from "@/lib/security/connectSampleGuard";
 
 export const dynamic = "force-dynamic";
 
 /** POST — Direct charge Checkout on connected account with application fee */
 export async function POST(request: Request) {
+  const blocked = connectSampleDisabledResponse();
+  if (blocked) return blocked;
+
   try {
     const body = (await request.json()) as {
       accountId?: string;

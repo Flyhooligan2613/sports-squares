@@ -1,24 +1,29 @@
-/** Comma-separated in NEXT_PUBLIC_ADMIN_EMAILS (e.g. you@domain.com,other@domain.com) */
+/** Comma-separated in NEXT_PUBLIC_ADMIN_EMAILS or server-only ADMIN_EMAILS. */
 function parseAdminEmailList(raw: string | undefined): string[] {
   if (!raw?.trim()) return [];
   return raw
-   .split(",")
+    .split(",")
     .map((email) => email.toLowerCase().trim())
     .filter(Boolean);
 }
 
-const ENV_ADMIN_EMAILS = parseAdminEmailList(process.env.NEXT_PUBLIC_ADMIN_EMAILS);
+const ENV_ADMIN_EMAILS = parseAdminEmailList(
+  process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAILS
+);
 
-/** Fallback when env is unset (local dev). Prefer NEXT_PUBLIC_ADMIN_EMAILS in production. */
-const DEFAULT_ADMIN_EMAILS = ["ithomaspk@gmail.com"];
+if (ENV_ADMIN_EMAILS.length === 0 && process.env.NODE_ENV !== "production") {
+  console.warn(
+    "[auth] ADMIN_EMAILS / NEXT_PUBLIC_ADMIN_EMAILS unset — admin routes fail closed until configured."
+  );
+}
 
-export const ADMIN_EMAILS =
-  ENV_ADMIN_EMAILS.length > 0 ? ENV_ADMIN_EMAILS : DEFAULT_ADMIN_EMAILS;
+/** No hardcoded fallback — production must set env explicitly. */
+export const ADMIN_EMAILS = ENV_ADMIN_EMAILS;
 
 export function isAuthorizedAdminEmail(
   email: string | undefined | null
 ): boolean {
-  if (!email) return false;
+  if (!email || ADMIN_EMAILS.length === 0) return false;
 
   const normalized = email.toLowerCase().trim();
 
