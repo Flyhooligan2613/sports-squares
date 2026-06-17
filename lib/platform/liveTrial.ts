@@ -7,6 +7,8 @@ export const LIVE_TRIAL_BANNER = {
   ctaLabel: "Claim Bonus",
   ctaHref: "/my-games/wallet?tab=deposit",
   dismissStorageKey: "sb-deposit-match-banner-dismissed",
+  /** Session-only dismiss — popup reappears next visit until first deposit */
+  popupSessionDismissKey: "sb-deposit-match-popup-session-dismissed",
 } as const;
 
 export function isLiveTrialBannerEnabled(): boolean {

@@ -100,10 +100,9 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
                   ]
                 : undefined
             }
-            cta={{ label: CONTEST_CTAS.competeNow, href: `${basePath}/week` }}
           />
 
-          <div className="flex flex-wrap justify-center gap-3 mt-2">
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
             <Button href={`${basePath}/week`}>{CONTEST_CTAS.competeNow}</Button>
             <Button href={`${basePath}/week`} variant="secondary">
               My Picks

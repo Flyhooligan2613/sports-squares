@@ -65,10 +65,9 @@ function LandingContent() {
             badgeVariant="live"
             title={TOURNAMENT_ROYALE_PUBLIC_NAME}
             subtitle={`${def.emoji} ${def.description} Predict. Progress. Never get eliminated after one miss.`}
-            cta={{ label: CONTEST_CTA_LABELS["tournament-royale"], href: hubHref }}
           />
 
-          <div className="flex flex-wrap justify-center gap-3 mt-2">
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
             <Button href={hubHref}>{CONTEST_CTA_LABELS["tournament-royale"]}</Button>
             <Button href={tournamentRoyalePath("learn")} variant="secondary">
               How to Play

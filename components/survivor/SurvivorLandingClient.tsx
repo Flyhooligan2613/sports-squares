@@ -61,10 +61,9 @@ function SurvivorLandingClientInner() {
             badgeVariant="live"
             title={SURVIVOR_X_PUBLIC_NAME}
             subtitle={`Survive the entire ${sportDef.label} season. Build your legacy. One pick per week — never the same team twice.`}
-            cta={{ label: CONTEST_CTA_LABELS["survivor-x"], href: weekHref }}
           />
 
-          <div className="flex flex-wrap justify-center gap-3 mt-2">
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
             <Button href={weekHref}>{CONTEST_CTA_LABELS["survivor-x"]}</Button>
             <Button href={survivorPath("learn")} variant="secondary">
               How to Play

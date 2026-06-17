@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Plus_Jakarta_Sans } from "next/font/google";
@@ -7,6 +8,7 @@ import NavShell from "@/components/nav/NavShell";
 import InstallPrompt from "@/components/InstallPrompt";
 import GlobalStaffPortalHint from "@/components/GlobalStaffPortalHint";
 import { AnnouncementProvider } from "@/components/announcements/AnnouncementProvider";
+import AppAmbientBackdrop from "@/components/sports/AppAmbientBackdrop";
 import PwaRegister from "@/components/PwaRegister";
 import NativeShellInit from "@/components/NativeShellInit";
 import AppOpenSplash from "@/components/AppOpenSplash";
@@ -46,7 +48,12 @@ export default function RootLayout({
           <AnnouncementProvider>
             <NavbarGate>
               <AppPullToRefresh>
-                <div className="flex-1 flex flex-col">{children}</div>
+                <div className="flex-1 flex flex-col relative isolate">
+                  <Suspense fallback={null}>
+                    <AppAmbientBackdrop />
+                  </Suspense>
+                  <div className="relative z-[1] flex flex-col flex-1">{children}</div>
+                </div>
               </AppPullToRefresh>
             </NavbarGate>
           </AnnouncementProvider>

@@ -19,6 +19,7 @@ import {
   AnnouncementWelcomePopup,
 } from "@/components/announcements/AnnouncementDisplays";
 import LiveTrialBanner from "@/components/announcements/LiveTrialBanner";
+import DepositMatchPopup from "@/components/announcements/DepositMatchPopup";
 import { isLiveTrialBannerEnabled } from "@/lib/platform/liveTrial";
 import type {
   AnnouncementEventType,
@@ -162,6 +163,7 @@ export function AnnouncementProvider({ children }: { children: ReactNode }) {
   return (
     <AnnouncementContext.Provider value={value}>
       {isLiveTrialBannerEnabled() ? <LiveTrialBanner /> : null}
+      {isLiveTrialBannerEnabled() ? <DepositMatchPopup /> : null}
       {ticker ? <AnnouncementScrollingTicker announcement={ticker} /> : null}
       {topBanner ? (
         <AnnouncementTopBanner

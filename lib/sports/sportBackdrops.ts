@@ -149,6 +149,44 @@ export function resolveSportBackdropFromPath(
   return null;
 }
 
+/** Default backdrop for non-sport platform pages (wallet, profile, game room, etc.) */
+export const PLATFORM_DEFAULT_BACKDROP_ID: SportBackdropId = "nfl";
+
+/** Routes that render their own full-page fixed SportBackdrop — skip app-wide layer */
+const ROUTES_WITH_OWN_BACKDROP: Array<string | RegExp> = [
+  /^\/games\/[^/]+/,
+  /^\/pickem(\/|$)/,
+  /^\/baseball-pickem(\/|$)/,
+  /^\/soccer-predictor(\/|$)/,
+  /^\/wnba-pickem(\/|$)/,
+  /^\/survivor(\/|$)/,
+];
+
+export function shouldSkipAppAmbientBackdrop(pathname: string): boolean {
+  if (!pathname || pathname.startsWith("/admin")) return true;
+  return ROUTES_WITH_OWN_BACKDROP.some((rule) =>
+    typeof rule === "string" ? pathname === rule || pathname.startsWith(`${rule}/`) : rule.test(pathname)
+  );
+}
+
+/** Resolve sport backdrop for app-wide ambient layer */
+export function resolveAppBackdropSportId(
+  pathname: string,
+  searchParams?: { get(key: string): string | null } | URLSearchParams | null
+): SportBackdropId {
+  const fromPath = resolveSportBackdropFromPath(pathname, searchParams);
+  if (fromPath) return fromPath;
+
+  if (pathname.startsWith("/tournament-royale")) return "ncaaf";
+  if (pathname.startsWith("/contest-center") || pathname.startsWith("/contests")) return "nfl";
+  if (pathname.startsWith("/game-day") || pathname.startsWith("/live-winners")) return "nfl";
+  if (pathname.startsWith("/leaderboards")) return "nfl";
+  if (pathname.startsWith("/my-games")) return PLATFORM_DEFAULT_BACKDROP_ID;
+  if (pathname === "/" || pathname.startsWith("/home")) return PLATFORM_DEFAULT_BACKDROP_ID;
+
+  return PLATFORM_DEFAULT_BACKDROP_ID;
+}
+
 export function pickemSportToBackdropId(sport: string): SportBackdropId {
   return normalizeSportBackdropId(sport) ?? "nfl";
 }

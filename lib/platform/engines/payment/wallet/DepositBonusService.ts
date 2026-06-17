@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/player/statsCore";
 import { FIRST_DEPOSIT_MATCH_MAX_CENTS } from "./config";
+import { findWalletByEmail } from "./repository";
 import { creditBalance } from "./WalletLedgerService";
 
 export async function hasReceivedDepositBonus(email: string): Promise<boolean> {
@@ -9,6 +10,25 @@ export async function hasReceivedDepositBonus(email: string): Promise<boolean> {
     .from("deposit_bonus_grants")
     .select("id")
     .eq("player_email", normalizeEmail(email))
+    .maybeSingle();
+
+  return Boolean(data?.id);
+}
+
+/** True once the player has completed any wallet deposit (bonus grant or ledger deposit). */
+export async function hasCompletedFirstDeposit(email: string): Promise<boolean> {
+  if (await hasReceivedDepositBonus(email)) return true;
+
+  const wallet = await findWalletByEmail(email);
+  if (!wallet) return false;
+
+  const supabase = getSupabaseAdmin();
+  const { data } = await supabase
+    .from("square_wallet_ledger_entries")
+    .select("id")
+    .eq("wallet_id", wallet.id)
+    .eq("entry_type", "deposit")
+    .limit(1)
     .maybeSingle();
 
   return Boolean(data?.id);
