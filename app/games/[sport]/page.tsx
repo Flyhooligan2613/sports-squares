@@ -1,3 +1,4 @@
+import SportHubBackdropShell from "@/components/sports/SportHubBackdropShell";
 import Link from "next/link";
 import { Suspense } from "react";
 import Footer from "@/components/Footer";
@@ -64,7 +65,7 @@ export default async function SportGamesPage({
 
   if (offSeason) {
     return (
-      <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
+      <SportHubBackdropShell sportId={sport} className="min-h-[calc(100vh-3.5rem)]">
         <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12">
           <div className="mb-8 sb-xp-hero-enter">
             <Link
@@ -85,7 +86,7 @@ export default async function SportGamesPage({
           <SportOffSeasonPanel sport={sport} />
         </main>
         <Footer landing />
-      </div>
+      </SportHubBackdropShell>
     );
   }
 
@@ -125,7 +126,7 @@ export default async function SportGamesPage({
   );
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
+    <SportHubBackdropShell sportId={sport} className="min-h-[calc(100vh-3.5rem)]">
       <SportGamesIntro sport={sport} />
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12">
         <div className="mb-8 sb-xp-hero-enter">
@@ -255,6 +256,6 @@ export default async function SportGamesPage({
         )}
       </main>
       <Footer landing />
-    </div>
+    </SportHubBackdropShell>
   );
 }

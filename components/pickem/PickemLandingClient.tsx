@@ -5,6 +5,7 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import LandingSection from "@/components/landing/LandingSection";
 import LandingSectionHeader from "@/components/landing/LandingSectionHeader";
+import SportBackdrop from "@/components/sports/SportBackdrop";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
@@ -25,6 +26,7 @@ import {
 import { fastFetchJson } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import { COMMUNITY_LABELS, CONTEST_CTAS, getLoadingMessage, PROFILE_LABELS } from "@/lib/platform/language";
+import { pickemSportToBackdropId } from "@/lib/sports/sportBackdrops";
 
 function formatMoney(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -77,6 +79,7 @@ export default function PickemLandingClient({ sport = "nfl" }: { sport?: PickemS
 
   return (
     <div className="pickem-page min-h-screen relative overflow-x-hidden">
+      <SportBackdrop sportId={pickemSportToBackdropId(sport)} variant="full" fixed />
       <AmbientBackground className={ambientClass} fixed />
       <AppMenuBar logoHref={basePath} />
 

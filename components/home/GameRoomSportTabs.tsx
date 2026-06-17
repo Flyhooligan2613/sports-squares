@@ -2,6 +2,7 @@
 
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
+import SportBackdrop from "@/components/sports/SportBackdrop";
 import { Button } from "@/components/ui/Button";
 import { GAME_ROOM_SPORTS } from "@/lib/home/gameRoomSports";
 
@@ -54,12 +55,15 @@ export default function GameRoomSportTabs() {
           role="tabpanel"
           aria-labelledby={`gameroom-sport-tab-${activeSport.id}`}
         >
-          <p className="gameroom-sport-panel-title">
-            Choose what to play · <span>{activeSport.label}</span>
-          </p>
+          <SportBackdrop sportId={activeSport.id} variant="panel" />
 
-          {availableLinks.length > 0 ? (
-            <div className="gameroom-sport-actions">
+          <div className="gameroom-sport-panel-content">
+            <p className="gameroom-sport-panel-title">
+              Choose what to play · <span>{activeSport.label}</span>
+            </p>
+
+            {availableLinks.length > 0 ? (
+              <div className="gameroom-sport-actions">
               {availableLinks.map((link, index) => (
                 <Button
                   key={link.href + link.label}
@@ -99,6 +103,7 @@ export default function GameRoomSportTabs() {
                 ))}
             </div>
           ) : null}
+          </div>
         </div>
       </div>
     </section>
