@@ -5,7 +5,7 @@ import { BRAND_NAME } from "@/lib/brand";
 
 export const metadata = {
   title: `Stats Hub | ${BRAND_NAME}`,
-  description: "Team standings across NFL, NBA, WNBA, MLB, NHL, and soccer.",
+  description: "Team standings across NFL, NCAA Football, NBA, WNBA, MLB, NHL, and soccer.",
 };
 
 export default function StatsHubPage() {

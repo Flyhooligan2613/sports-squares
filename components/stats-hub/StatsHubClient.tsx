@@ -8,6 +8,7 @@ import type { StatsHubSport, TeamStandingRow } from "@/lib/statsHub/standings";
 
 const SPORTS: { id: StatsHubSport; label: string; emoji: string }[] = [
   { id: "nfl", label: "NFL", emoji: "🏈" },
+  { id: "ncaaf", label: "NCAAF", emoji: "🏈" },
   { id: "nba", label: "NBA", emoji: "🏀" },
   { id: "wnba", label: "WNBA", emoji: "🏀" },
   { id: "mlb", label: "MLB", emoji: "⚾" },
