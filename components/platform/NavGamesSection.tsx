@@ -75,9 +75,9 @@ export default function NavGamesSection({
   if (games.length === 0) return null;
 
   return (
-    <ul className="space-y-2 mb-3">
+    <ul className="nav-game-card-list mb-3">
       {games.map((game) => (
-        <li key={game.id}>
+        <li key={game.id} className="nav-game-card-wrap">
           <NavGameCard game={game} />
         </li>
       ))}
