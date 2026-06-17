@@ -27,10 +27,29 @@ export function formatNavHref(pathname: string, searchParams: URLSearchParams | 
   return query ? `${pathname}?${query}` : pathname;
 }
 
+function isHubRootHref(href: string): boolean {
+  try {
+    const url = new URL(href, "http://localhost");
+    if (url.pathname !== "/my-games") return false;
+    const mode = url.searchParams.get("mode");
+    return mode === "home" || mode === "gameday" || mode === null;
+  } catch {
+    return false;
+  }
+}
+
 /** Record each in-app route visit (skips consecutive duplicates). */
 export function pushNavEntry(href: string): void {
   const stack = readStack();
   if (stack[stack.length - 1] === href) return;
+
+  // Game Room and Game Day are mode toggles, not sequential history steps.
+  if (isHubRootHref(href)) {
+    while (stack.length > 0 && isHubRootHref(stack[stack.length - 1]!)) {
+      stack.pop();
+    }
+  }
+
   stack.push(href);
   writeStack(stack);
 }

@@ -16,14 +16,15 @@ function NavBackButtonInner() {
   if (!target.show) return null;
 
   function handleBack() {
-    const previous = consumePreviousNav(currentHref);
-    if (previous && previous !== currentHref) {
-      router.push(previous);
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      consumePreviousNav(currentHref);
+      router.back();
       return;
     }
 
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
+    const previous = consumePreviousNav(currentHref);
+    if (previous && previous !== currentHref) {
+      router.push(previous);
       return;
     }
 

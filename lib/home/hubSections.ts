@@ -55,8 +55,9 @@ export function navigateHomeMode(
 
   // Query-only hub mode switches need a full navigation so searchParams remount
   // (Capacitor WebView and soft router.push often keep the previous mode).
+  // Replace — not assign — so Game Room ↔ Game Day toggles do not pollute back history.
   if (pathname === "/my-games" && target.pathname === "/my-games") {
-    window.location.assign(target.hrefString);
+    window.location.replace(target.hrefString);
     return;
   }
 
