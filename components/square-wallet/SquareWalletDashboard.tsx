@@ -13,6 +13,9 @@ import WithdrawPanel from "./WithdrawPanel";
 import WalletPaymentMethodsPanel from "./WalletPaymentMethodsPanel";
 import WalletHistoryTabs from "./WalletHistoryTabs";
 import SmartWalletRecommendations from "./SmartWalletRecommendations";
+import SmartWalletInsights from "@/components/alive/SmartWalletInsights";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
+import type { SmartWalletInsight } from "@/lib/platform/alive/types";
 import DepositSuccessAnimation from "./DepositSuccessAnimation";
 
 const WALLET_FETCH_TIMEOUT_MS = 2500;
@@ -105,6 +108,7 @@ function parseHistoryCategory(value: string | null): WalletHistoryCategory {
 export default function SquareWalletDashboard() {
   const [dashboard, setDashboard] = useState<SquareWalletDashboard | null>(null);
   const [recommendations, setRecommendations] = useState<SmartWalletRecommendation[]>([]);
+  const [walletInsights, setWalletInsights] = useState<SmartWalletInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<WalletTab>("overview");
@@ -113,13 +117,24 @@ export default function SquareWalletDashboard() {
 
   const loadRecommendations = useCallback(async () => {
     try {
-      const recRes = await fetch("/api/square-wallet/smart-recommendations", {
-        cache: "no-store",
-        signal: AbortSignal.timeout(WALLET_FETCH_TIMEOUT_MS),
-      });
-      if (!recRes.ok) return;
-      const data = (await recRes.json()) as { recommendations: SmartWalletRecommendation[] };
-      setRecommendations(data.recommendations ?? []);
+      const [recRes, insightsRes] = await Promise.all([
+        fetch("/api/square-wallet/smart-recommendations", {
+          cache: "no-store",
+          signal: AbortSignal.timeout(WALLET_FETCH_TIMEOUT_MS),
+        }),
+        fetch("/api/alive/wallet-insights", {
+          cache: "no-store",
+          signal: AbortSignal.timeout(WALLET_FETCH_TIMEOUT_MS),
+        }),
+      ]);
+      if (recRes.ok) {
+        const data = (await recRes.json()) as { recommendations: SmartWalletRecommendation[] };
+        setRecommendations(data.recommendations ?? []);
+      }
+      if (insightsRes.ok) {
+        const data = (await insightsRes.json()) as { walletInsights: SmartWalletInsight[] };
+        setWalletInsights(data.walletInsights ?? []);
+      }
     } catch {
       // Recommendations are optional — never block the wallet shell.
     }
@@ -256,6 +271,16 @@ export default function SquareWalletDashboard() {
             withdrawableCents={dashboard.withdrawableCents}
           />
 
+          {dashboard.balances.available +
+            dashboard.balances.contestCredits +
+            dashboard.balances.bonusCredits +
+            dashboard.balances.rewardCredits +
+            dashboard.balances.promotional +
+            dashboard.balances.referral ===
+          0 ? (
+            <AliveEmptyState context="wallet_zero" emoji="💳" />
+          ) : null}
+
           <div className="grid lg:grid-cols-3 gap-3">
             <LandingGlassCard className="p-4 text-center">
               <p className="text-[10px] uppercase text-sb-muted">Lifetime Deposits</p>
@@ -277,6 +302,7 @@ export default function SquareWalletDashboard() {
             </LandingGlassCard>
           </div>
 
+          <SmartWalletInsights insights={walletInsights} />
           <SmartWalletRecommendations recommendations={recommendations} />
         </>
       ) : null}

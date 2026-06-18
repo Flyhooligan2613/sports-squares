@@ -1,38 +1,12 @@
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
-import { Button } from "@/components/ui/Button";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import { ContestJoinLabel } from "@/components/contest-center/ContestJoinButton";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
-import { CONTEST_CENTER, contestSpotsLeft, EMPTY_STATE } from "@/lib/platform/language";
+import { CONTEST_CENTER, contestSpotsLeft } from "@/lib/platform/language";
 
 export default function ContestEmptyState() {
-  return (
-    <LandingGlassCard className="cc-empty-hero p-8 sm:p-12 text-center">
-      <p className="text-5xl mb-4" aria-hidden>
-        🏆
-      </p>
-      <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-        {EMPTY_STATE.noContests.title}
-      </h2>
-      <p className="text-sb-muted max-w-md mx-auto mb-8">
-        {EMPTY_STATE.noContests.body}
-      </p>
-      <div className="flex flex-wrap justify-center gap-3">
-        <Button href="/game-day" variant="primary">
-          {EMPTY_STATE.noContests.ctaDailyStory}
-        </Button>
-        <Button href="/huddle" variant="secondary">
-          {EMPTY_STATE.noContests.ctaCommunity}
-        </Button>
-        <Button href="/games/nfl" variant="secondary">
-          {EMPTY_STATE.noContests.ctaBrowse}
-        </Button>
-      </div>
-      <p className="text-xs text-sb-muted mt-8">
-        {EMPTY_STATE.noContests.upcomingHint}
-      </p>
-    </LandingGlassCard>
-  );
+  return <AliveEmptyState context="contest_center" emoji="🏆" />;
 }
 
 export function LiveContestsSection({

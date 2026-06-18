@@ -15,6 +15,7 @@ import GameDayContinuePanel from "@/components/game-day/GameDayContinuePanel";
 import DailyStoryCard from "@/components/home/DailyStoryCard";
 import GameRoomBrowseStrip from "@/components/home/GameRoomBrowseStrip";
 import GameRoomHero from "@/components/home/GameRoomHero";
+import { AliveDashboard } from "@/components/alive";
 import GameRoomSportTabs from "@/components/home/GameRoomSportTabs";
 import GameRoomRewardSection from "@/components/home/GameRoomRewardSection";
 import HomeFriendsPanel from "@/components/home/HomeFriendsPanel";
@@ -59,6 +60,10 @@ export default function GameRoomExperience({
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24 pt-4 sm:pt-6">
         <HomeStagger delay={60} revealed={revealed}>
+          <AliveDashboard displayName={data.displayName} greeting={data.greeting.split(",")[0]} />
+        </HomeStagger>
+
+        <HomeStagger delay={80} revealed={revealed}>
           <GameRoomHero
             greeting={data.greeting}
             subtitle="Your hub for every game on SquareBoards — pick a table, chase rewards, and run it back."

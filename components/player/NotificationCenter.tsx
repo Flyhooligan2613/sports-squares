@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
-import SectionEmptyState from "@/components/ui/SectionEmptyState";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { PlayerNotification } from "@/lib/player/dashboardTypes";
 import {
@@ -12,6 +12,32 @@ import {
   markNotificationsRead,
 } from "@/lib/notifications/readState";
 import { getPlayerSessionUser } from "@/lib/auth/playerAuthClient";
+
+const FILTER_TABS = [
+  { id: "all", label: "All" },
+  { id: "rewards", label: "Rewards" },
+  { id: "wallet", label: "Wallet" },
+  { id: "community", label: "Community" },
+  { id: "contests", label: "Contests" },
+  { id: "system", label: "System" },
+] as const;
+
+type NotificationFilter = (typeof FILTER_TABS)[number]["id"];
+
+function notificationCategory(type: PlayerNotification["type"]): NotificationFilter {
+  if (type === "payment_sent" || type === "pickem_payout") return "wallet";
+  if (
+    type === "pickem_achievement" ||
+    type === "pickem_streak" ||
+    type === "pickem_rank_up" ||
+    type === "quarter_winner" ||
+    type === "pickem_winner"
+  ) {
+    return "rewards";
+  }
+  if (type === "platform_announcement") return "community";
+  return "contests";
+}
 
 const ICONS: Record<PlayerNotification["type"], string> = {
   board_filled: "📋",
@@ -51,6 +77,7 @@ export default function NotificationCenter() {
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [readIds, setReadIds] = useState<string[]>([]);
+  const [filter, setFilter] = useState<NotificationFilter>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +122,14 @@ export default function NotificationCenter() {
     () => notifications.filter((item) => !readIds.includes(item.id)).length,
     [notifications, readIds]
   );
+
+  const filteredNotifications = useMemo(() => {
+    if (filter === "all") return notifications;
+    if (filter === "system") {
+      return notifications.filter((item) => item.type === "platform_announcement");
+    }
+    return notifications.filter((item) => notificationCategory(item.type) === filter);
+  }, [notifications, filter]);
 
   function handleMarkRead(id: string) {
     if (!email) return;
@@ -154,19 +189,43 @@ export default function NotificationCenter() {
         ) : null}
       </div>
 
+      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-6 -mx-1 px-1 scrollbar-none">
+        {FILTER_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setFilter(tab.id)}
+            className={[
+              "shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors",
+              filter === tab.id
+                ? "bg-white/10 border-white/20 text-white"
+                : "border-transparent text-sb-muted hover:text-white hover:bg-white/5",
+            ].join(" ")}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {notifications.length === 0 ? (
-        <LandingGlassCard glow className="p-8">
-          <SectionEmptyState
-            emoji="🔔"
-            title="You're all caught up"
-            description="Wins, automatic payouts, and game-day alerts will appear here."
-            actionLabel="Browse Live Boards"
-            actionHref="/action-center"
-          />
+        <AliveEmptyState context="no_notifications" emoji="🔔" />
+      ) : filteredNotifications.length === 0 ? (
+        <LandingGlassCard glow className="p-6 text-center">
+          <p className="text-white font-semibold mb-1">No notifications in this category</p>
+          <p className="text-sm text-sb-muted mb-4">
+            Try another filter — wins, payouts, and alerts are organized by type.
+          </p>
+          <button
+            type="button"
+            onClick={() => setFilter("all")}
+            className="text-xs font-semibold text-sb-glow hover:text-white transition-colors"
+          >
+            Show all
+          </button>
         </LandingGlassCard>
       ) : (
         <ul className="space-y-3">
-          {notifications.map((item, index) => {
+          {filteredNotifications.map((item, index) => {
             const unread = !readIds.includes(item.id);
             return (
               <li key={item.id}>

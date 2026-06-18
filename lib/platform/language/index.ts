@@ -54,6 +54,14 @@ export {
   type SuccessMessageKey,
 } from "@/lib/platform/language/successLanguage";
 
+export {
+  ALIVE_BRAND,
+  ALIVE_COPY,
+  ALIVE_STAT_LABELS,
+  aliveGreeting,
+  resolveTimeOfDayGreeting,
+} from "@/lib/platform/language/aliveLanguage";
+
 import { BRANDED_MODULES } from "@/lib/platform/language/brandedModules";
 import {
   CONTEST_CTAS,
