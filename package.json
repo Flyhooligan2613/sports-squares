@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "next build",
+    "build": "node scripts/generate-og-image.mjs && next build",
+    "og:generate": "node scripts/generate-og-image.mjs",
     "postbuild": "node scripts/postbuild-sitemap.mjs",
     "build:clean": "node scripts/build-clean.mjs",
     "start": "next start",

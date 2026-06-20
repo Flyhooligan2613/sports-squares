@@ -15,6 +15,7 @@ import AppOpenSplash from "@/components/AppOpenSplash";
 import AppPullToRefresh from "@/components/ui/AppPullToRefresh";
 import { APP_OPEN_SPLASH_PENDING_SCRIPT } from "@/lib/pwa/isPwaDisplayMode";
 import { buildRootMetadata } from "@/lib/seo/site";
+import SiteJsonLd from "@/components/seo/SiteJsonLd";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${jakarta.variable}`}>
       <body className="font-sans bg-sb-bg text-white antialiased min-h-screen flex flex-col sb-app-bg">
+        <SiteJsonLd />
         <Script id="app-open-splash-pending" strategy="beforeInteractive">
           {APP_OPEN_SPLASH_PENDING_SCRIPT}
         </Script>

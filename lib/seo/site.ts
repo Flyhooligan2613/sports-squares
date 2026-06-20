@@ -16,15 +16,15 @@ export function getFacebookAppId(): string | undefined {
 export const SITE_DESCRIPTION =
   "Premium Multi-Game Competitive Sports Platform";
 
-export const SITE_TAGLINE = "Compete. Build Your Legacy.";
+export const SITE_TAGLINE = "Compete • Build Your Legacy • Win Rewards";
 
 /** Public OG asset — must stay reachable at `${SITE_URL}/og-image.png` for link previews. */
 export const DEFAULT_OG_IMAGE_PATH = "/og-image.png";
 
 export const DEFAULT_OG_IMAGE = {
   url: DEFAULT_OG_IMAGE_PATH,
-  width: 1536,
-  height: 1024,
+  width: 1200,
+  height: 630,
   alt: `${BRAND_NAME} — ${SITE_TAGLINE}`,
   type: "image/png",
 } as const;
@@ -53,10 +53,24 @@ export function buildRootMetadata(): Metadata {
       default: BRAND_NAME,
       template: `%s | ${BRAND_NAME}`,
     },
-    description: SITE_DESCRIPTION,
+    description: `${SITE_DESCRIPTION}. ${SITE_TAGLINE}`,
     applicationName: BRAND_NAME,
+    keywords: [
+      "SquareBoards",
+      "competitive sports platform",
+      "sports pickem",
+      "sports squares",
+      "contests",
+      "leaderboards",
+      "achievements",
+    ],
     alternates: {
       canonical,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true },
     },
     openGraph: {
       type: "website",
@@ -64,7 +78,7 @@ export function buildRootMetadata(): Metadata {
       url: canonical,
       siteName: BRAND_NAME,
       title: BRAND_NAME,
-      description: SITE_DESCRIPTION,
+      description: `${SITE_DESCRIPTION} ${SITE_TAGLINE}`,
       images: [
         {
           url: absoluteUrl(DEFAULT_OG_IMAGE_PATH),
@@ -78,7 +92,7 @@ export function buildRootMetadata(): Metadata {
     twitter: {
       card: "summary_large_image",
       title: BRAND_NAME,
-      description: SITE_DESCRIPTION,
+      description: `${SITE_DESCRIPTION} ${SITE_TAGLINE}`,
       images: [absoluteUrl(DEFAULT_OG_IMAGE_PATH)],
     },
     icons: {
