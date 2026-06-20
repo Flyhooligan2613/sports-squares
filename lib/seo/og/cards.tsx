@@ -57,7 +57,7 @@ export function renderHomeCard(data: HomeShareData) {
               boxShadow: "0 0 60px rgba(91, 76, 247, 0.35)",
             }}
           >
-            <span style={{ fontSize: 72, marginBottom: 16 }}>🎮</span>
+            <span style={{ color: OG_COLORS.white, fontSize: 22, fontWeight: 700 }}>SB</span>
             <span style={{ color: OG_COLORS.white, fontSize: 22, fontWeight: 700 }}>Compete Anywhere</span>
             <span style={{ color: OG_COLORS.muted, fontSize: 16, marginTop: 8 }}>Mobile • Web • PWA</span>
           </div>

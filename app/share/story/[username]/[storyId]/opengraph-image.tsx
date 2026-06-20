@@ -3,6 +3,7 @@ import { renderStoryCard } from "@/lib/seo/og/cards";
 import { fetchStoryShareData } from "@/lib/seo/og/data";
 
 export const runtime = ogImageConfig.runtime;
+export const dynamic = ogImageConfig.dynamic;
 export const size = ogImageConfig.size;
 export const contentType = ogImageConfig.contentType;
 export const revalidate = ogImageConfig.revalidate;

@@ -1,4 +1,4 @@
-/** Canonical share URLs for the Social Growth Engine — use when invoking native share sheets. */
+/** Canonical share URLs for SquareBoards — use when invoking native share sheets. */
 export const shareUrls = {
   profile: (username: string) => `/profile/${encodeURIComponent(username)}`,
   contest: (id: string) => `/share/contest/${encodeURIComponent(id)}`,

@@ -19,8 +19,11 @@ export async function createNotFoundOgImage(message = "Not found") {
 /** Standard exports for colocated opengraph-image.tsx routes. */
 export const ogImageConfig = {
   runtime: "nodejs" as const,
+  dynamic: "force-dynamic" as const,
   alt: "SquareBoards",
   size: OG_SIZE,
   contentType: "image/png" as const,
   revalidate: OG_REVALIDATE,
 };
+
+export const dynamic = ogImageConfig.dynamic;

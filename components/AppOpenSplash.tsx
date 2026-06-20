@@ -114,6 +114,19 @@ export default function AppOpenSplash() {
       window.clearTimeout(doneTimer);
       document.removeEventListener("visibilitychange", onVisibility);
       document.documentElement.classList.remove("sb-splash-pending");
+      document.body.style.removeProperty("overflow");
+      // If navigation interrupts the splash timers, never leave the overlay stuck.
+      if (phaseRef.current === "enter" || phaseRef.current === "exit") {
+        try {
+          sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+        phaseRef.current = "done";
+        setPhase("done");
+        setSplashReady(true);
+        notifySplashComplete();
+      }
     };
   }, [pathname]);
 

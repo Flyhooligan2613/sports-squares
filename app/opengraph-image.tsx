@@ -4,6 +4,7 @@ import { OG_BRAND } from "@/lib/seo/og/design";
 import { SITE_DESCRIPTION } from "@/lib/seo/site";
 
 export const runtime = ogImageConfig.runtime;
+export const dynamic = ogImageConfig.dynamic;
 export const alt = "SquareBoards — Premium Multi-Game Competitive Sports Platform";
 export const size = ogImageConfig.size;
 export const contentType = ogImageConfig.contentType;
