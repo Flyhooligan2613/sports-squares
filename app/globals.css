@@ -12814,3 +12814,41 @@ html.sb-splash-pending body {
   }
 }
 
+/* ── Trust Center policy typography ───────────────────────────────────── */
+
+.trust-policy-prose {
+  @apply text-sb-muted text-sm sm:text-base leading-relaxed;
+}
+
+.trust-policy-section {
+  @apply mb-10 last:mb-0;
+}
+
+.trust-policy-h2 {
+  @apply text-lg sm:text-xl font-semibold text-white mb-4 tracking-tight;
+}
+
+.trust-policy-h3 {
+  @apply text-base font-semibold text-white/90 mt-5 mb-2;
+}
+
+.trust-policy-p {
+  @apply text-sb-muted leading-relaxed mb-3 last:mb-0;
+}
+
+.trust-policy-list {
+  @apply list-disc pl-5 space-y-2 mb-4 text-sb-muted;
+}
+
+.trust-policy-list-ordered {
+  @apply list-decimal;
+}
+
+.trust-policy-subsection + .trust-policy-subsection {
+  @apply mt-4;
+}
+
+.trust-policy-footer-note {
+  @apply mt-8 pt-6 border-t border-white/[0.06] text-sm text-sb-muted;
+}
+

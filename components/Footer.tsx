@@ -20,8 +20,8 @@ const LINKS = {
     { href: "/responsible-gaming", label: "Responsible Gaming" },
   ],
   legal: [
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
+    { href: "/trust", label: "Trust Center" },
+    { href: "/transparency", label: "Transparency" },
   ],
 };
 

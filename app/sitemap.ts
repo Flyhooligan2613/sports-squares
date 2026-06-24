@@ -1,15 +1,18 @@
 import type { MetadataRoute } from "next";
 import { getPublicProfileSlugs } from "@/lib/seo/sitemapProfiles";
 import { profilePath, SITE_URL } from "@/lib/seo/site";
+import { TRUST_CENTER_SECTIONS } from "@/lib/trust/trustCenterSections";
 
 const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency?: MetadataRoute.Sitemap[0]["changeFrequency"] }> = [
   { path: "/", priority: 1, changeFrequency: "daily" },
   { path: "/home", priority: 0.95, changeFrequency: "daily" },
   { path: "/faq", priority: 0.7 },
   { path: "/transparency", priority: 0.7 },
-  { path: "/responsible-gaming", priority: 0.6 },
-  { path: "/terms", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/privacy", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/trust", priority: 0.75, changeFrequency: "monthly" },
+  { path: "/trust-center", priority: 0.5, changeFrequency: "monthly" },
+  { path: "/responsible-gaming", priority: 0.5 },
+  { path: "/terms", priority: 0.4, changeFrequency: "monthly" },
+  { path: "/privacy", priority: 0.4, changeFrequency: "monthly" },
   { path: "/leaderboards", priority: 0.75, changeFrequency: "daily" },
   { path: "/contest-center", priority: 0.8, changeFrequency: "daily" },
   { path: "/share/leaderboard/weekly", priority: 0.65, changeFrequency: "daily" },
@@ -20,14 +23,22 @@ const STATIC_PATHS: Array<{ path: string; priority: number; changeFrequency?: Me
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
-  const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map(
-    ({ path, priority, changeFrequency = "weekly" }) => ({
-      url: `${SITE_URL}${path === "/" ? "" : path}`,
+  const staticEntries: MetadataRoute.Sitemap = [
+    ...STATIC_PATHS.map(
+      ({ path, priority, changeFrequency = "weekly" }) => ({
+        url: `${SITE_URL}${path === "/" ? "" : path}`,
+        lastModified,
+        changeFrequency,
+        priority,
+      })
+    ),
+    ...TRUST_CENTER_SECTIONS.map((section) => ({
+      url: `${SITE_URL}${section.route}`,
       lastModified,
-      changeFrequency,
-      priority,
-    })
-  );
+      changeFrequency: "monthly" as const,
+      priority: 0.55,
+    })),
+  ];
 
   const slugs = await getPublicProfileSlugs();
   const profileEntries: MetadataRoute.Sitemap = slugs.map((slug) => ({

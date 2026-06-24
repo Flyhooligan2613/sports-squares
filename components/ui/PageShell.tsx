@@ -8,6 +8,7 @@ interface PageShellProps {
   title: string;
   showLogo?: boolean;
   showFooter?: boolean;
+  hideTitle?: boolean;
   maxWidth?: "md" | "lg" | "xl";
 }
 
@@ -22,6 +23,7 @@ export default function PageShell({
   title,
   showLogo = true,
   showFooter = true,
+  hideTitle = false,
   maxWidth = "md",
 }: PageShellProps) {
   return (
@@ -30,10 +32,12 @@ export default function PageShell({
         className={`flex-1 ${WIDTHS[maxWidth]} mx-auto w-full px-4 sm:px-6 py-12 sm:py-16 sb-page-enter`}
       >
         {showLogo && <Logo href="/" className="mb-8" />}
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-8">
-          {title}
-        </h1>
-        <div className="sb-prose">{children}</div>
+        {hideTitle ? null : (
+          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-8">
+            {title}
+          </h1>
+        )}
+        <div className={hideTitle ? "" : "sb-prose"}>{children}</div>
         <Link
           href="/"
           className="inline-flex items-center gap-1 mt-10 text-sb-glow hover:text-white text-sm font-medium transition-colors"
