@@ -15,6 +15,7 @@ import {
   fetchAuthBootstrap,
   registerBiometricLogin,
 } from "@/lib/auth/security/webauthnClient";
+import { formatStepUpError } from "@/lib/auth/formatPlayerAuthError";
 
 interface BiometricEnrollmentModalProps {
   open: boolean;
@@ -55,7 +56,7 @@ export default function BiometricEnrollmentModal({
         onClose();
         return;
       }
-      setError(err instanceof Error ? err.message : "Could not enable biometric login.");
+      setError(formatStepUpError(err instanceof Error ? err.message : "Could not enable biometric login."));
     } finally {
       setLoading(false);
     }

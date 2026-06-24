@@ -8,6 +8,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { CONTEST_CTA_LABELS } from "@/lib/contestCenter/cta";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import {
@@ -113,7 +114,7 @@ function BracketContent() {
       }
       setView(await res.json());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load bracket.");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }
@@ -142,7 +143,7 @@ function BracketContent() {
       }
       await loadBracket();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save pick.");
+      setError(formatUserError(err, "save"));
     } finally {
       setSaving(null);
     }

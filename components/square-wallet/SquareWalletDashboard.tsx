@@ -252,8 +252,10 @@ export default function SquareWalletDashboard() {
             key={item.id}
             type="button"
             onClick={() => selectTab(item.id)}
+            aria-label={`Wallet tab: ${item.label}`}
+            aria-pressed={tab === item.id}
             className={[
-              "shrink-0 text-sm px-3 py-1.5 rounded-full border transition-colors",
+              "shrink-0 text-sm px-3 py-1.5 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40",
               tab === item.id
                 ? "bg-white/10 border-white/20 text-white"
                 : "border-transparent text-sb-muted hover:text-white hover:bg-white/5",

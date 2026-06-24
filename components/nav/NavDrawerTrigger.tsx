@@ -20,7 +20,12 @@ export default function NavDrawerTrigger({
     <button
       type="button"
       onClick={drawer.toggle}
-      className={["nav-drawer-trigger", className].filter(Boolean).join(" ")}
+      className={[
+        "nav-drawer-trigger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={label}
       aria-expanded={drawer.isOpen}
     >

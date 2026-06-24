@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import ConfettiCelebration from "@/components/live-winners/ConfettiCelebration";
 import RewardRevealAnimation from "./RewardRevealAnimation";
 import type { SquarePassGrantedReward } from "@/lib/platform/engines/squarePass";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 interface PromoCodeRedemptionProps {
   className?: string;
@@ -41,7 +42,7 @@ export default function PromoCodeRedemption({ className = "" }: PromoCodeRedempt
       setConfettiTrigger((n) => n + 1);
       setCode("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Redemption failed.");
+      setError(formatUserError(err, "redeem"));
     } finally {
       setLoading(false);
     }

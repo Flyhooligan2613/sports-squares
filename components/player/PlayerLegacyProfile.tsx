@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import UsernameSettings from "@/components/player/UsernameSettings";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
 import type { PlayerLegacyData } from "@/lib/player/legacyTypes";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { useCountUp } from "@/lib/motion/useCountUp";
 import {
   CalendarDays,
@@ -71,7 +72,7 @@ export default function PlayerLegacyProfile() {
         if (!cancelled) setLegacy(json);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Something went wrong");
+          setError(formatUserError(err, "load"));
         }
       } finally {
         if (!cancelled) setLoading(false);

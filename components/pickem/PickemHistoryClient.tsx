@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
@@ -60,7 +61,7 @@ export default function PickemHistoryClient({ sport = "nfl" }: { sport?: PickemS
         if (!res.ok) throw new Error("Failed to load history.");
         setData((await res.json()) as HistorySummary);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Load failed.");
+        setError(formatUserError(err, "load"));
       } finally {
         setLoading(false);
       }

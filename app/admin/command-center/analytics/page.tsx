@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
-import SectionPlaceholder from "@/components/admin/commandCenter/SectionPlaceholder";
+import { BarChart3 } from "lucide-react";
+import ComingSoonSection from "@/components/admin/commandCenter/ComingSoonSection";
 import SquarePassAnalyticsPanel from "@/components/admin/commandCenter/SquarePassAnalyticsPanel";
 
 const AnalyticsCharts = dynamic(
@@ -15,13 +16,20 @@ const AnalyticsCharts = dynamic(
 export default function AnalyticsCenterPage() {
   return (
     <div className="space-y-6">
-      <SectionPlaceholder
+      <ComingSoonSection
         title="Analytics Center"
-        description="Filterable platform metrics — heavy charts lazy-loaded below."
-        deferred={[
-          "AnalyticsEngine time-series integration",
-          "Contest conversion funnel",
-          "Cohort retention views",
+        description="Platform-wide funnels and cohort views are rolling out. SquarePass™ metrics and contest charts below are live today."
+        icon={BarChart3}
+        capabilities={[
+          { label: "SquarePass promotion analytics", status: "live" },
+          { label: "Contest volume charts", status: "live" },
+          { label: "AnalyticsEngine time-series", status: "planned" },
+          { label: "Contest conversion funnel", status: "planned" },
+          { label: "Cohort retention views", status: "planned" },
+        ]}
+        relatedLinks={[
+          { href: "/admin/command-center", label: "Command Center dashboard" },
+          { href: "/admin/square-pass", label: "SquarePass admin" },
         ]}
       />
       <SquarePassAnalyticsPanel />

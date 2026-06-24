@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import GameDayStatusStrip, { GameDayAtmosphereBanner } from "@/components/game-day/GameDayStatusStrip";
 import GameDayTimeline, {
   GameDayLiveStrip,
@@ -46,7 +47,7 @@ export default function GameDayHubClient() {
       setData(json);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }

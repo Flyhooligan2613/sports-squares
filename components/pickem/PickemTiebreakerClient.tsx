@@ -8,6 +8,7 @@ import AppMenuBar from "@/components/nav/AppMenuBar";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import PickemPlayerStatusBadge from "@/components/pickem/PickemPlayerStatusBadge";
 import type { PickemGame, PickemPlayerPoolStatus, PickemSport } from "@/lib/pickem/types";
 import { pickemBasePath } from "@/lib/pickem/routes";
@@ -105,7 +106,7 @@ function PickemTiebreakerClientInner({ sport = "nfl" }: { sport?: PickemSport })
       if (!res.ok) throw new Error("Failed to load tiebreaker.");
       setData((await res.json()) as TiebreakerPayload);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Load failed.");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }
@@ -136,7 +137,7 @@ function PickemTiebreakerClientInner({ sport = "nfl" }: { sport?: PickemSport })
       if (!res.ok) throw new Error(json.error ?? "Could not save.");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed.");
+      setError(formatUserError(err, "save"));
     } finally {
       setSaving(false);
     }

@@ -8,6 +8,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import PickemGameCard from "@/components/pickem/PickemGameCard";
 import PickemEntryPanel from "@/components/pickem/PickemEntryPanel";
 import PickemPoolList from "@/components/pickem/PickemPoolList";
@@ -212,7 +213,7 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
       if (!res.ok) throw new Error("Failed to load picks.");
       setWeek((await res.json()) as PickemWeekView);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Load failed.");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }
@@ -321,7 +322,7 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
 
       await load();
     } catch (err) {
-      setEntryCheckoutError(err instanceof Error ? err.message : "Checkout failed.");
+      setEntryCheckoutError(formatUserError(err, "checkout"));
     } finally {
       setCheckoutLoading(false);
     }
@@ -355,7 +356,7 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
 
       window.location.href = data.url;
     } catch (err) {
-      setEntryCheckoutError(err instanceof Error ? err.message : "Checkout failed.");
+      setEntryCheckoutError(formatUserError(err, "checkout"));
       setCheckoutLoading(false);
     }
   }
@@ -387,7 +388,7 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
 
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed.");
+      setError(formatUserError(err, "save"));
     } finally {
       setSavingGameId(null);
     }

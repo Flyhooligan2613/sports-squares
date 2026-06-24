@@ -7,6 +7,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
+import DeferredMount from "@/components/ui/DeferredMount";
 import HotGames from "@/components/action-center/HotGames";
 import GameDayTimeline, {
   GameDayLiveStrip,
@@ -43,6 +44,7 @@ import type { HomeData } from "@/lib/gameDay/types";
 import { PlayerShellAvatarSync } from "@/components/player/PlayerShellAvatarProvider";
 import { useHubHashScroll } from "@/components/home/useHubHashScroll";
 import { fastFetchJson, isDocumentVisible } from "@/lib/client/fastFetch";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import { GAME_DAY_SECTION_TABS, peekPendingHubHash } from "@/lib/home/hubSections";
 
@@ -109,7 +111,7 @@ function HomeExperienceInner() {
         if (!cancelled) setData(json);
       } catch (err) {
         if (!cancelled && !background) {
-          setError(err instanceof Error ? err.message : "Something went wrong");
+          setError(formatUserError(err, "load"));
         }
       } finally {
         if (!cancelled && !background) setLoading(false);
@@ -253,26 +255,28 @@ function HomeExperienceInner() {
             <GameDaySnapshotGrid cards={data.snapshotCards} />
           </HomeStagger>
 
-          <HomeStagger delay={780} revealed={stagger}>
-            <div className="grid xl:grid-cols-[1fr_340px] gap-8 xl:gap-10">
-              <div>
-                <GameDayWhatsNextPanel items={data.whatsNext} />
-                <GameDayTimeline sections={data.timeline} />
-                {data.recap ? <GameDayRecapPanel recap={data.recap} /> : null}
-                {data.hotGames.length > 0 ? (
-                  <div className="mb-10 sm:mb-12">
-                    <HotGames games={data.hotGames} />
-                  </div>
-                ) : null}
-              </div>
+          <DeferredMount minHeight="24rem">
+            <HomeStagger delay={780} revealed={stagger}>
+              <div className="grid xl:grid-cols-[1fr_340px] gap-8 xl:gap-10">
+                <div>
+                  <GameDayWhatsNextPanel items={data.whatsNext} />
+                  <GameDayTimeline sections={data.timeline} />
+                  {data.recap ? <GameDayRecapPanel recap={data.recap} /> : null}
+                  {data.hotGames.length > 0 ? (
+                    <div className="mb-10 sm:mb-12">
+                      <HotGames games={data.hotGames} />
+                    </div>
+                  ) : null}
+                </div>
 
-              <aside className="space-y-0">
-                <GameDayNotifications notifications={data.notifications} />
-                <GameDayMissionsPanel missions={data.missions} />
-                <GameDayCommunityMoments items={data.communityMoments} />
-              </aside>
-            </div>
-          </HomeStagger>
+                <aside className="space-y-0">
+                  <GameDayNotifications notifications={data.notifications} />
+                  <GameDayMissionsPanel missions={data.missions} />
+                  <GameDayCommunityMoments items={data.communityMoments} />
+                </aside>
+              </div>
+            </HomeStagger>
+          </DeferredMount>
 
           <HomeStagger delay={860} revealed={stagger}>
             <div className="gameroom-gameday-nudge">

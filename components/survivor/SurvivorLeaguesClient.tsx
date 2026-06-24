@@ -10,6 +10,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import SurvivorSportSwitcher from "@/components/survivor/SurvivorSportSwitcher";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { parseSurvivorSport } from "@/lib/survivor/sports";
@@ -47,7 +48,7 @@ function SurvivorLeaguesClientInner() {
         const data = (await res.json()) as { leagues: LeagueRow[] };
         setLeagues(data.leagues ?? []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load.");
+        setError(formatUserError(err, "load"));
       } finally {
         setLoading(false);
       }
@@ -81,7 +82,7 @@ function SurvivorLeaguesClientInner() {
         )
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join.");
+      setError(formatUserError(err, "join"));
     } finally {
       setJoiningId(null);
     }

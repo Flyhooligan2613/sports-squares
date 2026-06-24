@@ -104,7 +104,8 @@ function NavDrawerInner() {
           )}
           <button
             type="button"
-            className="global-search-trigger w-full mt-4"
+            className="global-search-trigger w-full mt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40"
+            aria-label="Search players and features"
             onClick={() => {
               close();
               globalSearch?.open();

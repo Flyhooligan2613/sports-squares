@@ -9,6 +9,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { SURVIVOR_X_PUBLIC_NAME } from "@/lib/survivor/config";
 import { survivorApiUrl, survivorPath } from "@/lib/survivor/routes";
 import type { SurvivorHofCategory } from "@/lib/survivor/types";
@@ -63,7 +64,7 @@ export default function SurvivorHallOfFameClient() {
         if (!res.ok) throw new Error("Could not load Hall of Fame.");
         setView((await res.json()) as HofView);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load.");
+        setError(formatUserError(err, "load"));
       } finally {
         setLoading(false);
       }

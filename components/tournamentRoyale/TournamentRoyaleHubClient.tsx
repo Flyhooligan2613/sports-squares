@@ -9,6 +9,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { CONTEST_CTAS } from "@/lib/platform/language";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import TournamentRoyaleLiveMap from "@/components/tournamentRoyale/TournamentRoyaleLiveMap";
@@ -43,7 +44,7 @@ function HubContent() {
       }
       setView(await res.json());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load hub.");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }
@@ -72,7 +73,7 @@ function HubContent() {
       }
       await loadHub();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join.");
+      setError(formatUserError(err, "join"));
     } finally {
       setJoining(false);
     }

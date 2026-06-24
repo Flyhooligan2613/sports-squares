@@ -9,6 +9,7 @@ import {
   SQUARE_DROP_READY,
 } from "@/lib/platform/ecosystem/squareDropBrand";
 import RewardShareCard from "@/components/player/ecosystem/RewardShareCard";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 type Phase =
   | "intro"
@@ -171,7 +172,7 @@ export default function WeeklyRewardDropExperience({
       pendingRefreshRef.current = true;
       setTimeout(() => setPhase("reveal"), 700);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not open drop.");
+      setError(formatUserError(err, "generic"));
       setPhase("ready");
       openingRef.current = false;
     }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import type { PlayerConnectStatus } from "@/lib/stripe/connectTypes";
 import { TRUST_MESSAGES } from "@/lib/platform/core/trustMessages";
 import { fetchAuthBootstrap } from "@/lib/auth/security/webauthnClient";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 interface PlayerPayoutSetupProps {
   initialStatus?: PlayerConnectStatus | null;
@@ -146,7 +147,7 @@ export default function PlayerPayoutSetup({
     try {
       await openStripeOnboarding();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start payout setup.");
+      setError(formatUserError(err, "generic"));
       setStarting(false);
     }
   }
@@ -159,7 +160,7 @@ export default function PlayerPayoutSetup({
     try {
       await openStripeOnboarding(stepUpToken);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start payout setup.");
+      setError(formatUserError(err, "generic"));
       setStarting(false);
     }
   }

@@ -27,6 +27,7 @@ import {
 } from "@/lib/auth/security/quickPin";
 import { markWelcomeHomePending } from "@/lib/home/welcomeSession";
 import { signOutPlayer } from "@/lib/auth/playerAuthClient";
+import { formatStepUpError } from "@/lib/auth/formatPlayerAuthError";
 
 export default function QuickUnlockGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -130,7 +131,9 @@ export default function QuickUnlockGate({ children }: { children: React.ReactNod
 
       unlock(email);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "PIN verification failed.";
+      const message = formatStepUpError(
+        err instanceof Error ? err.message : "PIN verification failed."
+      );
       setError(message);
       if (/locked|too many/i.test(message)) {
         clearQuickPin(email);

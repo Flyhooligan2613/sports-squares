@@ -5,6 +5,7 @@ import DeferredMount from "@/components/ui/DeferredMount";
 import { COMPETITOR_CARD_COPY } from "@/lib/competitorCard/copy";
 import type { CompetitorCardData, CompetitorCardMode } from "@/lib/competitorCard/types";
 import { getLoadingMessage } from "@/lib/platform/language";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import AchievementsGrid from "./AchievementsGrid";
 import CareerRecords from "./CareerRecords";
 import CareerShowcase from "./CareerShowcase";
@@ -62,7 +63,7 @@ export default function CompetitorCardExperience({
       const json = (await res.json()) as CompetitorCardData;
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : COMPETITOR_CARD_COPY.errors.loadFailed);
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }

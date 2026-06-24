@@ -10,6 +10,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Alert from "@/components/ui/Alert";
@@ -73,7 +74,7 @@ function SurvivorPrivateClientInner() {
       const data = (await res.json()) as { privateLeagues?: PrivateLeagueRow[] };
       setPrivateLeagues(data.privateLeagues ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load.");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }
@@ -126,7 +127,7 @@ function SurvivorPrivateClientInner() {
         setCreateMaxPlayers("");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create league.");
+      setError(formatUserError(err, "create"));
     } finally {
       setCreating(false);
     }
@@ -153,7 +154,7 @@ function SurvivorPrivateClientInner() {
       setJoinCode("");
       await loadLeagues();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join.");
+      setError(formatUserError(err, "join"));
     } finally {
       setJoining(false);
     }
@@ -173,7 +174,7 @@ function SurvivorPrivateClientInner() {
       if (!res.ok) throw new Error(json.error ?? "Could not join.");
       await loadLeagues();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join.");
+      setError(formatUserError(err, "join"));
     } finally {
       setJoining(false);
     }

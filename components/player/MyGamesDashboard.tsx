@@ -13,6 +13,7 @@ import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
 import AliveEmptyState from "@/components/alive/AliveEmptyState";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import NextStepCard from "@/components/genesis/NextStepCard";
 import { Button } from "@/components/ui/Button";
 import type { PlayerDashboardData } from "@/lib/player/dashboardTypes";
@@ -36,7 +37,7 @@ export default function MyGamesDashboard() {
         if (!cancelled) setData(json);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Something went wrong");
+          setError(formatUserError(err, "load"));
         }
       } finally {
         if (!cancelled) setLoading(false);

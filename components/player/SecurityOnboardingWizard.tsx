@@ -13,6 +13,8 @@ import {
 } from "@/lib/auth/security/deviceClient";
 import { registerBiometricLogin } from "@/lib/auth/security/webauthnClient";
 import { isQuickPinEnabledLocally, setupQuickPin } from "@/lib/auth/security/quickPin";
+import { formatStepUpError } from "@/lib/auth/formatPlayerAuthError";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 interface SecurityOnboardingWizardProps {
   open: boolean;
@@ -62,7 +64,7 @@ export default function SecurityOnboardingWizard({
         markBiometricPromptHandled(email);
         onComplete();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not save security settings.");
+        setError(formatUserError(err, "save"));
       } finally {
         setLoading(false);
       }
@@ -85,7 +87,7 @@ export default function SecurityOnboardingWizard({
         setStep("pin");
         return;
       }
-      setError(err instanceof Error ? err.message : "Could not enable biometrics.");
+      setError(formatStepUpError(err instanceof Error ? err.message : "Could not enable biometrics."));
     } finally {
       setLoading(false);
     }
@@ -105,7 +107,7 @@ export default function SecurityOnboardingWizard({
       setPinEnabled(true);
       setStep("done");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save PIN.");
+      setError(formatStepUpError(err instanceof Error ? err.message : "Could not save PIN."));
     } finally {
       setLoading(false);
     }

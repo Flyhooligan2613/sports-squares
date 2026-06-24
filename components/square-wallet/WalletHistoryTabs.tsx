@@ -110,8 +110,10 @@ export default function WalletHistoryTabs({
             key={tab.id}
             type="button"
             onClick={() => setCategory(tab.id)}
+            aria-label={`History filter: ${tab.label}`}
+            aria-pressed={category === tab.id}
             className={[
-              "shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors",
+              "shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40",
               category === tab.id
                 ? "bg-white/10 border-white/20 text-white"
                 : "border-transparent text-sb-muted hover:text-white hover:bg-white/5",

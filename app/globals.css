@@ -6435,6 +6435,11 @@ html.sb-splash-pending body {
   box-shadow: 0 0 20px rgba(91, 76, 247, 0.15);
 }
 
+.nav-drawer-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(123, 97, 255, 0.45);
+}
+
 .app-menu-bar {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }

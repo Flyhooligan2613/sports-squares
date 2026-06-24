@@ -9,6 +9,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { CONTEST_CTAS, getLoadingMessageAt } from "@/lib/platform/language";
 import PlayEligibilityBanner from "@/components/player/PlayEligibilityBanner";
 import SurvivorLiveMap from "@/components/survivor/SurvivorLiveMap";
@@ -187,7 +188,7 @@ function SurvivorWeekClientInner() {
       if (!res.ok) throw new Error(json.error ?? "Could not share.");
       setHuddleMessage("Shared to The Huddle!");
     } catch (err) {
-      setHuddleMessage(err instanceof Error ? err.message : "Could not share.");
+      setHuddleMessage(formatUserError(err, "share"));
     } finally {
       setSharingToHuddle(false);
     }
@@ -227,7 +228,7 @@ function SurvivorWeekClientInner() {
       const data = (await res.json()) as SurvivorWeekView;
       setView(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load week.");
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }
@@ -269,7 +270,7 @@ function SurvivorWeekClientInner() {
       }
       await loadWeek(selectedWeek);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not join.");
+      setError(formatUserError(err, "join"));
     } finally {
       setJoining(false);
     }
@@ -300,7 +301,7 @@ function SurvivorWeekClientInner() {
       }
       await loadWeek(selectedWeek);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not lock pick.");
+      setError(formatUserError(err, "save"));
     } finally {
       setSaving(false);
     }

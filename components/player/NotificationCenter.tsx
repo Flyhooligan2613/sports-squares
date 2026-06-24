@@ -12,6 +12,7 @@ import {
   markNotificationsRead,
 } from "@/lib/notifications/readState";
 import { getPlayerSessionUser } from "@/lib/auth/playerAuthClient";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 const FILTER_TABS = [
   { id: "all", label: "All" },
@@ -105,7 +106,7 @@ export default function NotificationCenter() {
         if (!cancelled) setNotifications(data.notifications ?? []);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Something went wrong");
+          setError(formatUserError(err, "load"));
         }
       } finally {
         if (!cancelled) setLoading(false);
