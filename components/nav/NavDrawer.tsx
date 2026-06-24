@@ -130,7 +130,18 @@ function NavDrawerInner() {
 
             return (
               <div key={section.id} className="nav-drawer-section">
-                <p className="nav-drawer-section-title">{section.title}</p>
+                <p className="nav-drawer-section-title">
+                  {section.titleNote ? (
+                    <>
+                      <span className="normal-case">{section.title}</span>
+                      <span className="normal-case text-[9px] italic font-normal text-sb-muted/70 ml-1">
+                        {section.titleNote}
+                      </span>
+                    </>
+                  ) : (
+                    section.title
+                  )}
+                </p>
                 {section.renderGames ? (
                   <NavGamesSection filter={section.renderGames} />
                 ) : null}

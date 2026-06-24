@@ -1,5 +1,6 @@
 import { PLATFORM_TERMS } from "@/lib/platform/legacy/competitiveLanguage";
 import { COMMUNITY_LABELS, PROFILE_LABELS } from "@/lib/platform/language";
+import { TRUST_CENTER_SECTIONS } from "@/lib/trust/trustCenterSections";
 
 export interface NavItem {
   href: string;
@@ -12,6 +13,8 @@ export interface NavItem {
 export interface NavSection {
   id: string;
   title: string;
+  /** Smaller muted note beside the section title, e.g. "(legal)" */
+  titleNote?: string;
   items: NavItem[];
   /** Render platform game cards at the top of this section */
   renderGames?: "available" | "coming_soon";
@@ -90,13 +93,14 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    id: "legal",
-    title: "Legal",
-    items: [
-      { href: "/privacy", label: "Privacy", icon: "•" },
-      { href: "/terms", label: "Terms", icon: "•" },
-      { href: "/responsible-gaming", label: "Responsible Gaming", icon: "•" },
-    ],
+    id: "trust-center",
+    title: "Trust Center",
+    titleNote: "(legal)",
+    items: TRUST_CENTER_SECTIONS.map((section) => ({
+      href: section.route,
+      label: section.title,
+      icon: section.icon,
+    })),
   },
 ];
 

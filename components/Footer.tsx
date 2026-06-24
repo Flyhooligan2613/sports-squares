@@ -4,6 +4,7 @@ import Logo from "@/components/Logo";
 import StaffPortalLink from "@/components/StaffPortalLink";
 import { BRAND_NAME } from "@/lib/brand";
 import { CONTEST_CTAS } from "@/lib/platform/language";
+import { TRUST_CENTER_SECTIONS } from "@/lib/trust/trustCenterSections";
 
 const LINKS = {
   product: [
@@ -19,11 +20,12 @@ const LINKS = {
     { href: "/contact", label: "Contact" },
     { href: "/responsible-gaming", label: "Responsible Gaming" },
   ],
-  legal: [
-    { href: "/trust", label: "Trust Center" },
-    { href: "/transparency", label: "Transparency" },
-  ],
 };
+
+const TRUST_CENTER_LINKS = TRUST_CENTER_SECTIONS.map((section) => ({
+  href: section.route,
+  label: section.title,
+}));
 
 export default function Footer({ landing = false }: { landing?: boolean }) {
   return (
@@ -66,7 +68,11 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
 
           <FooterColumn title="Play" links={LINKS.product} />
           <FooterColumn title="Company" links={LINKS.company} />
-          <FooterColumn title="Legal" links={LINKS.legal} />
+          <FooterColumn
+            title="Trust Center"
+            titleNote="(legal)"
+            links={TRUST_CENTER_LINKS}
+          />
         </div>
 
         <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-sb-muted">
@@ -83,15 +89,28 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
 
 function FooterColumn({
   title,
+  titleNote,
   links,
 }: {
   title: string;
+  titleNote?: string;
   links: { href: string; label: string }[];
 }) {
   return (
     <div>
-      <p className="text-white text-xs font-semibold uppercase tracking-wider mb-4">
-        {title}
+      <p className="text-xs mb-4">
+        {titleNote ? (
+          <>
+            <span className="text-white font-semibold">{title}</span>
+            <span className="text-[10px] italic text-sb-muted font-normal ml-1">
+              {titleNote}
+            </span>
+          </>
+        ) : (
+          <span className="text-white font-semibold uppercase tracking-wider">
+            {title}
+          </span>
+        )}
       </p>
       <ul className="space-y-2.5">
         {links.map((link) => (
