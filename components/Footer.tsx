@@ -68,11 +68,7 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
 
           <FooterColumn title="Play" links={LINKS.product} />
           <FooterColumn title="Company" links={LINKS.company} />
-          <FooterColumn
-            title="Trust Center"
-            titleNote="(legal)"
-            links={TRUST_CENTER_LINKS}
-          />
+          <FooterColumn title="Trust Center" links={TRUST_CENTER_LINKS} />
         </div>
 
         <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-sb-muted">

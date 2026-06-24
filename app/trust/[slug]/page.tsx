@@ -42,7 +42,7 @@ export default async function TrustSectionPage({ params }: TrustSectionPageProps
   }
 
   return (
-    <TrustSectionLayout title={section.title} icon={section.icon}>
+    <TrustSectionLayout title={section.title} lucideIcon={section.lucideIcon}>
       <TrustPolicyContent document={policy} />
     </TrustSectionLayout>
   );

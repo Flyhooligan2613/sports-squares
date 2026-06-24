@@ -1,18 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import Footer from "@/components/Footer";
-import TrustBadge from "@/components/alive/TrustBadge";
+import TrustCenterBadges from "@/components/trust/TrustCenterBadges";
 import { TRUST_CENTER_META } from "@/lib/trust/trustCenterMeta";
+import type { TrustLucideIconName } from "@/lib/trust/trustIcons";
+import { TrustLucideIcon } from "@/lib/trust/trustIcons";
 
 interface TrustSectionLayoutProps {
   title: string;
-  icon?: string;
+  lucideIcon?: TrustLucideIconName;
   children: ReactNode;
 }
 
 export default function TrustSectionLayout({
   title,
-  icon,
+  lucideIcon,
   children,
 }: TrustSectionLayoutProps) {
   return (
@@ -27,9 +29,12 @@ export default function TrustSectionLayout({
         </Link>
 
         <div className="flex flex-wrap items-start gap-3 mb-3">
-          {icon ? (
-            <span className="text-3xl leading-none" aria-hidden>
-              {icon}
+          {lucideIcon ? (
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sb-purple/10 border border-sb-purple/20 text-sb-glow"
+              aria-hidden
+            >
+              <TrustLucideIcon name={lucideIcon} className="w-5 h-5" />
             </span>
           ) : null}
           <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight flex-1 min-w-0">
@@ -41,16 +46,20 @@ export default function TrustSectionLayout({
           Last Updated: {TRUST_CENTER_META.lastUpdated} · Version {TRUST_CENTER_META.version}
         </p>
 
-        <TrustBadge className="mb-8" />
+        <TrustCenterBadges />
 
-        <div className="trust-policy-prose">{children}</div>
+        <div className="trust-policy-prose mt-8">{children}</div>
 
-        <div className="mt-12 pt-8 border-t border-white/[0.06] text-xs text-sb-muted space-y-1">
+        <div className="trust-center-footer mt-12">
           <p>
-            {TRUST_CENTER_META.company} · {TRUST_CENTER_META.website}
+            Last Updated: {TRUST_CENTER_META.lastUpdated} | Version {TRUST_CENTER_META.version}
           </p>
           <p>
-            Trust Center v{TRUST_CENTER_META.version} · Updated {TRUST_CENTER_META.lastUpdated}
+            {TRUST_CENTER_META.company} | {TRUST_CENTER_META.brandMark} |{" "}
+            {TRUST_CENTER_META.tagline} |{" "}
+            <a href={TRUST_CENTER_META.websiteUrl} className="trust-center-footer-link">
+              {TRUST_CENTER_META.website}
+            </a>
           </p>
         </div>
       </main>

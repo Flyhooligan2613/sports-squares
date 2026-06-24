@@ -95,11 +95,10 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     id: "trust-center",
     title: "Trust Center",
-    titleNote: "(legal)",
     items: TRUST_CENTER_SECTIONS.map((section) => ({
       href: section.route,
       label: section.title,
-      icon: section.icon,
+      icon: "•",
     })),
   },
 ];

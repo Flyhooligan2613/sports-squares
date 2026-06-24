@@ -12852,3 +12852,178 @@ html.sb-splash-pending body {
   @apply mt-8 pt-6 border-t border-white/[0.06] text-sm text-sb-muted;
 }
 
+/* ── Trust Center v2.0 hub ─────────────────────────────────────────────── */
+
+.trust-center-hub {
+  animation: landing-fade-up 0.5s ease-out forwards;
+}
+
+.trust-center-header {
+  @apply text-center mb-10;
+}
+
+.trust-center-title {
+  @apply text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2;
+}
+
+.trust-center-subtitle {
+  @apply text-xs sm:text-sm text-sb-muted/80 font-medium tracking-wide mb-5;
+}
+
+.trust-center-intro {
+  @apply text-sb-muted text-sm sm:text-base leading-relaxed max-w-2xl mx-auto;
+}
+
+.trust-center-badges {
+  @apply flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12;
+}
+
+.trust-center-badge {
+  @apply inline-flex items-center gap-2 text-[11px] sm:text-xs font-medium text-sb-muted/90
+    px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03]
+    backdrop-blur-sm select-none pointer-events-none;
+}
+
+.trust-center-badge-icon {
+  @apply w-3.5 h-3.5 text-sb-glow/80 shrink-0;
+}
+
+.trust-center-categories {
+  @apply flex flex-col gap-10 sm:gap-12 mb-12;
+}
+
+.trust-center-category-heading {
+  @apply flex items-center gap-2.5 mb-3;
+}
+
+.trust-center-category-icon {
+  @apply w-5 h-5 text-sb-glow shrink-0;
+}
+
+.trust-center-category-title {
+  @apply text-lg sm:text-xl font-semibold text-white tracking-tight;
+}
+
+.trust-center-category-divider {
+  @apply h-px w-full bg-gradient-to-r from-sb-purple/30 via-white/[0.08] to-transparent mb-4;
+}
+
+.trust-center-category-items {
+  @apply flex flex-col gap-3;
+}
+
+.trust-accordion-item {
+  @apply rounded-2xl border border-white/[0.06] bg-sb-surface/40 backdrop-blur-xl
+    transition-all duration-[225ms] ease-out;
+}
+
+.trust-accordion-item-expanded {
+  @apply border-sb-purple/25 bg-sb-surface/60;
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.12);
+}
+
+.trust-accordion-trigger {
+  @apply w-full flex items-center gap-3 sm:gap-4 p-4 sm:p-5 text-left cursor-pointer
+    rounded-2xl transition-all duration-[225ms] ease-out
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/50
+    focus-visible:ring-offset-2 focus-visible:ring-offset-sb-bg;
+}
+
+.trust-accordion-item:not(.trust-accordion-item-expanded) .trust-accordion-trigger:hover {
+  @apply border-sb-purple/20;
+  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.trust-accordion-trigger-icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl
+    bg-sb-purple/10 border border-sb-purple/20 text-sb-glow;
+}
+
+.trust-accordion-trigger-body {
+  @apply flex-1 min-w-0 flex flex-col gap-1;
+}
+
+.trust-accordion-trigger-row {
+  @apply flex items-start justify-between gap-3;
+}
+
+.trust-accordion-title {
+  @apply text-white font-semibold text-base sm:text-lg leading-snug;
+}
+
+.trust-accordion-description {
+  @apply text-sb-muted text-sm leading-snug line-clamp-2;
+}
+
+.trust-status-badge {
+  @apply inline-flex shrink-0 items-center gap-1 text-[10px] sm:text-[11px] font-semibold
+    uppercase tracking-wide text-emerald-400/90 px-2 py-0.5 rounded-full
+    border border-emerald-500/25 bg-emerald-500/10;
+}
+
+.trust-accordion-arrow {
+  @apply w-5 h-5 shrink-0 text-sb-muted transition-all duration-[225ms] ease-out;
+}
+
+.trust-accordion-trigger:hover .trust-accordion-arrow {
+  @apply text-sb-glow;
+  transform: translateX(3px);
+}
+
+.trust-accordion-item-expanded .trust-accordion-trigger:hover .trust-accordion-arrow {
+  transform: translateX(0) rotate(90deg);
+}
+
+.trust-accordion-arrow-expanded {
+  @apply text-sb-glow rotate-90;
+}
+
+.trust-accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms ease-out, opacity 200ms ease-out;
+  opacity: 0;
+}
+
+.trust-accordion-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.trust-accordion-panel-inner {
+  overflow: hidden;
+}
+
+.trust-accordion-content {
+  @apply px-4 sm:px-5 pb-5 sm:pb-6 pt-0 border-t border-white/[0.06] mx-4 sm:mx-5 mb-1;
+}
+
+.trust-center-footer {
+  @apply rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-6 text-center
+    text-xs text-sb-muted space-y-2;
+}
+
+.trust-center-footer-link {
+  @apply text-sb-glow hover:text-white transition-colors duration-200;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-center-hub,
+  .trust-accordion-item,
+  .trust-accordion-trigger,
+  .trust-accordion-arrow,
+  .trust-accordion-panel {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .trust-accordion-item:not(.trust-accordion-item-expanded) .trust-accordion-trigger:hover {
+    transform: none;
+  }
+
+  .trust-accordion-trigger:hover .trust-accordion-arrow {
+    transform: none;
+  }
+}
+
