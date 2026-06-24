@@ -11,6 +11,8 @@ export function OgCanvas({
   glow?: boolean;
   padding?: number;
 }) {
+  const { backgroundColor, backgroundImage } = ogBackground(glow);
+
   return (
     <div
       style={{
@@ -18,7 +20,8 @@ export function OgCanvas({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        background: ogBackground(glow),
+        backgroundColor,
+        backgroundImage,
         padding,
         fontFamily: OG_FONT_FAMILY,
       }}

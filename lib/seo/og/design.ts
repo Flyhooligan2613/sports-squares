@@ -23,7 +23,14 @@ export const OG_BRAND = {
 
 export const OG_REVALIDATE = 3600;
 
-export function ogBackground(extraGlow = false): string {
+/** @vercel/og requires solid fills via backgroundColor — not as a backgroundImage layer. */
+export function ogBackground(extraGlow = false): {
+  backgroundColor: string;
+  backgroundImage: string;
+} {
   const glow = extraGlow ? "rgba(91, 76, 247, 0.45)" : "rgba(91, 76, 247, 0.35)";
-  return `radial-gradient(ellipse 90% 70% at 20% 0%, ${glow}, transparent 55%), radial-gradient(ellipse 60% 50% at 100% 100%, rgba(168, 85, 247, 0.18), transparent 50%), ${OG_COLORS.bg}`;
+  return {
+    backgroundColor: OG_COLORS.bg,
+    backgroundImage: `radial-gradient(ellipse 90% 70% at 20% 0%, ${glow}, transparent 55%), radial-gradient(ellipse 60% 50% at 100% 100%, rgba(168, 85, 247, 0.18), transparent 50%)`,
+  };
 }
