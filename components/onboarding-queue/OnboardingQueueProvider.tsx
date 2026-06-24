@@ -29,6 +29,7 @@ import CompetitorScoreOnboardingModal from "./CompetitorScoreOnboardingModal";
 import BirthdayRewardModal from "./BirthdayRewardModal";
 import SeasonEventModal from "./SeasonEventModal";
 import NavigateDashboardModal from "./NavigateDashboardModal";
+import { devWarn } from "@/lib/devLog";
 import { OnboardingQueueErrorBoundary } from "./OnboardingQueueErrorBoundary";
 
 interface OnboardingQueueContextValue {
@@ -60,11 +61,11 @@ async function postComplete(
       body: JSON.stringify({ moduleId, metadata }),
     });
     if (!res.ok) {
-      console.warn("[onboarding-queue] complete failed", moduleId, res.status);
+      devWarn("[onboarding-queue] complete failed", moduleId, res.status);
     }
     return res.ok;
   } catch (err) {
-    console.warn("[onboarding-queue] complete error", moduleId, err);
+    devWarn("[onboarding-queue] complete error", moduleId, err);
     return false;
   }
 }
@@ -135,7 +136,7 @@ function OnboardingQueueProviderInner({ children }: { children: React.ReactNode 
       }
       setDebugMode(Boolean(json.debugMode));
     } catch (err) {
-      console.warn("[onboarding-queue] refresh error", err);
+      devWarn("[onboarding-queue] refresh error", err);
       if (mountedRef.current) setCurrent(null);
     } finally {
       if (mountedRef.current) setLoading(false);

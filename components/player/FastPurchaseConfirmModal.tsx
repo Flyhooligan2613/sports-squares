@@ -15,6 +15,7 @@ import {
 import { confirmFastAction } from "@/lib/auth/security/fastConfirm";
 import { isQuickPinEnabledLocally } from "@/lib/auth/security/quickPin";
 
+import { formatStepUpError } from "@/lib/auth/formatPlayerAuthError";
 import { CONTEST_CTAS } from "@/lib/platform/language";
 import type { StepUpPurpose } from "@/lib/auth/security/stepUp";
 
@@ -70,7 +71,7 @@ export default function FastPurchaseConfirmModal({
       const token = await confirmFastAction(purpose, email);
       await complete(token);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Confirmation failed.");
+      setError(err instanceof Error ? formatStepUpError(err.message) : "Confirmation failed.");
       if (isQuickPinEnabledLocally(email)) setShowPin(true);
     } finally {
       setLoading(false);
@@ -106,14 +107,14 @@ export default function FastPurchaseConfirmModal({
       const token = await confirmFastAction(purpose, email, pin);
       await complete(token);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Incorrect PIN.");
+      setError(err instanceof Error ? formatStepUpError(err.message) : "Incorrect PIN.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 sb-safe-bottom bg-black/85 backdrop-blur-md">
       <LandingGlassCard className="w-full max-w-md p-6 sm:p-8">
         {!showPin ? (
           <div className="text-center">

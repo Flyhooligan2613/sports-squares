@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.squareboards.pro
+
+# Sitemaps
+Sitemap: https://www.squareboards.pro/sitemap.xml

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { devWarn } from "@/lib/devLog";
 
 export default function PwaRegister() {
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function PwaRegister() {
         document.addEventListener("visibilitychange", onVisible);
       })
       .catch((err) => {
-        console.warn("[PwaRegister] service worker registration failed", err);
+        devWarn("[PwaRegister] service worker registration failed", err);
       });
 
     return () => {

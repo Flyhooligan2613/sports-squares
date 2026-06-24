@@ -17,6 +17,7 @@ const LINKS = {
   ],
   company: [
     { href: "/about", label: "About" },
+    { href: "/trust", label: "Trust Center" },
     { href: "/contact", label: "Contact" },
     { href: "/responsible-gaming", label: "Responsible Gaming" },
   ],

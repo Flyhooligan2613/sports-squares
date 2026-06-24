@@ -78,7 +78,7 @@ export const NAV_SECTIONS: NavSection[] = [
     id: "support",
     title: "Support",
     items: [
-      { href: "/support/help-center", label: "Support", icon: "💬" },
+      { href: "/support", label: "Support", icon: "💬" },
       { href: "/support/messages", label: "Messages", icon: "📨", badgeKey: "messages" },
       { href: "/contact", label: "Contact", icon: "☎️" },
     ],

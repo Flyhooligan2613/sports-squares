@@ -27,7 +27,7 @@ export default function PostWinOptionsModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sb-safe-bottom bg-black/70 backdrop-blur-sm">
       <LandingGlassCard glow className="max-w-md w-full p-8 border border-sb-gold/30">
         <p className="text-xs uppercase tracking-wider text-sb-gold mb-2">Contest Win</p>
         <h2 className="text-2xl font-bold text-white mb-1">

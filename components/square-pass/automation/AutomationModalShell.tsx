@@ -20,7 +20,7 @@ export default function AutomationModalShell({
 
   return (
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/75 p-4 animate-in fade-in duration-300"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/75 p-4 sb-safe-bottom animate-in fade-in duration-300"
       role="dialog"
       aria-modal="true"
     >

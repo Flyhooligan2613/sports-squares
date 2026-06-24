@@ -23,3 +23,30 @@ export function formatPlayerAuthError(message: string): string {
 
   return message;
 }
+
+/** Map WebAuthn / step-up errors to player-friendly copy. */
+export function formatStepUpError(message: string): string {
+  const lower = message.toLowerCase();
+
+  if (lower.includes("abort") || lower.includes("cancel") || lower.includes("not allowed")) {
+    return "Verification was cancelled. Try again when you're ready.";
+  }
+
+  if (lower.includes("not supported") || lower.includes("not available")) {
+    return "Biometric verification isn't available on this device. Use your Quick PIN or password instead.";
+  }
+
+  if (lower.includes("timeout") || lower.includes("timed out")) {
+    return "Verification timed out. Please try again.";
+  }
+
+  if (lower.includes("incorrect") || lower.includes("invalid pin") || lower.includes("wrong pin")) {
+    return "Incorrect PIN. Try again.";
+  }
+
+  if (lower.includes("not registered") || lower.includes("no credentials")) {
+    return "No biometric sign-in set up yet. Use your email link or set up biometrics under Security.";
+  }
+
+  return "We couldn't verify your identity. Try again or use a different sign-in method.";
+}

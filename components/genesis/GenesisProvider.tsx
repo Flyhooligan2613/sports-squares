@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { GenesisMissionId, GenesisProgressSnapshot } from "@/lib/platform/engines/genesis";
+import { devWarn } from "@/lib/devLog";
 import { normalizeGenesisProgress } from "@/lib/platform/engines/genesis/normalizeProgress";
 
 interface GenesisContextValue {
@@ -24,7 +25,7 @@ export function GenesisProvider({ children }: { children: React.ReactNode }) {
       const json = (await res.json()) as GenesisProgressSnapshot & { initialized?: boolean };
       setProgress(normalizeGenesisProgress(json));
     } catch (err) {
-      console.warn("[genesis] progress fetch failed", err);
+      devWarn("[genesis] progress fetch failed", err);
     } finally {
       setLoading(false);
     }

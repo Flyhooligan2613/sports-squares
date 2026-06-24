@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { signInPlayerWithMagicLink, signInPlayerWithPassword } from "@/lib/auth/playerAuthClient";
-import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
+import { formatPlayerAuthError, formatStepUpError } from "@/lib/auth/formatPlayerAuthError";
 import { openSignupPrompt } from "@/lib/auth/signupPrompt";
 import Logo from "@/components/Logo";
 import {
@@ -137,7 +137,7 @@ function PlayerLoginFormInner() {
     } catch (err) {
       setError(
         err instanceof Error
-          ? err.message
+          ? formatStepUpError(err.message)
           : "Biometric sign-in failed. Use your email link instead."
       );
     } finally {

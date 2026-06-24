@@ -4,6 +4,9 @@ const siteUrl = (process.env.SITE_URL ?? "https://www.squareboards.pro").replace
 const STATIC_PATHS = [
   "/",
   "/about",
+  "/trust",
+  "/support",
+  "/contact",
   "/faq",
   "/responsible-gaming",
   "/terms",
