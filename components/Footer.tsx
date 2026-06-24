@@ -3,23 +3,29 @@ import { Share2, MessageCircle, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import StaffPortalLink from "@/components/StaffPortalLink";
 import { BRAND_NAME } from "@/lib/brand";
-import { CONTEST_CTAS } from "@/lib/platform/language";
 import { TRUST_CENTER_SECTIONS } from "@/lib/trust/trustCenterSections";
 
 const LINKS = {
   product: [
-    { href: "/#marketplace", label: CONTEST_CTAS.browseContests },
-    { href: "/#pools", label: "Open Boards" },
-    { href: "/#join", label: "Invite Link" },
+    { href: "/#why-squareboards", label: "Why SquareBoards" },
+    { href: "/#how-it-works", label: "How It Works" },
+    { href: "/#platform-features", label: "Features" },
+    { href: "/#faq", label: "FAQ" },
     { href: "/support", label: "Support" },
-    { href: "/transparency", label: "Transparency" },
-    { href: "/faq", label: "FAQ" },
+  ],
+  legal: [
+    { href: "/trust", label: "Trust Center" },
+    { href: "/trust/terms-of-service", label: "Terms" },
+    { href: "/trust/privacy-policy", label: "Privacy" },
+    { href: "/trust/refund-policy", label: "Refund Policy" },
+    { href: "/support", label: "Support" },
+    { href: "/contact", label: "Contact" },
   ],
   company: [
     { href: "/about", label: "About" },
     { href: "/trust", label: "Trust Center" },
     { href: "/contact", label: "Contact" },
-    { href: "/responsible-gaming", label: "Responsible Gaming" },
+    { href: "/trust/responsible-competition", label: "Responsible Competition" },
   ],
 };
 
@@ -37,45 +43,81 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
       ].join(" ")}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
-          <div className="col-span-2 md:col-span-1">
-            <Logo href="/" className="mb-4" />
-            <p className="text-sb-muted text-sm leading-relaxed max-w-xs">
-              The automated sports squares marketplace — pick a game, buy
-              squares, and play.
-            </p>
-            <div className="flex gap-3 mt-5">
-              <a
-                href="mailto:support@squareboards.pro"
-                className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted hover:text-sb-glow hover:border-sb-purple/30 transition-all duration-200"
-                aria-label="Email"
-              >
-                <Mail className="w-4 h-4" />
-              </a>
-              <span
-                className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted/50 cursor-default"
-                aria-hidden
-              >
-                <Share2 className="w-4 h-4" />
-              </span>
-              <span
-                className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted/50 cursor-default"
-                aria-hidden
-              >
-                <MessageCircle className="w-4 h-4" />
-              </span>
+        {landing ? (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+              <div className="col-span-2 md:col-span-1">
+                <Logo href="/" className="mb-4" />
+                <p className="text-sb-muted text-sm leading-relaxed max-w-xs">
+                  The premium multi-game competitive sports platform — fair contests,
+                  secure wallet, and live experiences.
+                </p>
+                <div className="flex gap-3 mt-5">
+                  <a
+                    href="mailto:support@squareboards.pro"
+                    className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted hover:text-sb-glow hover:border-sb-purple/30 transition-all duration-200"
+                    aria-label="Email"
+                  >
+                    <Mail className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+              <FooterColumn title="Platform" links={LINKS.product} />
+              <FooterColumn title="Legal" links={LINKS.legal} />
+              <FooterColumn title="Trust Center" links={TRUST_CENTER_LINKS} />
             </div>
+            <div className="landing-footer-corporate text-center mb-8 pb-8 border-b border-white/[0.06]">
+              <p className="text-sm text-white/80 font-medium tracking-wide">
+                ALTIVORA LABS LLC
+              </p>
+              <p className="text-xs text-sb-muted mt-1">
+                Building Premium Digital Sports Experiences
+              </p>
+              <p className="text-xs text-sb-muted/80 mt-1">
+                Established 2026 · Florida, USA
+              </p>
+            </div>
+          </>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+            <div className="col-span-2 md:col-span-1">
+              <Logo href="/" className="mb-4" />
+              <p className="text-sb-muted text-sm leading-relaxed max-w-xs">
+                The automated sports squares marketplace — pick a game, buy
+                squares, and play.
+              </p>
+              <div className="flex gap-3 mt-5">
+                <a
+                  href="mailto:support@squareboards.pro"
+                  className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted hover:text-sb-glow hover:border-sb-purple/30 transition-all duration-200"
+                  aria-label="Email"
+                >
+                  <Mail className="w-4 h-4" />
+                </a>
+                <span
+                  className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted/50 cursor-default"
+                  aria-hidden
+                >
+                  <Share2 className="w-4 h-4" />
+                </span>
+                <span
+                  className="w-11 h-11 rounded-xl bg-sb-surface/80 border border-white/10 flex items-center justify-center text-sb-muted/50 cursor-default"
+                  aria-hidden
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </span>
+              </div>
+            </div>
+            <FooterColumn title="Play" links={LINKS.product} />
+            <FooterColumn title="Company" links={LINKS.company} />
+            <FooterColumn title="Trust Center" links={TRUST_CENTER_LINKS} />
           </div>
-
-          <FooterColumn title="Play" links={LINKS.product} />
-          <FooterColumn title="Company" links={LINKS.company} />
-          <FooterColumn title="Trust Center" links={TRUST_CENTER_LINKS} />
-        </div>
+        )}
 
         <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-sb-muted">
           <p>&copy; {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:justify-end">
-            <p>Play responsibly. Must comply with local laws.</p>
+            <p>Compete responsibly. Must comply with local laws.</p>
             <StaffPortalLink />
           </div>
         </div>
