@@ -21,7 +21,8 @@ export default function GlobalStaffPortalHint() {
     pathname.startsWith("/terms") ||
     pathname.startsWith("/support") ||
     pathname.startsWith("/transparency") ||
-    pathname.startsWith("/responsible-gaming");
+    pathname.startsWith("/responsible-gaming") ||
+    pathname.startsWith("/trust");
 
   if (hasFooter) {
     return null;
