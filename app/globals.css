@@ -13126,7 +13126,25 @@ html.sb-splash-pending body {
   margin: 0 auto 0.75rem;
   height: auto;
   width: auto;
-  max-width: 200px;
+  max-width: 96px;
+  filter: drop-shadow(0 0 18px rgba(139, 92, 246, 0.22));
+}
+
+.landing-corporate-seal--compact {
+  max-width: 22rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.landing-corporate-seal--compact .landing-corporate-logo {
+  max-width: 72px;
+}
+
+.landing-corporate-seal--compact .landing-corporate-built {
+  margin-bottom: 0.5rem;
+}
+
+.landing-corporate-seal--compact .landing-corporate-tagline {
+  font-size: 0.8125rem;
 }
 
 .landing-corporate-tagline {

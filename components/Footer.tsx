@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Share2, MessageCircle, Mail } from "lucide-react";
+import AltivoraCorporateSeal from "@/components/brand/AltivoraCorporateSeal";
 import Logo from "@/components/Logo";
 import StaffPortalLink from "@/components/StaffPortalLink";
 import { BRAND_NAME } from "@/lib/brand";
@@ -66,16 +67,8 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
               <FooterColumn title="Legal" links={LINKS.legal} />
               <FooterColumn title="Trust Center" links={TRUST_CENTER_LINKS} />
             </div>
-            <div className="landing-footer-corporate text-center mb-8 pb-8 border-b border-white/[0.06]">
-              <p className="text-sm text-white/80 font-medium tracking-wide">
-                ALTIVORA LABS LLC
-              </p>
-              <p className="text-xs text-sb-muted mt-1">
-                Building Premium Digital Sports Experiences
-              </p>
-              <p className="text-xs text-sb-muted/80 mt-1">
-                Established 2026 · Florida, USA
-              </p>
+            <div className="landing-footer-corporate mb-8 pb-8 border-b border-white/[0.06]">
+              <AltivoraCorporateSeal compact />
             </div>
           </>
         ) : (
