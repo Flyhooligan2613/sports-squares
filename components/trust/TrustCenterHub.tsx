@@ -3,6 +3,10 @@
 import { useCallback, useState } from "react";
 import TrustCenterBadges from "@/components/trust/TrustCenterBadges";
 import TrustPolicyAccordionItem from "@/components/trust/TrustPolicyAccordionItem";
+import {
+  MERCHANT_DOCUMENT_SECTIONS,
+  MERCHANT_INFORMATION,
+} from "@/lib/trust/merchantDocuments";
 import { TRUST_CENTER_META } from "@/lib/trust/trustCenterMeta";
 import {
   TRUST_CENTER_CATEGORIES,
@@ -22,12 +26,46 @@ export default function TrustCenterHub() {
       <header className="trust-center-header">
         <h1 className="trust-center-title">{TRUST_CENTER_META.title}</h1>
         <p className="trust-center-subtitle">{TRUST_CENTER_META.subtitle}</p>
-        <p className="trust-center-intro">{TRUST_CENTER_META.intro}</p>
+        <div className="trust-center-intro space-y-4">
+          {TRUST_CENTER_META.introParagraphs.map((paragraph) => (
+            <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+          ))}
+        </div>
       </header>
 
       <TrustCenterBadges />
 
       <div className="trust-center-categories">
+        <section
+          className="trust-center-category"
+          aria-labelledby="trust-category-merchant"
+        >
+          <div className="trust-center-category-heading">
+            <TrustLucideIcon name="FileText" className="trust-center-category-icon" />
+            <h2 id="trust-category-merchant" className="trust-center-category-title">
+              {MERCHANT_INFORMATION.title}
+            </h2>
+          </div>
+          <div className="trust-center-category-divider" aria-hidden />
+          <p className="trust-accordion-description mb-4">{MERCHANT_INFORMATION.subtitle}</p>
+          <div className="trust-center-category-items">
+            {MERCHANT_DOCUMENT_SECTIONS.map((section) => (
+              <TrustPolicyAccordionItem
+                key={section.slug}
+                section={section}
+                isExpanded={expandedSlug === section.slug}
+                onToggle={() => handleToggle(section.slug)}
+              />
+            ))}
+          </div>
+          <div className="trust-center-footer">
+            <p>
+              <strong>{MERCHANT_INFORMATION.noteTitle}</strong>
+            </p>
+            <p>{MERCHANT_INFORMATION.noteText}</p>
+          </div>
+        </section>
+
         {TRUST_CENTER_CATEGORIES.map((category) => {
           const sections = getTrustSectionsByCategory(category.id);
           return (

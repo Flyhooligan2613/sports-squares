@@ -3,6 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import TrustPolicyContent from "@/components/trust/TrustPolicyContent";
 import { getTrustPolicyContent } from "@/lib/trust/content";
+import type { MerchantDocumentSection } from "@/lib/trust/merchantDocuments";
 import type { TrustCenterSection, TrustPolicyStatus } from "@/lib/trust/types";
 import { TrustLucideIcon } from "@/lib/trust/trustIcons";
 
@@ -12,8 +13,14 @@ const STATUS_LABELS: Record<TrustPolicyStatus, string> = {
   updated: "Updated",
 };
 
+type TrustAccordionSection = TrustCenterSection | MerchantDocumentSection;
+
+function isMerchantSection(section: TrustAccordionSection): section is MerchantDocumentSection {
+  return "documentId" in section;
+}
+
 interface TrustPolicyAccordionItemProps {
-  section: TrustCenterSection;
+  section: TrustAccordionSection;
   isExpanded: boolean;
   onToggle: () => void;
 }
@@ -51,8 +58,14 @@ export default function TrustPolicyAccordionItem({
           <span className="trust-accordion-trigger-row">
             <span className="trust-accordion-title">{section.title}</span>
             <span className="trust-status-badge">
-              <span aria-hidden>✓</span>
-              {STATUS_LABELS[section.status]}
+              {isMerchantSection(section) ? (
+                <>Open: {section.documentId}</>
+              ) : (
+                <>
+                  <span aria-hidden>✓</span>
+                  {STATUS_LABELS[section.status]}
+                </>
+              )}
             </span>
           </span>
           <span className="trust-accordion-description">{section.description}</span>

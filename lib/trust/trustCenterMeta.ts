@@ -1,8 +1,14 @@
 export const TRUST_CENTER_META = {
   title: "Trust Center",
   subtitle: "Transparency • Security • Fair Competition",
+  introParagraphs: [
+    "SquareBoards operates with transparency, integrity, and customer protection at its core.",
+    "Our Trust Center provides public access to the policies, operational standards, security practices, merchant documentation, and compliance resources that govern the platform.",
+    "Whether you are a player, payment processor, banking partner, regulator, investor, or business partner, these documents explain exactly how SquareBoards operates and how we protect our customers.",
+  ],
+  /** @deprecated Use introParagraphs — kept for metadata fallbacks */
   intro:
-    "SquareBoards is committed to operating with clarity, integrity, and respect for every competitor. This Trust Center is the single hub for our policies, security practices, contest standards, and support resources — designed for players, partners, underwriters, attorneys, regulators, and investors who need a clear view of how we run a premium competitive sports platform.",
+    "SquareBoards operates with transparency, integrity, and customer protection at its core. Our Trust Center provides public access to the policies, operational standards, security practices, merchant documentation, and compliance resources that govern the platform.",
   lastUpdated: "June 2026",
   version: "1.0",
   company: "ALTIVORA LABS LLC",

@@ -1,16 +1,27 @@
 import type { PolicyDocument } from "../types";
+import { businessModel } from "./businessModel";
 import { communityGuidelinesPolicy } from "./communityGuidelines";
+import { companyOverview } from "./companyOverview";
+import { complianceRiskManagement } from "./complianceRiskManagement";
 import { contactSupportPolicy } from "./contactSupport";
 import { cookiePolicy } from "./cookiePolicy";
 import { fairPlayPolicy } from "./fairPlayPolicy";
 import { fraudPreventionPolicy } from "./fraudPrevention";
 import { identityVerificationPolicy } from "./identityVerification";
+import { merchantExecutiveSummary } from "./merchantExecutiveSummary";
 import { officialContestRules } from "./officialContestRules";
 import { privacyPolicy } from "./privacyPolicy";
 import { refundPolicy } from "./refundPolicy";
 import { responsibleCompetitionPolicy } from "./responsibleCompetition";
 import { securityPolicy } from "./security";
 import { termsOfServicePolicy } from "./termsOfService";
+
+export const MERCHANT_DOCUMENT_CONTENT: Record<string, PolicyDocument> = {
+  "merchant-executive-summary": merchantExecutiveSummary,
+  "company-overview": companyOverview,
+  "business-model": businessModel,
+  "compliance-risk-management": complianceRiskManagement,
+};
 
 export const TRUST_POLICY_CONTENT: Record<string, PolicyDocument> = {
   "terms-of-service": termsOfServicePolicy,
@@ -28,5 +39,5 @@ export const TRUST_POLICY_CONTENT: Record<string, PolicyDocument> = {
 };
 
 export function getTrustPolicyContent(slug: string): PolicyDocument | undefined {
-  return TRUST_POLICY_CONTENT[slug];
+  return TRUST_POLICY_CONTENT[slug] ?? MERCHANT_DOCUMENT_CONTENT[slug];
 }
