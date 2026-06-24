@@ -13211,13 +13211,25 @@ html.sb-splash-pending body {
   border-radius: 1.35rem;
   overflow: hidden;
   background: #0b1220;
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.landing-phone-screen-dragging {
+  cursor: grabbing;
+}
+
+.landing-phone-swipe-hint {
+  opacity: 0.55;
 }
 
 .landing-phone-screen-layer {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 1.2s ease-in-out;
+  transition: opacity 0.85s ease-in-out;
   pointer-events: none;
 }
 
