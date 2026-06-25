@@ -29,6 +29,7 @@ import type { HomeFriendsPanel } from "@/lib/gameDay/types";
 import { fastFetchJson, isDocumentVisible } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
 import { CONTEST_CENTER } from "@/lib/platform/language";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 const POLL_MS = 15_000;
 const CACHE_KEY = "action-center";
@@ -98,8 +99,8 @@ export default function ContestCenterExperience() {
       setActionData(action);
       setFriends(friendsPanel);
       setError(null);
-    } catch {
-      setError(`Could not refresh the ${CONTEST_CENTER.shortTitle}.`);
+    } catch (err) {
+      setError(formatUserError(err, "load"));
     } finally {
       setLoading(false);
     }

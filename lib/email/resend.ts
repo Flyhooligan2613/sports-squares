@@ -24,6 +24,71 @@ export interface SendPlayerSignInEmailInput {
   signInUrl: string;
 }
 
+export interface SendPlayerPasswordResetEmailInput {
+  to: string;
+  resetUrl: string;
+}
+
+export async function sendPlayerPasswordResetEmail(
+  input: SendPlayerPasswordResetEmailInput
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!isResendConfigured()) {
+    return { ok: false, error: "Email delivery is not configured." };
+  }
+
+  const to = input.to.trim();
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getResendApiKey()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: getResendFromEmail(),
+        to: [to],
+        subject: "Reset your SquareBoards password",
+        html: `
+          <p>Tap the button below to choose a new password for <strong>My Games</strong>.</p>
+          <p style="margin:24px 0;">
+            <a href="${input.resetUrl}" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 24px;border-radius:12px;font-weight:600;">
+              Reset password
+            </a>
+          </p>
+          <p style="color:#666;font-size:12px;">This link expires soon and can only be used once. If you did not request it, you can ignore this email.</p>
+          <p style="color:#666;font-size:12px;word-break:break-all;">${escapeHtml(input.resetUrl)}</p>
+        `,
+        text: `Reset your SquareBoards password:\n\n${input.resetUrl}\n\nThis link expires soon and can only be used once.`,
+      }),
+    });
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as {
+        message?: string | string[];
+        error?: string;
+      };
+      const detail =
+        typeof payload.message === "string"
+          ? payload.message
+          : Array.isArray(payload.message)
+            ? payload.message.join(", ")
+            : payload.error;
+      return {
+        ok: false,
+        error: detail || `Resend returned HTTP ${response.status}`,
+      };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Failed to send email.",
+    };
+  }
+}
+
 export async function sendPlayerSignInEmail(
   input: SendPlayerSignInEmailInput
 ): Promise<{ ok: true } | { ok: false; error: string }> {

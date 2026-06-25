@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
+import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import PageHeader from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { RewardsCenterProvider, useRewardsCenter } from "./RewardsCenterProvider";
 import {
   MY_REWARDS_NAME,
@@ -16,7 +19,7 @@ import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropC
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data, loading } = useRewardsCenter();
+  const { data, loading, error, refresh } = useRewardsCenter();
   const isInventory =
     pathname === "/my-games/rewards/inventory" ||
     pathname.startsWith("/my-games/rewards/inventory/");
@@ -35,6 +38,24 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             : `Your home for earning, claiming, and spending rewards — featuring ${SQUARE_DROP_NAME}™`
         }
       />
+
+      {loading ? (
+        <div className="space-y-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="sb-xp-skeleton h-14 rounded-xl" />
+            ))}
+          </div>
+          <BrandedLoadingLabel context="rewardDrop" className="text-center text-sb-muted py-4" />
+        </div>
+      ) : error ? (
+        <LandingGlassCard className="p-6 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-amber-200/90">{error}</p>
+          <Button variant="secondary" size="sm" onClick={() => void refresh()}>
+            Retry
+          </Button>
+        </LandingGlassCard>
+      ) : null}
 
       {!loading && data ? (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-6">

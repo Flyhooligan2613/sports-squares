@@ -1,13 +1,36 @@
 "use client";
 
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
 
 export default function RewardHistoryPanel() {
-  const { data, loading } = useRewardsCenter();
+  const { data, loading, error } = useRewardsCenter();
 
   if (loading || !data) {
-    return <p className="text-center text-sb-muted py-16 animate-pulse">Loading history…</p>;
+    return (
+      <div className="space-y-4 py-8">
+        <div className="sb-xp-skeleton h-48 rounded-2xl" />
+        <div className="sb-xp-skeleton h-32 rounded-2xl" />
+        <BrandedLoadingLabel context="rewardDrop" className="text-center text-sb-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <LandingGlassCard className="p-8 text-center">
+        <p className="text-sm text-amber-200/90">{error}</p>
+      </LandingGlassCard>
+    );
+  }
+
+  const hasCreditHistory = data.creditHistory.length > 0;
+  const hasRedemptions = data.redemptionHistory.length > 0;
+
+  if (!hasCreditHistory && !hasRedemptions) {
+    return <AliveEmptyState context="no_rewards_history" emoji="📜" />;
   }
 
   return (
@@ -26,7 +49,7 @@ export default function RewardHistoryPanel() {
               </span>
             </li>
           ))}
-          {!data.creditHistory.length ? (
+          {!hasCreditHistory ? (
             <li className="text-sm text-sb-muted py-4 text-center">No credit activity yet.</li>
           ) : null}
         </ul>
@@ -45,7 +68,7 @@ export default function RewardHistoryPanel() {
               </span>
             </li>
           ))}
-          {!data.redemptionHistory.length ? (
+          {!hasRedemptions ? (
             <li className="text-sm text-sb-muted py-4 text-center">No redemptions yet.</li>
           ) : null}
         </ul>

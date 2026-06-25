@@ -1,17 +1,29 @@
 import { redirect } from "next/navigation";
+import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/server";
 import Footer from "@/components/Footer";
 import LandingHero from "@/components/landing/LandingHero";
 import LandingTrustStrip from "@/components/landing/LandingTrustStrip";
 import LandingCorporateAttribution from "@/components/landing/LandingCorporateAttribution";
-import LandingWhySquareBoards from "@/components/landing/LandingWhySquareBoards";
-import LandingHowItWorks from "@/components/landing/LandingHowItWorks";
-import LandingSupportedSports from "@/components/landing/LandingSupportedSports";
-import LandingPlatformFeatures from "@/components/landing/LandingPlatformFeatures";
-import LandingWhyPlayersChoose from "@/components/landing/LandingWhyPlayersChoose";
-import LandingTrustSecurity from "@/components/landing/LandingTrustSecurity";
-import LandingFAQ from "@/components/landing/LandingFAQ";
-import LandingFinalCTA from "@/components/landing/LandingFinalCTA";
+
+const LandingWhySquareBoards = dynamic(
+  () => import("@/components/landing/LandingWhySquareBoards")
+);
+const LandingHowItWorks = dynamic(() => import("@/components/landing/LandingHowItWorks"));
+const LandingSupportedSports = dynamic(
+  () => import("@/components/landing/LandingSupportedSports")
+);
+const LandingPlatformFeatures = dynamic(
+  () => import("@/components/landing/LandingPlatformFeatures")
+);
+const LandingWhyPlayersChoose = dynamic(
+  () => import("@/components/landing/LandingWhyPlayersChoose")
+);
+const LandingTrustSecurity = dynamic(
+  () => import("@/components/landing/LandingTrustSecurity")
+);
+const LandingFAQ = dynamic(() => import("@/components/landing/LandingFAQ"));
+const LandingFinalCTA = dynamic(() => import("@/components/landing/LandingFinalCTA"));
 
 export default async function HomePage() {
   const supabase = await createClient();

@@ -5,6 +5,7 @@ import { Wallet } from "lucide-react";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import type { SmartWalletRecommendation, SquareWalletDashboard } from "@/lib/platform/engines/payment/wallet";
 import type { WalletHistoryCategory } from "@/lib/platform/engines/payment/wallet/ledgerCategories";
 import WalletCreditBreakdown from "./WalletCreditBreakdown";
@@ -158,9 +159,12 @@ export default function SquareWalletDashboard() {
         const data = (await dashRes.json()) as { dashboard: SquareWalletDashboard | null };
         resolvedDashboard = data.dashboard ?? createFallbackDashboard();
       } else {
+        const body = (await dashRes.json().catch(() => ({}))) as { error?: string };
+        setLoadError(formatUserError(body.error ?? "Failed to load wallet", "load"));
         resolvedDashboard = createFallbackDashboard();
       }
-    } catch {
+    } catch (err) {
+      setLoadError(formatUserError(err, "load"));
       resolvedDashboard = createFallbackDashboard();
     } finally {
       setLoading(false);
@@ -199,8 +203,10 @@ export default function SquareWalletDashboard() {
 
   if (loading) {
     return (
-      <div className="py-20">
-        <BrandedLoadingLabel context="wallet" className="text-center text-sb-muted animate-pulse" />
+      <div className="py-20 space-y-4">
+        <div className="sb-xp-skeleton h-32 rounded-2xl max-w-xl mx-auto" />
+        <div className="sb-xp-skeleton h-48 rounded-2xl" />
+        <BrandedLoadingLabel context="wallet" className="text-center text-sb-muted" />
       </div>
     );
   }

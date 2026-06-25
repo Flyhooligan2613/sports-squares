@@ -1,8 +1,5 @@
-"use client";
-
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import TrustPolicyContent from "@/components/trust/TrustPolicyContent";
-import { getTrustPolicyContent } from "@/lib/trust/content";
 import type { MerchantDocumentSection } from "@/lib/trust/merchantDocuments";
 import type { TrustCenterSection, TrustPolicyStatus } from "@/lib/trust/types";
 import { TrustLucideIcon } from "@/lib/trust/trustIcons";
@@ -19,84 +16,42 @@ function isMerchantSection(section: TrustAccordionSection): section is MerchantD
   return "documentId" in section;
 }
 
-interface TrustPolicyAccordionItemProps {
-  section: TrustAccordionSection;
-  isExpanded: boolean;
-  onToggle: () => void;
+function getSectionHref(section: TrustAccordionSection): string {
+  if (isMerchantSection(section)) {
+    return `/trust/${section.slug}`;
+  }
+  return section.route;
 }
 
-export default function TrustPolicyAccordionItem({
-  section,
-  isExpanded,
-  onToggle,
-}: TrustPolicyAccordionItemProps) {
-  const policy = getTrustPolicyContent(section.slug);
-  const panelId = `trust-panel-${section.slug}`;
-  const headerId = `trust-header-${section.slug}`;
+interface TrustPolicyAccordionItemProps {
+  section: TrustAccordionSection;
+}
+
+export default function TrustPolicyAccordionItem({ section }: TrustPolicyAccordionItemProps) {
+  const href = getSectionHref(section);
 
   return (
-    <div
-      className={[
-        "trust-accordion-item",
-        isExpanded ? "trust-accordion-item-expanded" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <button
-        type="button"
-        id={headerId}
-        className="trust-accordion-trigger"
-        aria-expanded={isExpanded}
-        aria-controls={panelId}
-        onClick={onToggle}
-      >
-        <span className="trust-accordion-trigger-icon" aria-hidden>
-          <TrustLucideIcon name={section.lucideIcon} className="w-5 h-5" />
-        </span>
-        <span className="trust-accordion-trigger-body">
-          <span className="trust-accordion-trigger-row">
-            <span className="trust-accordion-title">{section.title}</span>
-            <span className="trust-status-badge">
-              {isMerchantSection(section) ? (
-                <>Open: {section.documentId}</>
-              ) : (
-                <>
-                  <span aria-hidden>✓</span>
-                  {STATUS_LABELS[section.status]}
-                </>
-              )}
-            </span>
+    <Link href={href} className="trust-policy-link-card group">
+      <span className="trust-policy-link-icon" aria-hidden>
+        <TrustLucideIcon name={section.lucideIcon} className="w-5 h-5" />
+      </span>
+      <span className="trust-policy-link-body">
+        <span className="trust-policy-link-row">
+          <span className="trust-policy-link-title">{section.title}</span>
+          <span className="trust-status-badge">
+            {isMerchantSection(section) ? (
+              <>Open: {section.documentId}</>
+            ) : (
+              <>
+                <span aria-hidden>✓</span>
+                {STATUS_LABELS[section.status]}
+              </>
+            )}
           </span>
-          <span className="trust-accordion-description">{section.description}</span>
         </span>
-        <ChevronRight
-          className={[
-            "trust-accordion-arrow",
-            isExpanded ? "trust-accordion-arrow-expanded" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          aria-hidden
-        />
-      </button>
-
-      <div
-        id={panelId}
-        role="region"
-        aria-labelledby={headerId}
-        aria-hidden={!isExpanded}
-        className="trust-accordion-panel"
-        data-open={isExpanded}
-      >
-        <div className="trust-accordion-panel-inner">
-          {policy ? (
-            <div className="trust-accordion-content trust-policy-prose">
-              <TrustPolicyContent document={policy} />
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
+        <span className="trust-policy-link-description">{section.description}</span>
+      </span>
+      <ChevronRight className="trust-policy-link-arrow" aria-hidden />
+    </Link>
   );
 }

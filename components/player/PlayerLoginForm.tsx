@@ -1,12 +1,15 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
 import { signInPlayerWithMagicLink, signInPlayerWithPassword } from "@/lib/auth/playerAuthClient";
 import { formatPlayerAuthError, formatStepUpError } from "@/lib/auth/formatPlayerAuthError";
 import { openSignupPrompt } from "@/lib/auth/signupPrompt";
+import { resolvePostLoginPath } from "@/lib/auth/playerRoutes";
 import Logo from "@/components/Logo";
 import {
   biometricLabel,
@@ -29,6 +32,7 @@ function PlayerLoginFormInner() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
   const referralCode = searchParams.get("ref") ?? "";
+  const postLoginPath = resolvePostLoginPath(searchParams.get("next"));
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +62,7 @@ function PlayerLoginFormInner() {
       if (cancelled) return;
 
       if (bootstrapData.authenticated) {
-        router.replace("/my-games");
+        router.replace(postLoginPath);
         return;
       }
 
@@ -72,7 +76,7 @@ function PlayerLoginFormInner() {
     return () => {
       cancelled = true;
     };
-  }, [email, router]);
+  }, [email, router, postLoginPath]);
 
   async function handlePasswordSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -94,7 +98,7 @@ function PlayerLoginFormInner() {
 
     markAppUnlocked(email.trim().toLowerCase());
     markWelcomeHomePending();
-    router.replace("/my-games");
+    router.replace(postLoginPath);
   }
 
   async function handleMagicLink(e: React.FormEvent) {
@@ -133,7 +137,7 @@ function PlayerLoginFormInner() {
       await signInWithBiometric(email.trim().toLowerCase(), rememberMe);
       markAppUnlocked(email.trim().toLowerCase());
       markWelcomeHomePending();
-      router.replace("/my-games");
+      router.replace(postLoginPath);
     } catch (err) {
       setError(
         err instanceof Error
@@ -147,8 +151,8 @@ function PlayerLoginFormInner() {
 
   if (checkingSession) {
     return (
-      <div className="player-login-page min-h-screen flex items-center justify-center text-sb-muted">
-        Loading…
+      <div className="player-login-page min-h-screen flex items-center justify-center px-4">
+        <BrandedLoadingLabel context="general" />
       </div>
     );
   }
@@ -266,8 +270,14 @@ function PlayerLoginFormInner() {
                     placeholder="Your password"
                     className="player-input w-full"
                   />
-                  <p className="text-xs text-sb-muted mt-2">
-                    No password yet? Sign in with an email link, then set one under Security.
+                  <p className="text-xs text-sb-muted mt-2 flex flex-wrap gap-x-2 gap-y-1">
+                    <span>No password yet? Sign in with an email link, then set one under Security.</span>
+                    <Link
+                      href="/my-games/forgot-password"
+                      className="text-sb-glow hover:underline font-medium"
+                    >
+                      Forgot password?
+                    </Link>
                   </p>
                 </div>
               ) : null}
@@ -313,7 +323,7 @@ function PlayerLoginFormInner() {
               <Button
                 type="submit"
                 variant={passkeyAvailable ? "secondary" : "primary"}
-                className={`w-full ${passkeyAvailable && signInMode === "email" ? "" : "player-btn-glow"}`}
+                className={`w-full sb-btn-press ${passkeyAvailable && signInMode === "email" ? "" : "player-btn-glow"}`}
                 disabled={loading}
               >
                 {loading

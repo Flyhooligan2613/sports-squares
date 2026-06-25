@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import PlayerTierCard from "@/components/player/ecosystem/PlayerTierCard";
@@ -14,11 +15,28 @@ export default function RewardsDashboardPanel() {
   const [showBox, setShowBox] = useState(false);
 
   if (loading) {
-    return <p className="text-center text-sb-muted py-16 animate-pulse">Loading rewards…</p>;
+    return (
+      <div className="space-y-4 py-8">
+        <div className="sb-xp-skeleton h-40 rounded-2xl" />
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="sb-xp-skeleton h-24 rounded-xl" />
+          <div className="sb-xp-skeleton h-24 rounded-xl" />
+        </div>
+        <BrandedLoadingLabel context="rewardDrop" className="text-center text-sb-muted" />
+      </div>
+    );
   }
 
   if (error || !data) {
-    return <p className="text-center text-red-300 py-16">{error ?? "Unable to load."}</p>;
+    return (
+      <LandingGlassCard className="p-8 text-center">
+        <p className="text-white font-semibold mb-2">Couldn&apos;t load rewards</p>
+        <p className="text-sm text-sb-muted mb-6">{error ?? "Something went wrong."}</p>
+        <Button variant="secondary" size="sm" onClick={() => void refresh()}>
+          Try again
+        </Button>
+      </LandingGlassCard>
+    );
   }
 
   return (

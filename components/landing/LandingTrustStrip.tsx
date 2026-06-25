@@ -6,7 +6,9 @@ export default function LandingTrustStrip() {
       <div className="landing-trust-strip-inner">
         {TRUST_STRIP_ITEMS.map((item) => (
           <span key={item.label} className="landing-trust-strip-item">
-            <item.icon className="w-3.5 h-3.5 text-sb-glow/80 shrink-0" strokeWidth={2} aria-hidden />
+            <span className="landing-trust-strip-icon" aria-hidden>
+              <item.icon className="w-3.5 h-3.5" strokeWidth={2} />
+            </span>
             {item.label}
           </span>
         ))}

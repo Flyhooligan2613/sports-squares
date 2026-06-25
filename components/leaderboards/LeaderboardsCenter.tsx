@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperienceHero from "@/components/ui/ExperienceHero";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
 import { Button } from "@/components/ui/Button";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import type {
   LeaderboardBoard,
   LeaderboardTab,
@@ -15,7 +18,6 @@ import type {
 import {
   COMMUNITY_LABELS,
   CONTEST_CTAS,
-  EMPTY_STATE,
   PLAYER_TERMS,
 } from "@/lib/platform/language";
 import { Crown, Medal, Trophy, Users } from "lucide-react";
@@ -42,15 +44,7 @@ function RankIcon({ rank }: { rank: number }) {
 
 function LeaderboardTable({ board }: { board: LeaderboardBoard }) {
   if (!board.entries.length) {
-    return (
-      <LandingGlassCard className="p-10 text-center">
-        <p className="text-white font-semibold mb-2">{EMPTY_STATE.noRankings.title}</p>
-        <p className="text-sb-muted text-sm mb-6">
-          {EMPTY_STATE.noRankings.body}
-        </p>
-        <Button href="/games/nfl">{EMPTY_STATE.noRankings.cta}</Button>
-      </LandingGlassCard>
-    );
+    return <AliveEmptyState context="no_leaderboard" emoji="🏅" />;
   }
 
   return (
@@ -104,8 +98,8 @@ export default function LeaderboardsCenter() {
         if (!res.ok) throw new Error("Failed to load");
         const json = (await res.json()) as LeaderboardsData;
         if (!cancelled) setData(json);
-      } catch {
-        if (!cancelled) setError(`Could not load ${COMMUNITY_LABELS.competitionRankings.toLowerCase()}.`);
+      } catch (err) {
+        if (!cancelled) setError(formatUserError(err, "load"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -132,10 +126,17 @@ export default function LeaderboardsCenter() {
           />
 
           {loading ? (
-            <ExperiencePageSkeleton variant="live-winners" />
+            <div className="mt-8 space-y-4">
+              <ExperiencePageSkeleton variant="live-winners" />
+              <BrandedLoadingLabel context="leaderboard" className="text-center text-sb-muted" />
+            </div>
           ) : error || !data ? (
             <LandingGlassCard className="p-8 text-center mt-8">
-              <p className="text-sb-muted">{error ?? COMMUNITY_LABELS.rankingsUnavailable}</p>
+              <p className="text-white font-semibold mb-2">{COMMUNITY_LABELS.rankingsUnavailable}</p>
+              <p className="text-sb-muted text-sm mb-6">{error}</p>
+              <Button onClick={() => window.location.reload()} variant="secondary" size="sm">
+                Try again
+              </Button>
             </LandingGlassCard>
           ) : (
             <>

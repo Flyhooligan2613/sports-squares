@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import PickPostCard from "@/components/huddle/PickPostCard";
 import { Button } from "@/components/ui/Button";
 import { CREATOR_LEVEL_LABELS } from "@/lib/huddle/types";
@@ -265,7 +266,10 @@ export default function ProfileSocialView({
         </div>
 
         {loading ? (
-          <p className="text-center text-sb-muted py-16 animate-pulse">Loading highlights…</p>
+          <div className="text-center py-16 space-y-3">
+            <div className="sb-xp-skeleton h-24 rounded-2xl max-w-md mx-auto" />
+            <BrandedLoadingLabel context="profile" className="text-sb-muted" />
+          </div>
         ) : !social?.feed.length ? (
           <LandingGlassCard className="p-10 text-center">
             <p className="text-white font-semibold mb-2">No highlights yet</p>

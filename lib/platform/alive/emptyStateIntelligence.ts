@@ -9,6 +9,10 @@ export type AliveEmptyContext =
   | "no_games"
   | "no_notifications"
   | "no_rewards"
+  | "no_leaderboard"
+  | "no_friends"
+  | "no_contest_history"
+  | "no_rewards_history"
   | "generic";
 
 const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
@@ -102,6 +106,78 @@ const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
       emoji: "🏆",
     },
   ],
+  no_leaderboard: [
+    {
+      id: "join",
+      title: "Be first on the board",
+      body: "Join a live contest — rankings update as you compete.",
+      ctaLabel: CONTEST_CTAS.joinTheContest,
+      ctaHref: "/games/nfl",
+      emoji: "🏆",
+    },
+    {
+      id: "contest_center",
+      title: "Browse Contest Center",
+      body: "See everything live today across NFL, MLB, Pick'em, and more.",
+      ctaLabel: "Contest Center",
+      ctaHref: "/contest-center",
+      emoji: "📋",
+    },
+  ],
+  no_friends: [
+    {
+      id: "huddle",
+      title: "Find competitors in The Huddle",
+      body: "Follow players you respect — see who joins contests live.",
+      ctaLabel: "The Huddle",
+      ctaHref: "/huddle",
+      emoji: "💬",
+    },
+    {
+      id: "invite",
+      title: "Invite your crew",
+      body: "Share SquareBoards — grow your community and earn referral rewards.",
+      ctaLabel: "Referrals",
+      ctaHref: "/my-games/referrals",
+      emoji: "👥",
+    },
+  ],
+  no_contest_history: [
+    {
+      id: "browse",
+      title: "Join your first contest",
+      body: "Every win and payout builds your competition timeline.",
+      ctaLabel: CONTEST_CTAS.browseContests,
+      ctaHref: "/contest-center",
+      emoji: "🏈",
+    },
+    {
+      id: "daily",
+      title: "Check Daily Story",
+      body: "Today's featured matchups and momentum picks.",
+      ctaLabel: "Daily Story",
+      ctaHref: "/game-day",
+      emoji: "📰",
+    },
+  ],
+  no_rewards_history: [
+    {
+      id: "drop",
+      title: "Claim your Weekly Drop",
+      body: "Compete this week to unlock tier credits and bonus rewards.",
+      ctaLabel: "Square Drop",
+      ctaHref: "/my-games/rewards/square-drop",
+      emoji: "🎁",
+    },
+    {
+      id: "achievements",
+      title: "View achievements",
+      body: "Track milestones as you compete across the platform.",
+      ctaLabel: "Achievements",
+      ctaHref: "/my-games/rewards/achievements",
+      emoji: "⭐",
+    },
+  ],
   generic: [
     {
       id: "browse",
@@ -150,6 +226,22 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   no_rewards: {
     title: EMPTY_STATE.noRewards.title,
     body: EMPTY_STATE.noRewards.body,
+  },
+  no_leaderboard: {
+    title: EMPTY_STATE.noRankings.title,
+    body: EMPTY_STATE.noRankings.body,
+  },
+  no_friends: {
+    title: "Your crew hasn't checked in yet",
+    body: "Follow competitors in The Huddle to see who joins contests live.",
+  },
+  no_contest_history: {
+    title: "Your competition timeline starts here",
+    body: "Join a contest — wins, payouts, and milestones appear in one place.",
+  },
+  no_rewards_history: {
+    title: "No reward activity yet",
+    body: "Compete in contests and open your Weekly Reward Drop to start earning.",
   },
   generic: {
     title: ALIVE_COPY.emptyStateHeading,

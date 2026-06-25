@@ -54,3 +54,7 @@ export const MERCHANT_DOCUMENT_SECTIONS: MerchantDocumentSection[] = [
 export function getMerchantDocumentSlugs(): string[] {
   return MERCHANT_DOCUMENT_SECTIONS.map((section) => section.slug);
 }
+
+export function getMerchantDocumentBySlug(slug: string): MerchantDocumentSection | undefined {
+  return MERCHANT_DOCUMENT_SECTIONS.find((section) => section.slug === slug);
+}

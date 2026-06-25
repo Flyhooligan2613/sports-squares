@@ -41,7 +41,11 @@ export default function LandingHero() {
               {HERO_COPY.headline}
             </h1>
 
-            <p className="text-sb-muted text-base sm:text-lg leading-relaxed max-w-xl mb-6 sm:mb-8">
+            <p className="hero-premium-statement text-left mb-3 sm:mb-4">
+              {HERO_COPY.premiumStatement}
+            </p>
+
+            <p className="hero-supporting-line text-sb-muted text-left mb-6 sm:mb-8">
               {HERO_COPY.supporting}
             </p>
 

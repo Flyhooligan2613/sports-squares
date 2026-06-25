@@ -1,6 +1,3 @@
-"use client";
-
-import { useCallback, useState } from "react";
 import TrustCenterBadges from "@/components/trust/TrustCenterBadges";
 import TrustPolicyAccordionItem from "@/components/trust/TrustPolicyAccordionItem";
 import {
@@ -15,12 +12,6 @@ import {
 import { TrustLucideIcon } from "@/lib/trust/trustIcons";
 
 export default function TrustCenterHub() {
-  const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
-
-  const handleToggle = useCallback((slug: string) => {
-    setExpandedSlug((current) => (current === slug ? null : slug));
-  }, []);
-
   return (
     <div className="trust-center-hub not-prose">
       <header className="trust-center-header">
@@ -50,12 +41,7 @@ export default function TrustCenterHub() {
           <p className="trust-accordion-description mb-4">{MERCHANT_INFORMATION.subtitle}</p>
           <div className="trust-center-category-items">
             {MERCHANT_DOCUMENT_SECTIONS.map((section) => (
-              <TrustPolicyAccordionItem
-                key={section.slug}
-                section={section}
-                isExpanded={expandedSlug === section.slug}
-                onToggle={() => handleToggle(section.slug)}
-              />
+              <TrustPolicyAccordionItem key={section.slug} section={section} />
             ))}
           </div>
           <div className="trust-center-footer">
@@ -86,12 +72,7 @@ export default function TrustCenterHub() {
               <div className="trust-center-category-divider" aria-hidden />
               <div className="trust-center-category-items">
                 {sections.map((section) => (
-                  <TrustPolicyAccordionItem
-                    key={section.slug}
-                    section={section}
-                    isExpanded={expandedSlug === section.slug}
-                    onToggle={() => handleToggle(section.slug)}
-                  />
+                  <TrustPolicyAccordionItem key={section.slug} section={section} />
                 ))}
               </div>
             </section>

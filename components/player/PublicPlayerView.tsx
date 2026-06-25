@@ -4,6 +4,7 @@ import Link from "next/link";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ProfileSocialView from "@/components/player/social/ProfileSocialView";
+import ProfileLegacySections from "@/components/player/ProfileLegacySections";
 import ProfileSettingsSection from "@/components/player/ProfileSettingsSection";
 import { Button } from "@/components/ui/Button";
 import type { PublicPlayerProfile } from "@/lib/player/publicProfileTypes";
@@ -38,6 +39,8 @@ export default function PublicPlayerView({
           ) : null}
 
           <ProfileSocialView profile={profile} embedded={profile.isOwner} />
+
+          <ProfileLegacySections profile={profile} />
 
           {profile.isOwner && ownerEmail ? (
             <ProfileSettingsSection slug={profile.slug} email={ownerEmail} />

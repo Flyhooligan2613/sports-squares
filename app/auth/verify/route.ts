@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
     null;
   const type = (searchParams.get("type")?.trim() ?? "email") as
     | "email"
-    | "magiclink";
+    | "magiclink"
+    | "recovery";
   const next = searchParams.get("next") ?? "/my-games?welcome=1";
 
   const loginUrl = new URL("/my-games/login", request.url);
@@ -45,10 +46,11 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  const attempts: Array<{ token_hash: string; type: "email" | "magiclink" }> = [
+  const attempts: Array<{ token_hash: string; type: "email" | "magiclink" | "recovery" }> = [
     { token_hash: tokenHash, type },
     { token_hash: tokenHash, type: "email" },
     { token_hash: tokenHash, type: "magiclink" },
+    { token_hash: tokenHash, type: "recovery" },
   ];
 
   let verified = false;

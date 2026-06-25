@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import type { getRewardsCenterData } from "@/lib/platform/ecosystem/rewardsCenter";
 
 export type RewardsCenterData = Awaited<ReturnType<typeof getRewardsCenterData>>;
@@ -35,7 +36,7 @@ export function RewardsCenterProvider({ children }: { children: ReactNode }) {
     });
     const json = (await res.json()) as RewardsCenterData & { error?: string };
     if (!res.ok) {
-      setError(json.error ?? "Could not load rewards.");
+      setError(formatUserError(json.error ?? "Could not load rewards.", "load"));
       if (!options?.background) setLoading(false);
       return;
     }

@@ -64,6 +64,30 @@ export async function signInPlayerWithPassword(
   return { ok: true as const };
 }
 
+export async function requestPasswordReset(emailOrIdentifier: string) {
+  const response = await fetch("/api/auth/forgot-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: emailOrIdentifier.includes("@") ? emailOrIdentifier.trim().toLowerCase() : undefined,
+      identifier: emailOrIdentifier.includes("@") ? undefined : emailOrIdentifier.trim(),
+    }),
+  });
+
+  const payload = (await response.json().catch(() => ({}))) as {
+    error?: string;
+  };
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: payload.error ?? "Could not send reset link.",
+    };
+  }
+
+  return { ok: true as const };
+}
+
 export async function signOutPlayer() {
   const supabase = createClient();
   await supabase.auth.signOut();

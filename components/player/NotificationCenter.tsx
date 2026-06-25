@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AliveEmptyState from "@/components/alive/AliveEmptyState";
+import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import { Button } from "@/components/ui/Button";
 import type { PlayerNotification } from "@/lib/player/dashboardTypes";
 import {
@@ -151,8 +152,9 @@ export default function NotificationCenter() {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-3">
         <div className="sb-xp-skeleton h-10 w-48" />
-        <div className="sb-xp-skeleton h-24" />
-        <div className="sb-xp-skeleton h-24" />
+        <div className="sb-xp-skeleton h-24 rounded-2xl" />
+        <div className="sb-xp-skeleton h-24 rounded-2xl" />
+        <BrandedLoadingLabel context="general" className="text-center text-sb-muted py-4" />
       </div>
     );
   }
@@ -162,7 +164,13 @@ export default function NotificationCenter() {
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
         <LandingGlassCard className="p-8">
           <p className="text-white font-semibold mb-2">{error}</p>
-          <Button href="/my-games/login">Sign in</Button>
+          <p className="text-sm text-sb-muted mb-6">Sign in to see wins, payouts, and game-day alerts.</p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button href="/my-games/login">Sign in</Button>
+            <Button href="/contest-center" variant="ghost">
+              Browse contests
+            </Button>
+          </div>
         </LandingGlassCard>
       </div>
     );
@@ -232,7 +240,7 @@ export default function NotificationCenter() {
               <li key={item.id}>
                 <LandingGlassCard
                   className={[
-                    "p-4 sm:p-5 sb-stagger-item",
+                    "p-4 sm:p-5 sb-stagger-item sb-card-lift cursor-pointer",
                     unread ? "border-sb-glow/25" : "",
                   ]
                     .filter(Boolean)

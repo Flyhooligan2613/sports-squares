@@ -27,8 +27,8 @@ import {
 
 export const HERO_COPY = {
   headline: "The Ultimate Multi-Game Platform",
-  supporting:
-    "SquareBoards unites fair competition, secure payments, and live sports experiences in one premium platform — engineered for competitors and trusted by partners.",
+  premiumStatement: "Fair competition. Secure payments. Premium sports contests.",
+  supporting: "Built for competitors. Trusted by partners.",
   primaryCta: "Download App",
   secondaryCta: "Learn More",
   howItWorksLink: "See How It Works",
@@ -238,10 +238,9 @@ export const FAQ_ITEMS: { question: string; answer: string; link?: { href: strin
 
 export const PHONE_SCREENS = [
   { id: "wallet", label: "Wallet" },
-  { id: "pool", label: "Live Pool" },
+  { id: "leaderboards", label: "Leaderboard" },
   { id: "board", label: "Contest Board" },
   { id: "rewards", label: "Rewards" },
-  { id: "leaderboards", label: "Leaderboards" },
   { id: "profile", label: "Player Profile" },
 ] as const;
 

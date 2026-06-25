@@ -13,7 +13,13 @@ import {
 } from "@/lib/auth/signupPrompt";
 
 function shouldSkipRoute(pathname: string): boolean {
-  return pathname.startsWith("/admin") || pathname.startsWith("/auth");
+  return (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/my-games/login") ||
+    pathname.startsWith("/my-games/forgot-password") ||
+    pathname.startsWith("/my-games/reset-password")
+  );
 }
 
 function SignupWelcomeGateInner() {

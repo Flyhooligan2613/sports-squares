@@ -9,8 +9,6 @@ export default function LandingPhoneScreen({ screen }: LandingPhoneScreenProps) 
   switch (screen) {
     case "wallet":
       return <WalletScreen />;
-    case "pool":
-      return <PoolScreen />;
     case "board":
       return <BoardScreen />;
     case "rewards":
@@ -39,26 +37,6 @@ function WalletScreen() {
         <MockListItem title="Quarter win — Chiefs vs Bills" amount="+$125.00" highlight />
         <MockListItem title="Weekly reward" amount="+$10.00" />
       </div>
-    </div>
-  );
-}
-
-function PoolScreen() {
-  return (
-    <div className="landing-mock-screen">
-      <p className="landing-mock-kicker">Live Pool</p>
-      <p className="landing-mock-title">Chiefs vs Bills</p>
-      <div className="landing-mock-scoreboard">
-        <span>KC 21</span>
-        <span className="landing-mock-live">LIVE Q3</span>
-        <span>BUF 17</span>
-      </div>
-      <div className="landing-mock-stats">
-        <div><strong>87</strong><span>Squares left</span></div>
-        <div><strong>$25</strong><span>Per square</span></div>
-        <div><strong>Q3</strong><span>Next win</span></div>
-      </div>
-      <span className="landing-mock-cta">Join the Contest</span>
     </div>
   );
 }

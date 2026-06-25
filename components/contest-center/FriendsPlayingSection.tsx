@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import type { ContestFriendActivity } from "@/lib/contestCenter/types";
 
@@ -13,15 +14,7 @@ export default function FriendsPlayingSection({
         <h2 id="cc-friends-heading" className="cc-section-title">
           Friends Playing
         </h2>
-        <LandingGlassCard className="cc-empty-panel p-6 sm:p-8">
-          <p className="text-white font-medium mb-1">Your crew hasn&apos;t checked in yet.</p>
-          <p className="text-sm text-sb-muted mb-4">
-            Follow competitors in the Huddle to see who joins contests live.
-          </p>
-          <Link href="/huddle" className="cc-inline-link">
-            Explore the Huddle →
-          </Link>
-        </LandingGlassCard>
+        <AliveEmptyState context="no_friends" emoji="👥" />
       </section>
     );
   }

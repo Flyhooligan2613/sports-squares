@@ -20,7 +20,7 @@ export default function ContestCard({ contest, compact = false }: ContestCardPro
 
   return (
     <LandingGlassCard
-      className={`cc-contest-card ${compact ? "cc-contest-card-compact" : ""}`}
+      className={`cc-contest-card sb-card-lift ${compact ? "cc-contest-card-compact" : ""}`}
       glow={contest.featured}
       style={{ "--cc-accent": contest.accent } as CSSProperties}
     >

@@ -11,7 +11,7 @@ export default function AltivoraCorporateSeal({
   compact = false,
   className = "",
 }: AltivoraCorporateSealProps) {
-  const logoSize = compact ? 72 : 96;
+  const logoSize = compact ? 58 : 78;
 
   return (
     <div
