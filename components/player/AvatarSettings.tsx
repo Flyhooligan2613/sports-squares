@@ -5,6 +5,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import AvatarEmojiPicker from "@/components/auth/AvatarEmojiPicker";
 import PremiumEmojiShopModal from "@/components/player/PremiumEmojiShopModal";
+import { showAuthSuccess } from "@/lib/auth/authSuccessFeedback";
 import { DEFAULT_AVATAR, PLAYER_AVATARS } from "@/lib/platform/ecosystem/avatars";
 
 export default function AvatarSettings() {
@@ -59,6 +60,7 @@ export default function AvatarSettings() {
 
     if (json.avatar) setAvatar(json.avatar);
     setSuccess(true);
+    showAuthSuccess("profile_updated");
     window.dispatchEvent(new CustomEvent("player-profile-updated"));
     setTimeout(() => setSuccess(false), 3000);
   }

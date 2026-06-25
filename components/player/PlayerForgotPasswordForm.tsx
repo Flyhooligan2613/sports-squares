@@ -41,7 +41,7 @@ function ForgotPasswordFormInner() {
             Reset password
           </h1>
           <p className="text-sb-muted text-sm sm:text-base">
-            We&apos;ll email you a secure link to choose a new password.
+            We&apos;ll send password reset instructions if an account exists with that email.
           </p>
         </div>
 
@@ -54,8 +54,8 @@ function ForgotPasswordFormInner() {
               <h2 className="text-xl font-bold text-white">Check your inbox</h2>
               <p className="text-sb-muted text-sm leading-relaxed">
                 If an account exists for{" "}
-                <span className="text-white font-medium">{identifier}</span>, you&apos;ll receive a
-                password reset link shortly.
+                <span className="text-white font-medium">{identifier}</span>, check your inbox for
+                password reset instructions — usually within a minute.
               </p>
               <Button href={PLAYER_LOGIN} variant="primary" className="mt-2">
                 Back to sign in

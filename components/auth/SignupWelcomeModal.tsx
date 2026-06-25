@@ -21,6 +21,9 @@ import {
   markCashOutPromptPending,
 } from "@/lib/auth/cashOutPrompt";
 import { signUpPlayer } from "@/lib/auth/playerAuthClient";
+import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
+import { markFirstLoginWelcomePending } from "@/lib/auth/firstLoginWelcome";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 type SignupStep = 1 | 2 | 3;
 
@@ -120,15 +123,17 @@ export default function SignupWelcomeModal({
     setLoading(false);
 
     if (!result.ok) {
-      setError(result.error);
+      setError(formatPlayerAuthError(result.error));
       return;
     }
 
     markDeviceHasAuthenticated(deviceKey);
     markAppUnlocked(email.trim().toLowerCase());
     markCashOutPromptPending();
+    markFirstLoginWelcomePending();
     onClose();
-    window.location.href = CASHOUT_SETUP_PATH;
+    const separator = CASHOUT_SETUP_PATH.includes("?") ? "&" : "?";
+    window.location.href = `${CASHOUT_SETUP_PATH}${separator}auth=account_created`;
   }
 
   return (
@@ -221,30 +226,30 @@ export default function SignupWelcomeModal({
                 <label htmlFor="signup-password" className="signup-welcome-label">
                   Password
                 </label>
-                <input
+                <PasswordInput
                   id="signup-password"
-                  type="password"
-                  autoComplete="new-password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="player-input w-full"
+                  onChange={setPassword}
+                  autoComplete="new-password"
+                  placeholder="At least 8 characters"
                   minLength={8}
                   required
+                  disabled={loading}
                 />
               </div>
               <div>
                 <label htmlFor="signup-confirm-password" className="signup-welcome-label">
                   Confirm password
                 </label>
-                <input
+                <PasswordInput
                   id="signup-confirm-password"
-                  type="password"
-                  autoComplete="new-password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="player-input w-full"
+                  onChange={setConfirmPassword}
+                  autoComplete="new-password"
+                  placeholder="Re-enter your password"
                   minLength={8}
                   required
+                  disabled={loading}
                 />
               </div>
               <div className="signup-cashout-callout">

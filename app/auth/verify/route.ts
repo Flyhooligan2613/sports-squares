@@ -15,7 +15,12 @@ export async function GET(request: NextRequest) {
     | "email"
     | "magiclink"
     | "recovery";
-  const next = searchParams.get("next") ?? "/my-games?welcome=1";
+  const nextParam = searchParams.get("next") ?? "/my-games?welcome=1";
+  const nextUrl = new URL(nextParam, request.url);
+  if (type === "email" || type === "magiclink") {
+    nextUrl.searchParams.set("auth", "email_verified");
+  }
+  const next = `${nextUrl.pathname}${nextUrl.search}`;
 
   const loginUrl = new URL("/my-games/login", request.url);
   loginUrl.searchParams.set("error", "sign_in_failed");

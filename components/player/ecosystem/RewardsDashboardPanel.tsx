@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
@@ -39,9 +40,19 @@ export default function RewardsDashboardPanel() {
     );
   }
 
+  const isFirstTimeRewards =
+    data.pendingRewards.length === 0 &&
+    !data.unopenedMysteryBox &&
+    data.wallet.tierCredits === 0 &&
+    (data.legacy?.lifetimeWins ?? 0) === 0;
+
   return (
     <div className="space-y-6">
       <PlayerTierCard />
+
+      {isFirstTimeRewards ? (
+        <AliveEmptyState context="no_rewards" emoji="🎁" />
+      ) : null}
 
       {data.unopenedMysteryBox ? (
         <LandingGlassCard className="p-5 flex flex-wrap items-center justify-between gap-4 border border-purple-500/30 wrd-panel-cube-ready">

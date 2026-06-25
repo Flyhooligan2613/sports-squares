@@ -92,7 +92,16 @@ export async function updateSession(request: NextRequest) {
 
     if (requiresPlayerSession(pathname)) {
       if (!user) {
-        return NextResponse.redirect(redirectToPlayerLogin(request.url));
+        return NextResponse.redirect(
+          redirectToPlayerLogin(
+            {
+              url: request.url,
+              pathname,
+              search: request.nextUrl.search,
+            },
+            "session_expired"
+          )
+        );
       }
     }
 
@@ -111,7 +120,13 @@ export async function updateSession(request: NextRequest) {
       return redirectToLogin(request);
     }
     if (requiresPlayerSession(pathname)) {
-      return NextResponse.redirect(redirectToPlayerLogin(request.url));
+      return NextResponse.redirect(
+        redirectToPlayerLogin({
+          url: request.url,
+          pathname,
+          search: request.nextUrl.search,
+        })
+      );
     }
     return NextResponse.next({ request });
   }

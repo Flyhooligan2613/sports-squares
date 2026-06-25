@@ -1,3 +1,22 @@
+const TECHNICAL_AUTH_MARKERS = [
+  "authentication failed",
+  "auth session missing",
+  "jwt",
+  "supabase",
+  "pgrst",
+  "internal server",
+  "unexpected token",
+  "econnrefused",
+  "fetch failed",
+  "network error",
+];
+
+function isTechnicalAuthMessage(message: string): boolean {
+  const lower = message.toLowerCase();
+  if (message.length > 120) return true;
+  return TECHNICAL_AUTH_MARKERS.some((marker) => lower.includes(marker));
+}
+
 /** Map Supabase auth errors to player-friendly copy. */
 export function formatPlayerAuthError(message: string): string {
   const lower = message.toLowerCase();
@@ -17,8 +36,32 @@ export function formatPlayerAuthError(message: string): string {
     return "We couldn't send your sign-in email. Try again in a few minutes, or open the access link on your purchase confirmation page.";
   }
 
-  if (lower.includes("invalid login credentials") || lower.includes("invalid credentials")) {
+  if (
+    lower.includes("invalid login credentials") ||
+    lower.includes("invalid credentials") ||
+    lower.includes("authentication failed")
+  ) {
     return "Wrong password — or no password set yet. Sign in with your email link, then set a password under Security.";
+  }
+
+  if (lower.includes("already exists") || lower.includes("already registered")) {
+    return "An account with this email already exists. Sign in instead, or use Forgot password.";
+  }
+
+  if (lower.includes("session expired") || lower.includes("not authenticated")) {
+    return "Your session expired. Sign in again to continue.";
+  }
+
+  if (lower.includes("sign-up failed") || lower.includes("signup failed")) {
+    return "We couldn't create your account. Check your details and try again.";
+  }
+
+  if (lower.includes("sign-in failed") || lower.includes("signin failed")) {
+    return "We couldn't sign you in. Check your email and password, then try again.";
+  }
+
+  if (isTechnicalAuthMessage(message)) {
+    return "Something went wrong. Please try again in a moment.";
   }
 
   return message;

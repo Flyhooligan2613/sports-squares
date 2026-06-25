@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { completePlayerSignIn } from "@/lib/auth/security/completeSignIn";
+import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import {
   registerPlayerAccount,
   validateSignupPayload,
@@ -100,8 +101,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, slug, email });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Sign-up failed.";
-    const status = /already exists/i.test(message) ? 409 : 500;
+    const raw = err instanceof Error ? err.message : "Sign-up failed.";
+    const message = formatPlayerAuthError(raw);
+    const status = /already exists/i.test(raw) ? 409 : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
+import { showAuthSuccess } from "@/lib/auth/authSuccessFeedback";
 
 interface ProfileSettings {
   username: string | null;
@@ -86,6 +87,7 @@ export default function UsernameSettings() {
     const refreshed = await loadSettings();
     setWarning(json.usernameError ?? null);
     setSuccess(true);
+    showAuthSuccess("profile_updated");
     setSavedBioPreview(refreshed.profileBio?.trim() || trimmedBio || null);
     window.dispatchEvent(new CustomEvent("player-profile-updated"));
   }

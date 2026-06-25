@@ -22,6 +22,11 @@ import {
 } from "@/lib/auth/security/deviceClient";
 import { markWelcomeHomePending } from "@/lib/home/welcomeSession";
 import {
+  hasSeenFirstLoginWelcome,
+  markFirstLoginWelcomePending,
+} from "@/lib/auth/firstLoginWelcome";
+import PasswordInput from "@/components/ui/PasswordInput";
+import {
   fetchAuthBootstrap,
   signInWithBiometric,
 } from "@/lib/auth/security/webauthnClient";
@@ -98,7 +103,15 @@ function PlayerLoginFormInner() {
 
     markAppUnlocked(email.trim().toLowerCase());
     markWelcomeHomePending();
-    router.replace(postLoginPath);
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!hasSeenFirstLoginWelcome(normalizedEmail)) {
+      markFirstLoginWelcomePending();
+    }
+    router.replace(
+      postLoginPath.includes("?")
+        ? `${postLoginPath}&auth=login`
+        : `${postLoginPath}?auth=login`
+    );
   }
 
   async function handleMagicLink(e: React.FormEvent) {
@@ -137,7 +150,15 @@ function PlayerLoginFormInner() {
       await signInWithBiometric(email.trim().toLowerCase(), rememberMe);
       markAppUnlocked(email.trim().toLowerCase());
       markWelcomeHomePending();
-      router.replace(postLoginPath);
+      const normalizedEmail = email.trim().toLowerCase();
+      if (!hasSeenFirstLoginWelcome(normalizedEmail)) {
+        markFirstLoginWelcomePending();
+      }
+      router.replace(
+        postLoginPath.includes("?")
+          ? `${postLoginPath}&auth=login`
+          : `${postLoginPath}?auth=login`
+      );
     } catch (err) {
       setError(
         err instanceof Error
@@ -253,23 +274,19 @@ function PlayerLoginFormInner() {
               </div>
 
               {signInMode === "password" ? (
-                <div>
-                  <label
-                    htmlFor="player-password"
-                    className="block text-xs font-semibold uppercase tracking-wider text-sb-muted mb-2"
-                  >
-                    Password
-                  </label>
-                  <input
-                    id="player-password"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Your password"
-                    className="player-input w-full"
-                  />
+                <PasswordInput
+                  id="player-password"
+                  label="Password"
+                  value={password}
+                  onChange={setPassword}
+                  autoComplete="current-password"
+                  placeholder="Your password"
+                  required
+                  disabled={loading}
+                />
+              ) : null}
+
+              {signInMode === "password" ? (
                   <p className="text-xs text-sb-muted mt-2 flex flex-wrap gap-x-2 gap-y-1">
                     <span>No password yet? Sign in with an email link, then set one under Security.</span>
                     <Link
@@ -279,7 +296,6 @@ function PlayerLoginFormInner() {
                       Forgot password?
                     </Link>
                   </p>
-                </div>
               ) : null}
 
               {referralCode ? (

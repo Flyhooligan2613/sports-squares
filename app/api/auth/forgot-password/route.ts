@@ -72,11 +72,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    const raw = err instanceof Error ? err.message : "Failed to send password reset link.";
     return NextResponse.json(
-      {
-        error:
-          err instanceof Error ? err.message : "Failed to send password reset link.",
-      },
+      { error: formatPlayerAuthError(raw) },
       { status: 500 }
     );
   }

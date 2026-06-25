@@ -109,8 +109,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    const raw = err instanceof Error ? err.message : "Sign-in failed.";
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Sign-in failed." },
+      { error: formatPlayerAuthError(raw) },
       { status: 500 }
     );
   }

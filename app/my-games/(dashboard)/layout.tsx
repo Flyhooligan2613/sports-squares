@@ -4,6 +4,7 @@ import { SquareWalletWinExperience } from "@/components/square-wallet";
 import { OnboardingQueueProvider } from "@/components/onboarding-queue";
 import { ProviderErrorBoundary } from "@/components/ui/ProviderErrorBoundary";
 import PlayerAuthBootstrap from "@/components/player/PlayerAuthBootstrap";
+import FirstLoginWelcomeGate from "@/components/auth/FirstLoginWelcomeGate";
 import QuickUnlockGate from "@/components/player/QuickUnlockGate";
 import PushNotificationPrompt from "@/components/player/PushNotificationPrompt";
 import PlayerShell from "@/components/player/PlayerShell";
@@ -62,6 +63,7 @@ export default async function MyGamesDashboardLayout({
         followerCount={followerCount}
       >
         <PlayerAuthBootstrap />
+        <FirstLoginWelcomeGate />
         <PlayerHomeNav />
         <QuickUnlockGate>
           <GenesisProvider>

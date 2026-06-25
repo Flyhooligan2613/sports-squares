@@ -212,8 +212,8 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
     body: EMPTY_STATE.noContests.body,
   },
   wallet_zero: {
-    title: "Fund your SquareWallet™",
-    body: "Add funds once — join every contest from your premium wallet hub.",
+    title: "No funds yet",
+    body: "Deposit securely to join your first contest.",
   },
   no_games: {
     title: EMPTY_STATE.noGamesAvailable.title,
@@ -221,11 +221,11 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   },
   no_notifications: {
     title: "You're all caught up",
-    body: "Wins, payouts, and game-day alerts land here first.",
+    body: "We'll notify you when contests, payouts, and rewards are available.",
   },
   no_rewards: {
-    title: EMPTY_STATE.noRewards.title,
-    body: EMPTY_STATE.noRewards.body,
+    title: "No rewards yet",
+    body: "Start playing to unlock rewards and achievements.",
   },
   no_leaderboard: {
     title: EMPTY_STATE.noRankings.title,
@@ -237,7 +237,7 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   },
   no_contest_history: {
     title: "Your competition timeline starts here",
-    body: "Join a contest — wins, payouts, and milestones appear in one place.",
+    body: "Your contests will appear here after you join your first board.",
   },
   no_rewards_history: {
     title: "No reward activity yet",

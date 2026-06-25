@@ -6,6 +6,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import Logo from "@/components/Logo";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
+import PasswordInput from "@/components/ui/PasswordInput";
 import { MY_GAMES_HOME, PLAYER_LOGIN } from "@/lib/auth/playerRoutes";
 
 function ResetPasswordFormInner() {
@@ -45,7 +46,7 @@ function ResetPasswordFormInner() {
     }
 
     setDone(true);
-    window.setTimeout(() => router.replace(MY_GAMES_HOME), 1800);
+    window.setTimeout(() => router.replace(`${MY_GAMES_HOME}?auth=password_updated`), 1800);
   }
 
   return (
@@ -73,42 +74,26 @@ function ResetPasswordFormInner() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label
-                  htmlFor="new-password"
-                  className="block text-xs font-semibold uppercase tracking-wider text-sb-muted mb-2"
-                >
-                  New password
-                </label>
-                <input
-                  id="new-password"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="player-input w-full"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="confirm-password"
-                  className="block text-xs font-semibold uppercase tracking-wider text-sb-muted mb-2"
-                >
-                  Confirm password
-                </label>
-                <input
-                  id="confirm-password"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="player-input w-full"
-                />
-              </div>
+              <PasswordInput
+                id="new-password"
+                label="New password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="new-password"
+                minLength={8}
+                required
+                disabled={loading}
+              />
+              <PasswordInput
+                id="confirm-password"
+                label="Confirm password"
+                value={confirm}
+                onChange={setConfirm}
+                autoComplete="new-password"
+                minLength={8}
+                required
+                disabled={loading}
+              />
 
               {error ? (
                 <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">

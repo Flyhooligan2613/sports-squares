@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
 import SignupWelcomeGate from "@/components/auth/SignupWelcomeGate";
+import AuthSuccessToastHost from "@/components/auth/AuthSuccessToastHost";
 import { notifySplashComplete } from "@/lib/auth/signupPrompt";
 
 export const APP_OPEN_SPLASH_KEY = "sb-app-open-splash-seen";
@@ -164,6 +165,7 @@ export default function AppOpenSplash() {
       {splashReady ? (
         <Suspense fallback={null}>
           <SignupWelcomeGate />
+          <AuthSuccessToastHost />
         </Suspense>
       ) : null}
     </>

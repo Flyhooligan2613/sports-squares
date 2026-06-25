@@ -24,8 +24,21 @@ export function resolvePostLoginPath(next: string | null | undefined): string {
   return path;
 }
 
-export function redirectToPlayerLogin(requestUrl: string, error?: string) {
-  const loginUrl = new URL(PLAYER_LOGIN, requestUrl);
+export function redirectToPlayerLogin(
+  request: { url: string; pathname: string; search: string },
+  error?: string
+) {
+  const loginUrl = new URL(PLAYER_LOGIN, request.url);
+  const returnPath = `${request.pathname}${request.search}`;
+  if (
+    returnPath &&
+    returnPath !== PLAYER_LOGIN &&
+    returnPath.startsWith("/my-games") &&
+    !returnPath.startsWith(PLAYER_FORGOT_PASSWORD) &&
+    !returnPath.startsWith(PLAYER_RESET_PASSWORD)
+  ) {
+    loginUrl.searchParams.set("next", returnPath);
+  }
   if (error) loginUrl.searchParams.set("error", error);
   return loginUrl;
 }
