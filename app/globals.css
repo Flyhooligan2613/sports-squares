@@ -13333,10 +13333,12 @@ html.sb-splash-pending body {
 }
 
 .landing-corporate-logo {
+  display: block;
   margin: 0 auto 0.65rem;
   height: auto;
   width: auto;
-  max-width: 78px;
+  max-width: 100px;
+  object-fit: contain;
 }
 
 .landing-corporate-seal--compact {
@@ -13345,7 +13347,7 @@ html.sb-splash-pending body {
 }
 
 .landing-corporate-seal--compact .landing-corporate-logo {
-  max-width: 58px;
+  max-width: 72px;
 }
 
 .landing-corporate-seal--compact .landing-corporate-built {
@@ -13815,9 +13817,11 @@ html.sb-splash-pending body {
 }
 
 .landing-footer-corporate-logo {
+  display: block;
   width: auto;
   height: auto;
-  max-width: 58px;
+  max-width: 72px;
+  object-fit: contain;
 }
 
 .landing-footer-brand-row {

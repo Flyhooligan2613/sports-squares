@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Mail } from "lucide-react";
-import { ALTIVORA_LABS_LOGO } from "@/components/brand/AltivoraCorporateSeal";
+import { AltivoraLabsLogoMark } from "@/components/brand/AltivoraCorporateSeal";
 import Logo from "@/components/Logo";
 import StaffPortalLink from "@/components/StaffPortalLink";
 
@@ -70,11 +69,8 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
               <p className="text-xs font-semibold uppercase tracking-wider text-white mb-3">
                 Corporate
               </p>
-              <Image
-                src={ALTIVORA_LABS_LOGO}
-                alt="ALTIVORA LABS"
-                width={58}
-                height={58}
+              <AltivoraLabsLogoMark
+                size={72}
                 className="landing-footer-corporate-logo mb-3"
               />
               <p className="text-sm font-semibold text-white mb-1">ALTIVORA LABS LLC</p>
