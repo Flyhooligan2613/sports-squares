@@ -15,6 +15,33 @@ interface LiveScoreBannerProps {
   espnSport?: EspnSport | null;
 }
 
+function resolveGameStatusLabel(
+  game: EspnLiveGame,
+  sport: ReturnType<typeof normalizeEspnSport>
+): string {
+  if (game.gameCompleted) return "Final";
+
+  const detail = game.statusDetail?.toLowerCase() ?? "";
+  if (detail.includes("halftime") || detail.includes("half time")) return "Halftime";
+  if (detail.includes("pregame") || detail.includes("pre-game") || game.period <= 0) {
+    return "Pregame";
+  }
+
+  if (sport === "ncaab") {
+    if (game.period <= 1) return "1st Half";
+    if (game.period === 2) return "2nd Half";
+    return "Final";
+  }
+
+  if (sport === "mlb") {
+    return game.period > 0 ? `Inning ${game.period}` : "Pregame";
+  }
+
+  if (game.period > 4) return `OT (P${game.period})`;
+  if (game.period > 0) return `Q${game.period}`;
+  return "Pregame";
+}
+
 export default function LiveScoreBanner({
   game,
   poolHomeTeam,
@@ -26,41 +53,37 @@ export default function LiveScoreBanner({
   espnSport,
 }: LiveScoreBannerProps) {
   const sport = normalizeEspnSport(espnSport);
-  const periodLabel = game.gameCompleted
-    ? "Final"
-    : sport === "ncaab"
-      ? game.period <= 1
-        ? "1st Half"
-        : game.period === 2
-          ? "2nd Half"
-          : "Final"
-      : sport === "mlb"
-        ? game.period > 0
-          ? `Inning ${game.period}`
-          : "Pre-game"
-        : game.period > 4
-          ? `OT (P${game.period})`
-          : game.period > 0
-            ? `Q${game.period}`
-            : "Pre-game";
+  const periodLabel = resolveGameStatusLabel(game, sport);
   const activePeriod = getActivePeriodFromGame(game, sport);
+  const isLive = !game.gameCompleted && game.period > 0;
+  const isFinal = game.gameCompleted;
 
   return (
     <div className="sb-card bg-gradient-to-r from-sb-surface via-sb-surface to-sb-purple/10 p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="relative flex h-2.5 w-2.5">
-            {!game.gameCompleted && (
+            {isLive && (
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sb-success opacity-75" />
             )}
             <span
               className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                game.gameCompleted ? "bg-sb-muted" : "bg-sb-success"
+                isFinal ? "bg-sb-muted" : "bg-sb-success"
               }`}
             />
           </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-sb-muted">
-            {game.gameCompleted ? "Final Score" : "Live Score"}
+          <span
+            className={[
+              "game-status-badge",
+              isFinal
+                ? "game-status-final"
+                : isLive
+                  ? "game-status-live"
+                  : "game-status-pregame",
+            ].join(" ")}
+            role="status"
+          >
+            {periodLabel}
           </span>
         </div>
         {espnSyncActive && (
@@ -86,11 +109,8 @@ export default function LiveScoreBanner({
         />
         <div className="text-center shrink-0">
           <p className="text-2xl font-bold text-sb-muted">–</p>
-          <p className="text-[10px] text-sb-muted mt-1 font-medium uppercase tracking-wide">
-            {periodLabel}
-          </p>
           <p className="text-[10px] text-sb-muted/70 mt-0.5">
-            {game.statusDetail} &middot; {activePeriod}
+            {game.statusDetail} · {activePeriod}
           </p>
         </div>
         <TeamScore

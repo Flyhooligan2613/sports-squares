@@ -214,12 +214,15 @@ export async function getPlayerDashboard(
 
       recentWins.push({
         id: winner.id,
+        poolId: pool.id,
+        sport: (pool.espnSport ?? "nfl").toUpperCase(),
         homeTeam: pool.homeTeam,
         awayTeam: pool.awayTeam,
         periodLabel: periodLabel(winner.quarter),
         amount: winner.payout_amount ?? 0,
         payoutStatus: winner.payout_status,
         wonAt: winner.created_at,
+        href: inviteToken ? `/join/${inviteToken}` : `/pool/${pool.id}`,
       });
 
       notifications.push({

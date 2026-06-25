@@ -18,6 +18,14 @@ export type AliveEmptyContext =
 const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
   contest_center: [
     {
+      id: "notifications",
+      title: "Enable notifications",
+      body: "Never miss kickoff — get alerted when new contests open.",
+      ctaLabel: "Notifications",
+      ctaHref: "/my-games/notifications",
+      emoji: "🔔",
+    },
+    {
       id: "join",
       title: "Pick a contest and join",
       body: "Your Legacy™ starts with your first board.",
@@ -32,14 +40,6 @@ const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
       ctaLabel: "Daily Story",
       ctaHref: "/game-day",
       emoji: "📰",
-    },
-    {
-      id: "huddle",
-      title: "Join The Huddle™",
-      body: "See what competitors are discussing right now.",
-      ctaLabel: "Community",
-      ctaHref: "/huddle",
-      emoji: "💬",
     },
   ],
   wallet_zero: [

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import { getPlayerSessionUser } from "@/lib/auth/playerAuthClient";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
+import { CONTEST_JOIN_COPY } from "@/lib/platform/language/contestLanguage";
 import type { PurchaseSuccessSummary } from "@/lib/purchases/successSummary";
 
 type PurchaseStatus =
@@ -226,7 +227,7 @@ function PurchaseSuccessContentInner() {
                 You&apos;re In
               </p>
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
-                Purchase Complete!
+                {CONTEST_JOIN_COPY.successMessage}
               </h1>
               <p className="text-sb-muted text-sm sm:text-base leading-relaxed mb-1">
                 Your payment was successful.

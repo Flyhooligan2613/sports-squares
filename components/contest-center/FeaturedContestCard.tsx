@@ -2,23 +2,20 @@
 
 import type { CSSProperties } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import BoardFillProgress from "@/components/contest-center/BoardFillProgress";
+import ContestCountdown from "@/components/contest-center/ContestCountdown";
 import ContestJoinButton from "@/components/contest-center/ContestJoinButton";
 import ContestStatusBadge from "@/components/contest-center/ContestStatusBadge";
-import { useKickoffCountdown } from "@/lib/motion/useKickoffCountdown";
 import { useReducedMotion } from "@/lib/motion/useReducedMotion";
 import type { ContestListing } from "@/lib/contestCenter/types";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
 
 export default function FeaturedContestCard({ contest }: { contest: ContestListing }) {
   const reducedMotion = useReducedMotion();
-  const countdown = useKickoffCountdown(
-    contest.kickoffAt ?? new Date(Date.now() + 86_400_000).toISOString(),
-    contest.status === "live"
-  );
-
   const fillPct = contest.fillPercent ?? 0;
   const joined = contest.playersJoined ?? 0;
   const spotsLeft = contest.remainingSpots;
+  const isLive = contest.status === "live";
 
   return (
     <LandingGlassCard
@@ -33,26 +30,30 @@ export default function FeaturedContestCard({ contest }: { contest: ContestListi
 
       <div className="cc-featured-body">
         <div className="cc-featured-top">
-          <p className="cc-featured-kicker">Featured Competition</p>
-          <ContestStatusBadge status={contest.status} />
+          <div className="cc-featured-kicker-row">
+            <p className="cc-featured-kicker">Featured Competition</p>
+            <span className="cc-contest-sport">{contest.sport}</span>
+          </div>
+          <div className="cc-featured-badges">
+            {isLive ? (
+              <span className="cc-live-badge" role="status">
+                <span className="cc-live-dot" aria-hidden />
+                Live
+              </span>
+            ) : null}
+            <ContestStatusBadge status={contest.status} />
+          </div>
         </div>
 
         <h2 className="cc-featured-title">{contest.title}</h2>
         {contest.subtitle ? <p className="cc-featured-subtitle">{contest.subtitle}</p> : null}
 
-        <div className="cc-featured-countdown" role="timer" aria-live="polite">
-          <span className="cc-featured-countdown-label">
-            {countdown.isLive ? "Live Now" : "Starts In"}
-          </span>
-          <span
-            className={[
-              "cc-featured-countdown-value",
-              countdown.isLive ? "cc-featured-countdown-live" : "",
-            ].join(" ")}
-          >
-            {contest.kickoffAt ? countdown.label : contest.durationLabel}
-          </span>
-        </div>
+        <ContestCountdown
+          kickoffAt={contest.kickoffAt}
+          status={contest.status}
+          fallbackLabel={contest.durationLabel}
+          className="cc-featured-countdown"
+        />
 
         <dl className="cc-featured-stats">
           <div>
@@ -61,27 +62,28 @@ export default function FeaturedContestCard({ contest }: { contest: ContestListi
           </div>
           <div>
             <dt>Prize Pool</dt>
-            <dd>{contest.prizePoolLabel ?? "Growing"}</dd>
+            <dd className="cc-stat-prize">{contest.prizePoolLabel ?? "Growing"}</dd>
           </div>
           <div>
-            <dt>Players Joined</dt>
+            <dt>Participants</dt>
             <dd>{joined > 0 ? joined.toLocaleString() : "Join early"}</dd>
           </div>
           {spotsLeft != null ? (
             <div>
-              <dt>Spots Left</dt>
+              <dt>Spots Remaining</dt>
               <dd>{spotsLeft.toLocaleString()}</dd>
             </div>
           ) : null}
         </dl>
 
         {fillPct > 0 ? (
-          <div className="cc-fill-wrap cc-featured-fill">
-            <div className="cc-fill-bar">
-              <span className="cc-fill-bar-fill" style={{ width: `${fillPct}%` }} />
-            </div>
-            <span className="cc-fill-label">{fillPct}% of contest filled</span>
-          </div>
+          <BoardFillProgress
+            fillPercent={fillPct}
+            totalSpots={contest.totalSpots ?? 100}
+            remainingSpots={contest.remainingSpots}
+            accent={contest.accent}
+            className="cc-featured-fill"
+          />
         ) : null}
 
         <ContestJoinButton

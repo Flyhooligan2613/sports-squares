@@ -35,12 +35,15 @@ export interface PlayerUpcomingGame {
 
 export interface PlayerRecentWin {
   id: string;
+  poolId: string;
+  sport: string;
   homeTeam: string;
   awayTeam: string;
   periodLabel: string;
   amount: number;
   payoutStatus: "pending" | "paid" | "unpaid";
   wonAt: string;
+  href: string;
 }
 
 export interface PlayerNotification {

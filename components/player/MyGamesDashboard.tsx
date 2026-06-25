@@ -143,7 +143,7 @@ export default function MyGamesDashboard() {
 
             <section>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-5">
-                Recent Wins
+                Competition History
               </h2>
               <RecentWinsTimeline wins={data.recentWins} />
             </section>

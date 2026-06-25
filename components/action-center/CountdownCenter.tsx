@@ -27,7 +27,7 @@ function CountdownRow({ game }: { game: CountdownGame }) {
       </div>
       <div className="text-right shrink-0">
         <p className="text-[10px] uppercase tracking-wider text-sb-muted">
-          {countdown.isLive ? "Status" : "Kickoff in"}
+          {countdown.isLive ? "Live Now" : "Game begins"}
         </p>
         <p
           className={[

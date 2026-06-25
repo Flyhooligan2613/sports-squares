@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import BoardFillProgress from "@/components/contest-center/BoardFillProgress";
 import SectionEmptyState from "@/components/ui/SectionEmptyState";
 import { Button } from "@/components/ui/Button";
 import type { FillingFastBoard } from "@/lib/actionCenter/types";
@@ -49,10 +50,12 @@ export default function BoardsFillingFast({ boards }: BoardsFillingFastProps) {
                   {board.fillPercent}%
                 </p>
               </div>
-              <div className="ac-fill-bar mb-3">
-                <span
-                  className="ac-fill-bar-fill"
-                  style={{ width: `${board.fillPercent}%` }}
+              <div className="ac-fill-bar mb-1">
+                <BoardFillProgress
+                  fillPercent={board.fillPercent}
+                  totalSpots={100}
+                  remainingSpots={board.squaresRemaining}
+                  compact
                 />
               </div>
               <p className="text-sm text-white font-semibold mb-3">

@@ -44,6 +44,13 @@ export const CONTEST_STATUS_LABELS: Record<ContestStatus, string> = {
   completed: "Contest Complete",
 };
 
+export const CONTEST_JOIN_COPY = {
+  successMessage: "You've successfully joined this contest.",
+  reviewTitle: "Review your entry",
+  chooseSquares: "Choose your squares",
+  confirmEntry: "Confirm entry",
+} as const;
+
 export const CONTEST_TERMS = {
   ...CONTEST_CTAS,
   ...CONTEST_CENTER,

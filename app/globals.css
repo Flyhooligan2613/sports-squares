@@ -987,6 +987,7 @@ html.sb-splash-pending body {
   background: rgba(91, 76, 247, 0.28);
   color: #e9d5ff;
   transform: scale(0.95);
+  animation: sbSquareSelect 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .sb-board-square-locked {
@@ -12623,6 +12624,270 @@ html.sb-splash-pending body {
   font-size: 0.6875rem;
   color: rgba(255, 255, 255, 0.45);
   margin-top: 0.35rem;
+}
+
+.cc-fill-wrap-compact .cc-fill-label {
+  display: none;
+}
+
+.cc-fill-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.cc-fill-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cc-fill-indicator {
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+
+.cc-fill-indicator-popular {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.28);
+}
+
+.cc-fill-indicator-nearly_full {
+  color: #fdba74;
+  background: rgba(249, 115, 22, 0.14);
+  border-color: rgba(249, 115, 22, 0.32);
+}
+
+.cc-fill-indicator-sold_out {
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.cc-fill-bar-animated {
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cc-contest-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+
+.cc-contest-sport {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cc-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #93c5fd;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.cc-live-badge-sm {
+  font-size: 0.5625rem;
+  padding: 0.15rem 0.45rem;
+}
+
+.cc-live-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #60a5fa;
+  flex-shrink: 0;
+  animation: ccLivePulse 1.8s ease-in-out infinite;
+}
+
+.cc-status-live-pulse .cc-live-dot {
+  margin-right: 0.15rem;
+}
+
+@keyframes ccLivePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+.cc-countdown {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cc-countdown-compact {
+  padding: 0.4rem 0.55rem;
+  margin-bottom: 0.5rem;
+}
+
+.cc-countdown-live {
+  border-color: rgba(59, 130, 246, 0.28);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.cc-countdown-phase {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.cc-countdown-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+
+.cc-countdown-live .cc-countdown-value {
+  color: #93c5fd;
+}
+
+.cc-contest-stats-primary {
+  margin-bottom: 0.5rem;
+}
+
+.cc-contest-stats-primary .cc-stat-primary dd {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.cc-stat-prize {
+  color: #fde68a;
+}
+
+.cc-contest-stats-secondary {
+  margin-bottom: 0.65rem;
+}
+
+.cc-contest-row-sport {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  margin-bottom: 0.1rem;
+}
+
+.cc-live-row-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  shrink: 0;
+}
+
+.cc-live-row-countdown {
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+.cc-featured-kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cc-featured-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.game-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.game-status-live {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.game-status-pregame {
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.28);
+}
+
+.game-status-final {
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.player-history-label {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  margin-bottom: 0.15rem;
+}
+
+.player-history-card {
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+@keyframes sbSquareSelect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(0.95);
+  }
 }
 
 .cc-join-btn {

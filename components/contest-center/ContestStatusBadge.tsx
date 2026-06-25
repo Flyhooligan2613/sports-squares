@@ -12,8 +12,14 @@ const STATUS_CLASS: Record<ContestStatus, string> = {
 };
 
 export default function ContestStatusBadge({ status }: { status: ContestStatus }) {
+  const isLive = status === "live";
+
   return (
-    <span className={`cc-status-badge ${STATUS_CLASS[status]}`} role="status">
+    <span
+      className={`cc-status-badge ${STATUS_CLASS[status]} ${isLive ? "cc-status-live-pulse" : ""}`}
+      role="status"
+    >
+      {isLive ? <span className="cc-live-dot" aria-hidden /> : null}
       {STATUS_LABELS[status]}
     </span>
   );

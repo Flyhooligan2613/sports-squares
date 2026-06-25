@@ -164,7 +164,7 @@ function Row({
             onClick={() => onSquareClick(square.id)}
             disabled={disabled}
             className={[
-              "sb-board-square relative aspect-square rounded-md text-[10px] font-bold border",
+              "sb-board-square relative aspect-square rounded-md text-[10px] font-bold border min-h-[44px] min-w-[44px]",
               isFeatured
                 ? "winner-square-glow border-amber-400 text-white z-10"
                 : isPastWinner
@@ -200,9 +200,15 @@ function Row({
                   : squareLabel
             }
             aria-label={
-              owner
-                ? `${owner.name}${displayNumber != null ? `, square ${displayNumber}` : ""}`
-                : squareLabel
+              isFeatured
+                ? `Winning square, ${owner?.name ?? "unclaimed"}${displayNumber != null ? `, square ${displayNumber}` : ""}`
+                : isSelected
+                  ? `Selected square ${displayNumber ?? square.id}, tap to deselect`
+                  : square.claimed && owner
+                    ? `Claimed by ${owner.name}${displayNumber != null ? `, square ${displayNumber}` : ""}`
+                    : locked
+                      ? `Square ${displayNumber ?? square.id}, board locked`
+                      : `Available square ${displayNumber ?? square.id}, tap to select`
             }
           >
             {isFeatured && (

@@ -1,12 +1,21 @@
 import Link from "next/link";
-import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AliveEmptyState from "@/components/alive/AliveEmptyState";
+import ContestCountdown from "@/components/contest-center/ContestCountdown";
+import ContestStatusBadge from "@/components/contest-center/ContestStatusBadge";
 import { ContestJoinLabel } from "@/components/contest-center/ContestJoinButton";
 import { rememberContestJoin } from "@/lib/contestCenter/buildViewModel";
 import { CONTEST_CENTER, contestSpotsLeft } from "@/lib/platform/language";
+import { EMPTY_STATE } from "@/lib/platform/language/emptyStateLanguage";
 
 export default function ContestEmptyState() {
-  return <AliveEmptyState context="contest_center" emoji="🏆" />;
+  return (
+    <AliveEmptyState
+      context="contest_center"
+      emoji="🏆"
+      title={EMPTY_STATE.noContests.title}
+      body={EMPTY_STATE.noContests.body}
+    />
+  );
 }
 
 export function LiveContestsSection({
@@ -41,7 +50,7 @@ export function LiveContestsSection({
                 <Link
                   key={contest.id}
                   href={contest.href}
-                  className="cc-live-row"
+                  className="cc-live-row sb-card-lift"
                   onClick={() => rememberContestJoin(contest.id)}
                 >
                   <span className="cc-live-emoji" aria-hidden>
@@ -51,20 +60,40 @@ export function LiveContestsSection({
                     <p className="cc-live-row-title">{contest.title}</p>
                     <p className="cc-live-row-meta">
                       {[
-                        contest.gameTimeLabel,
                         contest.entryFeeLabel,
                         contest.prizePoolLabel,
                         contest.remainingSpots != null
                           ? contestSpotsLeft(contest.remainingSpots)
                           : null,
+                        contest.playersJoined != null
+                          ? `${contest.playersJoined.toLocaleString()} players`
+                          : null,
                       ]
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
+                    {contest.kickoffAt ? (
+                      <ContestCountdown
+                        kickoffAt={contest.kickoffAt}
+                        status={contest.status}
+                        compact
+                        className="cc-live-row-countdown"
+                      />
+                    ) : null}
                   </div>
-                  <span className="cc-live-join">
-                    <ContestJoinLabel contest={contest} />
-                  </span>
+                  <div className="cc-live-row-aside">
+                    {contest.status === "live" ? (
+                      <span className="cc-live-badge cc-live-badge-sm" role="status">
+                        <span className="cc-live-dot" aria-hidden />
+                        Live
+                      </span>
+                    ) : (
+                      <ContestStatusBadge status={contest.status} />
+                    )}
+                    <span className="cc-live-join">
+                      <ContestJoinLabel contest={contest} />
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>

@@ -13,6 +13,7 @@ import QuickJoinBanner, {
 } from "@/components/contest-center/QuickJoinBanner";
 import PrivateContestsSection from "@/components/contest-center/PrivateContestsSection";
 import { LiveContestsSection } from "@/components/contest-center/ContestEmptyState";
+import DeferredMount from "@/components/ui/DeferredMount";
 import GenesisVisitTracker from "@/components/genesis/GenesisVisitTracker";
 import AmbientBackground from "@/components/ui/AmbientBackground";
 import ExperiencePageSkeleton from "@/components/ui/ExperiencePageSkeleton";
@@ -203,11 +204,17 @@ export default function ContestCenterExperience() {
 
               <TrendingSection contests={viewModel.trendingContests} />
 
-              <FriendsPlayingSection items={viewModel.friendsActivity} />
+              <DeferredMount>
+                <FriendsPlayingSection items={viewModel.friendsActivity} />
+              </DeferredMount>
 
-              <RecommendationsSection contests={viewModel.recommendations} />
+              <DeferredMount>
+                <RecommendationsSection contests={viewModel.recommendations} />
+              </DeferredMount>
 
-              <PrivateContestsSection />
+              <DeferredMount>
+                <PrivateContestsSection />
+              </DeferredMount>
 
               <p className="text-center text-xs text-sb-muted">
                 Updated {new Date(viewModel.updatedAt).toLocaleTimeString()} · Refreshes

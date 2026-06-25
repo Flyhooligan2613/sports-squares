@@ -7,8 +7,8 @@ import { CONTEST_CTAS } from "@/lib/platform/language/contestLanguage";
 
 export const EMPTY_STATE = {
   noContests: {
-    title: "No contests are available right now.",
-    body: "The arena is gearing up. Explore upcoming sports, check the Daily Story, or connect with the community while the next contest opens.",
+    title: "No live contests right now.",
+    body: "New contests are added regularly. Enable notifications so you never miss kickoff.",
     ctaBrowse: CONTEST_CTAS.browseLiveContests,
     ctaCommunity: "Community",
     ctaDailyStory: "Daily Story",
