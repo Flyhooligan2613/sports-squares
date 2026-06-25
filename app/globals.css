@@ -13642,9 +13642,14 @@ html.sb-splash-pending body {
   margin: 0 auto 0.85rem;
   width: auto;
   height: auto;
-  max-width: 148px;
+  max-width: 240px;
   object-fit: contain;
   mix-blend-mode: screen;
+}
+
+.landing-corporate-wordmark-image--compact {
+  max-width: 160px;
+  margin-bottom: 0;
 }
 
 .landing-corporate-logo {
@@ -13685,7 +13690,11 @@ html.sb-splash-pending body {
 }
 
 .landing-corporate-seal--compact .landing-corporate-wordmark-image {
-  max-width: 120px;
+  max-width: 160px;
+  margin-bottom: 0.65rem;
+}
+
+.landing-corporate-seal--wordmark .landing-corporate-wordmark-image {
   margin-bottom: 0.65rem;
 }
 
@@ -14159,14 +14168,8 @@ html.sb-splash-pending body {
   }
 }
 
-.landing-footer-corporate-logo {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 72px;
-  object-fit: contain;
-  border-radius: 0.5rem;
-  mix-blend-mode: screen;
+.landing-footer-corporate-block .landing-corporate-wordmark-image--compact {
+  margin-bottom: 0;
 }
 
 .landing-footer-brand-row {

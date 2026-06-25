@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { AltivoraLabsLogoMark } from "@/components/brand/AltivoraCorporateSeal";
+import { AltivoraLabsHorizontalBrand } from "@/components/brand/AltivoraCorporateSeal";
 import Logo from "@/components/Logo";
 import StaffPortalLink from "@/components/StaffPortalLink";
 
@@ -69,13 +69,8 @@ export default function Footer({ landing = false }: { landing?: boolean }) {
               <p className="text-xs font-semibold uppercase tracking-wider text-white mb-3">
                 Corporate
               </p>
-              <AltivoraLabsLogoMark
-                size={72}
-                className="landing-footer-corporate-logo mb-3"
-              />
-              <p className="text-sm font-semibold text-white mb-1">ALTIVORA LABS LLC</p>
-              <p className="text-sm text-sb-muted mb-2">Engineering Trust Through Software</p>
-              <p className="text-xs text-sb-muted">Established 2026 · Florida, USA</p>
+              <AltivoraLabsHorizontalBrand compact />
+              <p className="text-xs text-sb-muted mt-2">Established 2026 · Florida, USA</p>
               <a
                 href="mailto:support@squareboards.pro"
                 className="landing-footer-email mt-4 inline-flex items-center gap-2 text-sm text-sb-muted hover:text-white transition-colors duration-[280ms]"

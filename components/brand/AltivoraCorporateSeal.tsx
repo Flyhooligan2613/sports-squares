@@ -1,12 +1,11 @@
-export const ALTIVORA_LABS_LOGO = "/brand/altivora-labs-logo.png?v=2";
-/** Drop a horizontal PNG/SVG at public/brand/altivora-labs-wordmark.png to replace the mark + text row. */
-export const ALTIVORA_LABS_WORDMARK = "/brand/altivora-labs-wordmark.png?v=2";
+export const ALTIVORA_LABS_LOGO = "/brand/altivora-labs-logo.png?v=3";
+export const ALTIVORA_LABS_WORDMARK = "/brand/altivora-labs-wordmark.png?v=3";
 
 const LOGO_SIZE = {
   default: 64,
   compact: 52,
-  wordmarkWidth: 148,
-  wordmarkCompactWidth: 120,
+  wordmarkWidth: 240,
+  wordmarkCompactWidth: 160,
 } as const;
 
 type AltivoraLabsLogoMarkProps = {
@@ -40,7 +39,7 @@ type AltivoraLabsHorizontalBrandProps = {
 
 export function AltivoraLabsHorizontalBrand({
   compact = false,
-  useWordmarkImage = false,
+  useWordmarkImage = true,
 }: AltivoraLabsHorizontalBrandProps) {
   const markSize = compact ? LOGO_SIZE.compact : LOGO_SIZE.default;
   const wordmarkWidth = compact
@@ -52,10 +51,14 @@ export function AltivoraLabsHorizontalBrand({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={ALTIVORA_LABS_WORDMARK}
-        alt="ALTIVORA LABS"
+        alt="ALTIVORA LABS — Engineering Trust Through Software"
         width={wordmarkWidth}
-        height={Math.round(wordmarkWidth * 0.28)}
-        className="landing-corporate-wordmark-image"
+        className={[
+          "landing-corporate-wordmark-image",
+          compact ? "landing-corporate-wordmark-image--compact" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         decoding="async"
       />
     );
@@ -78,20 +81,21 @@ export function AltivoraLabsHorizontalBrand({
 type AltivoraCorporateSealProps = {
   compact?: boolean;
   className?: string;
-  /** Set true after adding public/brand/altivora-labs-wordmark.png */
+  /** Official horizontal wordmark at public/brand/altivora-labs-wordmark.png */
   useWordmarkImage?: boolean;
 };
 
 export default function AltivoraCorporateSeal({
   compact = false,
   className = "",
-  useWordmarkImage = false,
+  useWordmarkImage = true,
 }: AltivoraCorporateSealProps) {
   return (
     <div
       className={[
         "landing-corporate-seal",
         compact ? "landing-corporate-seal--compact" : "",
+        useWordmarkImage ? "landing-corporate-seal--wordmark" : "",
         className,
       ]
         .filter(Boolean)
@@ -102,7 +106,9 @@ export default function AltivoraCorporateSeal({
         compact={compact}
         useWordmarkImage={useWordmarkImage}
       />
-      <p className="landing-corporate-tagline">Engineering Trust Through Software</p>
+      {!useWordmarkImage ? (
+        <p className="landing-corporate-tagline">Engineering Trust Through Software</p>
+      ) : null}
       <p className="landing-corporate-meta">Established 2026 • Florida, USA</p>
     </div>
   );
