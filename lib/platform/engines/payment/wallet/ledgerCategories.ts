@@ -98,6 +98,13 @@ export const WALLET_HISTORY_TABS: Array<{
   emptyBody: string;
 }> = [
   {
+    id: "all",
+    label: "All",
+    emptyTitle: "No transactions yet",
+    emptyBody:
+      "Your transaction history will appear here after your first deposit or withdrawal.",
+  },
+  {
     id: "deposits",
     label: "Deposits",
     emptyTitle: "No deposits yet",

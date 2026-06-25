@@ -11,6 +11,9 @@ export { default as SmartWalletRecommendations } from "./SmartWalletRecommendati
 export { default as PostWinOptionsModal } from "./PostWinOptionsModal";
 export { default as WinningsCelebrationModal } from "./WinningsCelebrationModal";
 export { default as DepositSuccessAnimation } from "./DepositSuccessAnimation";
+export { default as TransactionDetailModal } from "./TransactionDetailModal";
+export { default as WalletTrustSignals } from "./WalletTrustSignals";
+export { default as WithdrawalStatusTimeline } from "./WithdrawalStatusTimeline";
 export {
   default as SquareWalletWinExperience,
 } from "./SquareWalletWinExperience";

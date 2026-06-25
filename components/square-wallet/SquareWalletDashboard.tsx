@@ -18,6 +18,8 @@ import SmartWalletInsights from "@/components/alive/SmartWalletInsights";
 import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import type { SmartWalletInsight } from "@/lib/platform/alive/types";
 import DepositSuccessAnimation from "./DepositSuccessAnimation";
+import WalletTrustSignals from "./WalletTrustSignals";
+import { WALLET_COPY } from "@/lib/platform/language/walletLanguage";
 
 const WALLET_FETCH_TIMEOUT_MS = 2500;
 
@@ -95,6 +97,7 @@ function parseTab(value: string | null): WalletTab {
 
 function parseHistoryCategory(value: string | null): WalletHistoryCategory {
   if (
+    value === "all" ||
     value === "deposits" ||
     value === "withdrawals" ||
     value === "contest_bets" ||
@@ -103,7 +106,7 @@ function parseHistoryCategory(value: string | null): WalletHistoryCategory {
   ) {
     return value;
   }
-  return "deposits";
+  return "all";
 }
 
 export default function SquareWalletDashboard() {
@@ -113,7 +116,7 @@ export default function SquareWalletDashboard() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<WalletTab>("overview");
-  const [historyCategory, setHistoryCategory] = useState<WalletHistoryCategory>("deposits");
+  const [historyCategory, setHistoryCategory] = useState<WalletHistoryCategory>("all");
   const [suggestedDeposit, setSuggestedDeposit] = useState<number | undefined>();
 
   const loadRecommendations = useCallback(async () => {
@@ -277,6 +280,7 @@ export default function SquareWalletDashboard() {
           <WalletCreditBreakdown
             balances={dashboard.balances}
             withdrawableCents={dashboard.withdrawableCents}
+            lastUpdated={dashboard.wallet.updatedAt}
           />
 
           {dashboard.balances.available +
@@ -286,7 +290,11 @@ export default function SquareWalletDashboard() {
             dashboard.balances.promotional +
             dashboard.balances.referral ===
           0 ? (
-            <AliveEmptyState context="wallet_zero" emoji="💳" />
+            <AliveEmptyState
+              context="wallet_zero"
+              emoji="💳"
+              body={WALLET_COPY.zeroBalance}
+            />
           ) : null}
 
           <div className="grid lg:grid-cols-3 gap-3">
@@ -331,6 +339,8 @@ export default function SquareWalletDashboard() {
       ) : null}
 
       {tab === "history" ? <WalletHistoryTabs initialCategory={historyCategory} /> : null}
+
+      <WalletTrustSignals className="pt-2" />
     </div>
   );
 }

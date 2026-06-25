@@ -121,6 +121,8 @@ export interface ContestFundingResult {
 export interface WithdrawalRequestResult {
   ok: boolean;
   pendingReview?: boolean;
+  reviewReason?: "rapid_deposit_withdraw" | "large_withdrawal" | "kyc_pending";
+  holdUntil?: string;
   ledgerEntryId?: string;
   paymentTransactionId?: string;
   error?: string;

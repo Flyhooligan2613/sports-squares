@@ -124,7 +124,13 @@ export async function requestWithdrawal(input: {
           : "withdrawal_review_required",
       auditDetail,
     });
-    return { ok: true, pendingReview: true, ledgerEntryId: debitEntry.id };
+    return {
+      ok: true,
+      pendingReview: true,
+      reviewReason: review.reason,
+      holdUntil: holdUntil.toISOString(),
+      ledgerEntryId: debitEntry.id,
+    };
   }
 
   return processWithdrawalPayout({

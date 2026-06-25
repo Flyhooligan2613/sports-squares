@@ -5,6 +5,8 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { AliveExperienceBridge } from "@/lib/platform/alive/experienceIntegration";
 import MicroCelebration from "@/components/alive/MicroCelebration";
+import { WALLET_COPY } from "@/lib/platform/language/walletLanguage";
+import WalletTrustSignals from "./WalletTrustSignals";
 
 export default function DepositSuccessAnimation() {
   const [visible, setVisible] = useState(false);
@@ -26,17 +28,26 @@ export default function DepositSuccessAnimation() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <MicroCelebration trigger={celebrationTrigger} label="Funds added to SquareWallet™" />
-      <LandingGlassCard glow className="max-w-sm w-full p-8 text-center border border-emerald-400/30 animate-in fade-in zoom-in duration-300">
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deposit-success-title"
+    >
+      <MicroCelebration trigger={celebrationTrigger} label={WALLET_COPY.depositSuccess} />
+      <LandingGlassCard
+        glow
+        className="max-w-sm w-full p-8 text-center border border-emerald-400/30 animate-in fade-in zoom-in duration-300"
+      >
         <p className="text-5xl mb-3" aria-hidden>
           ✨
         </p>
-        <h2 className="text-xl font-bold text-white mb-2">Funds Added</h2>
-        <p className="text-sm text-sb-muted mb-6">
-          Your SquareWallet™ is funded — you&apos;re ready to join the next contest.
-        </p>
-        <Button onClick={() => setVisible(false)} className="w-full">
+        <h2 id="deposit-success-title" className="text-xl font-bold text-white mb-2">
+          {WALLET_COPY.depositSuccess}
+        </h2>
+        <p className="text-sm text-sb-muted mb-6">{WALLET_COPY.depositSuccessBody}</p>
+        <WalletTrustSignals className="mb-6" />
+        <Button onClick={() => setVisible(false)} className="w-full min-h-[44px]">
           Continue
         </Button>
       </LandingGlassCard>

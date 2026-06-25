@@ -213,7 +213,7 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   },
   wallet_zero: {
     title: "No funds yet",
-    body: "Deposit securely to join your first contest.",
+    body: "Add funds securely to join your first contest.",
   },
   no_games: {
     title: EMPTY_STATE.noGamesAvailable.title,

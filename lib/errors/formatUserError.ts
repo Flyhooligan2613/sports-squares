@@ -8,6 +8,9 @@ export type UserErrorContext =
   | "create"
   | "share"
   | "redeem"
+  | "wallet"
+  | "deposit"
+  | "withdraw"
   | "generic";
 
 const MESSAGES: Record<UserErrorContext, string> = {
@@ -18,6 +21,9 @@ const MESSAGES: Record<UserErrorContext, string> = {
   create: "We couldn't create this. Check your details and try again.",
   share: "Couldn't share to the Huddle. Try again in a moment.",
   redeem: "This code couldn't be redeemed. Check the code and try again.",
+  wallet: "We couldn't load your SquareWallet right now. Refresh or try again shortly.",
+  deposit: "Your deposit couldn't be started. Check your payment method and try again.",
+  withdraw: "Your withdrawal couldn't be processed. Check your balance and cash-out account.",
   generic: "Something went wrong. Please try again.",
 };
 
@@ -90,7 +96,15 @@ function mapKnownMessage(message: string, context: UserErrorContext): string | n
   }
 
   if (lower.includes("insufficient") || lower.includes("not enough")) {
-    return "Insufficient SquareWallet balance. Add funds and try again.";
+    return context === "withdraw"
+      ? "Insufficient withdrawable balance for this amount."
+      : "Insufficient SquareWallet balance. Add funds and try again.";
+  }
+
+  if (lower.includes("stripe") || lower.includes("payment_intent") || lower.includes("card_declined")) {
+    return context === "deposit"
+      ? "Your card couldn't be charged. Try a different payment method."
+      : MESSAGES[context];
   }
 
   if (lower.includes("suspended")) {
@@ -116,15 +130,22 @@ function mapKnownMessage(message: string, context: UserErrorContext): string | n
 export function formatUserError(err: unknown, context: UserErrorContext = "generic"): string {
   const fallback = MESSAGES[context];
 
-  if (!(err instanceof Error) || !err.message.trim()) {
+  const message =
+    typeof err === "string"
+      ? err.trim()
+      : err instanceof Error
+        ? err.message.trim()
+        : "";
+
+  if (!message) {
     return fallback;
   }
 
-  const mapped = mapKnownMessage(err.message, context);
+  const mapped = mapKnownMessage(message, context);
   if (mapped) return mapped;
 
-  if (!isTechnicalMessage(err.message) && err.message.length <= 120) {
-    return err.message;
+  if (!isTechnicalMessage(message) && message.length <= 120) {
+    return message;
   }
 
   return fallback;
