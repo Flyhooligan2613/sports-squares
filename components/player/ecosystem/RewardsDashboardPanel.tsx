@@ -25,6 +25,7 @@ import {
   getTierDisplayName,
 } from "@/lib/platform/language/rewardsLanguage";
 import { getTierVisual } from "@/lib/platform/ecosystem/tierVisuals";
+import { formatUserError } from "@/lib/errors/formatUserError";
 
 export default function RewardsDashboardPanel() {
   const { data, loading, error, refresh } = useRewardsCenter();
@@ -110,7 +111,9 @@ export default function RewardsDashboardPanel() {
     return (
       <LandingGlassCard className="p-8 text-center">
         <p className="text-white font-semibold mb-2">Couldn&apos;t load rewards</p>
-        <p className="text-sm text-sb-muted mb-6">{error ?? "Something went wrong."}</p>
+        <p className="text-sm text-sb-muted mb-6">
+          {error ?? formatUserError(null, "load")}
+        </p>
         <Button variant="secondary" size="sm" onClick={() => void refresh()}>
           Try again
         </Button>

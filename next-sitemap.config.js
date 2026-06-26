@@ -11,6 +11,23 @@ const STATIC_PATHS = [
   "/responsible-gaming",
   "/terms",
   "/privacy",
+  "/transparency",
+  "/contest-center",
+];
+
+const TRUST_SLUGS = [
+  "terms-of-service",
+  "privacy-policy",
+  "refund-policy",
+  "cookie-policy",
+  "official-contest-rules",
+  "responsible-competition",
+  "fair-play-policy",
+  "identity-verification",
+  "fraud-prevention",
+  "security",
+  "community-guidelines",
+  "contact-support",
 ];
 
 module.exports = {
@@ -37,6 +54,13 @@ module.exports = {
       lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
     }));
 
+    const trustEntries = TRUST_SLUGS.map((slug) => ({
+      loc: `/trust/${slug}`,
+      changefreq: "monthly",
+      priority: 0.6,
+      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
+    }));
+
     const slugs = await getPublicProfileSlugs();
     const profileEntries = slugs.map((slug) => ({
       loc: `/profile/${encodeURIComponent(slug)}`,
@@ -45,6 +69,6 @@ module.exports = {
       lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
     }));
 
-    return [...staticEntries, ...profileEntries];
+    return [...staticEntries, ...trustEntries, ...profileEntries];
   },
 };

@@ -118,7 +118,7 @@ function HubContent() {
 
         {authRequired && (
           <p className="text-center text-sm text-sb-muted mt-4">
-            <Link href="/auth/login" className="text-sb-glow hover:text-white">
+            <Link href="/my-games/login" className="text-sb-glow hover:text-white">
               Sign in
             </Link>{" "}
             to join the tournament.

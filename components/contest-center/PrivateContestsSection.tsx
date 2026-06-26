@@ -9,6 +9,7 @@ import Alert from "@/components/ui/Alert";
 import { Input } from "@/components/ui/Input";
 import { FEATURED_CTA_LABELS } from "@/lib/contestCenter/cta";
 import { normalizePoolCode, parseJoinInput } from "@/lib/landing/join";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { poolStore } from "@/lib/poolStore";
 
 const PRIVATE_LINKS = [
@@ -55,8 +56,8 @@ export default function PrivateContestsSection() {
       }
 
       router.push(`/pool/${match.id}`);
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      setError(formatUserError(err, "join"));
     } finally {
       setLoading(false);
     }

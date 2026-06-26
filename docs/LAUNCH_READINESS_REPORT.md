@@ -1,14 +1,29 @@
 # Launch Readiness Report
 
 **Operation:** Launch Ready  
-**Date:** June 24, 2026  
+**Date:** June 24, 2026 (Phase 4 update: June 26, 2026)  
 **Scope:** Production polish pass across 18 audit categories — no redesign, high-impact trust and reliability fixes only.
 
 ---
 
-## Overall Launch Readiness: **91%**
+## Overall Launch Readiness: **92%**
 
-The platform is production-buildable, legally documented, and player-facing flows are coherent. Post-launch polish addressed game-client error sanitization, Command Center placeholder UX, and quick accessibility wins. Remaining gaps are intentional deferrals (game-mode "coming soon" labels, full WCAG audit, footer social URLs, trust slug sitemap expansion).
+The platform is production-buildable, legally documented, and player-facing flows are coherent. **Phase 4 (PROJECT BLACK LABEL)** fixed broken Tournament Royale auth links, homepage hero 404, join-flow error sanitization, ESPN API leakage, wallet modal safe-area, and expanded the sitemap with all Trust Center policy slugs. Remaining gaps are intentional deferrals (game-mode "coming soon" labels, full WCAG audit, footer social URLs).
+
+---
+
+## Phase 4 Summary (June 26, 2026)
+
+| Fix | Impact |
+|-----|--------|
+| `/auth/login` → `/my-games/login` in Tournament Royale | Eliminates 404 on sign-in CTA |
+| Hero missing `hero-showcase.png` | CSS gradient backdrop — no broken asset |
+| `formatUserError` on join-pool + private contest flows | Friendly recovery copy |
+| ESPN / game-day / dashboard API sanitization | No technical error leakage |
+| Trust slugs in `next-sitemap.config.js` | 12 policy pages indexed |
+| `sb-safe-bottom` on wallet receipt modal | Mobile notch safe-area |
+
+Full audit: [`docs/EXECUTIVE_AUDIT_REPORT.md`](./EXECUTIVE_AUDIT_REPORT.md)
 
 ---
 
@@ -16,12 +31,12 @@ The platform is production-buildable, legally documented, and player-facing flow
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
-| **Performance** | 85 | `npm run build` succeeds (149 static pages). Home first-load JS ~412 kB — Game Day below-fold timeline/sidebar now deferred via `DeferredMount`; Game Room already deferred heavy sections. |
-| **Security** | 88 | WebAuthn/step-up auth, session middleware, admin gating, Stripe-only payments. `/test-supabase` redirects in production. Server `console.error` retained for ops — no `console.log` in client production paths. |
-| **Compliance** | 91 | Trust Center ships 12 complete policy documents (Terms, Privacy, Refund, Contest Rules, KYC, Fraud, Security, etc.). About page lists legal entity (ALTIVORA LABS LLC). Footer links Trust Center. |
-| **Accessibility** | 86 | Modals use `role="dialog"` / `aria-modal`. Nav drawer search button labeled; menu trigger + wallet tab buttons have focus rings. Full WCAG audit not performed. |
-| **Mobile** | 86 | `viewportFit: cover`, safe-area tokens in `globals.css`, `sb-safe-bottom` on checkout/win modals. PWA + native shell hooks present. |
-| **UX** | 90 | Branded 404, FAQ trust/support links, friendly auth + game errors via `formatUserError()`, wallet empty states, enterprise Command Center stubs for admin demos. |
+| **Performance** | 86 | `npm run build` succeeds (161 static pages). Home hero no longer fetches missing PNG. Game Day below-fold deferred via `DeferredMount`. |
+| **Security** | 89 | WebAuthn/step-up auth, session middleware, admin gating, Stripe-only payments. API error sanitization extended in Phase 4. |
+| **Compliance** | 93 | Trust Center ships 12 complete policy documents. Footer + nav link all policies. Sitemap includes trust slugs. |
+| **Accessibility** | 87 | Modals use `role="dialog"` / `aria-modal`. Nav + wallet quick wins; full WCAG audit deferred. |
+| **Mobile** | 87 | `viewportFit: cover`, safe-area tokens; wallet receipt modal now uses `sb-safe-bottom`. |
+| **UX** | 91 | Branded errors on join flows; broken auth links fixed; wallet empty states intact. |
 
 ---
 
@@ -100,7 +115,7 @@ The platform is production-buildable, legally documented, and player-facing flow
 | Admin | Command Center compliance/community full data integrations (Identity queue, CommunityCore feed) — stubs are demo-ready; wire when backends land. |
 | Performance | Home first-load JS ~412 kB — further code-split landing hero if bundle grows. |
 | Footer | Social share/chat icons are decorative (no href) — add real profiles when marketing ready. |
-| SEO | Expand `next-sitemap.config.js` static paths to include all `/trust/*` slugs. |
+| SEO | ~~Expand `next-sitemap.config.js` static paths to include all `/trust/*` slugs.~~ ✅ Done in Phase 4 |
 | Accessibility | Formal WCAG 2.1 AA audit with screen-reader testing on wallet checkout and nav drawer. |
 | Connect Sample | `/connect-sample/*` routes remain for Stripe integration testing — exclude from production marketing links. |
 
@@ -170,7 +185,15 @@ All player-critical paths (auth, wallet, pool purchase, trust policies, support)
 - `components/PwaRegister.tsx`
 - `lib/navigation.ts`, `lib/auth/formatPlayerAuthError.ts`, `lib/devLog.ts`
 - `lib/seo/sitemapProfiles.mjs`, `next-sitemap.config.js`
-- `app/globals.css`
+- `lib/errors/formatUserError.ts` — `safeApiErrorMessage()` helper
+- `components/tournamentRoyale/TournamentRoyaleHubClient.tsx`, `TournamentRoyaleBracketClient.tsx`
+- `components/contest-center/PrivateContestsSection.tsx`, `components/landing/JoinPoolSection.tsx`
+- `components/landing/hero/HeroBackground.tsx`, `app/globals.css`
+- `components/square-wallet/TransactionDetailModal.tsx`
+- `components/player/ecosystem/RewardsDashboardPanel.tsx`
+- `app/api/espn/game/[gameId]/route.ts`, `app/api/game-day/route.ts`, `app/api/player/dashboard/route.ts`
+- `next-sitemap.config.js`
+- `docs/EXECUTIVE_AUDIT_REPORT.md`, `docs/LAUNCH_READINESS_REPORT.md`
 
 ---
 

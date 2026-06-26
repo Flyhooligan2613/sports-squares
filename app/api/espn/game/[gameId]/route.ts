@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { parseEspnSummary } from "@/lib/espn/parser";
 import { getEspnSportConfig, normalizeEspnSport } from "@/lib/espn/sports";
 import type { EspnSport } from "@/lib/types";
@@ -24,8 +25,8 @@ export async function GET(
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: `ESPN returned HTTP ${response.status}` },
-        { status: response.status }
+        { error: "Live game data is temporarily unavailable." },
+        { status: response.status >= 500 ? 503 : 404 }
       );
     }
 
@@ -42,10 +43,7 @@ export async function GET(
     return NextResponse.json({ game, sport });
   } catch (err) {
     return NextResponse.json(
-      {
-        error:
-          err instanceof Error ? err.message : "Failed to fetch ESPN game data",
-      },
+      { error: formatUserError(err, "load") },
       { status: 500 }
     );
   }

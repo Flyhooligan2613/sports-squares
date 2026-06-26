@@ -1339,9 +1339,18 @@ html.sb-splash-pending body {
   isolation: isolate;
 }
 
-/* Hero — cropped showcase art (scoreboard + board + stadium only) */
+/* Hero — ambient gradient backdrop (replaces missing showcase asset) */
 .hero-showcase-bg {
   min-height: calc(100dvh - 3.5rem);
+}
+
+.hero-showcase-gradient {
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 100%, rgba(99, 102, 241, 0.18) 0%, transparent 72%),
+    radial-gradient(ellipse 55% 45% at 85% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 35% at 12% 25%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+    var(--sb-bg);
 }
 
 .hero-showcase-image {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { createClient } from "@/lib/supabase/server";
 import { getGameDayHubData } from "@/lib/database/services/gameDayHub";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -32,7 +33,7 @@ export async function GET() {
   } catch (err) {
     console.error("[game-day]", err);
     return NextResponse.json(
-      { error: "Failed to load Game Day Hub" },
+      { error: formatUserError(err, "load") },
       { status: 500 }
     );
   }

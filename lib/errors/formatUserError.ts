@@ -150,3 +150,11 @@ export function formatUserError(err: unknown, context: UserErrorContext = "gener
 
   return fallback;
 }
+
+/** Sanitize caught errors for JSON API responses — never leak stack traces or DB internals. */
+export function safeApiErrorMessage(
+  err: unknown,
+  context: UserErrorContext = "generic"
+): string {
+  return formatUserError(err, context);
+}

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatUserError } from "@/lib/errors/formatUserError";
 import { createClient } from "@/lib/supabase/server";
 import { getPlayerDashboard } from "@/lib/database/services/playerDashboard";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -27,7 +28,7 @@ export async function GET() {
   } catch (err) {
     console.error("[player/dashboard]", err);
     return NextResponse.json(
-      { error: "Failed to load dashboard" },
+      { error: formatUserError(err, "load") },
       { status: 500 }
     );
   }

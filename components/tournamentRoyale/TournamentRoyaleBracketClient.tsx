@@ -185,7 +185,7 @@ function BracketContent() {
           <p className="text-center text-red-400 text-sm mt-4" role="alert">
             {error}{" "}
             {error.includes("Sign in") && (
-              <Link href="/auth/login" className="text-sb-glow underline">
+              <Link href="/my-games/login" className="text-sb-glow underline">
                 Sign in
               </Link>
             )}

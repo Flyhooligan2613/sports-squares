@@ -54,7 +54,7 @@ export default function TransactionDetailModal({ entry, onClose }: TransactionDe
 
   return (
     <div
-      className="fixed inset-0 z-[95] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-sm"
+      className="fixed inset-0 z-[95] flex items-end sm:items-center justify-center p-0 sm:p-4 sb-safe-bottom bg-black/65 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="wallet-receipt-title"
