@@ -4,7 +4,7 @@ import { getEmailForPlayerSlug } from "@/lib/database/services/playerProfiles";
 import { getHuddlePlayerSummaries } from "@/lib/huddle/profiles";
 import { listPickPostsForEmail } from "@/lib/huddle/pickPosts";
 import { getPlayerWinHighlights } from "@/lib/huddle/winHighlights";
-import { isFollowing } from "@/lib/huddle/follows";
+import { isFollowing, listFollowingSet } from "@/lib/huddle/follows";
 import type { HuddlePickPost, HuddlePlayerSummary } from "@/lib/huddle/types";
 import type { ProfileWinHighlight } from "@/lib/huddle/winHighlights";
 import type { PlayerAchievement } from "@/lib/player/legacyTypes";
@@ -43,6 +43,7 @@ export interface PlayerSocialProfile {
   pickPosts: HuddlePickPost[];
   winHighlights: ProfileWinHighlight[];
   feed: ProfileFeedItem[];
+  mutualConnections: HuddlePlayerSummary[];
 }
 
 async function listFollowEmails(email: string, direction: "followers" | "following"): Promise<string[]> {
@@ -96,6 +97,12 @@ export async function getPlayerSocialProfile(
     .map((e) => relatedMap.get(normalizeEmail(e)))
     .filter((p): p is HuddlePlayerSummary => Boolean(p));
 
+  let mutualConnections: HuddlePlayerSummary[] = [];
+  if (viewer && viewer !== normalized) {
+    const viewerFollowing = await listFollowingSet(viewer);
+    mutualConnections = followers.filter((f) => viewerFollowing.has(f.email));
+  }
+
   const feed: ProfileFeedItem[] = [
     ...winHighlights.map((win) => ({
       type: "win" as const,
@@ -125,5 +132,6 @@ export async function getPlayerSocialProfile(
     pickPosts,
     winHighlights,
     feed,
+    mutualConnections,
   };
 }

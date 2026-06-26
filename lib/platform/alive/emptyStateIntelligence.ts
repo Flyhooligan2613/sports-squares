@@ -13,6 +13,8 @@ export type AliveEmptyContext =
   | "no_friends"
   | "no_contest_history"
   | "no_rewards_history"
+  | "no_profile_activity"
+  | "no_followers"
   | "generic";
 
 const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
@@ -178,6 +180,42 @@ const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
       emoji: "⭐",
     },
   ],
+  no_profile_activity: [
+    {
+      id: "join",
+      title: "Join your first contest",
+      body: "Your competition history will begin after your first contest.",
+      ctaLabel: CONTEST_CTAS.joinTheContest,
+      ctaHref: "/contest-center",
+      emoji: "🏆",
+    },
+    {
+      id: "leaderboards",
+      title: "See the competition",
+      body: "Browse global rankings and find competitors to follow.",
+      ctaLabel: "Rankings",
+      ctaHref: "/leaderboards",
+      emoji: "🏅",
+    },
+  ],
+  no_followers: [
+    {
+      id: "compete",
+      title: "Compete and build reputation",
+      body: "As you compete and build your reputation, other players can follow your journey.",
+      ctaLabel: CONTEST_CTAS.joinTheContest,
+      ctaHref: "/games/nfl",
+      emoji: "🏆",
+    },
+    {
+      id: "huddle",
+      title: "Share in The Huddle",
+      body: "Publish pick cards and wins to grow your following.",
+      ctaLabel: "The Huddle",
+      ctaHref: "/huddle",
+      emoji: "👥",
+    },
+  ],
   generic: [
     {
       id: "browse",
@@ -242,6 +280,14 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   no_rewards_history: {
     title: "No reward activity yet",
     body: "Compete in contests and open your Weekly Reward Drop to start earning.",
+  },
+  no_profile_activity: {
+    title: "Your competition timeline starts here",
+    body: "Your competition history will begin after your first contest.",
+  },
+  no_followers: {
+    title: "No followers yet",
+    body: "As you compete and build your reputation, other players can follow your journey.",
   },
   generic: {
     title: ALIVE_COPY.emptyStateHeading,

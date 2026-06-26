@@ -150,11 +150,12 @@ export async function getPublicPlayerProfile(
 
   return {
     slug: ensuredSlug,
+    username: huddleSummary?.username ?? null,
     displayName: legacy.publicLabel,
     memberSince: legacy.memberSince,
     headline: legacy.headline,
     stats: legacy.stats,
-    achievements: legacy.achievements.filter((a) => a.unlocked),
+    achievements: legacy.achievements,
     ranks,
     isOwner: normalizedViewer === email,
     avatarEmoji: huddleSummary?.avatarEmoji,

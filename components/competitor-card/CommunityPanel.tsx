@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import { COMPETITOR_CARD_COPY } from "@/lib/competitorCard/copy";
 import type { CommunityPanelData } from "@/lib/competitorCard/types";
-import GenesisEmptyState from "@/components/genesis/GenesisEmptyState";
+import { publicProfilePath } from "@/lib/player/slug";
 import { SectionCard } from "./shared";
 
 interface CommunityPanelProps {
@@ -30,22 +31,19 @@ export default function CommunityPanel({ community }: CommunityPanelProps) {
           </div>
         </dl>
         {community.featuredFollowers.length === 0 ? (
-          <GenesisEmptyState
+          <AliveEmptyState
+            context="no_followers"
             emoji="👥"
             title="Build your competitive network"
-            description="Follow competitors in The Huddle, share picks, and grow your follower count — community reputation boosts your Competitor Score."
-            actionLabel="Open The Huddle"
-            actionHref="/huddle"
-            context="community"
-            compact
+            body="As you compete and build your reputation, other players can follow your journey."
           />
         ) : (
           <ul className="space-y-2" role="list" aria-label="Featured followers">
             {community.featuredFollowers.map((follower) => (
               <li key={follower.slug}>
                 <Link
-                  href={`/player/${follower.slug}`}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5 transition-colors duration-300"
+                  href={publicProfilePath(follower.slug)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5 transition-colors duration-300 sb-card-lift min-h-[48px]"
                 >
                   <span className="text-xl" aria-hidden>
                     {follower.avatarEmoji}

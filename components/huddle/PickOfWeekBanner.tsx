@@ -4,6 +4,7 @@ import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { HuddlePickPost } from "@/lib/huddle/types";
+import { publicProfilePath } from "@/lib/player/slug";
 
 export default function PickOfWeekBanner({
   post,
@@ -29,7 +30,7 @@ export default function PickOfWeekBanner({
         <div className="flex items-center gap-3">
           <span className="text-4xl">{post.author.avatarEmoji}</span>
           <div>
-            <Link href={`/player/${post.author.slug}`} className="text-xl font-bold text-white hover:text-amber-200">
+            <Link href={publicProfilePath(post.author.slug)} className="text-xl font-bold text-white hover:text-amber-200">
               {post.author.username}
             </Link>
             <p className="text-sm text-sb-muted">
@@ -42,7 +43,7 @@ export default function PickOfWeekBanner({
           <Button className="player-btn-glow" onClick={() => void copyPicks()}>
             Copy Picks
           </Button>
-          <Link href={`/player/${post.author.slug}`}>
+          <Link href={publicProfilePath(post.author.slug)}>
             <Button variant="secondary">View Profile</Button>
           </Link>
         </div>

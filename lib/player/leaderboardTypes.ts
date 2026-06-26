@@ -7,6 +7,8 @@ export type LeaderboardTab =
 export interface LeaderboardEntry {
   rank: number;
   displayName: string;
+  slug?: string | null;
+  avatarEmoji?: string | null;
   value: number;
   valueLabel: string;
   isViewer: boolean;

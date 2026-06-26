@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import AppMenuBar from "@/components/nav/AppMenuBar";
 import AliveEmptyState from "@/components/alive/AliveEmptyState";
@@ -21,6 +22,7 @@ import {
   PLAYER_TERMS,
 } from "@/lib/platform/language";
 import { Crown, Medal, Trophy, Users } from "lucide-react";
+import { publicProfilePath } from "@/lib/player/slug";
 
 const TAB_ORDER: LeaderboardTab[] = [
   "all-time-winnings",
@@ -42,6 +44,67 @@ function RankIcon({ rank }: { rank: number }) {
   return null;
 }
 
+function LeaderboardRow({
+  entry,
+  boardId,
+  rankAccentClass,
+}: {
+  entry: LeaderboardBoard["entries"][number];
+  boardId: string;
+  rankAccentClass: string;
+}) {
+  const content = (
+    <>
+      <div className="w-10 shrink-0 flex items-center justify-center gap-1">
+        <RankIcon rank={entry.rank} />
+        <span className={`text-sm font-bold tabular-nums ${rankAccentClass}`}>
+          #{entry.rank}
+        </span>
+      </div>
+      {entry.avatarEmoji ? (
+        <span className="text-xl shrink-0" aria-hidden>
+          {entry.avatarEmoji}
+        </span>
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-white truncate">
+          {entry.displayName}
+          {entry.isViewer && (
+            <span className="ml-2 text-xs font-semibold uppercase tracking-wider text-sb-glow">
+              {PLAYER_TERMS.you}
+            </span>
+          )}
+        </p>
+      </div>
+      <p className="text-sm sm:text-base font-bold text-white tabular-nums shrink-0">
+        {entry.valueLabel}
+      </p>
+    </>
+  );
+
+  const rowClass = `lb-row flex items-center gap-4 px-4 sm:px-6 py-4 sb-card-lift ${
+    entry.isViewer ? "lb-row-viewer" : ""
+  }`;
+
+  if (entry.slug) {
+    return (
+      <Link
+        href={publicProfilePath(entry.slug)}
+        className={`${rowClass} hover:bg-white/[0.03] transition-colors`}
+        aria-label={`View ${entry.displayName} profile, rank ${entry.rank}`}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div key={`${boardId}-${entry.rank}-${entry.displayName}`} className={rowClass}>
+      {content}
+    </div>
+  );
+}
+
 function LeaderboardTable({ board }: { board: LeaderboardBoard }) {
   if (!board.entries.length) {
     return <AliveEmptyState context="no_leaderboard" emoji="🏅" />;
@@ -51,32 +114,12 @@ function LeaderboardTable({ board }: { board: LeaderboardBoard }) {
     <LandingGlassCard className="overflow-hidden">
       <div className="divide-y divide-white/5">
         {board.entries.map((entry) => (
-          <div
+          <LeaderboardRow
             key={`${board.id}-${entry.rank}-${entry.displayName}`}
-            className={`lb-row flex items-center gap-4 px-4 sm:px-6 py-4 ${
-              entry.isViewer ? "lb-row-viewer" : ""
-            }`}
-          >
-            <div className="w-10 shrink-0 flex items-center justify-center gap-1">
-              <RankIcon rank={entry.rank} />
-              <span className={`text-sm font-bold tabular-nums ${rankAccent(entry.rank)}`}>
-                #{entry.rank}
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold text-white truncate">
-                {entry.displayName}
-                {entry.isViewer && (
-                  <span className="ml-2 text-xs font-semibold uppercase tracking-wider text-sb-glow">
-                    {PLAYER_TERMS.you}
-                  </span>
-                )}
-              </p>
-            </div>
-            <p className="text-sm sm:text-base font-bold text-white tabular-nums shrink-0">
-              {entry.valueLabel}
-            </p>
-          </div>
+            entry={entry}
+            boardId={board.id}
+            rankAccentClass={rankAccent(entry.rank)}
+          />
         ))}
       </div>
     </LandingGlassCard>

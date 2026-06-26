@@ -46,8 +46,10 @@ function saveRecent(href: string) {
   }
 }
 
+import { publicProfilePath } from "@/lib/player/slug";
+
 function playerHref(slug: string) {
-  return `/player/${encodeURIComponent(slug)}`;
+  return publicProfilePath(slug);
 }
 
 function buildItems(

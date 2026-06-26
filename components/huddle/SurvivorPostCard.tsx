@@ -4,6 +4,7 @@ import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { CREATOR_LEVEL_LABELS, type HuddleSurvivorPost } from "@/lib/huddle/types";
 import { getTierVisual } from "@/lib/platform/ecosystem/tierVisuals";
+import { publicProfilePath } from "@/lib/player/slug";
 
 interface SurvivorPostCardProps {
   post: HuddleSurvivorPost;
@@ -29,7 +30,7 @@ export default function SurvivorPostCard({ post, onUpdate }: SurvivorPostCardPro
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <Link
-                href={`/player/${post.author.slug}`}
+                href={publicProfilePath(post.author.slug)}
                 className="font-semibold text-white hover:text-amber-300"
               >
                 {post.author.username}

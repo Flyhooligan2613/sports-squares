@@ -305,7 +305,7 @@ export async function buildCompetitorCard(
 
   const mergedAchievements = [
     ...genesisAchievements,
-    ...unlockedAchievements.filter((a) => !genesisAchievements.some((g) => g.id === a.id)),
+    ...legacy.achievements.filter((a) => !genesisAchievements.some((g) => g.id === a.id)),
   ];
 
   const card: CompetitorCardData = {

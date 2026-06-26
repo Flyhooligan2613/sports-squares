@@ -6,6 +6,7 @@ import AmbientBackground from "@/components/ui/AmbientBackground";
 import ProfileSocialView from "@/components/player/social/ProfileSocialView";
 import ProfileLegacySections from "@/components/player/ProfileLegacySections";
 import ProfileSettingsSection from "@/components/player/ProfileSettingsSection";
+import PlayerShareCard from "@/components/player/PlayerShareCard";
 import { Button } from "@/components/ui/Button";
 import type { PublicPlayerProfile } from "@/lib/player/publicProfileTypes";
 import { COMMUNITY_LABELS, PLAYER_TERMS } from "@/lib/platform/language";
@@ -22,9 +23,9 @@ export default function PublicPlayerView({
       <AppMenuBar />
       <main className="flex-1 relative overflow-hidden">
         <AmbientBackground />
-        <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <p className="text-[10px] uppercase tracking-[0.3em] text-purple-400/80 mb-6 text-center sm:text-left">
-            SquareBoards Player
+            SquareBoards Competitor Profile
           </p>
 
           {profile.isOwner ? (
@@ -40,6 +41,8 @@ export default function PublicPlayerView({
 
           <ProfileSocialView profile={profile} embedded={profile.isOwner} />
 
+          <PlayerShareCard profile={profile} className="mb-10" />
+
           <ProfileLegacySections profile={profile} />
 
           {profile.isOwner && ownerEmail ? (
@@ -48,21 +51,21 @@ export default function PublicPlayerView({
 
           <div className="mt-10 flex flex-wrap gap-3 justify-center border-t border-white/10 pt-8">
             <Link
-              href="/huddle"
-              className="text-sm text-purple-300 hover:text-purple-200 transition-colors duration-300"
-            >
-              👥 The Huddle
-            </Link>
-            <Link
               href="/leaderboards"
-              className="text-sm text-sb-muted hover:text-white transition-colors duration-300"
+              className="text-sm text-purple-300 hover:text-purple-200 transition-colors duration-300 min-h-[44px] inline-flex items-center"
             >
               {COMMUNITY_LABELS.competitionRankings}
             </Link>
+            <Link
+              href="/huddle"
+              className="text-sm text-sb-muted hover:text-white transition-colors duration-300 min-h-[44px] inline-flex items-center"
+            >
+              The Huddle
+            </Link>
             {!profile.isOwner ? (
               <Link
-                href="/games/nfl"
-                className="text-sm text-sb-muted hover:text-white transition-colors duration-300"
+                href="/contest-center"
+                className="text-sm text-sb-muted hover:text-white transition-colors duration-300 min-h-[44px] inline-flex items-center"
               >
                 Join the Contest
               </Link>

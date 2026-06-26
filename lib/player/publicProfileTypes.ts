@@ -1,5 +1,6 @@
 export interface PublicPlayerProfile {
   slug: string;
+  username?: string | null;
   displayName: string;
   memberSince: string;
   headline: string;

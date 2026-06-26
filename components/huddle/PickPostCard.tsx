@@ -6,6 +6,7 @@ import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { CREATOR_LEVEL_LABELS, type HuddlePickPost } from "@/lib/huddle/types";
 import { getTierVisual } from "@/lib/platform/ecosystem/tierVisuals";
+import { publicProfilePath } from "@/lib/player/slug";
 
 interface PickPostCardProps {
   post: HuddlePickPost;
@@ -63,7 +64,7 @@ export default function PickPostCard({ post, onUpdate }: PickPostCardProps) {
           <span className="text-3xl">{post.author.avatarEmoji}</span>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <Link href={`/player/${post.author.slug}`} className="font-semibold text-white hover:text-purple-300">
+              <Link href={publicProfilePath(post.author.slug)} className="font-semibold text-white hover:text-purple-300">
                 {post.author.username}
               </Link>
               {post.author.isVerified ? (

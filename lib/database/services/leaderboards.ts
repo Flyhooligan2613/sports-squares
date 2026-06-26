@@ -40,13 +40,22 @@ function buildBoard(
   id: LeaderboardTab,
   title: string,
   subtitle: string,
-  sorted: Array<{ email: string; displayName: string; value: number; valueLabel: string }>,
+  sorted: Array<{
+    email: string;
+    displayName: string;
+    slug?: string | null;
+    avatarEmoji?: string | null;
+    value: number;
+    valueLabel: string;
+  }>,
   viewerEmail: string | null | undefined
 ): LeaderboardBoard {
   const entries: LeaderboardEntry[] = sorted.slice(0, LEADERBOARD_LIMIT).map(
     (row, index) => ({
       rank: index + 1,
       displayName: maskPlayerLabel(row.displayName),
+      slug: row.slug ?? null,
+      avatarEmoji: row.avatarEmoji ?? null,
       value: row.value,
       valueLabel: row.valueLabel,
       isViewer: Boolean(viewerEmail && row.email === viewerEmail),
@@ -188,40 +197,71 @@ export async function getLeaderboards(
   const allPlayers = Array.from(aggregates.values());
 
   const identityMap = await getPlayerPublicIdentityMap(allPlayers.map((p) => p.email));
+
+  const { data: slugRows } = await supabase
+    .from(TABLES.playerProfiles)
+    .select("email, slug, avatar_emoji")
+    .in("email", allPlayers.map((p) => p.email));
+
+  const slugMap = new Map(
+    (slugRows ?? []).map((r) => [
+      normalizeEmail(r.email as string),
+      {
+        slug: r.slug as string,
+        avatarEmoji: (r.avatar_emoji as string) ?? null,
+      },
+    ])
+  );
+
   for (const player of allPlayers) {
     const identity = identityMap.get(player.email);
     if (identity) player.displayName = identity.publicLabel;
   }
 
+  function enrichRow<T extends { email: string; displayName: string }>(row: T) {
+    const slugInfo = slugMap.get(row.email);
+    return {
+      ...row,
+      slug: slugInfo?.slug ?? null,
+      avatarEmoji: slugInfo?.avatarEmoji ?? identityMap.get(row.email)?.avatarEmoji ?? null,
+    };
+  }
+
   const winningsSorted = allPlayers
     .filter((p) => p.lifetimeWinnings > 0 || p.lifetimeWins > 0)
     .sort((a, b) => b.lifetimeWinnings - a.lifetimeWinnings || b.lifetimeWins - a.lifetimeWins)
-    .map((p) => ({
-      email: p.email,
-      displayName: p.displayName,
-      value: Math.round(p.lifetimeWinnings),
-      valueLabel: `$${Math.round(p.lifetimeWinnings).toLocaleString()}`,
-    }));
+    .map((p) =>
+      enrichRow({
+        email: p.email,
+        displayName: p.displayName,
+        value: Math.round(p.lifetimeWinnings),
+        valueLabel: `$${Math.round(p.lifetimeWinnings).toLocaleString()}`,
+      })
+    );
 
   const winsSorted = allPlayers
     .filter((p) => p.lifetimeWins > 0)
     .sort((a, b) => b.lifetimeWins - a.lifetimeWins || b.lifetimeWinnings - a.lifetimeWinnings)
-    .map((p) => ({
-      email: p.email,
-      displayName: p.displayName,
-      value: p.lifetimeWins,
-      valueLabel: `${p.lifetimeWins} win${p.lifetimeWins === 1 ? "" : "s"}`,
-    }));
+    .map((p) =>
+      enrichRow({
+        email: p.email,
+        displayName: p.displayName,
+        value: p.lifetimeWins,
+        valueLabel: `${p.lifetimeWins} win${p.lifetimeWins === 1 ? "" : "s"}`,
+      })
+    );
 
   const weeklySorted = allPlayers
     .filter((p) => p.weeklyWins > 0)
     .sort((a, b) => b.weeklyWins - a.weeklyWins || b.lifetimeWins - a.lifetimeWins)
-    .map((p) => ({
-      email: p.email,
-      displayName: p.displayName,
-      value: p.weeklyWins,
-      valueLabel: `${p.weeklyWins} this week`,
-    }));
+    .map((p) =>
+      enrichRow({
+        email: p.email,
+        displayName: p.displayName,
+        value: p.weeklyWins,
+        valueLabel: `${p.weeklyWins} this week`,
+      })
+    );
 
   const streakSorted = allPlayers
     .map((p) => {
@@ -236,12 +276,14 @@ export async function getLeaderboards(
     })
     .filter((p) => p.value > 0)
     .sort((a, b) => b.value - a.value || b.current - a.current)
-    .map((p) => ({
-      email: p.email,
-      displayName: p.displayName,
-      value: p.value,
-      valueLabel: p.valueLabel,
-    }));
+    .map((p) =>
+      enrichRow({
+        email: p.email,
+        displayName: p.displayName,
+        value: p.value,
+        valueLabel: p.valueLabel,
+      })
+    );
 
   const boards: LeaderboardBoard[] = [
     buildBoard(
