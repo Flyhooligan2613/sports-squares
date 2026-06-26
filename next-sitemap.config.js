@@ -3,6 +3,7 @@ const siteUrl = (process.env.SITE_URL ?? "https://www.squareboards.pro").replace
 
 const STATIC_PATHS = [
   "/",
+  "/home",
   "/about",
   "/trust",
   "/support",
@@ -13,6 +14,15 @@ const STATIC_PATHS = [
   "/privacy",
   "/transparency",
   "/contest-center",
+  "/leaderboards",
+  "/game-day",
+  "/pickem",
+  "/survivor",
+  "/tournament-royale",
+  "/baseball-pickem",
+  "/soccer-predictor",
+  "/wnba-pickem",
+  "/learn/how-to-play",
 ];
 
 const TRUST_SLUGS = [
@@ -28,7 +38,13 @@ const TRUST_SLUGS = [
   "security",
   "community-guidelines",
   "contact-support",
+  "merchant-executive-summary",
+  "company-overview",
+  "business-model",
+  "compliance-risk-management",
 ];
+
+const MARKETPLACE_SPORT_SLUGS = ["nfl", "ncaaf", "nba", "ncaab", "mlb", "wnba"];
 
 module.exports = {
   siteUrl,
@@ -61,6 +77,13 @@ module.exports = {
       lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
     }));
 
+    const sportGameEntries = MARKETPLACE_SPORT_SLUGS.map((sport) => ({
+      loc: `/games/${sport}`,
+      changefreq: "daily",
+      priority: 0.85,
+      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
+    }));
+
     const slugs = await getPublicProfileSlugs();
     const profileEntries = slugs.map((slug) => ({
       loc: `/profile/${encodeURIComponent(slug)}`,
@@ -69,6 +92,6 @@ module.exports = {
       lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
     }));
 
-    return [...staticEntries, ...trustEntries, ...profileEntries];
+    return [...staticEntries, ...trustEntries, ...sportGameEntries, ...profileEntries];
   },
 };
