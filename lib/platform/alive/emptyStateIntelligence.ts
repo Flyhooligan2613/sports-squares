@@ -15,6 +15,7 @@ export type AliveEmptyContext =
   | "no_rewards_history"
   | "no_profile_activity"
   | "no_followers"
+  | "no_activity_center"
   | "generic";
 
 const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
@@ -216,6 +217,24 @@ const CONTEXT_STEPS: Record<AliveEmptyContext, AliveEmptyStateStep[]> = {
       emoji: "👥",
     },
   ],
+  no_activity_center: [
+    {
+      id: "join",
+      title: "Join your first contest",
+      body: "Wins, deposits, and milestones appear here as you compete.",
+      ctaLabel: CONTEST_CTAS.joinTheContest,
+      ctaHref: "/contest-center",
+      emoji: "🏆",
+    },
+    {
+      id: "notifications",
+      title: "Enable notifications",
+      body: "Get alerted when contests open and you win.",
+      ctaLabel: "Notifications",
+      ctaHref: "/my-games/notifications",
+      emoji: "🔔",
+    },
+  ],
   generic: [
     {
       id: "browse",
@@ -259,7 +278,7 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   },
   no_notifications: {
     title: "You're all caught up",
-    body: "We'll notify you when contests, payouts, and rewards are available.",
+    body: "We'll notify you when something important happens.",
   },
   no_rewards: {
     title: "Your rewards journey starts here",
@@ -288,6 +307,10 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
   no_followers: {
     title: "No followers yet",
     body: "As you compete and build your reputation, other players can follow your journey.",
+  },
+  no_activity_center: {
+    title: "Your activity timeline will grow as you compete",
+    body: "Your activity timeline will grow as you compete and interact on SquareBoards.",
   },
   generic: {
     title: ALIVE_COPY.emptyStateHeading,

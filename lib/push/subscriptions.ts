@@ -89,6 +89,31 @@ export async function countPushSubscribers(): Promise<number> {
   return count ?? 0;
 }
 
+export async function listPlayerPushSubscriptions(
+  email: string
+): Promise<PushSubscriptionRow[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("player_push_subscriptions")
+    .select("*")
+    .eq("email", normalizeEmail(email));
+
+  if (error) throw error;
+  return (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
+}
+
+export async function setPlayerPushEnabled(
+  email: string,
+  enabled: boolean
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("player_push_subscriptions")
+    .update({ enabled, updated_at: new Date().toISOString() })
+    .eq("email", normalizeEmail(email));
+  if (error) throw error;
+}
+
 export async function getPushDigestSettings(): Promise<{
   dailyEnabled: boolean;
   dailyHourEt: number;

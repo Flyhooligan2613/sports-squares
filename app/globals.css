@@ -1045,6 +1045,32 @@ html.sb-splash-pending body {
   animation: sbEmptyFloat 3s ease-in-out infinite;
 }
 
+.sb-notif-mark-read {
+  opacity: 0.72;
+  transform: scale(0.995);
+}
+
+.notification-hub-tab:focus-visible,
+.notification-category-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(123, 97, 255, 0.35);
+}
+
+.notification-toggle {
+  position: relative;
+  padding: 3px;
+}
+
+.notification-toggle-knob {
+  margin-top: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-notif-mark-read {
+    transform: none;
+  }
+}
+
 .sb-live-dot-sm {
   width: 0.4rem;
   height: 0.4rem;

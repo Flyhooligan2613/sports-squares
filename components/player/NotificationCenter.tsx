@@ -2,65 +2,37 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Archive, Search, Trash2, X } from "lucide-react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import BrandedLoadingLabel from "@/components/ui/BrandedLoadingLabel";
-import { Button } from "@/components/ui/Button";
+import NotificationHubShell from "@/components/player/NotificationHubShell";
 import type { PlayerNotification } from "@/lib/player/dashboardTypes";
 import {
+  archiveNotifications,
+  deleteNotifications,
+  loadArchivedNotificationIds,
+  loadDeletedNotificationIds,
   loadReadNotificationIds,
   markAllNotificationsRead,
   markNotificationsRead,
 } from "@/lib/notifications/readState";
+import {
+  getNotificationCategory,
+  getNotificationDisplayMeta,
+  matchesNotificationSearch,
+  NOTIFICATION_CATEGORY_TABS,
+  type NotificationCategory,
+} from "@/lib/notifications/notificationMeta";
+import {
+  isCategoryEnabled,
+  loadNotificationPreferences,
+} from "@/lib/notifications/preferenceState";
 import { getPlayerSessionUser } from "@/lib/auth/playerAuthClient";
 import { formatUserError } from "@/lib/errors/formatUserError";
+import { useNavDrawerSafe } from "@/components/nav/NavDrawerProvider";
 
-const FILTER_TABS = [
-  { id: "all", label: "All" },
-  { id: "rewards", label: "Rewards" },
-  { id: "wallet", label: "Wallet" },
-  { id: "community", label: "Community" },
-  { id: "contests", label: "Contests" },
-  { id: "system", label: "System" },
-] as const;
-
-type NotificationFilter = (typeof FILTER_TABS)[number]["id"];
-
-function notificationCategory(type: PlayerNotification["type"]): NotificationFilter {
-  if (type === "payment_sent" || type === "pickem_payout") return "wallet";
-  if (
-    type === "pickem_achievement" ||
-    type === "pickem_streak" ||
-    type === "pickem_rank_up" ||
-    type === "quarter_winner" ||
-    type === "pickem_winner"
-  ) {
-    return "rewards";
-  }
-  if (type === "platform_announcement") return "community";
-  return "contests";
-}
-
-const ICONS: Record<PlayerNotification["type"], string> = {
-  board_filled: "📋",
-  numbers_assigned: "🎯",
-  quarter_winner: "🏆",
-  payment_sent: "💰",
-  game_starting: "🏈",
-  pickem_week_open: "🏈",
-  pickem_pool_almost_full: "🔥",
-  pickem_pool_full: "✅",
-  pickem_sunday_complete: "📊",
-  pickem_championship: "👑",
-  pickem_prediction_due: "⏱",
-  pickem_prediction_locked: "🔒",
-  pickem_winner: "🏆",
-  pickem_payout: "💰",
-  pickem_streak: "🔥",
-  pickem_rank_up: "📈",
-  pickem_achievement: "⭐",
-  platform_announcement: "📣",
-};
+type FilterId = (typeof NOTIFICATION_CATEGORY_TABS)[number]["id"];
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -74,12 +46,18 @@ function timeAgo(iso: string): string {
 }
 
 export default function NotificationCenter() {
+  const nav = useNavDrawerSafe();
   const [notifications, setNotifications] = useState<PlayerNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [readIds, setReadIds] = useState<string[]>([]);
-  const [filter, setFilter] = useState<NotificationFilter>("all");
+  const [archivedIds, setArchivedIds] = useState<string[]>([]);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [filter, setFilter] = useState<FilterId>("all");
+  const [search, setSearch] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [markingId, setMarkingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +73,8 @@ export default function NotificationCenter() {
         if (!cancelled) {
           setEmail(user.email);
           setReadIds(loadReadNotificationIds(user.email));
+          setArchivedIds(loadArchivedNotificationIds(user.email));
+          setDeletedIds(loadDeletedNotificationIds(user.email));
         }
 
         const res = await fetch("/api/notifications", { cache: "no-store" });
@@ -120,141 +100,249 @@ export default function NotificationCenter() {
     };
   }, []);
 
+  const prefs = useMemo(
+    () => (email ? loadNotificationPreferences(email) : null),
+    [email, notifications.length]
+  );
+
+  const visibleNotifications = useMemo(() => {
+    return notifications.filter((item) => {
+      if (deletedIds.includes(item.id)) return false;
+      const archived = archivedIds.includes(item.id);
+      if (showArchived) return archived;
+      return !archived;
+    });
+  }, [notifications, deletedIds, archivedIds, showArchived]);
+
   const unreadCount = useMemo(
-    () => notifications.filter((item) => !readIds.includes(item.id)).length,
-    [notifications, readIds]
+    () => visibleNotifications.filter((item) => !readIds.includes(item.id)).length,
+    [visibleNotifications, readIds]
   );
 
   const filteredNotifications = useMemo(() => {
-    if (filter === "all") return notifications;
-    if (filter === "system") {
-      return notifications.filter((item) => item.type === "platform_announcement");
-    }
-    return notifications.filter((item) => notificationCategory(item.type) === filter);
-  }, [notifications, filter]);
+    return visibleNotifications.filter((item) => {
+      const category = getNotificationCategory(item.type);
+      if (prefs && !isCategoryEnabled(prefs, category)) return false;
+      if (filter !== "all" && category !== filter) return false;
+      return matchesNotificationSearch(item, search);
+    });
+  }, [visibleNotifications, filter, search, prefs]);
+
+  function refreshNavBadge() {
+    void nav?.refreshUserContext();
+  }
 
   function handleMarkRead(id: string) {
     if (!email) return;
-    const next = markNotificationsRead(email, [id]);
-    setReadIds(next);
+    setMarkingId(id);
+    window.setTimeout(() => {
+      const next = markNotificationsRead(email, [id]);
+      setReadIds(next);
+      setMarkingId(null);
+      refreshNavBadge();
+    }, 180);
   }
 
   function handleMarkAllRead() {
     if (!email) return;
     const next = markAllNotificationsRead(
       email,
-      notifications.map((item) => item.id)
+      visibleNotifications.map((item) => item.id)
     );
     setReadIds(next);
+    refreshNavBadge();
+  }
+
+  function handleArchive(id: string) {
+    if (!email) return;
+    const next = archiveNotifications(email, [id]);
+    setArchivedIds(next);
+    handleMarkRead(id);
+  }
+
+  function handleDelete(id: string) {
+    if (!email) return;
+    const next = deleteNotifications(email, [id]);
+    setDeletedIds(next);
+    refreshNavBadge();
   }
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-3">
-        <div className="sb-xp-skeleton h-10 w-48" />
-        <div className="sb-xp-skeleton h-24 rounded-2xl" />
-        <div className="sb-xp-skeleton h-24 rounded-2xl" />
-        <BrandedLoadingLabel context="general" className="text-center text-sb-muted py-4" />
-      </div>
+      <NotificationHubShell
+        title="Notifications"
+        subtitle="Wins, payouts, kickoffs, and board updates — all in one place."
+      >
+        <div className="space-y-3" aria-busy="true">
+          <div className="sb-xp-skeleton h-10 w-48" />
+          <div className="sb-xp-skeleton h-24 rounded-2xl" />
+          <div className="sb-xp-skeleton h-24 rounded-2xl" />
+          <BrandedLoadingLabel context="general" className="text-center text-sb-muted py-4" />
+        </div>
+      </NotificationHubShell>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-16 text-center">
-        <LandingGlassCard className="p-8">
+      <NotificationHubShell
+        title="Notifications"
+        subtitle="Wins, payouts, kickoffs, and board updates — all in one place."
+      >
+        <LandingGlassCard className="p-8 text-center">
           <p className="text-white font-semibold mb-2">{error}</p>
-          <p className="text-sm text-sb-muted mb-6">Sign in to see wins, payouts, and game-day alerts.</p>
+          <p className="text-sm text-sb-muted mb-6">
+            Sign in to see wins, payouts, and game-day alerts.
+          </p>
           <div className="flex flex-wrap gap-2 justify-center">
-            <Button href="/my-games/login">Sign in</Button>
-            <Button href="/contest-center" variant="ghost">
+            <Link
+              href="/my-games/login"
+              className="inline-flex items-center min-h-[44px] px-4 rounded-xl bg-sb-glow text-white text-sm font-semibold"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/contest-center"
+              className="inline-flex items-center min-h-[44px] px-4 rounded-xl text-sm font-semibold text-sb-muted hover:text-white"
+            >
               Browse contests
-            </Button>
+            </Link>
           </div>
         </LandingGlassCard>
-      </div>
+      </NotificationHubShell>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-      <div className="flex items-end justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
-            Notifications
-          </h1>
-          <p className="text-sb-muted">
-            Wins, payouts, kickoffs, and board updates — all in one place.
-          </p>
-        </div>
-        {unreadCount > 0 ? (
+    <NotificationHubShell
+      title="Notifications"
+      subtitle="Wins, payouts, kickoffs, and board updates — all in one place."
+      actions={
+        unreadCount > 0 ? (
           <button
             type="button"
             onClick={handleMarkAllRead}
-            className="text-xs font-semibold text-sb-glow hover:text-white transition-colors shrink-0"
+            className="text-xs font-semibold text-sb-glow hover:text-white transition-colors duration-[250ms] shrink-0 min-h-[44px] px-2"
           >
             Mark all read
+          </button>
+        ) : null
+      }
+    >
+      <div className="relative mb-4">
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sb-muted pointer-events-none"
+          aria-hidden
+        />
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search notifications…"
+          aria-label="Search notifications"
+          className="w-full min-h-[44px] pl-10 pr-10 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-white placeholder:text-sb-muted/70 focus:outline-none focus:ring-2 focus:ring-sb-glow/30 transition-all duration-[250ms]"
+        />
+        {search ? (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[36px] min-w-[36px] flex items-center justify-center text-sb-muted hover:text-white"
+            aria-label="Clear search"
+          >
+            <X className="w-4 h-4" />
           </button>
         ) : null}
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-2 mb-6 -mx-1 px-1 scrollbar-none">
-        {FILTER_TABS.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setFilter(tab.id)}
-            className={[
-              "shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors",
-              filter === tab.id
-                ? "bg-white/10 border-white/20 text-white"
-                : "border-transparent text-sb-muted hover:text-white hover:bg-white/5",
-            ].join(" ")}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 mb-3">
+        <div
+          className="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none flex-1"
+          role="tablist"
+          aria-label="Filter by category"
+        >
+          {NOTIFICATION_CATEGORY_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={filter === tab.id}
+              onClick={() => setFilter(tab.id)}
+              className={[
+                "notification-category-tab shrink-0 text-xs px-3 py-2 rounded-full border min-h-[36px] transition-all duration-[250ms]",
+                filter === tab.id
+                  ? "bg-white/10 border-white/20 text-white"
+                  : "border-transparent text-sb-muted hover:text-white hover:bg-white/5",
+              ].join(" ")}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowArchived((v) => !v)}
+          className={[
+            "shrink-0 text-xs font-semibold min-h-[36px] px-3 rounded-full border transition-all duration-[250ms]",
+            showArchived
+              ? "border-sb-glow/40 text-white bg-white/10"
+              : "border-white/10 text-sb-muted hover:text-white",
+          ].join(" ")}
+          aria-pressed={showArchived}
+        >
+          Archived
+        </button>
       </div>
 
-      {notifications.length === 0 ? (
-        <AliveEmptyState context="no_notifications" emoji="🔔" />
+      {visibleNotifications.length === 0 && !showArchived ? (
+        <AliveEmptyState
+          context="no_notifications"
+          emoji="🔔"
+          title="You're all caught up"
+          body="We'll notify you when something important happens."
+        />
       ) : filteredNotifications.length === 0 ? (
         <LandingGlassCard glow className="p-6 text-center">
-          <p className="text-white font-semibold mb-1">No notifications in this category</p>
+          <p className="text-white font-semibold mb-1">
+            {showArchived ? "No archived notifications" : "No notifications in this view"}
+          </p>
           <p className="text-sm text-sb-muted mb-4">
-            Try another filter — wins, payouts, and alerts are organized by type.
+            {search
+              ? "Try a different search term or category."
+              : "Try another filter — wins, payouts, and alerts are organized by type."}
           </p>
           <button
             type="button"
-            onClick={() => setFilter("all")}
-            className="text-xs font-semibold text-sb-glow hover:text-white transition-colors"
+            onClick={() => {
+              setFilter("all");
+              setSearch("");
+              setShowArchived(false);
+            }}
+            className="text-xs font-semibold text-sb-glow hover:text-white transition-colors duration-[250ms] min-h-[44px] px-3"
           >
             Show all
           </button>
         </LandingGlassCard>
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-3" role="list">
           {filteredNotifications.map((item, index) => {
             const unread = !readIds.includes(item.id);
+            const meta = getNotificationDisplayMeta(item, {
+              isRead: !unread,
+              isArchived: archivedIds.includes(item.id),
+            });
+            const isMarking = markingId === item.id;
+
             return (
               <li key={item.id}>
                 <LandingGlassCard
                   className={[
-                    "p-4 sm:p-5 sb-stagger-item sb-card-lift cursor-pointer",
+                    "p-4 sm:p-5 sb-stagger-item sb-card-lift transition-all duration-[250ms]",
                     unread ? "border-sb-glow/25" : "",
+                    isMarking ? "sb-notif-mark-read" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                   style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
-                  onClick={() => handleMarkRead(item.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      handleMarkRead(item.id);
-                    }
-                  }}
                 >
                   <div className="flex items-start gap-3">
                     <span
@@ -266,34 +354,74 @@ export default function NotificationCenter() {
                         .join(" ")}
                       aria-hidden
                     >
-                      {ICONS[item.type]}
+                      {meta.icon}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
                         <p className="text-sm font-semibold text-white">{item.title}</p>
                         {unread ? (
                           <span className="sb-notif-dot" aria-label="Unread" />
                         ) : null}
+                        <span className="text-[10px] uppercase tracking-wide text-sb-muted/60 ml-auto sm:ml-0">
+                          {meta.status}
+                        </span>
                       </div>
                       <p className="text-xs text-sb-muted leading-relaxed">{item.detail}</p>
+                      <div className="flex flex-wrap items-center gap-3 mt-3">
+                        {meta.ctaHref && meta.ctaLabel ? (
+                          <Link
+                            href={meta.ctaHref}
+                            onClick={() => unread && handleMarkRead(item.id)}
+                            className="inline-flex items-center min-h-[44px] text-xs font-semibold text-sb-glow hover:text-white transition-colors duration-[250ms]"
+                          >
+                            {meta.ctaLabel} →
+                          </Link>
+                        ) : null}
+                        {unread ? (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkRead(item.id)}
+                            className="inline-flex items-center min-h-[44px] text-xs font-semibold text-sb-muted hover:text-white transition-colors duration-[250ms]"
+                            aria-label={`Mark ${item.title} as read`}
+                          >
+                            Mark read
+                          </button>
+                        ) : null}
+                        {!showArchived ? (
+                          <button
+                            type="button"
+                            onClick={() => handleArchive(item.id)}
+                            className="inline-flex items-center gap-1 min-h-[44px] text-xs text-sb-muted hover:text-white transition-colors duration-[250ms]"
+                            aria-label={`Archive ${item.title}`}
+                          >
+                            <Archive className="w-3.5 h-3.5" aria-hidden />
+                            Archive
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                          className="inline-flex items-center gap-1 min-h-[44px] text-xs text-sb-muted hover:text-red-300 transition-colors duration-[250ms]"
+                          aria-label={`Delete ${item.title}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" aria-hidden />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                     <span className="text-[10px] uppercase tracking-wide text-sb-muted/70 shrink-0">
                       {timeAgo(item.at)}
                     </span>
                   </div>
+                  <p className="sr-only">
+                    Category: {meta.category as NotificationCategory}
+                  </p>
                 </LandingGlassCard>
               </li>
             );
           })}
         </ul>
       )}
-
-      <p className="text-center text-xs text-sb-muted mt-8">
-        Prefer the full dashboard?{" "}
-        <Link href="/my-games" className="text-sb-glow hover:text-white transition-colors">
-          Open My Games
-        </Link>
-      </p>
-    </div>
+    </NotificationHubShell>
   );
 }
