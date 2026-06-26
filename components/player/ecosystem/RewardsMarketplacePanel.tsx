@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
+import { REWARDS_EMPTY } from "@/lib/platform/language/rewardsLanguage";
 
 function extractLeadingEmoji(title: string): string | null {
   const first = title.trim().split(/\s+/)[0] ?? "";
@@ -60,7 +62,7 @@ export default function RewardsMarketplacePanel() {
 
   return (
     <div className="space-y-8">
-      <LandingGlassCard className="p-4 flex flex-wrap justify-between gap-3">
+      <LandingGlassCard className="p-4 flex flex-wrap justify-between gap-3 sb-card-lift">
         <div>
           <p className="text-sm text-sb-muted">Available to spend</p>
           <p className="text-2xl font-bold text-sb-purple-light">
@@ -74,6 +76,15 @@ export default function RewardsMarketplacePanel() {
       </LandingGlassCard>
 
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
+
+      {!data.catalog.length ? (
+        <AliveEmptyState
+          context="no_rewards"
+          title={REWARDS_EMPTY.noRewardsTitle}
+          body={REWARDS_EMPTY.noRewardsBody}
+          emoji="🛍️"
+        />
+      ) : null}
 
       {Object.entries(byCategory)
         .sort(([a], [b]) => {
@@ -99,7 +110,7 @@ export default function RewardsMarketplacePanel() {
               return (
               <LandingGlassCard
                 key={item.id}
-                className={`p-4 flex flex-col gap-3 ${
+                className={`p-4 flex flex-col gap-3 sb-card-lift ${
                   category === "premium_emojis" ? "border-amber-500/25" : ""
                 }`}
               >

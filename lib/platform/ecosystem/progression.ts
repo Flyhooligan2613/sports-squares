@@ -71,6 +71,17 @@ export async function getPlayerAvatar(email: string): Promise<string> {
   return identity.avatarEmoji;
 }
 
+/** Re-export client-safe display helpers for rewards UI (Phase 3D). */
+export {
+  buildProgressGoals,
+  buildStreakSnapshot,
+  buildRewardHistoryTimeline,
+  resolveFeaturedAchievements,
+  upcomingMilestones,
+  tierRequirementLabel,
+  sumEarnedCreditsSince,
+} from "@/lib/platform/ecosystem/progressionDisplay";
+
 export async function trackLifetimePurchase(email: string, amountCents: number): Promise<void> {
   const supabase = getSupabaseAdmin();
   const { data } = await supabase

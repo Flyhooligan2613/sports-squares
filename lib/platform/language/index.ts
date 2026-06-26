@@ -62,6 +62,16 @@ export {
   resolveTimeOfDayGreeting,
 } from "@/lib/platform/language/aliveLanguage";
 
+export {
+  TIER_DISPLAY_NAMES,
+  REWARDS_SECTIONS,
+  REWARDS_EMPTY,
+  STREAK_COPY,
+  PROGRESS_GOALS,
+  FEATURED_ACHIEVEMENTS,
+  getTierDisplayName,
+} from "@/lib/platform/language/rewardsLanguage";
+
 import { BRANDED_MODULES } from "@/lib/platform/language/brandedModules";
 import {
   CONTEST_CTAS,

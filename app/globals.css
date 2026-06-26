@@ -13261,6 +13261,48 @@ html.sb-splash-pending body {
   animation: aliveWalletIncrement 0.6s var(--sb-ease-out);
 }
 
+/* ── Phase 3D — rewards progress bars ──────────────────────────────────── */
+
+@keyframes rewardsProgressFill {
+  from {
+    width: 0;
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rewards-progress-fill {
+  animation: rewardsProgressFill 0.9s var(--sb-ease-out) both;
+  transition: width 0.7s var(--sb-ease-out);
+}
+
+.rewards-achievement-unlock {
+  animation: aliveBadgeReveal 0.6s var(--sb-ease-out) both;
+}
+
+@keyframes aliveBadgeReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: brightness(1.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rewards-progress-fill,
+  .rewards-achievement-unlock {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sb-card-lift,
   .sb-card-lift:hover,

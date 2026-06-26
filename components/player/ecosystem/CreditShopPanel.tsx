@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AliveEmptyState from "@/components/alive/AliveEmptyState";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import { useRewardsCenter } from "@/components/player/ecosystem/RewardsCenterProvider";
 import type { RewardsCatalogItem } from "@/lib/platform/ecosystem/types";
+import { REWARDS_EMPTY } from "@/lib/platform/language/rewardsLanguage";
 
 function extractLeadingEmoji(title: string): string | null {
   const first = title.trim().split(/\s+/)[0] ?? "";
@@ -105,7 +107,7 @@ export default function CreditShopPanel() {
     return (
       <LandingGlassCard
         key={item.id}
-        className={`p-4 flex flex-col gap-3 ${
+        className={`p-4 flex flex-col gap-3 sb-card-lift ${
           highlight === "game"
             ? "border-cyan-500/25 credit-shop-game-item"
             : highlight === "premium"
@@ -142,7 +144,7 @@ export default function CreditShopPanel() {
 
   return (
     <div className="space-y-8">
-      <LandingGlassCard className="p-6 relative overflow-hidden">
+      <LandingGlassCard className="p-6 relative overflow-hidden sb-card-lift">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-purple-500/5 to-transparent pointer-events-none" />
         <div className="relative flex flex-wrap justify-between gap-4">
           <div>
@@ -214,9 +216,12 @@ export default function CreditShopPanel() {
       })}
 
       {!data.catalog.length ? (
-        <LandingGlassCard className="p-8 text-center text-sb-muted">
-          Credit Shop catalog is loading — run migration 048 in Supabase if game items are missing.
-        </LandingGlassCard>
+        <AliveEmptyState
+          context="no_rewards"
+          title={REWARDS_EMPTY.noRewardsTitle}
+          body={REWARDS_EMPTY.noRewardsBody}
+          emoji="💎"
+        />
       ) : null}
     </div>
   );

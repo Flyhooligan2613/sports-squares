@@ -15,6 +15,7 @@ import {
   SQUARE_DROP_EMOJI,
   SQUARE_DROP_NAME,
 } from "@/lib/platform/ecosystem/squareDropBrand";
+import { getTierDisplayName } from "@/lib/platform/language/rewardsLanguage";
 import WeeklyDropCountdownBanner from "@/components/player/ecosystem/WeeklyDropCountdownBanner";
 
 function ShellInner({ children }: { children: React.ReactNode }) {
@@ -41,9 +42,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
       {loading ? (
         <div className="space-y-4 mb-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="sb-xp-skeleton h-14 rounded-xl" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="sb-xp-skeleton h-16 rounded-xl" />
             ))}
           </div>
           <BrandedLoadingLabel context="rewardDrop" className="text-center text-sb-muted py-4" />
@@ -58,18 +59,24 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       ) : null}
 
       {!loading && data ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-6">
-          <StatPill label="Credits" value={data.wallet.tierCredits.toLocaleString()} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+          <StatPill
+            label="Tier"
+            value={getTierDisplayName(data.dashboard.tier.slug)}
+            highlight
+          />
+          <StatPill label="Tier Credits" value={data.wallet.tierCredits.toLocaleString()} highlight />
           <StatPill label="This week" value={data.wallet.weeklyTierCredits.toLocaleString()} />
           <StatPill label="Lifetime" value={data.wallet.lifetimeTierCredits.toLocaleString()} />
+        </div>
+      ) : null}
+
+      {!loading && data ? (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
           <StatPill label="Pending" value={String(data.wallet.pendingRewards)} />
           <StatPill
             label="Square $"
             value={`$${(data.wallet.squareCreditsCents / 100).toFixed(0)}`}
-          />
-          <StatPill
-            label="Pick'em $"
-            value={`$${(data.wallet.pickemCreditsCents / 100).toFixed(0)}`}
           />
           <StatPill label="Drops" value={String(data.wallet.mysteryBoxesAvailable)} />
           <StatPill label="Promos" value={String(data.promotions.filter((p) => !p.claimed).length)} />
@@ -96,7 +103,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               key={tab.href}
               href={tab.href}
               className={[
-                "shrink-0 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap",
+                "shrink-0 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap min-h-[44px] inline-flex items-center",
                 active
                   ? "bg-sb-purple/25 text-white border border-sb-purple/40"
                   : "text-sb-muted hover:text-white hover:bg-white/5",
@@ -116,11 +123,26 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   );
 }
 
-function StatPill({ label, value }: { label: string; value: string }) {
+function StatPill({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-2 py-2 text-center">
+    <div
+      className={[
+        "rounded-xl border px-2 py-2.5 text-center min-h-[56px] flex flex-col justify-center",
+        highlight ? "border-sb-purple/30 bg-sb-purple/10" : "border-white/10 bg-white/[0.03]",
+      ].join(" ")}
+    >
       <p className="text-[9px] uppercase tracking-wider text-sb-muted truncate">{label}</p>
-      <p className="text-sm font-bold text-white tabular-nums">{value}</p>
+      <p className={`text-sm font-bold tabular-nums ${highlight ? "text-sb-glow" : "text-white"}`}>
+        {value}
+      </p>
     </div>
   );
 }

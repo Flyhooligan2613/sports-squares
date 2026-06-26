@@ -224,8 +224,8 @@ const CONTEXT_COPY: Record<AliveEmptyContext, { title: string; body: string }> =
     body: "We'll notify you when contests, payouts, and rewards are available.",
   },
   no_rewards: {
-    title: "No rewards yet",
-    body: "Start playing to unlock rewards and achievements.",
+    title: "Your rewards journey starts here",
+    body: "Join your first contest to begin earning achievements and unlocking new rewards.",
   },
   no_leaderboard: {
     title: EMPTY_STATE.noRankings.title,
