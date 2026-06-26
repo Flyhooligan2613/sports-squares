@@ -102,13 +102,62 @@ export async function fetchActivityFeed(input?: {
         id: `support:${thread.id}`,
         category: "support",
         title: `Support · ${thread.status}`,
-        summary: (thread.subject as string) || "Support thread",
+        summary: `${(thread.subject as string) || "Support thread"} — ${thread.user_email}`,
         severity: thread.priority === "high" ? "warning" : "info",
         source: "support_threads",
         entityType: "support_thread",
         entityId: thread.id as string,
         actorEmail: (thread.user_email as string | null) ?? null,
         createdAt: thread.created_at as string,
+      });
+    }
+
+    let registrationQuery = supabase
+      .from("player_profiles")
+      .select("email, display_name, slug, created_at")
+      .order("created_at", { ascending: false })
+      .limit(Math.ceil(limit * 0.15));
+
+    if (input?.since) {
+      registrationQuery = registrationQuery.gte("created_at", input.since);
+    }
+
+    const { data: registrations } = await registrationQuery;
+
+    for (const profile of registrations ?? []) {
+      items.push({
+        id: `registration:${profile.email}:${profile.created_at}`,
+        category: "community",
+        title: "New registration",
+        summary: (profile.display_name as string) || (profile.slug as string) || (profile.email as string),
+        severity: "info",
+        source: "player_profiles",
+        entityType: "player_profile",
+        entityId: (profile.slug as string | null) ?? null,
+        actorEmail: profile.email as string,
+        createdAt: profile.created_at as string,
+      });
+    }
+
+    const { data: kycPending } = await supabase
+      .from("square_bank_accounts")
+      .select("player_email, kyc_status, updated_at")
+      .eq("kyc_status", "pending")
+      .order("updated_at", { ascending: false })
+      .limit(5);
+
+    for (const account of kycPending ?? []) {
+      items.push({
+        id: `kyc:${account.player_email}`,
+        category: "fraud",
+        title: "KYC pending",
+        summary: `${account.player_email} — identity verification required`,
+        severity: "warning",
+        source: "square_bank_accounts",
+        entityType: "square_bank_account",
+        entityId: null,
+        actorEmail: account.player_email as string,
+        createdAt: account.updated_at as string,
       });
     }
   }

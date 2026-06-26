@@ -1,6 +1,8 @@
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
+import { countPendingWithdrawalHolds } from "@/lib/platform/engines/payment/wallet/WithdrawalHoldService";
+import { fetchSystemHealth } from "../services/HealthService";
 import { COMPETITOR_ONLINE_WINDOW_MINUTES } from "../config";
-import type { CommandCenterDashboardStats } from "../types";
+import type { CommandCenterDashboardStats, SystemHealthStatus } from "../types";
 
 function startOfTodayIso(): string {
   const d = new Date();
@@ -10,6 +12,48 @@ function startOfTodayIso(): string {
 
 function onlineSinceIso(): string {
   return new Date(Date.now() - COMPETITOR_ONLINE_WINDOW_MINUTES * 60_000).toISOString();
+}
+
+function deriveHealthStatus(
+  health: Awaited<ReturnType<typeof fetchSystemHealth>>
+): SystemHealthStatus {
+  if (!health.supabaseConfigured || !health.supabaseReachable) return "critical";
+  if (health.alerts.some((a) => a.severity === "critical")) return "critical";
+  if (
+    health.alerts.length > 0 ||
+    !health.paymentEngineConfigured ||
+    health.webhookFailures24h > 0
+  ) {
+    return "degraded";
+  }
+  return "healthy";
+}
+
+const EMPTY_OPS: Pick<
+  CommandCenterDashboardStats,
+  | "openSupportTickets"
+  | "pendingWithdrawals"
+  | "pendingWithdrawalHolds"
+  | "pendingVerifications"
+  | "contestEntriesToday"
+  | "platformAlertsTriggered"
+  | "systemHealthStatus"
+> = {
+  openSupportTickets: 0,
+  pendingWithdrawals: 0,
+  pendingWithdrawalHolds: 0,
+  pendingVerifications: 0,
+  contestEntriesToday: 0,
+  platformAlertsTriggered: 0,
+  systemHealthStatus: "critical",
+};
+
+/** Attach alert count after base stats to avoid circular fetch with AlertService. */
+export function enrichDashboardStats(
+  stats: CommandCenterDashboardStats,
+  triggeredAlertCount: number
+): CommandCenterDashboardStats {
+  return { ...stats, platformAlertsTriggered: triggeredAlertCount };
 }
 
 export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats> {
@@ -29,6 +73,7 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
       championsToday: 0,
       newRegistrationsToday: 0,
       contestFillRatePercent: 0,
+      ...EMPTY_OPS,
       dataGaps: ["Supabase admin not configured — all stats unavailable."],
     };
   }
@@ -48,6 +93,12 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
     championsRes,
     registrationsRes,
     poolsFillRes,
+    openSupportRes,
+    pendingWithdrawalsRes,
+    pendingHoldsRes,
+    pendingKycRes,
+    contestEntriesRes,
+    health,
   ] = await Promise.all([
     supabase
       .from("player_auth_profiles")
@@ -102,6 +153,27 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
       .from("pools")
       .select("id, status")
       .in("status", ["open", "locked"]),
+    supabase
+      .from("support_threads")
+      .select("id", { count: "exact", head: true })
+      .neq("status", "resolved")
+      .neq("status", "closed"),
+    supabase
+      .from("payment_transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("transaction_type", "withdrawal")
+      .eq("status", "pending"),
+    countPendingWithdrawalHolds().catch(() => 0),
+    supabase
+      .from("square_bank_accounts")
+      .select("id", { count: "exact", head: true })
+      .eq("kyc_status", "pending"),
+    supabase
+      .from("payment_transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("transaction_type", "contest_entry")
+      .gte("created_at", today),
+    fetchSystemHealth().catch(() => null),
   ]);
 
   if (onlineRes.error) dataGaps.push("competitorsOnline: player_auth_profiles unavailable");
@@ -109,6 +181,8 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
   if (highlightsRes.error) dataGaps.push("highlightSquares: pool_highlight_squares unavailable");
   if (championsRes.error) dataGaps.push("championsToday: podium_finishes may need migration 051");
   if (registrationsRes.error) dataGaps.push("newRegistrations: player_profiles unavailable");
+  if (openSupportRes.error) dataGaps.push("openSupportTickets: support_threads unavailable");
+  if (pendingKycRes.error) dataGaps.push("pendingVerifications: square_bank_accounts unavailable");
 
   const activeContests =
     (activePoolsRes.count ?? 0) + (openPickemRes.count ?? 0) + (activePickemRes.count ?? 0);
@@ -129,6 +203,8 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
     poolsFillRes.data ?? []
   );
 
+  const systemHealthStatus = health ? deriveHealthStatus(health) : "degraded";
+
   return {
     competitorsOnline: onlineRes.count ?? 0,
     activeContests,
@@ -140,6 +216,13 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
     championsToday: championsRes.count ?? 0,
     newRegistrationsToday: registrationsRes.count ?? 0,
     contestFillRatePercent,
+    openSupportTickets: openSupportRes.count ?? 0,
+    pendingWithdrawals: pendingWithdrawalsRes.count ?? 0,
+    pendingWithdrawalHolds: pendingHoldsRes,
+    pendingVerifications: pendingKycRes.count ?? 0,
+    contestEntriesToday: contestEntriesRes.count ?? 0,
+    platformAlertsTriggered: 0,
+    systemHealthStatus,
     dataGaps,
   };
 }

@@ -17,6 +17,7 @@ export interface SupportThread {
   subject: string;
   category: SupportCategory;
   status: string;
+  priority?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +55,19 @@ export async function getUnreadSupportCount(email: string): Promise<number> {
   return count ?? 0;
 }
 
+function mapSupportThreadRow(row: Record<string, unknown>): SupportThread {
+  return {
+    id: row.id as string,
+    userEmail: row.user_email as string,
+    subject: row.subject as string,
+    category: row.category as SupportCategory,
+    status: row.status as string,
+    priority: (row.priority as string | undefined) ?? "normal",
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
 export async function listSupportThreads(email: string): Promise<SupportThread[]> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
@@ -64,15 +78,7 @@ export async function listSupportThreads(email: string): Promise<SupportThread[]
 
   if (error) throw error;
 
-  return (data ?? []).map((row) => ({
-    id: row.id as string,
-    userEmail: row.user_email as string,
-    subject: row.subject as string,
-    category: row.category as SupportCategory,
-    status: row.status as string,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
-  }));
+  return (data ?? []).map((row) => mapSupportThreadRow(row as Record<string, unknown>));
 }
 
 export async function listSupportMessages(
@@ -172,15 +178,7 @@ export async function listAllSupportThreads(limit = 50): Promise<SupportThread[]
 
   if (error) throw error;
 
-  return (data ?? []).map((row) => ({
-    id: row.id as string,
-    userEmail: row.user_email as string,
-    subject: row.subject as string,
-    category: row.category as SupportCategory,
-    status: row.status as string,
-    createdAt: row.created_at as string,
-    updatedAt: row.updated_at as string,
-  }));
+  return (data ?? []).map((row) => mapSupportThreadRow(row as Record<string, unknown>));
 }
 
 export async function staffReplyToSupportThread(input: {

@@ -1,7 +1,7 @@
 import { fetchContestOperationsSummary } from "./adapters/contestAdapter";
 import { fetchFinancialHealthSummary } from "./adapters/financeAdapter";
 import { fetchPaymentCenterSummary } from "./adapters/paymentAdapter";
-import { fetchDashboardStats } from "./adapters/statsAdapter";
+import { enrichDashboardStats, fetchDashboardStats } from "./adapters/statsAdapter";
 import { fetchActivityFeed } from "./services/ActivityFeedService";
 import {
   listCommandCenterAlerts,
@@ -16,7 +16,11 @@ import type { ExecutiveDashboardSummary } from "./types";
 
 /** CommandCenterEngine™ — orchestrates read-only adapters across platform engines. */
 export const CommandCenterEngine = {
-  getDashboardStats: fetchDashboardStats,
+  getDashboardStats: async () => {
+    const stats = await fetchDashboardStats();
+    const alerts = await listCommandCenterAlerts();
+    return enrichDashboardStats(stats, alerts.filter((a) => a.triggered).length);
+  },
   getActivityFeed: fetchActivityFeed,
   getPaymentCenterSummary: fetchPaymentCenterSummary,
   getFinancialHealthSummary: fetchFinancialHealthSummary,

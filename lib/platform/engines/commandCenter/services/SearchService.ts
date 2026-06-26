@@ -55,7 +55,9 @@ export async function searchCommandCenter(query: string, limit = 20): Promise<Co
       id: player.id as string,
       title: player.name as string,
       subtitle: (player.email as string | null) ?? "No email",
-      href: `/admin/pool/${player.pool_id}`,
+      href: player.email
+        ? `/admin/security?email=${encodeURIComponent(player.email as string)}`
+        : `/admin/pool/${player.pool_id}`,
     });
   }
 

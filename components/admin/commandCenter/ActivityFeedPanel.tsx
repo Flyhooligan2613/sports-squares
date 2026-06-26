@@ -76,7 +76,7 @@ export default function ActivityFeedPanel() {
   }, []);
 
   return (
-    <LandingGlassCard className="p-4 sm:p-5">
+    <LandingGlassCard className="p-4 sm:p-5 sb-card-lift">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-white font-semibold">Live Activity Feed</h2>
         <span className="flex items-center gap-1.5 text-xs text-sb-muted">

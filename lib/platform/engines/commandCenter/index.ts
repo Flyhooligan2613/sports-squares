@@ -4,6 +4,7 @@ export type {
   ActivityCategory,
   AlertSeverity,
   AlertCategory,
+  SystemHealthStatus,
   CommandCenterDashboardStats,
   ActivityFeedItem,
   CommandCenterAlert,

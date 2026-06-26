@@ -1,24 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { CommandCenterSearchResult } from "@/lib/platform/engines/commandCenter";
 
 export default function GlobalSearchPage() {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<CommandCenterSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (query.trim().length < 2) return;
+  async function runSearch(term: string) {
+    if (term.trim().length < 2) return;
     setLoading(true);
     setSearched(true);
     try {
-      const res = await fetch(`/api/admin/command-center/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/admin/command-center/search?q=${encodeURIComponent(term)}`);
       if (res.ok) {
         const data = (await res.json()) as { results: CommandCenterSearchResult[] };
         setResults(data.results);
@@ -26,6 +28,17 @@ export default function GlobalSearchPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    if (initialQuery.trim().length >= 2) {
+      void runSearch(initialQuery);
+    }
+  }, [initialQuery]);
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    await runSearch(query);
   }
 
   return (

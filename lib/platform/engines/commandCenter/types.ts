@@ -10,18 +10,23 @@ export type CommandCenterRole =
 
 export type CommandCenterSectionId =
   | "dashboard"
+  | "players"
   | "contests"
   | "payments"
   | "finance"
   | "compliance"
   | "community"
   | "support"
+  | "announcements"
   | "analytics"
+  | "security"
   | "health"
   | "alerts"
   | "executive"
   | "search"
   | "audit";
+
+export type SystemHealthStatus = "healthy" | "degraded" | "critical";
 
 export type ActivityCategory =
   | "contest"
@@ -54,6 +59,14 @@ export interface CommandCenterDashboardStats {
   championsToday: number;
   newRegistrationsToday: number;
   contestFillRatePercent: number;
+  /** Phase 3G — executive ops KPIs */
+  openSupportTickets: number;
+  pendingWithdrawals: number;
+  pendingWithdrawalHolds: number;
+  pendingVerifications: number;
+  contestEntriesToday: number;
+  platformAlertsTriggered: number;
+  systemHealthStatus: SystemHealthStatus;
   /** Fields sourced from placeholders until telemetry exists. */
   dataGaps: string[];
 }
