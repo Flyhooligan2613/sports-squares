@@ -116,8 +116,16 @@ export default function WithdrawPanel({ withdrawableCents, onComplete }: Withdra
           onConfirmed={handleStepUpConfirmed}
         />
       ) : null}
-      <LandingGlassCard className="p-4 sm:p-6 sb-card-lift">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2">
+      <LandingGlassCard
+        className="p-4 sm:p-6 sb-card-lift"
+        role="region"
+        aria-labelledby="wallet-withdraw-heading"
+        aria-busy={loading}
+      >
+        <h3
+          id="wallet-withdraw-heading"
+          className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-2"
+        >
           Withdraw to Cash-out Account
         </h3>
         <p className="text-xs text-sb-muted mb-4">
@@ -134,12 +142,16 @@ export default function WithdrawPanel({ withdrawableCents, onComplete }: Withdra
         <label htmlFor="wallet-withdraw-amount" className="block text-xs text-sb-muted mb-1">
           Amount to withdraw
         </label>
+        <p id="wallet-withdraw-amount-hint" className="sr-only">
+          Minimum withdrawal is ten dollars. Available withdrawable balance is shown above.
+        </p>
         <input
           id="wallet-withdraw-amount"
           type="number"
           min={10}
           step={1}
           disabled={loading}
+          aria-describedby="wallet-withdraw-amount-hint"
           value={Math.round(amountCents / 100)}
           onChange={(e) => setAmountCents(Math.round(Number(e.target.value) * 100))}
           className="w-full mb-4 rounded-lg bg-black/30 border border-white/10 px-3 py-2.5 min-h-[44px] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40"
@@ -160,6 +172,12 @@ export default function WithdrawPanel({ withdrawableCents, onComplete }: Withdra
           variant="secondary"
           onClick={() => void submitWithdrawal()}
           disabled={loading || withdrawableCents <= 0}
+          aria-busy={loading}
+          aria-label={
+            loading
+              ? "Processing withdrawal request"
+              : `Request withdrawal of $${(amountCents / 100).toFixed(2)}`
+          }
           className="w-full min-h-[44px] sb-btn-press"
         >
           {loading ? "Processing your request…" : "Request Withdrawal"}

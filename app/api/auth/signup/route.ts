@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -101,7 +102,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, slug, email });
   } catch (err) {
-    const raw = err instanceof Error ? err.message : "Sign-up failed.";
+    const raw = safeApiErrorMessage(err, "generic");
     const message = formatPlayerAuthError(raw);
     const status = /already exists/i.test(raw) ? 409 : 500;
     return NextResponse.json({ error: message }, { status });

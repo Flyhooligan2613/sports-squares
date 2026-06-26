@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
@@ -248,7 +249,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          err instanceof Error ? err.message : "Failed to create checkout session.",
+          safeApiErrorMessage(err, "checkout"),
       },
       { status: 500 }
     );

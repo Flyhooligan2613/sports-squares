@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import {
   listSupportMessages,
@@ -28,7 +29,7 @@ export async function GET(
     return NextResponse.json({ messages });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to load messages." },
+      { error: safeApiErrorMessage(err, "load") },
       { status: 500 }
     );
   }
@@ -67,7 +68,7 @@ export async function POST(
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to send message." },
+      { error: safeApiErrorMessage(err, "generic") },
       { status: 500 }
     );
   }

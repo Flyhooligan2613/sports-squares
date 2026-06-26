@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { resolveInviteToken } from "@/lib/invites/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error:
-          err instanceof Error ? err.message : "Failed to resolve invite link.",
+          safeApiErrorMessage(err, "generic"),
       },
       { status: 500 }
     );

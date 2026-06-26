@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ options });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not start biometric setup." },
+      { error: safeApiErrorMessage(err, "generic") },
       { status: 500 }
     );
   }

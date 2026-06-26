@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeEmail } from "@/lib/player/statsCore";
@@ -92,7 +93,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("[tournament-royale/picks]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not save pick." },
+      { error: safeApiErrorMessage(err, "save") },
       { status: 400 }
     );
   }

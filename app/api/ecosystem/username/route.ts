@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -64,7 +65,7 @@ export async function PATCH(request: Request) {
       savedBio = await setProfileBio(user.email, body.profileBio);
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not save profile bio.";
+    const message = safeApiErrorMessage(err, "save");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
@@ -72,7 +73,7 @@ export async function PATCH(request: Request) {
     try {
       await changeUsername({ email: user.email, username: body.username });
     } catch (err) {
-      usernameError = err instanceof Error ? err.message : "Could not update username.";
+      usernameError = safeApiErrorMessage(err, "save");
     }
   }
 

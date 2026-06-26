@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { getAuthorizedAdminUser } from "@/lib/auth/adminAuth";
 
@@ -117,7 +118,7 @@ export async function POST(request: Request) {
   } catch (err) {
     return NextResponse.json(
       {
-        error: err instanceof Error ? err.message : "Failed to send invite.",
+        error: safeApiErrorMessage(err, "generic"),
       },
       { status: 500 }
     );

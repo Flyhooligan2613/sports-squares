@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { loadPoolHighlights } from "@/lib/highlight/service";
@@ -23,7 +24,7 @@ export async function GET(
     return NextResponse.json(
       {
         highlights: [],
-        error: err instanceof Error ? err.message : "Failed to load highlights.",
+        error: safeApiErrorMessage(err, "load"),
       },
       { status: 200 }
     );

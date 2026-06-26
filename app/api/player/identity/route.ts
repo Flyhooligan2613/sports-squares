@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -53,7 +54,7 @@ export async function GET() {
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: safeApiErrorMessage(error, "save") }, { status: 500 });
   }
 
   return NextResponse.json(mapIdentity(data as Record<string, unknown> | null));
@@ -117,7 +118,7 @@ export async function PATCH(request: Request) {
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: safeApiErrorMessage(error, "save") }, { status: 500 });
   }
 
   return NextResponse.json(mapIdentity(data as Record<string, unknown> | null));

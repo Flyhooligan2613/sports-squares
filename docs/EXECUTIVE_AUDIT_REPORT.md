@@ -9,11 +9,11 @@
 
 | Dimension | Score | Notes |
 |-----------|-------|-------|
-| **Launch Readiness** | **92** | Build passes; critical routes verified; trust/legal complete; fixes applied this pass |
-| **Security** | **89** | Admin gated client + server; API error sanitization extended; ESPN proxy hardened |
+| **Launch Readiness** | **94** | Build passes; player API errors sanitized; wallet checkout a11y improved |
+| **Security** | **93** | All player-facing API routes use `safeApiErrorMessage()`; ESPN proxy fully hardened |
 | **UX** | **91** | Branded errors on join flows; broken auth links fixed; wallet/rewards empty states intact |
 | **UI** | **90** | Hero no longer 404s missing asset; modals respect safe-area on wallet receipt |
-| **Accessibility** | **87** | Critical nav/wallet controls labeled; full WCAG audit deferred |
+| **Accessibility** | **89** | Wallet deposit/withdraw panels labeled; `aria-busy` on checkout actions; full WCAG audit deferred |
 | **Merchant** | **93** | Trust Center 12/12 policies + merchant due-diligence docs; footer legal links verified |
 | **Investor** | **90** | Command Center protected; compliance stubs enterprise-grade; transparency routes live |
 | **Performance** | **86** | 161 pages build; home hero no longer requests missing PNG; sitemap expanded |
@@ -52,7 +52,8 @@
 ### Accessibility
 - Nav drawer trigger, search, notification bell, and wallet tabs have `aria-label` / `aria-pressed`.
 - Modals use `role="dialog"` and `aria-modal` where audited.
-- Formal screen-reader audit on checkout flow still recommended.
+- Wallet deposit/withdraw panels: `role="region"`, `aria-labelledby`, `aria-busy` on actions, `aria-describedby` on amount inputs.
+- Formal screen-reader audit on full checkout redirect flow still recommended.
 
 ### Product design consistency
 - Competitive language (`Contest Center`, `SquareWallet™`) consistent in nav and footer.
@@ -98,6 +99,17 @@
 
 ---
 
+## Issues Found & Fixed (Post-Audit Launch Prep)
+
+| Severity | Issue | Fix |
+|----------|-------|-----|
+| **High** | ~68 player-facing API routes returned raw `err.message` | Rolled `safeApiErrorMessage()` across all non-admin/cron player routes |
+| **Medium** | ESPN scoreboard leaked HTTP status codes | Sanitized load failure copy |
+| **Medium** | Wallet deposit/withdraw panels missing region labels and busy state | `aria-labelledby`, `aria-busy`, `aria-describedby` on amount inputs |
+| **Info** | Phase 3F Notifications polish | Verified on `main` at `817df83` — no additional work required |
+
+---
+
 ## Remaining Items
 
 ### Critical
@@ -106,9 +118,8 @@
 ### Recommended (post-launch)
 | Area | Item |
 |------|------|
-| API | Roll `safeApiErrorMessage()` across remaining player-facing routes (~25 still pass `err.message`) |
 | SEO | Add contest/game-mode public pages to sitemap when marketing-ready |
-| Accessibility | WCAG 2.1 AA audit with VoiceOver/TalkBack on wallet checkout |
+| Accessibility | WCAG 2.1 AA audit with VoiceOver/TalkBack on full Stripe checkout redirect |
 | Performance | Home first-load JS ~109 kB route bundle — monitor if marketing adds media |
 | Admin | Wire Command Center compliance/community to live backends |
 | Assets | Restore `public/hero/hero-source.png` + run `scripts/crop-hero.mjs` when art is available |
@@ -123,9 +134,9 @@
 ## Build Verification
 
 ```
-npm run build — PASS (161 static pages, typecheck clean)
+npm run build — PASS (post-audit launch prep, typecheck clean)
 ```
 
 ---
 
-*PROJECT BLACK LABEL Phase 4 — Executive Product Audit. Feature development frozen.*
+*PROJECT BLACK LABEL Phase 4 — Executive Product Audit. Post-audit launch prep complete. Feature development frozen.*

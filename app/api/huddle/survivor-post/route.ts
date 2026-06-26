@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { publishSurvivorHuddlePost } from "@/lib/huddle/survivorPosts";
@@ -38,7 +39,7 @@ export async function POST() {
   } catch (err) {
     console.error("[huddle/survivor-post]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not share pick." },
+      { error: safeApiErrorMessage(err, "share") },
       { status: 400 }
     );
   }

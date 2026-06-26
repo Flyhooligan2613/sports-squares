@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import {
   fulfillPurchase,
@@ -53,7 +54,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error:
-          err instanceof Error ? err.message : "Failed to load purchase status.",
+          safeApiErrorMessage(err, "load"),
       },
       { status: 500 }
     );

@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { dbListBoardsForGame } from "@/lib/database/services/boards";
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error:
-          err instanceof Error ? err.message : "Failed to load marketplace games.",
+          safeApiErrorMessage(err, "load"),
       },
       { status: 500 }
     );

@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -101,7 +102,7 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error("[survivor/leagues]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to load leagues." },
+      { error: safeApiErrorMessage(err, "load") },
       { status: 500 }
     );
   }
@@ -177,7 +178,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("[survivor/leagues POST]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not create league." },
+      { error: safeApiErrorMessage(err, "create") },
       { status: 400 }
     );
   }

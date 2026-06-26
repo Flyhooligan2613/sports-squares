@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { savePickemPick } from "@/lib/pickem/db/picks";
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("[pickem/picks]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not save pick." },
+      { error: safeApiErrorMessage(err, "save") },
       { status: 400 }
     );
   }

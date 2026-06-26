@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -132,7 +133,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("[pickem/checkout]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to start checkout." },
+      { error: safeApiErrorMessage(err, "checkout") },
       { status: 500 }
     );
   }

@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import {
   createSupportThread,
@@ -37,7 +38,7 @@ export async function GET() {
     return NextResponse.json({ threads });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to load threads." },
+      { error: safeApiErrorMessage(err, "load") },
       { status: 500 }
     );
   }
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ threadId: result.threadId });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to create thread." },
+      { error: safeApiErrorMessage(err, "generic") },
       { status: 500 }
     );
   }

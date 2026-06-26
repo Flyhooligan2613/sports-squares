@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     await claimPromotion(user.email, body.promotionId);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Claim failed.";
+    const message = safeApiErrorMessage(err, "save");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

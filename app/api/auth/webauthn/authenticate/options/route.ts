@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { createAuthenticationOptions } from "@/lib/auth/security/webauthn";
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ options });
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Biometric sign-in unavailable." },
+      { error: safeApiErrorMessage(err, "generic") },
       { status: 400 }
     );
   }

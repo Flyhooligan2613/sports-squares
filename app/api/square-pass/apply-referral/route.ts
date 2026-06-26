@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { SquarePassEngine, getSquarePassAuthorizedEmail } from "@/lib/platform/engines/squarePass";
 
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, message: "Referral connected." });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not apply referral.";
+    const message = safeApiErrorMessage(err, "redeem");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

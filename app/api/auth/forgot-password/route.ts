@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import { sendPlayerPasswordResetEmailFlow } from "@/lib/auth/playerPasswordReset";
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const raw = err instanceof Error ? err.message : "Failed to send password reset link.";
+    const raw = safeApiErrorMessage(err, "generic");
     return NextResponse.json(
       { error: formatPlayerAuthError(raw) },
       { status: 500 }

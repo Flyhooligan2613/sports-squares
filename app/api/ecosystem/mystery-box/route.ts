@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -23,7 +24,7 @@ export async function POST() {
     const { drop } = await openWeeklyRewardDrop(user.email);
     return NextResponse.json({ ok: true, rewards: drop.rewards, drop });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not open box.";
+    const message = safeApiErrorMessage(err, "redeem");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

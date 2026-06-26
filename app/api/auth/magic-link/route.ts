@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
 import { sendPlayerMagicLinkEmail } from "@/lib/auth/playerMagicLink";
@@ -102,10 +103,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(
-      {
-        error:
-          err instanceof Error ? err.message : "Failed to send sign-in link.",
-      },
+      { error: formatPlayerAuthError(safeApiErrorMessage(err, "generic")) },
       { status: 500 }
     );
   }

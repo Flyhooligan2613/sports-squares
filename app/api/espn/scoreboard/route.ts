@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { parseEspnScoreboard } from "@/lib/espn/parser";
 import { getEspnSportConfig, normalizeEspnSport } from "@/lib/espn/sports";
@@ -16,8 +17,8 @@ export async function GET(request: Request) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: `ESPN returned HTTP ${response.status}` },
-        { status: response.status }
+        { error: safeApiErrorMessage("scoreboard unavailable", "load") },
+        { status: 502 }
       );
     }
 
@@ -29,9 +30,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         error:
-          err instanceof Error
-            ? err.message
-            : "Failed to fetch ESPN scoreboard",
+          safeApiErrorMessage(err, "load"),
       },
       { status: 500 }
     );

@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { sendPlayerMagicLinkEmail } from "@/lib/auth/playerMagicLink";
 import { formatPlayerAuthError } from "@/lib/auth/formatPlayerAuthError";
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          err instanceof Error ? err.message : "Failed to resend magic link.",
+          safeApiErrorMessage(err, "generic"),
       },
       { status: 500 }
     );

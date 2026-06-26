@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error("[pickem/entry/status]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not load entry status." },
+      { error: safeApiErrorMessage(err, "load") },
       { status: 500 }
     );
   }

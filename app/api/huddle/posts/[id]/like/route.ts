@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { togglePickPostLike } from "@/lib/huddle/pickPosts";
@@ -24,7 +25,7 @@ export async function POST(
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not update like." },
+      { error: safeApiErrorMessage(err, "share") },
       { status: 400 }
     );
   }

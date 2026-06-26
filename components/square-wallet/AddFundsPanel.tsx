@@ -48,8 +48,16 @@ export default function AddFundsPanel({
   }
 
   return (
-    <LandingGlassCard glow className="p-4 sm:p-6 sb-card-lift">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-4">
+    <LandingGlassCard
+      glow
+      className="p-4 sm:p-6 sb-card-lift"
+      role="region"
+      aria-labelledby="wallet-deposit-heading"
+    >
+      <h3
+        id="wallet-deposit-heading"
+        className="text-sm font-semibold uppercase tracking-wider text-sb-muted mb-4"
+      >
         Add Funds to SquareWallet™
       </h3>
       <p className="text-xs text-sb-muted mb-4 leading-relaxed">
@@ -81,12 +89,16 @@ export default function AddFundsPanel({
       <label htmlFor="wallet-deposit-amount" className="block text-xs text-sb-muted mb-1">
         Custom amount
       </label>
+      <p id="wallet-deposit-amount-hint" className="sr-only">
+        Minimum deposit is five dollars.
+      </p>
       <input
         id="wallet-deposit-amount"
         type="number"
         min={5}
         step={1}
         disabled={loading}
+        aria-describedby="wallet-deposit-amount-hint"
         value={Math.round(amountCents / 100)}
         onChange={(e) => setAmountCents(Math.max(500, Math.round(Number(e.target.value) * 100)))}
         className="w-full mb-4 rounded-lg bg-black/30 border border-white/10 px-3 py-2.5 min-h-[44px] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sb-glow/40"
@@ -108,6 +120,12 @@ export default function AddFundsPanel({
       <Button
         onClick={() => void startDeposit()}
         disabled={loading}
+        aria-busy={loading}
+        aria-label={
+          loading
+            ? "Preparing secure checkout"
+            : `Deposit $${(amountCents / 100).toFixed(2)} to SquareWallet`
+        }
         className="w-full min-h-[44px] sb-btn-press"
       >
         {loading ? "Preparing secure checkout…" : `Deposit $${(amountCents / 100).toFixed(2)}`}

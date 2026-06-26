@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { publishPickPost, getViewerPickPost } from "@/lib/huddle/pickPosts";
@@ -40,7 +41,7 @@ export async function POST() {
   } catch (err) {
     console.error("[huddle/posts POST]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not publish pick card." },
+      { error: safeApiErrorMessage(err, "share") },
       { status: 400 }
     );
   }

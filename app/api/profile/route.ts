@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import {
   getOwnCompetitorCard,
@@ -20,7 +21,7 @@ export async function PATCH(request: Request) {
     return await patchOwnCompetitorProfile(request);
   } catch (err) {
     console.error("[api/profile PATCH]", err);
-    const message = err instanceof Error ? err.message : "Update failed";
+    const message = safeApiErrorMessage(err, "save");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

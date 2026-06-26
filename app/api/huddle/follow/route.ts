@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { followPlayer, unfollowPlayer } from "@/lib/huddle/follows";
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Could not update follow." },
+      { error: safeApiErrorMessage(err, "share") },
       { status: 400 }
     );
   }

@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -37,7 +38,7 @@ export async function PATCH(request: Request) {
   const { error } = await supabase.auth.updateUser({ password });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: safeApiErrorMessage(error, "generic") }, { status: 400 });
   }
 
   await notifySecurityEvent({

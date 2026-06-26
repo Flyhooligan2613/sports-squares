@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { SquarePassEngine, getSquarePassAuthorizedEmail } from "@/lib/platform/engines/squarePass";
 
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Redemption failed.";
+    const message = safeApiErrorMessage(err, "redeem");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

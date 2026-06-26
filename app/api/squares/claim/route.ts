@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { dbClaimSquaresWithInvite } from "@/lib/database/services/claims";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
   } catch (err) {
     return NextResponse.json(
       {
-        error: err instanceof Error ? err.message : "Failed to claim squares.",
+        error: safeApiErrorMessage(err, "save"),
       },
       { status: 500 }
     );

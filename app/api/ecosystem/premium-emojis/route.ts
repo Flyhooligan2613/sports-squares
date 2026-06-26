@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
       freeOptions: PLAYER_AVATARS,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Purchase failed.";
+    const message = safeApiErrorMessage(err, "checkout");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

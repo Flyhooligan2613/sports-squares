@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { unstable_noStore as noStore } from "next/cache";
 import { NextResponse } from "next/server";
 import { getMarketplaceTotals } from "@/lib/marketplace/listings";
@@ -19,7 +20,7 @@ export async function GET() {
         totalOpenBoards: 0,
         totalSquaresAvailable: 0,
         error:
-          err instanceof Error ? err.message : "Failed to load marketplace stats.",
+          safeApiErrorMessage(err, "load"),
       },
       { status: 200 }
     );

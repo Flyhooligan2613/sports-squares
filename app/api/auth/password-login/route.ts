@@ -1,3 +1,4 @@
+import { safeApiErrorMessage } from "@/lib/errors/formatUserError";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const raw = err instanceof Error ? err.message : "Sign-in failed.";
+    const raw = safeApiErrorMessage(err, "generic");
     return NextResponse.json(
       { error: formatPlayerAuthError(raw) },
       { status: 500 }
