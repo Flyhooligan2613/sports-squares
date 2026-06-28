@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CommandCenterEngine } from "@/lib/platform/engines/commandCenter";
+import { commandCenterJson } from "@/lib/platform/engines/commandCenter/apiFallback";
+import { getDemoAlerts } from "@/lib/platform/engines/commandCenter/mockData";
 import { requireCommandCenterAdmin } from "@/lib/platform/engines/commandCenter/apiAuth";
 
 export const dynamic = "force-dynamic";
@@ -8,13 +10,12 @@ export async function GET() {
   const { error } = await requireCommandCenterAdmin("alerts");
   if (error) return error;
 
-  try {
-    const alerts = await CommandCenterEngine.listAlerts();
-    return NextResponse.json({ alerts });
-  } catch (err) {
-    console.error("[command-center/alerts]", err);
-    return NextResponse.json({ error: "Failed to load alerts." }, { status: 500 });
-  }
+  return commandCenterJson(
+    "alerts",
+    () => CommandCenterEngine.listAlerts(),
+    getDemoAlerts(),
+    "alerts"
+  );
 }
 
 export async function PATCH(request: NextRequest) {

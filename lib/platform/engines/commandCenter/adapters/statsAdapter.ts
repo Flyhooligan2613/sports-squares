@@ -227,22 +227,47 @@ export async function fetchDashboardStats(): Promise<CommandCenterDashboardStats
   };
 }
 
+function countClaimedSquaresByPool(
+  rows: Array<{ pool_id: string }> | null
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const row of rows ?? []) {
+    counts.set(row.pool_id, (counts.get(row.pool_id) ?? 0) + 1);
+  }
+  return counts;
+}
+
+async function fetchClaimedSquareCountsByPool(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  poolIds: string[]
+): Promise<Map<string, number>> {
+  if (poolIds.length === 0) return new Map();
+
+  const { data } = await supabase
+    .from("squares")
+    .select("pool_id")
+    .in("pool_id", poolIds)
+    .eq("claimed", true);
+
+  return countClaimedSquaresByPool(data as Array<{ pool_id: string }> | null);
+}
+
 async function estimatePrizePoolCents(
   supabase: ReturnType<typeof getSupabaseAdmin>,
   pools: Array<{ id: string; cost_per_square: number; entry_tier_cents: number | null }>
 ): Promise<number> {
   if (pools.length === 0) return 0;
 
+  const claimedByPool = await fetchClaimedSquareCountsByPool(
+    supabase,
+    pools.map((pool) => pool.id)
+  );
+
   let total = 0;
   for (const pool of pools) {
-    const costCents = pool.entry_tier_cents ?? Math.round((pool.cost_per_square ?? 0) * 100);
-    const { count } = await supabase
-      .from("squares")
-      .select("id", { count: "exact", head: true })
-      .eq("pool_id", pool.id)
-      .eq("claimed", true);
-
-    total += costCents * (count ?? 0);
+    const costCents =
+      pool.entry_tier_cents ?? Math.round((pool.cost_per_square ?? 0) * 100);
+    total += costCents * (claimedByPool.get(pool.id) ?? 0);
   }
   return total;
 }
@@ -253,17 +278,15 @@ async function computeAverageFillRate(
 ): Promise<number> {
   if (pools.length === 0) return 0;
 
-  const rates: number[] = [];
-  for (const pool of pools) {
-    const { count: claimed } = await supabase
-      .from("squares")
-      .select("id", { count: "exact", head: true })
-      .eq("pool_id", pool.id)
-      .eq("claimed", true);
+  const claimedByPool = await fetchClaimedSquareCountsByPool(
+    supabase,
+    pools.map((pool) => pool.id)
+  );
 
-    const total = 100;
-    rates.push(Math.min(100, Math.round(((claimed ?? 0) / total) * 100)));
-  }
+  const rates = pools.map((pool) => {
+    const claimed = claimedByPool.get(pool.id) ?? 0;
+    return Math.min(100, Math.round((claimed / 100) * 100));
+  });
 
   return Math.round(rates.reduce((a, b) => a + b, 0) / rates.length);
 }

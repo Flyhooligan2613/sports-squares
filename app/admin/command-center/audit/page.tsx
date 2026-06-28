@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { CommandCenterAuditEntry } from "@/lib/platform/engines/commandCenter";
+import { getDemoAuditEntries } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -15,20 +17,22 @@ function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
-export default function CommandCenterAuditPage() {
-  const [entries, setEntries] = useState<CommandCenterAuditEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+function parseAudit(body: Record<string, unknown>) {
+  if (Array.isArray(body.entries)) {
+    return {
+      value: body.entries as CommandCenterAuditEntry[],
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
 
-  useEffect(() => {
-    fetch("/api/admin/command-center/audit?limit=150")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as { entries: CommandCenterAuditEntry[] };
-          setEntries(data.entries);
-        }
-      })
-      .finally(() => setLoading(false));
-  }, []);
+export default function CommandCenterAuditPage() {
+  const { data: entries, hydrating, usingDemo } = useCommandCenterHydration({
+    url: "/api/admin/command-center/audit?limit=150",
+    initialData: getDemoAuditEntries(),
+    parse: parseAudit,
+  });
 
   return (
     <div className="space-y-6">
@@ -39,13 +43,9 @@ export default function CommandCenterAuditPage() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-xl bg-white/[0.04] animate-pulse" />
-          ))}
-        </div>
-      ) : entries.length === 0 ? (
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
+
+      {entries.length === 0 ? (
         <LandingGlassCard className="p-8 text-center text-sb-muted text-sm">
           No audit events yet.
         </LandingGlassCard>

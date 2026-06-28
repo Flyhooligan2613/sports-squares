@@ -174,3 +174,9 @@ export const COMPETITOR_ONLINE_WINDOW_MINUTES = 15;
 
 /** Activity feed poll interval recommendation (ms) — client-side default. */
 export const ACTIVITY_FEED_POLL_MS = 30_000;
+
+/** Max wait for live dashboard stats before demo fallback (investor/demo reliability). */
+export const DASHBOARD_STATS_TIMEOUT_MS = 3_000;
+
+/** Max wait for Command Center API routes before demo fallback. */
+export const COMMAND_CENTER_API_TIMEOUT_MS = 4_000;

@@ -1,29 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import PoolStatusBadge from "@/components/PoolStatusBadge";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { ContestOperationsSummary } from "@/lib/platform/engines/commandCenter";
+import { getDemoContestSummary } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
 import type { PoolStatus } from "@/lib/types";
 
+function parseContests(body: Record<string, unknown>) {
+  if (body.summary) {
+    return {
+      value: body.summary as ContestOperationsSummary,
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
+
 export default function ContestOperationsPage() {
-  const [summary, setSummary] = useState<ContestOperationsSummary | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/command-center/contests")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as { summary: ContestOperationsSummary };
-          setSummary(data.summary);
-        }
-      })
-      .catch(() => setSummary(null));
-  }, []);
-
-  if (!summary) return <SkeletonKpiGrid count={4} />;
+  const { data: summary, hydrating, usingDemo } = useCommandCenterHydration({
+    url: "/api/admin/command-center/contests",
+    initialData: getDemoContestSummary(),
+    parse: parseContests,
+  });
 
   return (
     <div className="space-y-6">
@@ -33,6 +35,8 @@ export default function ContestOperationsPage() {
           Squares boards and Pick&apos;em contests — live fill rates and lifecycle status.
         </p>
       </div>
+
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         <AdminStatCard label="Active Pools" value={summary.activePools} accent="purple" />

@@ -1,71 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Alert from "@/components/ui/Alert";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
-import ActivityFeedPanel from "@/components/admin/commandCenter/ActivityFeedPanel";
 import DashboardStatGrid from "@/components/admin/commandCenter/DashboardStatGrid";
+import ActivityFeedPanel from "@/components/admin/commandCenter/ActivityFeedPanel";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { CommandCenterDashboardStats } from "@/lib/platform/engines/commandCenter";
-import { getDemoDashboardStats } from "@/lib/platform/engines/commandCenter/mockStats";
+import { getDemoDashboardStats } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
+
+const INITIAL_STATS = getDemoDashboardStats("Demo preview — refreshing live stats…");
+
+function parseStats(body: Record<string, unknown>) {
+  if (body.stats) {
+    return {
+      value: body.stats as CommandCenterDashboardStats,
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
 
 export default function CommandCenterDashboardPage() {
-  const [stats, setStats] = useState<CommandCenterDashboardStats | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: stats, hydrating, usingDemo } = useCommandCenterHydration({
+    url: "/api/admin/command-center/stats",
+    initialData: INITIAL_STATS,
+    parse: parseStats,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    fetch("/api/admin/command-center/stats")
-      .then(async (res) => {
-        const data = (await res.json()) as {
-          stats?: CommandCenterDashboardStats;
-          demo?: boolean;
-          error?: string;
-        };
-
-        if (cancelled) return;
-
-        if (data.stats) {
-          setStats(data.stats);
-          if (data.demo) {
-            setError("Live stats unavailable — showing demo data.");
-          }
-          return;
-        }
-
-        throw new Error(data.error ?? "Failed to load stats");
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setError("Could not load dashboard stats — showing demo data.");
-        setStats(getDemoDashboardStats("Client fallback — API unreachable."));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const partialMessage =
+    !hydrating && !usingDemo && stats.dataGaps.length > 0
+      ? `Partial data — ${stats.dataGaps.join(" · ")}`
+      : null;
 
   return (
     <div className="space-y-6">
-      {error && <Alert variant="warning">{error}</Alert>}
+      <CommandCenterSyncBanner
+        hydrating={hydrating}
+        usingDemo={usingDemo}
+        partialMessage={partialMessage}
+      />
 
-      {loading ? (
-        <SkeletonKpiGrid count={10} />
-      ) : stats ? (
-        <>
-          {stats.dataGaps.length > 0 && !error && (
-            <Alert variant="warning">
-              Partial data — {stats.dataGaps.join(" · ")}
-            </Alert>
-          )}
-          <DashboardStatGrid stats={stats} />
-        </>
-      ) : null}
+      <DashboardStatGrid stats={stats} />
 
       <ActivityFeedPanel />
     </div>

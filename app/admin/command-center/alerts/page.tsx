@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { CommandCenterAlert } from "@/lib/platform/engines/commandCenter";
+import { getDemoAlerts } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
 
 const SEVERITY_CLASS: Record<string, string> = {
   info: "text-sb-muted border-white/10",
@@ -10,22 +12,27 @@ const SEVERITY_CLASS: Record<string, string> = {
   critical: "text-red-400 border-red-500/30 bg-red-500/5",
 };
 
-export default function AlertCenterPage() {
-  const [alerts, setAlerts] = useState<CommandCenterAlert[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  async function load() {
-    const res = await fetch("/api/admin/command-center/alerts");
-    if (res.ok) {
-      const data = (await res.json()) as { alerts: CommandCenterAlert[] };
-      setAlerts(data.alerts);
-    }
-    setLoading(false);
+function parseAlerts(body: Record<string, unknown>) {
+  if (Array.isArray(body.alerts)) {
+    return {
+      value: body.alerts as CommandCenterAlert[],
+      demo: Boolean(body.demo),
+    };
   }
+  return null;
+}
 
-  useEffect(() => {
-    load();
-  }, []);
+export default function AlertCenterPage() {
+  const {
+    data: alerts,
+    setData: setAlerts,
+    hydrating,
+    usingDemo,
+  } = useCommandCenterHydration({
+    url: "/api/admin/command-center/alerts",
+    initialData: getDemoAlerts(),
+    parse: parseAlerts,
+  });
 
   async function toggleAlert(id: string, enabled: boolean) {
     const res = await fetch("/api/admin/command-center/alerts", {
@@ -48,13 +55,9 @@ export default function AlertCenterPage() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 rounded-xl bg-white/[0.04] animate-pulse" />
-          ))}
-        </div>
-      ) : alerts.length === 0 ? (
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
+
+      {alerts.length === 0 ? (
         <LandingGlassCard className="p-8 text-center text-sb-muted text-sm">
           No alerts configured. Apply migration 053.
         </LandingGlassCard>

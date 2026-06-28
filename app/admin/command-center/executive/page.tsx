@@ -1,31 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import DashboardStatGrid from "@/components/admin/commandCenter/DashboardStatGrid";
 import AdminStatCard from "@/components/admin/AdminStatCard";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { ExecutiveDashboardSummary } from "@/lib/platform/engines/commandCenter";
+import { getDemoExecutiveSummary } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
 }
 
+function parseExecutive(body: Record<string, unknown>) {
+  if (body.summary) {
+    return {
+      value: body.summary as ExecutiveDashboardSummary,
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
+
 export default function ExecutiveDashboardPage() {
-  const [summary, setSummary] = useState<ExecutiveDashboardSummary | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/command-center/executive")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as { summary: ExecutiveDashboardSummary };
-          setSummary(data.summary);
-        }
-      })
-      .catch(() => setSummary(null));
-  }, []);
-
-  if (!summary) return <SkeletonKpiGrid count={6} />;
+  const { data: summary, hydrating, usingDemo } = useCommandCenterHydration({
+    url: "/api/admin/command-center/executive",
+    initialData: getDemoExecutiveSummary(),
+    parse: parseExecutive,
+  });
 
   return (
     <div className="space-y-6">
@@ -35,6 +37,8 @@ export default function ExecutiveDashboardPage() {
           High-level KPIs for leadership — financial overview and triggered alerts.
         </p>
       </div>
+
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <AdminStatCard label="Deposits Today" value={formatCents(summary.financialOverview.depositsTodayCents)} accent="success" />

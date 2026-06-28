@@ -1,28 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import Alert from "@/components/ui/Alert";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { SystemHealthReport } from "@/lib/platform/engines/commandCenter";
+import { getDemoSystemHealth } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
+
+function parseHealth(body: Record<string, unknown>) {
+  if (body.health) {
+    return {
+      value: body.health as SystemHealthReport,
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
 
 export default function SystemHealthPage() {
-  const [health, setHealth] = useState<SystemHealthReport | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/command-center/health")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as { health: SystemHealthReport };
-          setHealth(data.health);
-        }
-      })
-      .catch(() => setHealth(null));
-  }, []);
-
-  if (!health) return <SkeletonKpiGrid count={4} />;
+  const { data: health, hydrating, usingDemo } = useCommandCenterHydration({
+    url: "/api/admin/command-center/health",
+    initialData: getDemoSystemHealth(),
+    parse: parseHealth,
+  });
 
   return (
     <div className="space-y-6">
@@ -32,6 +34,8 @@ export default function SystemHealthPage() {
           Infrastructure, PaymentEngine, webhooks, and database telemetry.
         </p>
       </div>
+
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
 
       {health.alerts.map((alert) => (
         <Alert key={alert.key} variant={alert.severity === "critical" ? "error" : "warning"}>

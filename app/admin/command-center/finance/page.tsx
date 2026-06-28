@@ -1,30 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AdminStatCard from "@/components/admin/AdminStatCard";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { FinancialHealthSummary } from "@/lib/platform/engines/commandCenter";
+import { getDemoFinancialHealth } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
-export default function FinancialHealthPage() {
-  const [summary, setSummary] = useState<FinancialHealthSummary | null>(null);
-  const [reconciling, setReconciling] = useState(false);
+function parseFinance(body: Record<string, unknown>) {
+  if (body.summary) {
+    return {
+      value: body.summary as FinancialHealthSummary,
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
 
-  useEffect(() => {
-    fetch("/api/admin/command-center/finance")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as { summary: FinancialHealthSummary };
-          setSummary(data.summary);
-        }
-      })
-      .catch(() => setSummary(null));
-  }, []);
+export default function FinancialHealthPage() {
+  const { data: summary, setData: setSummary, hydrating, usingDemo } =
+    useCommandCenterHydration({
+      url: "/api/admin/command-center/finance",
+      initialData: getDemoFinancialHealth(),
+      parse: parseFinance,
+    });
+  const [reconciling, setReconciling] = useState(false);
 
   async function runReconciliation() {
     setReconciling(true);
@@ -39,8 +45,6 @@ export default function FinancialHealthPage() {
       setReconciling(false);
     }
   }
-
-  if (!summary) return <SkeletonKpiGrid count={4} />;
 
   return (
     <div className="space-y-6">
@@ -60,6 +64,8 @@ export default function FinancialHealthPage() {
           {reconciling ? "Reconciling…" : "Run Daily Reconciliation"}
         </button>
       </div>
+
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <AdminStatCard label="Total Accounts" value={summary.totalAccounts} accent="purple" />

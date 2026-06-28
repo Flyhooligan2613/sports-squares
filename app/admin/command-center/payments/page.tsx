@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import AdminStatCard from "@/components/admin/AdminStatCard";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import type { PaymentCenterSummary } from "@/lib/platform/engines/commandCenter";
+import { getDemoPaymentSummary } from "@/lib/platform/engines/commandCenter/mockData";
+import { useCommandCenterHydration } from "@/hooks/useCommandCenterHydration";
 
 function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -20,21 +21,22 @@ function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
+function parsePayments(body: Record<string, unknown>) {
+  if (body.summary) {
+    return {
+      value: body.summary as PaymentCenterSummary,
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
+
 export default function PaymentCenterPage() {
-  const [summary, setSummary] = useState<PaymentCenterSummary | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/command-center/payments?limit=30")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as { summary: PaymentCenterSummary };
-          setSummary(data.summary);
-        }
-      })
-      .catch(() => setSummary(null));
-  }, []);
-
-  if (!summary) return <SkeletonKpiGrid count={4} />;
+  const { data: summary, hydrating, usingDemo } = useCommandCenterHydration({
+    url: "/api/admin/command-center/payments?limit=30",
+    initialData: getDemoPaymentSummary(),
+    parse: parsePayments,
+  });
 
   return (
     <div className="space-y-6">
@@ -44,6 +46,8 @@ export default function PaymentCenterPage() {
           Transaction Center data via PaymentEngine™ — no duplicated financial logic.
         </p>
       </div>
+
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
 
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <AdminStatCard label="Deposits Today" value={formatCents(summary.depositsTodayCents)} accent="success" />
