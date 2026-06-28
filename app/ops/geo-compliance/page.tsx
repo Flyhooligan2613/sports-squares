@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import OpsModuleSkeleton from "@/components/operations/pages/OpsModuleSkeleton";
 
-const OpsModuleView = dynamic(
-  () => import("@/components/operations/pages/OpsModuleView"),
+const GeoComplianceCenter = dynamic(
+  () => import("@/components/operations/geo-compliance/GeoComplianceCenter"),
   { loading: () => <OpsModuleSkeleton /> },
 );
 
@@ -12,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function GeoCompliancePage() {
-  return <OpsModuleView moduleId="geo-compliance" />;
+  return <GeoComplianceCenter />;
 }

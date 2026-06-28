@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import TopNav from "./TopNav";
+import { OpsContext } from "./OpsContext";
 
 interface OpsLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ export default function OpsLayout({ children }: OpsLayoutProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
+    <OpsContext.Provider value={{ founderMode }}>
     <div className="ops-root">
       <div className="ops-ambient" aria-hidden="true">
         <div className="ops-ambient-orb ops-ambient-orb-1" />
@@ -60,5 +62,6 @@ export default function OpsLayout({ children }: OpsLayoutProps) {
         </main>
       </div>
     </div>
+    </OpsContext.Provider>
   );
 }
