@@ -26,14 +26,15 @@ export interface ArenaAudioPrefs {
 
 const DEFAULT_PREFS: ArenaAudioPrefs = {
   muted: false,
-  masterVolume: 0.7,
-  ambienceVolume: 0.35,
-  sfxVolume: 0.55,
+  masterVolume: 0.55,
+  ambienceVolume: 0.18,
+  sfxVolume: 0.5,
 };
 
 let ctx: AudioContext | null = null;
 let ambienceGain: GainNode | null = null;
 let ambienceOscs: OscillatorNode[] = [];
+let ambienceLfos: OscillatorNode[] = [];
 let ambienceNoise: AudioBufferSourceNode | null = null;
 let prefs: ArenaAudioPrefs = { ...DEFAULT_PREFS };
 let initialized = false;
@@ -51,7 +52,7 @@ export async function initArenaAudio(): Promise<void> {
   const c = getCtx();
   if (c.state === "suspended") await c.resume();
   if (!initialized) {
-    startAmbience(0.15);
+    startAmbience(0.1);
     initialized = true;
   }
 }
@@ -74,7 +75,7 @@ export function setArenaAudioPrefs(next: Partial<ArenaAudioPrefs>): void {
 
 export function setCrowdEnergy(level: number): void {
   const clamped = Math.max(0, Math.min(1, level));
-  prefs.ambienceVolume = 0.12 + clamped * 0.55;
+  prefs.ambienceVolume = 0.08 + clamped * 0.22;
   applyAmbienceVolume(prefs.ambienceVolume);
 }
 
@@ -87,44 +88,82 @@ function applyAmbienceVolume(vol: number): void {
   );
 }
 
+/** Brown noise — softer than white noise for distant crowd rumble. */
+function createBrownNoiseBuffer(c: AudioContext, seconds = 4): AudioBuffer {
+  const bufferSize = Math.floor(c.sampleRate * seconds);
+  const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+  const data = buffer.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const white = Math.random() * 2 - 1;
+    last = (last + 0.02 * white) / 1.02;
+    data[i] = last * 0.35;
+  }
+  return buffer;
+}
+
 function startAmbience(initialLevel: number): void {
   const c = getCtx();
   ambienceGain = c.createGain();
   ambienceGain.gain.value = prefs.muted ? 0 : prefs.masterVolume * initialLevel;
   ambienceGain.connect(c.destination);
 
-  const bufferSize = c.sampleRate * 2;
-  const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = (Math.random() * 2 - 1) * 0.08;
-  }
+  // Subtle brown-noise bed — heavily filtered so it never reads as static/hiss
+  const buffer = createBrownNoiseBuffer(c, 4);
   ambienceNoise = c.createBufferSource();
   ambienceNoise.buffer = buffer;
   ambienceNoise.loop = true;
 
-  const filter = c.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = 420;
-  filter.Q.value = 0.4;
+  const noiseFilter = c.createBiquadFilter();
+  noiseFilter.type = "lowpass";
+  noiseFilter.frequency.value = 280;
+  noiseFilter.Q.value = 0.35;
 
-  ambienceNoise.connect(filter);
-  filter.connect(ambienceGain);
+  const noiseGain = c.createGain();
+  noiseGain.gain.value = 0.045;
+
+  ambienceNoise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(ambienceGain);
   ambienceNoise.start();
 
-  const gain = ambienceGain!;
-  const freqs = [180, 240, 320];
-  ambienceOscs = freqs.map((f) => {
+  const gain = ambienceGain;
+  // Low-frequency "crowd murmur" tones — slow LFO wobble, no harsh frequencies
+  const layers: { freq: number; lfoRate: number; baseGain: number }[] = [
+    { freq: 92, lfoRate: 0.07, baseGain: 0.008 },
+    { freq: 118, lfoRate: 0.11, baseGain: 0.006 },
+    { freq: 156, lfoRate: 0.05, baseGain: 0.005 },
+    { freq: 203, lfoRate: 0.09, baseGain: 0.004 },
+  ];
+
+  ambienceOscs = [];
+  ambienceLfos = [];
+
+  for (const layer of layers) {
     const osc = c.createOscillator();
     osc.type = "sine";
-    osc.frequency.value = f;
-    const g = c.createGain();
-    g.gain.value = 0.012;
-    osc.connect(g);
-    g.connect(gain);
+    osc.frequency.value = layer.freq;
+
+    const lfo = c.createOscillator();
+    lfo.type = "sine";
+    lfo.frequency.value = layer.lfoRate;
+
+    const lfoGain = c.createGain();
+    lfoGain.gain.value = layer.freq * 0.08;
+
+    const toneGain = c.createGain();
+    toneGain.gain.value = layer.baseGain;
+
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    osc.connect(toneGain);
+    toneGain.connect(gain);
+
     osc.start();
-    return osc;
-  });
+    lfo.start();
+    ambienceOscs.push(osc);
+    ambienceLfos.push(lfo);
+  }
 }
 
 function playTone(
@@ -213,9 +252,8 @@ export function playArenaSfx(sfx: ArenaSfx): void {
       window.setTimeout(() => playTone(880, 0.08, "sine", 0.18), 70);
       break;
     case "anticipation-drone":
-      playTone(55, 0.9, "sine", 0.18, false);
-      playTone(82, 0.85, "triangle", 0.12, false);
-      playNoiseBurst(0.5, 0.06);
+      playTone(55, 0.9, "sine", 0.12, false);
+      playTone(82, 0.85, "triangle", 0.08, false);
       break;
     case "prize-spin": {
       for (let i = 0; i < 8; i++) {
@@ -262,7 +300,15 @@ export function destroyArenaAudio(): void {
       /* already stopped */
     }
   });
+  ambienceLfos.forEach((o) => {
+    try {
+      o.stop();
+    } catch {
+      /* already stopped */
+    }
+  });
   ambienceOscs = [];
+  ambienceLfos = [];
   ambienceNoise?.stop();
   ambienceNoise = null;
   ctx?.close();

@@ -109,7 +109,7 @@ export default function LiveArenaExperience() {
   const [reactionPhase, setReactionPhase] = useState<ScoreReactionPhase>("idle");
   const [dockTab, setDockTab] = useState<DockTab>("games");
   const [muted, setMuted] = useState(false);
-  const [volume, setVolume] = useState(0.7);
+  const [volume, setVolume] = useState(0.55);
   const [audioReady, setAudioReady] = useState(false);
   const [hapticClass, setHapticClass] = useState("");
   const [boardTension, setBoardTension] = useState(false);
