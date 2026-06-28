@@ -21,7 +21,8 @@ export default function NavbarGate({ children }: { children: React.ReactNode }) 
     pathname.startsWith("/baseball-pickem") ||
     pathname.startsWith("/soccer-predictor") ||
     pathname.startsWith("/favorites") ||
-    pathname.startsWith("/admin");
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/ops");
 
   if (hideNavbar) {
     return <>{children}</>;

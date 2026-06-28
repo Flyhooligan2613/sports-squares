@@ -7,7 +7,7 @@ import StaffPortalLink from "@/components/StaffPortalLink";
 export default function GlobalStaffPortalHint() {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/ops")) {
     return null;
   }
 
