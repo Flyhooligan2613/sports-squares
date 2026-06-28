@@ -15,7 +15,15 @@ interface ArenaHeaderProps {
   prizePool: number;
   contestType: string;
   scoreFlash: boolean;
+  scoreUpdating: boolean;
 }
+
+const Q_LABELS: Record<number, string> = {
+  1: "1ST",
+  2: "2ND",
+  3: "3RD",
+  4: "4TH",
+};
 
 export default function ArenaHeader({
   awayTeam,
@@ -29,63 +37,53 @@ export default function ArenaHeader({
   prizePool,
   contestType,
   scoreFlash,
+  scoreUpdating,
 }: ArenaHeaderProps) {
   return (
-    <header className="la-glass-card p-3 sm:p-4 space-y-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="la-live-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-[10px] font-bold uppercase tracking-wider text-red-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Live
-            </span>
-            <span className="la-network-dot flex items-center gap-1 text-[10px] text-emerald-400/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              Connected
-            </span>
-          </div>
-          <h1 className="text-base sm:text-lg font-bold tracking-tight mt-1.5 truncate">
-            {awayTeam} vs {homeTeam}
-          </h1>
-          <p className="text-[11px] text-sb-muted mt-0.5">
-            {formatClock(quarter, clock)}
-          </p>
+    <header
+      className={[
+        "la-header-broadcast la-glass-card",
+        scoreFlash ? "la-haptic-shake" : "",
+        scoreUpdating ? "la-header-updating" : "",
+      ].join(" ")}
+    >
+      <div className="la-header-top">
+        <div className="la-header-live-cluster">
+          <span className="la-live-badge">
+            <span className="la-live-dot" aria-hidden />
+            LIVE
+          </span>
+          <span className="la-header-q">
+            {Q_LABELS[quarter] ?? `${quarter}TH`} · {clock}
+          </span>
         </div>
-        <div className="text-right shrink-0">
-          <p className="text-[10px] uppercase tracking-wider text-sb-muted">
-            Prize Pool
-          </p>
-          <p className="text-sm font-bold text-sb-gold tabular-nums">
-            ${prizePool.toLocaleString()}
-          </p>
-          <p className="text-[10px] text-sb-muted mt-0.5">{contestType}</p>
+        <div className="la-header-meta">
+          <span className="la-header-pool">${prizePool.toLocaleString()}</span>
+          <span className="la-header-type">{contestType}</span>
         </div>
       </div>
 
-      <div
-        className={[
-          "flex items-center justify-center gap-3 sm:gap-5 py-2 rounded-xl bg-black/25 border border-white/[0.04]",
-          scoreFlash ? "la-haptic-shake" : "",
-        ].join(" ")}
-      >
-        <div className="text-center min-w-[72px]">
-          <p className="text-[10px] uppercase tracking-wider text-sb-muted mb-0.5">
-            {awayAbbr}
-          </p>
-          <p className="text-3xl sm:text-4xl font-bold">
+      <p className="la-header-matchup">
+        {awayTeam} <span className="la-header-vs">vs</span> {homeTeam}
+      </p>
+
+      <div className="la-scoreboard">
+        <div className="la-score-team">
+          <span className="la-score-abbr">{awayAbbr}</span>
+          <span className="la-score-digit">
             <FlipScore value={awayScore} />
-          </p>
+          </span>
         </div>
-        <span className="text-sb-muted text-sm font-medium">—</span>
-        <div className="text-center min-w-[72px]">
-          <p className="text-[10px] uppercase tracking-wider text-sb-muted mb-0.5">
-            {homeAbbr}
-          </p>
-          <p className="text-3xl sm:text-4xl font-bold">
+        <div className="la-score-divider" aria-hidden />
+        <div className="la-score-team la-score-team--home">
+          <span className="la-score-abbr">{homeAbbr}</span>
+          <span className="la-score-digit">
             <FlipScore value={homeScore} />
-          </p>
+          </span>
         </div>
       </div>
+
+      <p className="la-header-clock-sub">{formatClock(quarter, clock)}</p>
     </header>
   );
 }

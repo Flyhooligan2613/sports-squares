@@ -24,6 +24,16 @@ export interface LiveContest {
   isLive: boolean;
 }
 
+export type DemoEventKind =
+  | "kickoff"
+  | "tick"
+  | "touchdown"
+  | "field-goal"
+  | "quarter-end"
+  | "halftime"
+  | "big-play"
+  | "final";
+
 export interface DemoScoreEvent {
   quarter: 1 | 2 | 3 | 4;
   clock: string;
@@ -31,7 +41,24 @@ export interface DemoScoreEvent {
   homeScore: number;
   label?: string;
   pauseMs?: number;
+  kind?: DemoEventKind;
+  /** 0–1 crowd energy for ambience volume */
+  crowdLevel?: number;
 }
+
+export type BoardRevealPhase =
+  | "hidden"
+  | "grid"
+  | "numbers"
+  | "owned"
+  | "complete";
+
+export type ScoreReactionPhase =
+  | "idle"
+  | "score-flash"
+  | "board-pause"
+  | "signature"
+  | "illuminate";
 
 export interface UserSquareMeta {
   squareId: number;

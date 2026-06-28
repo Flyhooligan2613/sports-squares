@@ -59,57 +59,6 @@ export default function MySquaresPanel({
           );
         })}
       </div>
-
-      {selectedSquareId != null && (
-        <SquareDetail
-          square={squares.find((s) => s.squareId === selectedSquareId)}
-          isWinning={winningSquareId === selectedSquareId}
-        />
-      )}
     </section>
-  );
-}
-
-function SquareDetail({
-  square,
-  isWinning,
-}: {
-  square?: UserSquareMeta;
-  isWinning: boolean;
-}) {
-  if (!square) return null;
-
-  return (
-    <div className="mt-2 p-2.5 rounded-lg bg-black/30 border border-white/[0.05] text-xs space-y-1 la-stat-ticker">
-      <p>
-        <span className="text-sb-muted">Coordinates:</span>{" "}
-        <span className="font-mono">#{square.displayNumber}</span> (grid pos{" "}
-        {square.squareId + 1})
-      </p>
-      <p>
-        <span className="text-sb-muted">Status:</span>{" "}
-        {isWinning ? (
-          <span className="text-amber-400 font-semibold">Currently winning</span>
-        ) : (
-          <span className="text-white/70">In play</span>
-        )}
-      </p>
-      <p>
-        <span className="text-sb-muted">Potential payout:</span>{" "}
-        <span className="text-sb-gold tabular-nums">
-          ${square.potentialPayout.toLocaleString()}
-        </span>
-      </p>
-      {square.quartersWon.length > 0 && (
-        <p>
-          <span className="text-sb-muted">Quarters won:</span> Q
-          {square.quartersWon.join(", Q")}
-        </p>
-      )}
-      <p>
-        <span className="text-sb-muted">Historical probability:</span>{" "}
-        {(square.historicalWinRate * 100).toFixed(1)}%
-      </p>
-    </div>
   );
 }

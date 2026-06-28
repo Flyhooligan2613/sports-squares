@@ -1,4 +1,9 @@
-import { findWinningSquare } from "@/lib/winnerEngine";
+import {
+  findWinningSquare,
+  type WinningSquareMatch,
+} from "@/lib/winnerEngine";
+
+export type { WinningSquareMatch };
 
 /** Map display numbers (1–100) to grid square IDs via inner number assignment. */
 export function displayNumbersToSquareIds(
@@ -10,14 +15,23 @@ export function displayNumbersToSquareIds(
     .filter((id) => id >= 0);
 }
 
+export function getWinningSquareMatch(
+  topNumbers: number[],
+  sideNumbers: number[],
+  homeScore: number,
+  awayScore: number
+): WinningSquareMatch | null {
+  return findWinningSquare(topNumbers, sideNumbers, homeScore, awayScore);
+}
+
 export function getWinningSquareId(
   topNumbers: number[],
   sideNumbers: number[],
   homeScore: number,
   awayScore: number
 ): number | null {
-  const match = findWinningSquare(topNumbers, sideNumbers, homeScore, awayScore);
-  return match?.squareId ?? null;
+  return getWinningSquareMatch(topNumbers, sideNumbers, homeScore, awayScore)
+    ?.squareId ?? null;
 }
 
 export function formatClock(quarter: number, clock: string): string {

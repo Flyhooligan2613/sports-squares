@@ -21,7 +21,7 @@ export default function LiveDock({ active, onChange }: LiveDockProps) {
       className="la-dock fixed bottom-0 inset-x-0 z-50 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2"
       aria-label="Live arena navigation"
     >
-      <div className="max-w-[430px] mx-auto flex items-center justify-around gap-0.5">
+      <div className="la-dock-inner max-w-[430px] mx-auto flex items-center justify-around gap-0.5">
         {TABS.map((tab) => {
           const isActive = active === tab.id;
           return (
@@ -30,18 +30,17 @@ export default function LiveDock({ active, onChange }: LiveDockProps) {
               type="button"
               onClick={() => onChange(tab.id)}
               className={[
-                "flex flex-col items-center gap-0.5 py-1.5 px-2 rounded-xl transition-all duration-300 min-w-[56px]",
-                isActive
-                  ? "text-blue-300 bg-blue-500/15 scale-105"
-                  : "text-white/50 hover:text-white/70",
+                "la-dock-tab",
+                isActive ? "la-dock-tab--active" : "text-white/45 hover:text-white/65",
               ].join(" ")}
             >
-              <span className="text-base leading-none" aria-hidden>
+              <span className="la-dock-icon" aria-hidden>
                 {tab.icon}
               </span>
-              <span className="text-[9px] font-medium leading-tight">
+              <span className="la-dock-label">
                 {tab.label.split(" ")[0]}
               </span>
+              {isActive && <span className="la-dock-glow" aria-hidden />}
             </button>
           );
         })}
