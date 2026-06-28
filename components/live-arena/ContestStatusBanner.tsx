@@ -20,7 +20,7 @@ export default function ContestStatusBanner({
   if (userIsWinning) {
     return (
       <div
-        className="la-contest-status la-contest-status--winning la-glass-card mx-auto max-w-[420px] p-3 border-amber-400/35 bg-gradient-to-r from-amber-500/12 via-amber-400/6 to-transparent"
+        className="la-contest-status la-contest-status--winning la-glass-card la-ui-breathe mx-auto max-w-[420px] p-3 border-amber-400/35 bg-gradient-to-r from-amber-500/12 via-amber-400/6 to-transparent"
         role="status"
       >
         <p className="text-sm font-bold text-amber-300 text-center tracking-wide">
@@ -35,7 +35,7 @@ export default function ContestStatusBanner({
 
   return (
     <div
-      className="la-contest-status la-contest-status--idle la-glass-card mx-auto max-w-[420px] p-2.5 border-white/[0.06]"
+      className="la-contest-status la-contest-status--idle la-glass-card la-ui-breathe mx-auto max-w-[420px] p-2.5 border-white/[0.06]"
       role="status"
     >
       <p className="text-xs font-semibold text-white/50 text-center tracking-wide">

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import type { UserSquareMeta } from "@/lib/live-arena/types";
 
 interface SquareDetailOverlayProps {
@@ -25,57 +24,39 @@ export default function SquareDetailOverlay({
   const squareRow = Math.floor(square.squareId / 10);
   const squareCol = square.squareId % 10;
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-
   return (
-    <div className="la-square-overlay fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm la-overlay-dim"
-        onClick={onClose}
-        aria-label="Close square detail"
-      />
-
-      <div className="la-square-detail-card relative w-full max-w-[400px] mx-4 mb-24 sm:mb-0 la-glass-card p-4 border border-blue-400/20 la-detail-enter">
+    <div className="la-square-detail-float" role="dialog" aria-label="Square details">
+      <div className="la-square-detail-card la-glass-card la-ui-breathe">
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-3 right-3 text-white/40 hover:text-white text-lg leading-none"
+          className="la-square-detail-close"
           aria-label="Close"
         >
           ×
         </button>
 
-        <div className="flex items-start gap-3">
+        <div className="la-square-detail-hero">
           <div
             className={[
-              "la-detail-square-preview shrink-0 w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold border-2",
-              isWinning
-                ? "border-amber-400/80 bg-amber-500/20 text-amber-100 la-square-winning"
-                : "border-blue-400/40 bg-blue-500/15 text-blue-100 la-square-owned",
+              "la-detail-square-preview",
+              isWinning ? "la-detail-square-preview--winning" : "",
             ].join(" ")}
           >
             {square.displayNumber}
           </div>
-          <div className="min-w-0 pt-0.5">
-            <p className="text-lg font-bold">Square #{square.displayNumber}</p>
-            <p className="text-[11px] text-sb-muted mt-0.5">
-              Row {squareRow + 1} · Col {squareCol + 1} · Grid {square.squareId + 1}
-            </p>
+          <div className="la-square-detail-copy">
+            <p className="la-square-detail-title">Square #{square.displayNumber}</p>
             {isWinning && (
-              <p className="text-xs font-semibold text-amber-400 mt-1">
-                🏆 Currently Winning
-              </p>
+              <p className="la-square-detail-winning">🏆 Currently Winning</p>
             )}
+            <p className="la-square-detail-meta">
+              Row {squareRow + 1} · Col {squareCol + 1}
+            </p>
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+        <div className="la-square-detail-stats">
           <DetailCell label="Live Score" value={`${awayScore} – ${homeScore}`} />
           <DetailCell label="Quarter" value={`Q${quarter} · ${clock}`} />
           <DetailCell
@@ -84,20 +65,8 @@ export default function SquareDetailOverlay({
             highlight
           />
           <DetailCell
-            label="Contest Position"
+            label="Position"
             value={isWinning ? "Leading" : "In play"}
-          />
-          <DetailCell
-            label="Historical Win Rate"
-            value={`${(square.historicalWinRate * 100).toFixed(1)}%`}
-          />
-          <DetailCell
-            label="Quarters Won"
-            value={
-              square.quartersWon.length > 0
-                ? square.quartersWon.map((q) => `Q${q}`).join(", ")
-                : "—"
-            }
           />
         </div>
       </div>
@@ -115,12 +84,12 @@ function DetailCell({
   highlight?: boolean;
 }) {
   return (
-    <div className="p-2 rounded-lg bg-black/25 border border-white/[0.04]">
-      <p className="text-[10px] text-sb-muted uppercase tracking-wider">{label}</p>
+    <div className="la-square-detail-stat">
+      <p className="la-square-detail-stat-label">{label}</p>
       <p
         className={[
-          "font-semibold mt-0.5 tabular-nums",
-          highlight ? "text-sb-gold" : "text-white/90",
+          "la-square-detail-stat-value",
+          highlight ? "la-square-detail-stat-value--gold" : "",
         ].join(" ")}
       >
         {value}

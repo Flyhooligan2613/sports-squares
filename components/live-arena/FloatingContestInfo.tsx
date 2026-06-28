@@ -30,7 +30,7 @@ export default function FloatingContestInfo({
 
   return (
     <aside
-      className="la-floating-info la-glass-card"
+      className="la-floating-info la-glass-card la-ui-breathe"
       aria-label="Contest information"
     >
       <p className="la-floating-info__title truncate">

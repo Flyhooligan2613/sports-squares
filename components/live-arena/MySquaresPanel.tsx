@@ -56,7 +56,7 @@ export default function MySquaresPanel({
                   "la-square-chip min-h-[44px]",
                   chip.className,
                   isSelected ? "la-square-chip--selected" : "",
-                  isWinning ? "la-square-chip--live-winning" : "",
+                  isWinning ? "la-square-chip--live-winning" : "la-chip-breathe",
                 ].join(" ")}
                 aria-pressed={isSelected}
                 aria-label={`Square ${sq.displayNumber}, ${chip.label}`}

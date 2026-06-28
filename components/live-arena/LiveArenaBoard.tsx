@@ -19,6 +19,8 @@ interface LiveArenaBoardProps {
   revealPhase: BoardRevealPhase;
   zoomed: boolean;
   signatureActive: boolean;
+  winPathActive?: boolean;
+  illuminateWinning?: boolean;
   boardReacting: boolean;
   boardBreathing?: boolean;
   boardTension?: boolean;
@@ -71,6 +73,8 @@ export default function LiveArenaBoard({
   revealPhase,
   zoomed,
   signatureActive,
+  winPathActive = false,
+  illuminateWinning = false,
   boardReacting,
   boardBreathing = false,
   boardTension = false,
@@ -94,6 +98,10 @@ export default function LiveArenaBoard({
   const rowIdx = winningMatch?.row ?? -1;
   const colIdx = winningMatch?.col ?? -1;
 
+  const focusRow =
+    selectedSquareId != null ? Math.floor(selectedSquareId / 10) : 0;
+  const focusCol = selectedSquareId != null ? selectedSquareId % 10 : 0;
+
   const celebrating =
     celebrationPhase !== "idle" && celebrationPhase !== "complete";
   const spinPhase = celebrationPhase === "spin";
@@ -111,6 +119,14 @@ export default function LiveArenaBoard({
           boardTension ? "la-board-tension" : "",
           celebrating ? "la-board-celebrating" : "",
         ].join(" ")}
+        style={
+          zoomed
+            ? ({
+                "--la-focus-row": focusRow,
+                "--la-focus-col": focusCol,
+              } as CSSProperties)
+            : undefined
+        }
       >
         <p className="la-board-home-label">{homeTeam}</p>
 
@@ -120,6 +136,8 @@ export default function LiveArenaBoard({
               "la-board-grid",
               showGrid ? "la-board-grid--visible" : "",
               signatureActive || celebrating ? "la-board-grid--signature" : "",
+              zoomed ? "la-board-grid--zoomed" : "",
+              illuminateWinning ? "la-board-grid--illuminate" : "",
             ].join(" ")}
           >
             <div className="la-axis-cell la-axis-corner" aria-hidden />
@@ -128,6 +146,7 @@ export default function LiveArenaBoard({
                 key={`top-${i}`}
                 className={[
                   "la-axis-cell la-axis-top",
+                  winPathActive && colIdx === i ? "la-win-path-origin-col" : "",
                   (signatureActive || poolHighlight) && colIdx === i
                     ? "la-axis-highlight-col"
                     : "",
@@ -160,6 +179,7 @@ export default function LiveArenaBoard({
                 highlightRow={
                   (signatureActive || poolHighlight) && rowIdx === row
                 }
+                winPathOriginRow={winPathActive && rowIdx === row}
                 poolHighlight={poolHighlight}
                 poolLine={poolLine}
                 colIdx={colIdx}
@@ -170,21 +190,31 @@ export default function LiveArenaBoard({
               />
             ))}
 
-            {(signatureActive || celebrationPhase === "anticipation") &&
+            {(winPathActive || signatureActive || celebrationPhase === "anticipation") &&
               winningMatch && (
                 <>
                   <div
-                    className="la-signature-line la-signature-line--h la-signature-line--dramatic"
-                    style={{ "--la-row": rowIdx } as CSSProperties}
+                    className={[
+                      "la-win-path-line la-win-path-line--h",
+                      signatureActive ? "la-win-path-line--dramatic" : "",
+                    ].join(" ")}
+                    style={{ "--la-row": rowIdx, "--la-col": colIdx } as CSSProperties}
                     aria-hidden
                   />
                   <div
-                    className="la-signature-line la-signature-line--v la-signature-line--dramatic"
-                    style={{ "--la-col": colIdx } as CSSProperties}
+                    className={[
+                      "la-win-path-line la-win-path-line--v",
+                      signatureActive ? "la-win-path-line--dramatic" : "",
+                    ].join(" ")}
+                    style={{ "--la-row": rowIdx, "--la-col": colIdx } as CSSProperties}
                     aria-hidden
                   />
                   <div
-                    className="la-signature-intersect la-signature-intersect--dramatic"
+                    className={[
+                      "la-win-path-intersect",
+                      illuminateWinning ? "la-win-path-intersect--illuminate" : "",
+                      signatureActive ? "la-win-path-intersect--dramatic" : "",
+                    ].join(" ")}
                     style={
                       {
                         "--la-row": rowIdx,
@@ -241,6 +271,7 @@ function BoardRow({
   selectedSquareId,
   signatureActive,
   highlightRow,
+  winPathOriginRow,
   poolHighlight,
   poolLine,
   colIdx,
@@ -263,6 +294,7 @@ function BoardRow({
   selectedSquareId: number | null;
   signatureActive: boolean;
   highlightRow: boolean;
+  winPathOriginRow: boolean;
   poolHighlight: boolean;
   poolLine: "row" | "col" | null;
   colIdx: number;
@@ -276,6 +308,7 @@ function BoardRow({
       <div
         className={[
           "la-axis-cell la-axis-side",
+          winPathOriginRow ? "la-win-path-origin-row" : "",
           highlightRow ? "la-axis-highlight-row" : "",
           poolHighlight && poolLine === "row" && highlightRow
             ? "la-axis-pool-sweep"

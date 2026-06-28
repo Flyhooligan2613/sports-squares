@@ -133,6 +133,14 @@ export default function LiveArenaExperience() {
   const quarter = isPrimaryDemo ? demoEvent.quarter : 3;
   const clock = isPrimaryDemo ? demoEvent.clock : "8:41";
 
+  const possessionTeam = useMemo((): "away" | "home" | null => {
+    if (!isPrimaryDemo) return null;
+    const label = demoEvent.label ?? "";
+    if (/bills/i.test(label)) return "away";
+    if (/chiefs/i.test(label)) return "home";
+    return homeScore >= awayScore ? "home" : "away";
+  }, [isPrimaryDemo, demoEvent.label, homeScore, awayScore]);
+
   const userSquareIds = useMemo(
     () => getUserSquareIds(contest),
     [contest]
@@ -831,6 +839,7 @@ export default function LiveArenaExperience() {
           clock={clock}
           prizePool={contest.prizePool}
           contestType={contest.contestType}
+          possessionTeam={possessionTeam}
           scoreFlash={scoreFlash}
           scoreUpdating={scoreUpdating}
           hapticClass={hapticClass}
@@ -851,7 +860,21 @@ export default function LiveArenaExperience() {
           }
         />
 
-        <div className="relative">
+        <div
+          className={[
+            "la-board-focus-wrap relative",
+            selectedSquareId != null ? "la-board-focus-active" : "",
+          ].join(" ")}
+        >
+          {selectedSquareId != null && (
+            <button
+              type="button"
+              className="la-board-focus-dismiss"
+              onClick={() => setSelectedSquareId(null)}
+              aria-label="Close square detail"
+            />
+          )}
+
           <LiveArenaBoard
             contest={contest}
             userSquareIds={userSquareIds}
@@ -863,6 +886,15 @@ export default function LiveArenaExperience() {
             }
             zoomed={selectedSquareId != null}
             signatureActive={signatureActive}
+            winPathActive={
+              signatureActive ||
+              reactionPhase === "signature" ||
+              reactionPhase === "illuminate" ||
+              celebration.phase === "anticipation"
+            }
+            illuminateWinning={
+              reactionPhase === "illuminate" || celebration.phase === "burst"
+            }
             boardReacting={boardReacting}
             boardBreathing={phase === "live" && revealPhase === "complete"}
             boardTension={boardTension}
@@ -872,6 +904,18 @@ export default function LiveArenaExperience() {
             closeSquareIds={closeSquareIds}
             onSquareClick={handleSquareSelect}
           />
+
+          {selectedSquare && selectedSquareId != null && (
+            <SquareDetailOverlay
+              square={selectedSquare}
+              isWinning={winningSquareId === selectedSquareId}
+              awayScore={awayScore}
+              homeScore={homeScore}
+              quarter={quarter}
+              clock={clock}
+              onClose={() => setSelectedSquareId(null)}
+            />
+          )}
 
           <WinCelebration
             active={celebration.active}
@@ -906,18 +950,6 @@ export default function LiveArenaExperience() {
           </button>
         </div>
       </div>
-
-      {selectedSquare && selectedSquareId != null && (
-        <SquareDetailOverlay
-          square={selectedSquare}
-          isWinning={winningSquareId === selectedSquareId}
-          awayScore={awayScore}
-          homeScore={homeScore}
-          quarter={quarter}
-          clock={clock}
-          onClose={() => setSelectedSquareId(null)}
-        />
-      )}
 
       <LiveDock active={dockTab} onChange={setDockTab} />
 

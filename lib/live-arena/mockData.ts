@@ -25,6 +25,33 @@ function buildInnerNumbers(seed: number): number[] {
 
 export const USER_DISPLAY_NUMBERS = [12, 18, 47, 89] as const;
 
+/** Styled team badges for broadcast header (emoji + brand tones). */
+export const TEAM_BADGES: Record<
+  string,
+  { emoji: string; primary: string; accent: string }
+> = {
+  BUF: { emoji: "🦬", primary: "#00338D", accent: "#C60C30" },
+  KC: { emoji: "🏹", primary: "#E31837", accent: "#FFB612" },
+  LAL: { emoji: "🏀", primary: "#552583", accent: "#FDB927" },
+  MIA: { emoji: "🔥", primary: "#98002E", accent: "#F9A01B" },
+  NYY: { emoji: "⚾", primary: "#0C2340", accent: "#C4CED4" },
+  BOS: { emoji: "🧦", primary: "#BD3039", accent: "#0C2340" },
+  DAL: { emoji: "⭐", primary: "#003594", accent: "#869397" },
+  PHI: { emoji: "🦅", primary: "#004C54", accent: "#A5ACAF" },
+  PK: { emoji: "📋", primary: "#1e3a5f", accent: "#60a5fa" },
+  W12: { emoji: "📅", primary: "#312e81", accent: "#818cf8" },
+};
+
+export function getTeamBadge(abbr: string) {
+  return (
+    TEAM_BADGES[abbr] ?? {
+      emoji: "🏟",
+      primary: "#1e3a5f",
+      accent: "#60a5fa",
+    }
+  );
+}
+
 export const MOCK_STATS: LiveArenaStats = {
   playersLive: 4281,
   paidToday: 22540,

@@ -21,7 +21,7 @@ export default function LiveDock({ active, onChange }: LiveDockProps) {
       className="la-dock fixed bottom-0 inset-x-0 z-50 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2"
       aria-label="Live arena navigation"
     >
-      <div className="la-dock-inner max-w-[430px] mx-auto flex items-center justify-around gap-0.5">
+      <div className="la-dock-inner la-ui-breathe max-w-[430px] mx-auto flex items-center justify-around gap-0.5">
         {TABS.map((tab) => {
           const isActive = active === tab.id;
           return (
