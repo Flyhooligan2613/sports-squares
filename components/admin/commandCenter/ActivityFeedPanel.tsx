@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
 import { ACTIVITY_FEED_POLL_MS, type ActivityFeedItem } from "@/lib/platform/engines/commandCenter";
+import { getDemoActivityFeed } from "@/lib/platform/engines/commandCenter/mockData";
+import { COMMAND_CENTER_API_TIMEOUT_MS } from "@/lib/platform/engines/commandCenter/config";
+import { fetchCommandCenter } from "@/hooks/useCommandCenterHydration";
 
 const CATEGORY_COLORS: Record<string, string> = {
   contest: "text-sb-glow bg-sb-purple/10 border-sb-purple/25",
@@ -20,6 +24,16 @@ function formatTime(iso: string): string {
     minute: "2-digit",
     second: "2-digit",
   }).format(new Date(iso));
+}
+
+function parseActivity(body: Record<string, unknown>) {
+  if (Array.isArray(body.items)) {
+    return {
+      value: body.items as ActivityFeedItem[],
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
 }
 
 function ActivityRow({ item }: { item: ActivityFeedItem }) {
@@ -54,24 +68,27 @@ function ActivityRow({ item }: { item: ActivityFeedItem }) {
 }
 
 export default function ActivityFeedPanel() {
-  const [items, setItems] = useState<ActivityFeedItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<ActivityFeedItem[]>(getDemoActivityFeed());
+  const [hydrating, setHydrating] = useState(true);
+  const [usingDemo, setUsingDemo] = useState(true);
 
-  async function load() {
-    try {
-      const res = await fetch("/api/admin/command-center/activity?limit=30");
-      if (res.ok) {
-        const data = (await res.json()) as { items: ActivityFeedItem[] };
-        setItems(data.items);
-      }
-    } finally {
-      setLoading(false);
+  async function load(showHydrating = false) {
+    if (showHydrating) setHydrating(true);
+    const parsed = await fetchCommandCenter(
+      "/api/admin/command-center/activity?limit=30",
+      parseActivity,
+      COMMAND_CENTER_API_TIMEOUT_MS
+    );
+    if (parsed) {
+      setItems(parsed.value);
+      setUsingDemo(parsed.demo);
     }
+    setHydrating(false);
   }
 
   useEffect(() => {
-    load();
-    const timer = setInterval(load, ACTIVITY_FEED_POLL_MS);
+    void load(true);
+    const timer = setInterval(() => void load(false), ACTIVITY_FEED_POLL_MS);
     return () => clearInterval(timer);
   }, []);
 
@@ -85,13 +102,13 @@ export default function ActivityFeedPanel() {
         </span>
       </div>
 
-      {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 rounded-lg bg-white/[0.04] animate-pulse" />
-          ))}
+      {(hydrating || usingDemo) && (
+        <div className="mb-4">
+          <CommandCenterSyncBanner hydrating={hydrating} usingDemo={!hydrating && usingDemo} />
         </div>
-      ) : items.length === 0 ? (
+      )}
+
+      {items.length === 0 ? (
         <p className="text-sm text-sb-muted text-center py-8">No recent activity.</p>
       ) : (
         <div className="max-h-[480px] overflow-y-auto pr-1">

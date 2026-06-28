@@ -5,7 +5,9 @@ import Link from "next/link";
 import LandingGlassCard from "@/components/landing/LandingGlassCard";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
-import { SkeletonKpiGrid } from "@/components/ui/Skeleton";
+import CommandCenterSyncBanner from "@/components/admin/commandCenter/CommandCenterSyncBanner";
+import { getDemoPlayers } from "@/lib/platform/engines/commandCenter/mockData";
+import { fetchCommandCenter } from "@/hooks/useCommandCenterHydration";
 
 interface PlatformPlayerRow {
   email: string;
@@ -18,27 +20,37 @@ interface PlatformPlayerRow {
 
 type PlayerFilter = "all" | "suspended" | "flagged";
 
+function parsePlayers(body: Record<string, unknown>) {
+  if (Array.isArray(body.players)) {
+    return {
+      value: body.players as PlatformPlayerRow[],
+      demo: Boolean(body.demo),
+    };
+  }
+  return null;
+}
+
 export default function AdminPlatformPlayersClient() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<PlayerFilter>("all");
-  const [players, setPlayers] = useState<PlatformPlayerRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [players, setPlayers] = useState<PlatformPlayerRow[]>(getDemoPlayers());
+  const [hydrating, setHydrating] = useState(true);
+  const [usingDemo, setUsingDemo] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadRecent = useCallback(async () => {
-    setLoading(true);
+    setHydrating(true);
     setError(null);
-    try {
-      const res = await fetch("/api/admin/command-center/players?recent=20");
-      if (!res.ok) throw new Error("Failed to load players");
-      const data = (await res.json()) as { players: PlatformPlayerRow[] };
-      setPlayers(data.players);
-    } catch {
-      setError("Could not load recent registrations.");
-    } finally {
-      setLoading(false);
+    const parsed = await fetchCommandCenter(
+      "/api/admin/command-center/players?recent=20",
+      parsePlayers
+    );
+    if (parsed) {
+      setPlayers(parsed.value);
+      setUsingDemo(parsed.demo);
     }
+    setHydrating(false);
   }, []);
 
   useEffect(() => {
@@ -50,18 +62,17 @@ export default function AdminPlatformPlayersClient() {
     if (query.trim().length < 2) return;
     setSearching(true);
     setError(null);
-    try {
-      const res = await fetch(
-        `/api/admin/command-center/players?q=${encodeURIComponent(query.trim())}`
-      );
-      if (!res.ok) throw new Error("Search failed");
-      const data = (await res.json()) as { players: PlatformPlayerRow[] };
-      setPlayers(data.players);
-    } catch {
+    const parsed = await fetchCommandCenter(
+      `/api/admin/command-center/players?q=${encodeURIComponent(query.trim())}`,
+      parsePlayers
+    );
+    if (parsed) {
+      setPlayers(parsed.value);
+      setUsingDemo(parsed.demo);
+    } else {
       setError("Player search failed.");
-    } finally {
-      setSearching(false);
     }
+    setSearching(false);
   }
 
   const filtered = players.filter((p) => {
@@ -81,6 +92,8 @@ export default function AdminPlatformPlayersClient() {
           </Button>
         }
       />
+
+      <CommandCenterSyncBanner hydrating={hydrating} usingDemo={usingDemo} />
 
       <LandingGlassCard className="p-4 sm:p-5 space-y-4 sb-card-lift">
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
@@ -120,9 +133,7 @@ export default function AdminPlatformPlayersClient() {
 
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
 
-      {loading ? (
-        <SkeletonKpiGrid count={3} />
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <LandingGlassCard className="p-8 text-center text-sb-muted text-sm">
           No players match your search or filter.
         </LandingGlassCard>
