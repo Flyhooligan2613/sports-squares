@@ -72,34 +72,46 @@ export default function QuickUnlockGate({ children }: { children: React.ReactNod
     let cancelled = false;
 
     async function evaluate() {
-      const bootstrap = await fetchAuthBootstrap();
-      if (cancelled) return;
+      try {
+        const bootstrap = await Promise.race([
+          fetchAuthBootstrap(),
+          new Promise<never>((_, reject) => {
+            window.setTimeout(() => reject(new Error("bootstrap_timeout")), 12_000);
+          }),
+        ]);
+        if (cancelled) return;
 
-      if (!bootstrap.authenticated || !bootstrap.email) {
-        setChecking(false);
-        setLocked(false);
-        return;
-      }
+        if (!bootstrap.authenticated || !bootstrap.email) {
+          setLocked(false);
+          return;
+        }
 
-      const playerEmail = bootstrap.email;
-      setEmail(playerEmail);
+        const playerEmail = bootstrap.email;
+        setEmail(playerEmail);
 
-      const hasQuickUnlock =
-        bootstrap.passkeyAvailable ||
-        isQuickPinEnabledLocally(playerEmail);
+        const hasQuickUnlock =
+          bootstrap.passkeyAvailable ||
+          isQuickPinEnabledLocally(playerEmail);
 
-      if (!hasQuickUnlock || isAppUnlocked(playerEmail)) {
-        setLocked(false);
-        setChecking(false);
-        return;
-      }
+        if (!hasQuickUnlock || isAppUnlocked(playerEmail)) {
+          setLocked(false);
+          return;
+        }
 
-      setLocked(true);
-      setChecking(false);
+        setLocked(true);
 
-      const biometricOk = await tryBiometricUnlock(playerEmail);
-      if (!cancelled && !biometricOk) {
-        setShowPin(isQuickPinEnabledLocally(playerEmail));
+        const biometricOk = await tryBiometricUnlock(playerEmail);
+        if (!cancelled && !biometricOk) {
+          setShowPin(isQuickPinEnabledLocally(playerEmail));
+        }
+      } catch {
+        if (!cancelled) {
+          setLocked(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setChecking(false);
+        }
       }
     }
 

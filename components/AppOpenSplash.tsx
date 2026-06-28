@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
 import SignupWelcomeGate from "@/components/auth/SignupWelcomeGate";
@@ -51,18 +51,17 @@ export default function AppOpenSplash() {
   const pathname = usePathname();
   const [phase, setPhase] = useState<SplashPhase>("hidden");
   const [splashReady, setSplashReady] = useState(false);
-  const startedRef = useRef(false);
   const phaseRef = useRef<SplashPhase>("hidden");
   const splashStartedAtRef = useRef(0);
 
-  function finishSplash() {
+  const finishSplash = useCallback(() => {
     markSplashRevealed();
     document.body.style.removeProperty("overflow");
     notifySplashComplete();
     setPhase("done");
     phaseRef.current = "done";
     setSplashReady(true);
-  }
+  }, []);
 
   useLayoutEffect(() => {
     const initial = resolveInitialSplash(pathname);
@@ -71,6 +70,7 @@ export default function AppOpenSplash() {
     setSplashReady(initial.ready);
     if (!initial.animate) {
       markSplashRevealed();
+      notifySplashComplete();
     }
   }, [pathname]);
 
@@ -79,9 +79,6 @@ export default function AppOpenSplash() {
   }, [phase]);
 
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-
     if (shouldSkipSplash(pathname)) {
       finishSplash();
       return;
@@ -130,6 +127,16 @@ export default function AppOpenSplash() {
       finishSplash();
     }, SHOW_MS + EXIT_MS);
 
+    const safetyTimer = window.setTimeout(() => {
+      if (phaseRef.current === "done") return;
+      try {
+        sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      finishSplash();
+    }, SHOW_MS + EXIT_MS + 1200);
+
     const onVisibility = () => {
       if (document.visibilityState !== "visible") return;
       const elapsed = Date.now() - splashStartedAtRef.current;
@@ -149,6 +156,7 @@ export default function AppOpenSplash() {
     return () => {
       window.clearTimeout(exitTimer);
       window.clearTimeout(doneTimer);
+      window.clearTimeout(safetyTimer);
       document.removeEventListener("visibilitychange", onVisibility);
       document.body.style.removeProperty("overflow");
       if (phaseRef.current === "enter" || phaseRef.current === "exit") {
@@ -157,14 +165,10 @@ export default function AppOpenSplash() {
         } catch {
           /* ignore */
         }
-        markSplashRevealed();
-        phaseRef.current = "done";
-        setPhase("done");
-        setSplashReady(true);
-        notifySplashComplete();
+        finishSplash();
       }
     };
-  }, [pathname]);
+  }, [pathname, finishSplash]);
 
   return (
     <>

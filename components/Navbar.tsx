@@ -28,7 +28,9 @@ export default function Navbar() {
       >
         <div className="app-menu-bar-brand flex items-center gap-2 min-w-0 shrink">
           <NavDrawerTrigger />
-          <Logo href="/" variant="icon" className="sb-logo-nav shrink-0 md:hidden" />
+          {!isHome ? (
+            <Logo href="/" variant="icon" className="sb-logo-nav shrink-0 md:hidden" />
+          ) : null}
           <Logo href="/" className="sb-logo-nav shrink-0 hidden md:inline-flex" />
         </div>
         <div className="hidden md:flex flex-1 justify-center px-3 min-w-0 max-w-xl">
@@ -41,7 +43,7 @@ export default function Navbar() {
           {signedIn ? <PlayerHeaderQuickActions /> : null}
           {signedIn ? <WalletBalanceChip /> : null}
           <NotificationBell />
-          <PlayerAccountNavButton />
+          {signedIn || !isHome ? <PlayerAccountNavButton /> : null}
         </div>
       </div>
     </header>

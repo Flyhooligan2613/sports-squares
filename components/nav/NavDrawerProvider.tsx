@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
-import { getPlayerSessionUser } from "@/lib/auth/playerAuthClient";
+import { createClient } from "@/lib/supabase/client";
 import { loadReadNotificationIds } from "@/lib/notifications/readState";
 import type { PlayerNotification } from "@/lib/player/dashboardTypes";
 
@@ -41,7 +41,10 @@ export function NavDrawerProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback(() => setIsOpen((value) => !value), []);
 
   const refreshUserContext = useCallback(async () => {
-    const user = await getPlayerSessionUser();
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const email = user?.email?.toLowerCase() ?? null;
     setUserEmail(email);
 
@@ -104,6 +107,16 @@ export function NavDrawerProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refreshUserContext();
+  }, [refreshUserContext]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      void refreshUserContext();
+    });
+    return () => subscription.unsubscribe();
   }, [refreshUserContext]);
 
   useEffect(() => {
