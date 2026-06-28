@@ -38,7 +38,7 @@ export default function WinCelebration({
   }, []);
 
   const confetti = useMemo(
-    () => (active && !reducedMotion ? generateConfetti(50, mobile) : []),
+    () => (active && !reducedMotion ? generateConfetti(65, mobile) : []),
     [active, mobile, reducedMotion]
   );
 

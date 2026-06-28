@@ -50,12 +50,12 @@ export const BILLS_CHIEFS_DEMO: DemoScoreEvent[] = [
   },
   { quarter: 2, clock: "0:48", awayScore: 4, homeScore: 2, pauseMs: 13500, kind: "tick", crowdLevel: 0.46 },
   { quarter: 2, clock: "0:24", awayScore: 4, homeScore: 5, label: "Chiefs FG", pauseMs: 13500, ...fg(0.48) },
-  /* ~90s cumulative — quarter pool line win (9-8 → user square #13) */
+  /* ~90s cumulative — quarter pool line win (8-9 → user square #13, display #47) */
   {
     quarter: 2,
     clock: "0:00",
-    awayScore: 9,
-    homeScore: 8,
+    awayScore: 8,
+    homeScore: 9,
     label: "End Q2",
     pauseMs: 6800,
     kind: "quarter-end",

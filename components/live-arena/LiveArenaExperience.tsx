@@ -793,7 +793,7 @@ export default function LiveArenaExperience() {
   }
 
   return (
-    <div className={["la-root pb-24", hapticClass].filter(Boolean).join(" ")}>
+    <div className={["la-root la-root--live pb-24", hapticClass].filter(Boolean).join(" ")}>
       <div className="la-stadium-bg">
         <div className="la-stadium-spotlight" />
       </div>
@@ -806,28 +806,20 @@ export default function LiveArenaExperience() {
         />
       )}
 
-      <div className="relative z-[1] max-w-[430px] mx-auto px-4 pt-4 space-y-3">
-        {(phase === "halftime" || phase === "complete") && (
+      {(phase === "halftime" || phase === "complete") && (
+        <div className="la-live-overlay-wrap">
           <PhaseOverlay phase={phase} onRestart={enterDashboard} />
-        )}
+        </div>
+      )}
 
-        {devNotification && (
-          <div className="la-dev-toast la-glass-card p-2 text-center text-xs font-semibold text-blue-300">
-            Demo notification triggered
-          </div>
-        )}
+      {devNotification && (
+        <div className="la-dev-toast la-glass-card p-2 text-center text-xs font-semibold text-blue-300 la-live-overlay-wrap">
+          Demo notification triggered
+        </div>
+      )}
 
-        <LiveActivityBar stats={MOCK_STATS} active={phase === "live"} />
-
-        <FloatingContestInfo
-          contest={contest}
-          quarter={quarter}
-          clock={clock}
-          winningDisplayNumber={winningDisplayNumber}
-          potentialPrize={winningPayout}
-          visible={phase === "live" && revealPhase === "complete"}
-        />
-
+      {/* Sticky broadcast header — score dominates top */}
+      <header className="la-live-header">
         <ArenaHeader
           awayTeam={contest.awayTeam}
           awayAbbr={contest.awayAbbr}
@@ -845,21 +837,10 @@ export default function LiveArenaExperience() {
           hapticClass={hapticClass}
           onLongPress={() => setDevOpen(true)}
         />
+      </header>
 
-        <ContestStatusBanner
-          visible={
-            (phase === "live" && revealPhase === "complete") || devNotification
-          }
-          userIsWinning={devNotification ? true : userIsWinning}
-          payout={winningPayout}
-          animatePayout={
-            (userIsWinning &&
-              (reactionPhase === "illuminate" ||
-                celebration.phase === "banner")) ||
-            devNotification
-          }
-        />
-
+      {/* Hero board — fills viewport center */}
+      <section className="la-board-hero">
         <div
           className={[
             "la-board-focus-wrap relative",
@@ -893,7 +874,9 @@ export default function LiveArenaExperience() {
               celebration.phase === "anticipation"
             }
             illuminateWinning={
-              reactionPhase === "illuminate" || celebration.phase === "burst"
+              reactionPhase === "illuminate" ||
+              celebration.phase === "burst" ||
+              celebration.phase === "spin"
             }
             boardReacting={boardReacting}
             boardBreathing={phase === "live" && revealPhase === "complete"}
@@ -902,6 +885,15 @@ export default function LiveArenaExperience() {
             celebrationKind={celebration.kind}
             poolLine={celebration.poolLine ?? null}
             closeSquareIds={closeSquareIds}
+            winPayout={
+              celebration.active ? celebration.payout : winningPayout
+            }
+            showWinPayout={
+              celebration.active &&
+              (celebration.phase === "spin" ||
+                celebration.phase === "burst" ||
+                celebration.phase === "banner")
+            }
             onSquareClick={handleSquareSelect}
           />
 
@@ -926,6 +918,34 @@ export default function LiveArenaExperience() {
             confettiOrigin={confettiOrigin}
           />
         </div>
+      </section>
+
+      {/* Scrollable secondary UI below board */}
+      <div className="la-live-scroll">
+        <LiveActivityBar stats={MOCK_STATS} active={phase === "live"} />
+
+        <FloatingContestInfo
+          contest={contest}
+          quarter={quarter}
+          clock={clock}
+          winningDisplayNumber={winningDisplayNumber}
+          potentialPrize={winningPayout}
+          visible={phase === "live" && revealPhase === "complete"}
+        />
+
+        <ContestStatusBanner
+          visible={
+            (phase === "live" && revealPhase === "complete") || devNotification
+          }
+          userIsWinning={devNotification ? true : userIsWinning}
+          payout={winningPayout}
+          animatePayout={
+            (userIsWinning &&
+              (reactionPhase === "illuminate" ||
+                celebration.phase === "banner")) ||
+            devNotification
+          }
+        />
 
         <MySquaresPanel
           squares={userSquares}

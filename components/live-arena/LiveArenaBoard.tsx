@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, type CSSProperties } from "react";
+import AnimatedCurrency from "@/components/ui/AnimatedCurrency";
 import { getSquareDisplayNumber } from "@/lib/engines/squareDisplay";
+import { generateConfetti } from "@/lib/live-arena/celebrations";
 import type { WinningSquareMatch } from "@/lib/live-arena/squareUtils";
 import type {
   BoardRevealPhase,
@@ -28,6 +30,8 @@ interface LiveArenaBoardProps {
   celebrationKind?: WinCelebrationKind | null;
   poolLine?: "row" | "col" | null;
   closeSquareIds?: number[];
+  winPayout?: number;
+  showWinPayout?: boolean;
   onSquareClick: (squareId: number) => void;
 }
 
@@ -64,6 +68,44 @@ function WinParticles({ active, intense }: { active: boolean; intense?: boolean 
   );
 }
 
+function SquareStar({ variant }: { variant: "owned" | "winning" | "close" }) {
+  return (
+    <span
+      className={`la-square-star la-square-star--${variant}`}
+      aria-hidden
+    >
+      ★
+    </span>
+  );
+}
+
+function CellConfetti({ active }: { active: boolean }) {
+  const pieces = useMemo(
+    () => (active ? generateConfetti(14, true) : []),
+    [active]
+  );
+  if (!active) return null;
+  return (
+    <div className="la-cell-confetti" aria-hidden>
+      {pieces.map((p) => (
+        <span
+          key={p.id}
+          className="la-cell-confetti-piece"
+          style={
+            {
+              left: `${20 + p.x * 0.6}%`,
+              top: `${15 + p.y * 0.5}%`,
+              "--la-confetti-color": p.color,
+              "--la-confetti-rot": `${p.rotation}deg`,
+              animationDelay: `${p.delay}s`,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function LiveArenaBoard({
   contest,
   userSquareIds,
@@ -82,6 +124,8 @@ export default function LiveArenaBoard({
   celebrationKind = null,
   poolLine = null,
   closeSquareIds = [],
+  winPayout = 0,
+  showWinPayout = false,
   onSquareClick,
 }: LiveArenaBoardProps) {
   const { topNumbers, sideNumbers, innerNumbers, homeTeam, awayTeam } = contest;
@@ -186,6 +230,8 @@ export default function LiveArenaBoard({
                 spinPhase={spinPhase}
                 burstPhase={burstPhase}
                 celebrationKind={celebrationKind}
+                winPayout={winPayout}
+                showWinPayout={showWinPayout}
                 onSquareClick={onSquareClick}
               />
             ))}
@@ -278,6 +324,8 @@ function BoardRow({
   spinPhase,
   burstPhase,
   celebrationKind,
+  winPayout,
+  showWinPayout,
   onSquareClick,
 }: {
   row: number;
@@ -301,6 +349,8 @@ function BoardRow({
   spinPhase: boolean;
   burstPhase: boolean;
   celebrationKind: WinCelebrationKind | null;
+  winPayout: number;
+  showWinPayout: boolean;
   onSquareClick: (id: number) => void;
 }) {
   return (
@@ -342,7 +392,7 @@ function BoardRow({
               isSelected ? "la-square-selected" : "",
               signatureActive && isWinning ? "la-square-signature-hit" : "",
               spinPhase && isWinning ? "la-square-prize-spin" : "",
-              burstPhase && isWinning ? "la-square-prize-burst" : "",
+              burstPhase && isWinning ? "la-square-prize-burst la-square-jump-out" : "",
               isClose && celebrationKind === "mystery-square"
                 ? "la-square-close-pulse"
                 : "",
@@ -366,6 +416,12 @@ function BoardRow({
                 : `Square ${displayNum ?? squareId}`
             }
           >
+            {showOwned && isUser && !isWinning && (
+              <SquareStar variant="owned" />
+            )}
+            {isClose && !isWinning && showOwned && (
+              <SquareStar variant="close" />
+            )}
             {showNumbers && (
               <span
                 className={[
@@ -377,19 +433,28 @@ function BoardRow({
               </span>
             )}
             {isWinning && fullyRevealed && (
+              <SquareStar variant="winning" />
+            )}
+            {isWinning && fullyRevealed && (
               <WinParticles active={isWinning} intense={burstPhase} />
             )}
             {isWinning && fullyRevealed && (
               <>
                 <span className="la-win-ripple" aria-hidden />
-                <span className="la-win-pattern la-square-win-icon" aria-hidden />
                 {burstPhase && (
                   <>
                     <span className="la-burst-ring la-burst-ring--1" aria-hidden />
                     <span className="la-burst-ring la-burst-ring--2" aria-hidden />
+                    <span className="la-burst-ring la-burst-ring--3" aria-hidden />
+                    <CellConfetti active />
                   </>
                 )}
               </>
+            )}
+            {isWinning && showWinPayout && winPayout > 0 && (
+              <span className="la-square-prize-float" aria-live="polite">
+                <AnimatedCurrency amount={winPayout} active />
+              </span>
             )}
           </button>
         );
