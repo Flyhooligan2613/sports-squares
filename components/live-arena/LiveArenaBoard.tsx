@@ -130,6 +130,10 @@ export default function LiveArenaBoard({
 }: LiveArenaBoardProps) {
   const { topNumbers, sideNumbers, innerNumbers, homeTeam, awayTeam } = contest;
   const userSet = useMemo(() => new Set(userSquareIds), [userSquareIds]);
+  const highlightSet = useMemo(
+    () => new Set(contest.highlightSquareIds),
+    [contest.highlightSquareIds]
+  );
   const closeSet = useMemo(() => new Set(closeSquareIds), [closeSquareIds]);
   const showGrid = revealPhase !== "hidden";
   const showNumbers =
@@ -215,6 +219,7 @@ export default function LiveArenaBoard({
                 fullyRevealed={fullyRevealed}
                 rowDelay={0.08 + row * 0.04}
                 userSet={userSet}
+                highlightSet={highlightSet}
                 closeSet={closeSet}
                 innerNumbers={innerNumbers}
                 winningSquareId={winningSquareId}
@@ -311,6 +316,7 @@ function BoardRow({
   fullyRevealed,
   rowDelay,
   userSet,
+  highlightSet,
   closeSet,
   innerNumbers,
   winningSquareId,
@@ -336,6 +342,7 @@ function BoardRow({
   fullyRevealed: boolean;
   rowDelay: number;
   userSet: Set<number>;
+  highlightSet: Set<number>;
   closeSet: Set<number>;
   innerNumbers: number[];
   winningSquareId: number | null;
@@ -373,6 +380,7 @@ function BoardRow({
         const squareId = row * 10 + col;
         const isUser = userSet.has(squareId);
         const isWinning = winningSquareId === squareId;
+        const isFixedHighlight = highlightSet.has(squareId);
         const isSelected = selectedSquareId === squareId;
         const isClose = closeSet.has(squareId);
         const displayNum = getSquareDisplayNumber(squareId, innerNumbers);
@@ -389,6 +397,7 @@ function BoardRow({
               isUser && showOwned ? "la-square-owned" : "",
               isWinning ? "la-square-winning" : "",
               isWinning && !isUser ? "la-square-highlight" : "",
+              isFixedHighlight && fullyRevealed ? "la-square-fixed-highlight" : "",
               isWinning && isUser ? "la-square-winning-owned" : "",
               !isUser && !isWinning ? "la-square-empty" : "",
               isSelected ? "la-square-selected" : "",
@@ -414,8 +423,8 @@ function BoardRow({
             style={{ animationDelay: `${numberDelay}s` }}
             aria-label={
               isUser
-                ? `Your square ${displayNum ?? squareId}${isWinning ? ", currently winning" : ""}`
-                : `Square ${displayNum ?? squareId}`
+                ? `Your square ${displayNum ?? squareId}${isWinning ? ", currently winning" : ""}${isFixedHighlight ? ", highlight square" : ""}`
+                : `Square ${displayNum ?? squareId}${isFixedHighlight ? ", highlight square" : ""}${isWinning ? ", currently winning" : ""}`
             }
           >
             {showNumbers && (
@@ -428,8 +437,8 @@ function BoardRow({
                 {displayNum ?? "•"}
               </span>
             )}
-            {isWinning && showNumbers && (
-              <SquareStar variant={isUser ? "winning" : "highlight"} />
+            {isFixedHighlight && fullyRevealed && (
+              <SquareStar variant="highlight" />
             )}
             {isClose && !isWinning && showOwned && (
               <span className="la-square-close-ring" aria-hidden />

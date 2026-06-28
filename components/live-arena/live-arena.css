@@ -547,6 +547,22 @@
   }
 }
 
+/* Fixed Highlight Squares™ — star marker, never moves with score */
+.la-square-fixed-highlight:not(.la-square-owned) {
+  background: rgba(30, 58, 138, 0.22) !important;
+  border-color: rgba(96, 165, 250, 0.45) !important;
+  box-shadow:
+    0 0 0 1px rgba(147, 197, 253, 0.25) inset,
+    0 0 10px rgba(59, 130, 246, 0.25);
+}
+
+.la-square-fixed-highlight.la-square-owned {
+  box-shadow:
+    0 0 0 1px rgba(254, 243, 199, 0.35) inset,
+    0 0 12px rgba(251, 191, 36, 0.35),
+    0 0 10px rgba(59, 130, 246, 0.3);
+}
+
 /* Current winning square — highlight (star is the marker) */
 .la-square-winning:not(.la-square-owned) {
   background: rgba(30, 58, 138, 0.35) !important;

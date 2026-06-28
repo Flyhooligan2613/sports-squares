@@ -42,6 +42,14 @@ export const TEAM_BADGES: Record<
   W12: { emoji: "📅", primary: "#312e81", accent: "#818cf8" },
 };
 
+/** Deterministic Highlight Squares™ — at least 3 per contest, fixed for entire game. */
+function buildHighlightSquareIds(
+  innerNumbers: number[],
+  displayNumbers: number[]
+): number[] {
+  return displayNumbersToSquareIds(displayNumbers, innerNumbers);
+}
+
 export function getTeamBadge(abbr: string) {
   return (
     TEAM_BADGES[abbr] ?? {
@@ -81,6 +89,7 @@ export const MOCK_CONTESTS: LiveContest[] = [
     topNumbers: BILLS_CHIEFS_TOP,
     sideNumbers: BILLS_CHIEFS_SIDE,
     innerNumbers: buildInnerNumbers(42),
+    highlightSquareIds: buildHighlightSquareIds(buildInnerNumbers(42), [7, 23, 56, 81]),
     isLive: true,
   },
   {
@@ -95,6 +104,7 @@ export const MOCK_CONTESTS: LiveContest[] = [
     topNumbers: [8, 1, 4, 9, 0, 3, 7, 2, 5, 6],
     sideNumbers: [5, 0, 9, 2, 7, 4, 1, 8, 3, 6],
     innerNumbers: buildInnerNumbers(17),
+    highlightSquareIds: buildHighlightSquareIds(buildInnerNumbers(17), [3, 44, 67]),
     isLive: true,
   },
   {
@@ -109,6 +119,7 @@ export const MOCK_CONTESTS: LiveContest[] = [
     topNumbers: [1, 6, 3, 8, 0, 4, 9, 2, 7, 5],
     sideNumbers: [7, 2, 5, 0, 9, 1, 4, 8, 3, 6],
     innerNumbers: buildInnerNumbers(99),
+    highlightSquareIds: buildHighlightSquareIds(buildInnerNumbers(99), [11, 29, 58, 92]),
     isLive: true,
   },
   {
@@ -123,6 +134,7 @@ export const MOCK_CONTESTS: LiveContest[] = [
     topNumbers: BILLS_CHIEFS_TOP,
     sideNumbers: BILLS_CHIEFS_SIDE,
     innerNumbers: buildInnerNumbers(71),
+    highlightSquareIds: buildHighlightSquareIds(buildInnerNumbers(71), [5, 33, 74]),
     isLive: true,
   },
   {
@@ -137,6 +149,7 @@ export const MOCK_CONTESTS: LiveContest[] = [
     topNumbers: BILLS_CHIEFS_TOP,
     sideNumbers: BILLS_CHIEFS_SIDE,
     innerNumbers: buildInnerNumbers(55),
+    highlightSquareIds: buildHighlightSquareIds(buildInnerNumbers(55), [2, 19, 63]),
     isLive: false,
   },
 ];

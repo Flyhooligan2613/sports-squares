@@ -11,6 +11,11 @@ export const PICKEM_CHAMPIONSHIP_TIEBREAKER_SUBTITLE =
 
 export const PICKEM_CHAMPIONSHIP_BANNER = "CHAMPIONSHIP TIEBREAKER ACTIVE";
 
+export const PICKEM_MNF_COMBINED_SCORE_LABEL = "Predict total combined score";
+
+export const PICKEM_MNF_COMBINED_SCORE_HINT =
+  "Enter the exact combined final points for both teams (e.g. 56, 72, 41). Required for Monday Night Football.";
+
 export const PICKEM_AUTO_ENGINE_TAGLINE =
   "Fully automated — no commissioners, no manual scoring, official NFL results only.";
 

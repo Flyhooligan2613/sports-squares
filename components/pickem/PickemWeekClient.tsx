@@ -23,6 +23,11 @@ import {
 import EntryTierSelector from "@/components/platform/EntryTierSelector";
 import type { PickemMyPicksSummary, PickemSide, PickemSport, PickemWeekView } from "@/lib/pickem/types";
 import { pickemApiUrl, pickemBasePath, pickemSportLabel } from "@/lib/pickem/routes";
+import {
+  getMnfCombinedScore,
+  setMnfCombinedScore,
+  validateCombinedScoreInput,
+} from "@/lib/pickem/mnfCombinedScoreStorage";
 import { formatTierCents, parseEntryTierParam } from "@/lib/platform/core/entryTiers";
 import { isDocumentVisible } from "@/lib/client/fastFetch";
 import { usePullRefresh } from "@/lib/client/usePullRefresh";
@@ -154,6 +159,8 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
   const [savedPaymentLabel, setSavedPaymentLabel] = useState<string | null>(null);
   const [playerEmail, setPlayerEmail] = useState("");
   const [showFastConfirm, setShowFastConfirm] = useState(false);
+  const [combinedTotals, setCombinedTotals] = useState<Record<string, number>>({});
+  const [combinedErrors, setCombinedErrors] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -211,7 +218,21 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Failed to load picks.");
-      setWeek((await res.json()) as PickemWeekView);
+      const weekData = (await res.json()) as PickemWeekView;
+      const mergedGames = weekData.games.map((game) => ({
+        ...game,
+        predictedCombinedTotal: game.isMondayNight
+          ? getMnfCombinedScore(weekData.contest.id, game.id)
+          : null,
+      }));
+      setWeek({ ...weekData, games: mergedGames });
+      const totals: Record<string, number> = {};
+      for (const game of mergedGames) {
+        if (game.isMondayNight && game.predictedCombinedTotal != null) {
+          totals[game.id] = game.predictedCombinedTotal;
+        }
+      }
+      setCombinedTotals(totals);
     } catch (err) {
       setError(formatUserError(err, "load"));
     } finally {
@@ -363,9 +384,25 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
 
   async function handlePick(gameId: string, pickedSide: PickemSide) {
     if (!week || !week.entry.paid) return;
+
+    const game = week.games.find((g) => g.id === gameId);
+    if (game?.isMondayNight) {
+      const savedTotal =
+        combinedTotals[gameId] ??
+        getMnfCombinedScore(week.contest.id, gameId);
+      if (savedTotal == null) {
+        setCombinedErrors((prev) => ({
+          ...prev,
+          [gameId]: "Predict total combined score before submitting your pick.",
+        }));
+        return;
+      }
+    }
+
     setSavingGameId(gameId);
     setAuthRequired(false);
     setError(null);
+    setCombinedErrors((prev) => ({ ...prev, [gameId]: null }));
 
     try {
       const res = await fetch("/api/pickem/picks", {
@@ -392,6 +429,34 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
     } finally {
       setSavingGameId(null);
     }
+  }
+
+  function handleCombinedTotalChange(gameId: string, total: number) {
+    if (!week) return;
+    const result = validateCombinedScoreInput(String(total));
+    if (!result.valid || result.value == null) {
+      setCombinedErrors((prev) => ({
+        ...prev,
+        [gameId]: result.error ?? "Invalid combined score.",
+      }));
+      return;
+    }
+
+    setMnfCombinedScore(week.contest.id, gameId, result.value);
+    setCombinedTotals((prev) => ({ ...prev, [gameId]: result.value! }));
+    setCombinedErrors((prev) => ({ ...prev, [gameId]: null }));
+    setWeek((prev) =>
+      prev
+        ? {
+            ...prev,
+            games: prev.games.map((game) =>
+              game.id === gameId
+                ? { ...game, predictedCombinedTotal: result.value! }
+                : game
+            ),
+          }
+        : prev
+    );
   }
 
   const liveMode =
@@ -550,10 +615,20 @@ function PickemWeekClientInner({ sport = "nfl" }: { sport?: PickemSport }) {
               {week.games.map((game) => (
                 <PickemGameCard
                   key={game.id}
-                  game={game}
+                  game={{
+                    ...game,
+                    predictedCombinedTotal:
+                      game.isMondayNight
+                        ? (combinedTotals[game.id] ?? game.predictedCombinedTotal)
+                        : null,
+                  }}
                   saving={savingGameId === game.id}
                   onPick={week.entry.paid ? handlePick : undefined}
                   disabled={!week.entry.paid}
+                  onCombinedTotalChange={
+                    week.entry.paid ? handleCombinedTotalChange : undefined
+                  }
+                  combinedTotalError={combinedErrors[game.id] ?? null}
                 />
               ))}
             </div>

@@ -31,6 +31,8 @@ export interface LiveContest {
   topNumbers: number[];
   sideNumbers: number[];
   innerNumbers: number[];
+  /** Fixed Highlight Squares™ — star-marked squares that never move with score. */
+  highlightSquareIds: number[];
   isLive: boolean;
 }
 

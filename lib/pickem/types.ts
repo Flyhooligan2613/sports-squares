@@ -189,6 +189,8 @@ export interface PickemMyPicksSummary {
 
 export interface PickemGameView extends PickemGame {
   userPick: PickemSide | null;
+  /** Exact combined final points prediction — required for Monday Night Football. */
+  predictedCombinedTotal: number | null;
   resultState: "pending" | "correct" | "incorrect" | "locked" | "unpicked";
 }
 

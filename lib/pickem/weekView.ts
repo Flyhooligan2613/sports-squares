@@ -173,6 +173,7 @@ export async function buildPickemWeekView(input: {
     return {
       ...game,
       userPick,
+      predictedCombinedTotal: null,
       resultState: resultStateForGame(game, userPick),
     };
   });

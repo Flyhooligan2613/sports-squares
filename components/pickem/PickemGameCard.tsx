@@ -1,13 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { PickemGameView, PickemSide } from "@/lib/pickem/types";
+import {
+  PICKEM_MNF_COMBINED_SCORE_HINT,
+  PICKEM_MNF_COMBINED_SCORE_LABEL,
+} from "@/lib/pickem/copy";
+import { validateCombinedScoreInput } from "@/lib/pickem/mnfCombinedScoreStorage";
 
 interface PickemGameCardProps {
   game: PickemGameView;
   saving?: boolean;
   disabled?: boolean;
   onPick?: (gameId: string, side: PickemSide) => void;
+  onCombinedTotalChange?: (gameId: string, total: number) => void;
+  combinedTotalError?: string | null;
 }
 
 function formatKickoff(iso: string): string {
@@ -91,11 +99,46 @@ export default function PickemGameCard({
   saving,
   disabled: entryLocked = false,
   onPick,
+  onCombinedTotalChange,
+  combinedTotalError,
 }: PickemGameCardProps) {
   const locked = game.picksLocked || new Date(game.kickoffAt).getTime() <= Date.now();
   const live = game.status === "live";
   const final = game.status === "final";
   const disabled = locked || saving === true || entryLocked || !onPick;
+  const requiresCombinedTotal = game.isMondayNight;
+  const combinedDisabled =
+    locked || saving === true || entryLocked || !onCombinedTotalChange;
+
+  const [combinedInput, setCombinedInput] = useState(
+    game.predictedCombinedTotal != null ? String(game.predictedCombinedTotal) : ""
+  );
+  const [localCombinedError, setLocalCombinedError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCombinedInput(
+      game.predictedCombinedTotal != null ? String(game.predictedCombinedTotal) : ""
+    );
+  }, [game.predictedCombinedTotal, game.id]);
+
+  function handleCombinedBlur() {
+    if (!requiresCombinedTotal || !onCombinedTotalChange) return;
+    const trimmed = combinedInput.trim();
+    if (!trimmed) {
+      setLocalCombinedError(null);
+      return;
+    }
+    const result = validateCombinedScoreInput(trimmed);
+    if (!result.valid || result.value == null) {
+      setLocalCombinedError(result.error ?? "Invalid combined score.");
+      return;
+    }
+    setLocalCombinedError(null);
+    onCombinedTotalChange(game.id, result.value);
+  }
+
+  const showCombinedError = combinedTotalError ?? localCombinedError;
+  const combinedComplete = game.predictedCombinedTotal != null;
 
   return (
     <article
@@ -148,6 +191,70 @@ export default function PickemGameCard({
           onClick={() => onPick?.(game.id, "home")}
         />
       </div>
+
+      {requiresCombinedTotal ? (
+        <div className="pickem-combined-score mt-4 pt-4 border-t border-white/[0.08]">
+          <label
+            htmlFor={`pickem-combined-${game.id}`}
+            className="pickem-combined-score-label"
+          >
+            {PICKEM_MNF_COMBINED_SCORE_LABEL}
+            <span className="pickem-combined-score-required" aria-hidden>
+              *
+            </span>
+          </label>
+          <p className="pickem-combined-score-hint">{PICKEM_MNF_COMBINED_SCORE_HINT}</p>
+          <div className="pickem-combined-score-row">
+            <input
+              id={`pickem-combined-${game.id}`}
+              type="number"
+              inputMode="numeric"
+              step={1}
+              min={0}
+              max={200}
+              required
+              value={combinedInput}
+              disabled={combinedDisabled}
+              onChange={(e) => {
+                setCombinedInput(e.target.value);
+                if (localCombinedError) setLocalCombinedError(null);
+              }}
+              onBlur={handleCombinedBlur}
+              className={[
+                "pickem-combined-score-input",
+                showCombinedError ? "pickem-combined-score-input--error" : "",
+                combinedComplete ? "pickem-combined-score-input--saved" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              placeholder="e.g. 56"
+              aria-invalid={showCombinedError ? true : undefined}
+              aria-describedby={
+                showCombinedError ? `pickem-combined-error-${game.id}` : undefined
+              }
+            />
+            {combinedComplete ? (
+              <span className="pickem-combined-score-saved">Saved</span>
+            ) : null}
+          </div>
+          {showCombinedError ? (
+            <p
+              id={`pickem-combined-error-${game.id}`}
+              className="pickem-combined-score-error"
+              role="alert"
+            >
+              {showCombinedError}
+            </p>
+          ) : null}
+          {game.status === "final" &&
+          game.awayScore != null &&
+          game.homeScore != null ? (
+            <p className="pickem-combined-score-actual">
+              Actual combined score: {game.awayScore + game.homeScore}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </article>
   );
 }

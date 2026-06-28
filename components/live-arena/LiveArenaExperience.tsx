@@ -55,6 +55,12 @@ import FloatingContestInfo from "./FloatingContestInfo";
 import LiveActivityBar from "./LiveActivityBar";
 import LiveArenaBoard from "./LiveArenaBoard";
 import LiveDock from "./LiveDock";
+import {
+  LiveProfilePanel,
+  LiveRewardsPanel,
+  LiveWalletPanel,
+  LiveWinningSummaryPanel,
+} from "./LiveArenaDockSections";
 import MySquaresPanel from "./MySquaresPanel";
 import OpeningSequence from "./OpeningSequence";
 import SquareDetailOverlay from "./SquareDetailOverlay";
@@ -91,6 +97,14 @@ const REVEAL_TIMINGS = {
   numbers: 2200,
   owned: 3200,
   complete: 3600,
+};
+
+const DOCK_SECTION_IDS: Record<DockTab, string> = {
+  games: "la-section-games",
+  winning: "la-section-winning",
+  wallet: "la-section-wallet",
+  rewards: "la-section-rewards",
+  profile: "la-section-profile",
 };
 
 export default function LiveArenaExperience() {
@@ -742,6 +756,16 @@ export default function LiveArenaExperience() {
     triggerHaptic("light");
   };
 
+  const handleDockChange = useCallback((tab: DockTab) => {
+    setDockTab(tab);
+    window.requestAnimationFrame(() => {
+      document.getElementById(DOCK_SECTION_IDS[tab])?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, []);
+
   if (phase === "landing") {
     return (
       <div className="la-root flex flex-col items-center justify-center min-h-[100dvh] px-6 la-landing-hero">
@@ -785,12 +809,20 @@ export default function LiveArenaExperience() {
             </p>
             <h1 className="text-xl font-bold tracking-tight">LIVE ARENA™</h1>
           </header>
+          <div id="la-section-games" className="scroll-mt-24">
           <ContestCenterDashboard
             stats={MOCK_CENTER_STATS}
             contests={MOCK_CONTEST_SUMMARIES}
             activeIndex={contestIndex}
             onChange={setContestIndex}
             onJoinContest={joinContest}
+          />
+          </div>
+          <LiveWinningSummaryPanel stats={MOCK_CENTER_STATS} />
+          <LiveWalletPanel balance={MOCK_CENTER_STATS.walletBalance} />
+          <LiveRewardsPanel />
+          <LiveProfilePanel
+            contestHistoryCount={MOCK_CENTER_STATS.contestHistoryCount}
           />
           <ArenaAudioControls
             muted={muted}
@@ -799,7 +831,7 @@ export default function LiveArenaExperience() {
             onVolumeChange={setVolume}
           />
         </div>
-        <LiveDock active={dockTab} onChange={setDockTab} />
+        <LiveDock active={dockTab} onChange={handleDockChange} />
         <button
           type="button"
           className="la-dev-corner-hit"
@@ -863,7 +895,7 @@ export default function LiveArenaExperience() {
       </header>
 
       {/* Hero board — fills viewport center */}
-      <section className="la-board-hero">
+      <section id="la-section-games" className="la-board-hero scroll-mt-24">
         <div
           className={[
             "la-board-focus-wrap relative",
@@ -956,26 +988,37 @@ export default function LiveArenaExperience() {
           visible={phase === "live" && revealPhase === "complete"}
         />
 
-        <ContestStatusBanner
-          visible={
-            (phase === "live" && revealPhase === "complete") || devNotification
-          }
-          userIsWinning={devNotification ? true : userIsWinning}
-          payout={winningPayout}
-          animatePayout={
-            (userIsWinning &&
-              (reactionPhase === "illuminate" ||
-                celebration.phase === "banner")) ||
-            devNotification
-          }
+        <div id="la-section-winning" className="scroll-mt-24">
+          <ContestStatusBanner
+            visible={
+              (phase === "live" && revealPhase === "complete") || devNotification
+            }
+            userIsWinning={devNotification ? true : userIsWinning}
+            payout={winningPayout}
+            animatePayout={
+              (userIsWinning &&
+                (reactionPhase === "illuminate" ||
+                  celebration.phase === "banner")) ||
+              devNotification
+            }
+          />
+        </div>
+
+        <LiveWalletPanel
+          balance={MOCK_CENTER_STATS.walletBalance}
+          paidToday={MOCK_STATS.paidToday}
         />
 
-        <MySquaresPanel
-          squares={userSquares}
-          winningSquareId={winningSquareId}
-          selectedSquareId={selectedSquareId}
-          onSelect={handleSquareSelect}
-        />
+        <LiveRewardsPanel />
+
+        <div id="la-section-profile" className="scroll-mt-24">
+          <MySquaresPanel
+            squares={userSquares}
+            winningSquareId={winningSquareId}
+            selectedSquareId={selectedSquareId}
+            onSelect={handleSquareSelect}
+          />
+        </div>
 
         <div className="flex items-center justify-between pt-1 gap-2">
           <ArenaAudioControls
@@ -994,7 +1037,7 @@ export default function LiveArenaExperience() {
         </div>
       </div>
 
-      <LiveDock active={dockTab} onChange={setDockTab} />
+      <LiveDock active={dockTab} onChange={handleDockChange} />
 
       <button
         type="button"
