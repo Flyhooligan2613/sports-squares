@@ -68,7 +68,7 @@ function WinParticles({ active, intense }: { active: boolean; intense?: boolean 
   );
 }
 
-function SquareStar({ variant }: { variant: "owned" | "winning" | "close" }) {
+function SquareStar({ variant }: { variant: "winning" | "highlight" }) {
   return (
     <span
       className={`la-square-star la-square-star--${variant}`}
@@ -386,9 +386,11 @@ function BoardRow({
             disabled={!isUser}
             className={[
               "la-square-cell",
-              isWinning ? "la-square-winning" : "",
               isUser && showOwned ? "la-square-owned" : "",
-              !isUser ? "la-square-empty" : "",
+              isWinning ? "la-square-winning" : "",
+              isWinning && !isUser ? "la-square-highlight" : "",
+              isWinning && isUser ? "la-square-winning-owned" : "",
+              !isUser && !isWinning ? "la-square-empty" : "",
               isSelected ? "la-square-selected" : "",
               signatureActive && isWinning ? "la-square-signature-hit" : "",
               spinPhase && isWinning ? "la-square-prize-spin" : "",
@@ -416,12 +418,6 @@ function BoardRow({
                 : `Square ${displayNum ?? squareId}`
             }
           >
-            {showOwned && isUser && !isWinning && (
-              <SquareStar variant="owned" />
-            )}
-            {isClose && !isWinning && showOwned && (
-              <SquareStar variant="close" />
-            )}
             {showNumbers && (
               <span
                 className={[
@@ -432,13 +428,16 @@ function BoardRow({
                 {displayNum ?? "•"}
               </span>
             )}
-            {isWinning && fullyRevealed && (
-              <SquareStar variant="winning" />
+            {isWinning && showNumbers && (
+              <SquareStar variant={isUser ? "winning" : "highlight"} />
             )}
-            {isWinning && fullyRevealed && (
+            {isClose && !isWinning && showOwned && (
+              <span className="la-square-close-ring" aria-hidden />
+            )}
+            {isWinning && showNumbers && (
               <WinParticles active={isWinning} intense={burstPhase} />
             )}
-            {isWinning && fullyRevealed && (
+            {isWinning && showNumbers && (
               <>
                 <span className="la-win-ripple" aria-hidden />
                 {burstPhase && (

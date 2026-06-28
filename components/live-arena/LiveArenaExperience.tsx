@@ -123,6 +123,7 @@ export default function LiveArenaExperience() {
   const prevDemoIndexRef = useRef(0);
   const cornerTaps = useRef(0);
   const cornerTimer = useRef<number | null>(null);
+  const introPreviewRef = useRef(false);
 
   const contest = MOCK_CONTESTS[contestIndex];
   const isPrimaryDemo = contest.id === "bills-chiefs" && phase === "live";
@@ -397,6 +398,7 @@ export default function LiveArenaExperience() {
     setBoardTension(false);
     prevWinningRef.current = null;
     prevDemoIndexRef.current = 0;
+    introPreviewRef.current = false;
   }, [ensureAudio]);
 
   const joinContest = useCallback(async () => {
@@ -412,6 +414,7 @@ export default function LiveArenaExperience() {
     setBoardTension(false);
     prevWinningRef.current = null;
     prevDemoIndexRef.current = 0;
+    introPreviewRef.current = false;
   }, [ensureAudio]);
 
   const onOpeningComplete = useCallback(() => {
@@ -704,6 +707,26 @@ export default function LiveArenaExperience() {
       triggerHaptic("medium");
     }
   }, [winningSquareId, phase, userSquareIds, audioReady, triggerHaptic, celebration.active]);
+
+  /** Auto-play a highlight-square win ~4.5s after board reveal so users see the animation. */
+  useEffect(() => {
+    if (phase !== "live" || revealPhase !== "complete" || contest.id !== "bills-chiefs") {
+      return;
+    }
+    if (introPreviewRef.current) return;
+    introPreviewRef.current = true;
+
+    const previewTimer = window.setTimeout(() => {
+      const idx = findDemoIndexByCelebration("user-square");
+      if (idx >= 0) {
+        triggerCelebrationAtIndex(idx, "user-square");
+        prevDemoIndexRef.current = idx;
+      }
+      window.setTimeout(() => setDemoPaused(false), 9500);
+    }, 4500);
+
+    return () => window.clearTimeout(previewTimer);
+  }, [phase, revealPhase, contest.id, triggerCelebrationAtIndex]);
 
   useEffect(() => {
     return () => {
