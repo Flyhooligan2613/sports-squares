@@ -132,6 +132,7 @@ export class StripeAdapter implements PaymentProvider {
         line_items: lineItems,
         success_url: input.successUrl,
         cancel_url: input.cancelUrl,
+        billing_address_collection: "required",
         payment_intent_data: input.setupFutureUsage
           ? { setup_future_usage: "off_session" }
           : undefined,

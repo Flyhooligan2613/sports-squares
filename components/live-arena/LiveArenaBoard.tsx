@@ -3,7 +3,12 @@
 import { useMemo, type CSSProperties } from "react";
 import { getSquareDisplayNumber } from "@/lib/engines/squareDisplay";
 import type { WinningSquareMatch } from "@/lib/live-arena/squareUtils";
-import type { BoardRevealPhase, LiveContest } from "@/lib/live-arena/types";
+import type {
+  BoardRevealPhase,
+  CelebrationPhase,
+  LiveContest,
+  WinCelebrationKind,
+} from "@/lib/live-arena/types";
 
 interface LiveArenaBoardProps {
   contest: LiveContest;
@@ -15,13 +20,20 @@ interface LiveArenaBoardProps {
   zoomed: boolean;
   signatureActive: boolean;
   boardReacting: boolean;
+  boardBreathing?: boolean;
+  boardTension?: boolean;
+  celebrationPhase?: CelebrationPhase;
+  celebrationKind?: WinCelebrationKind | null;
+  poolLine?: "row" | "col" | null;
+  closeSquareIds?: number[];
   onSquareClick: (squareId: number) => void;
 }
 
-function WinParticles({ active }: { active: boolean }) {
+function WinParticles({ active, intense }: { active: boolean; intense?: boolean }) {
   if (!active) return null;
-  const particles = Array.from({ length: 12 }, (_, i) => {
-    const angle = (i / 12) * Math.PI * 2;
+  const count = intense ? 16 : 12;
+  const particles = Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * Math.PI * 2;
     const dist = 24 + (i % 4) * 10;
     return {
       id: i,
@@ -60,17 +72,33 @@ export default function LiveArenaBoard({
   zoomed,
   signatureActive,
   boardReacting,
+  boardBreathing = false,
+  boardTension = false,
+  celebrationPhase = "idle",
+  celebrationKind = null,
+  poolLine = null,
+  closeSquareIds = [],
   onSquareClick,
 }: LiveArenaBoardProps) {
   const { topNumbers, sideNumbers, innerNumbers, homeTeam, awayTeam } = contest;
   const userSet = useMemo(() => new Set(userSquareIds), [userSquareIds]);
+  const closeSet = useMemo(() => new Set(closeSquareIds), [closeSquareIds]);
   const showGrid = revealPhase !== "hidden";
-  const showNumbers = revealPhase === "numbers" || revealPhase === "owned" || revealPhase === "complete";
+  const showNumbers =
+    revealPhase === "numbers" ||
+    revealPhase === "owned" ||
+    revealPhase === "complete";
   const showOwned = revealPhase === "owned" || revealPhase === "complete";
   const fullyRevealed = revealPhase === "complete";
 
   const rowIdx = winningMatch?.row ?? -1;
   const colIdx = winningMatch?.col ?? -1;
+
+  const celebrating =
+    celebrationPhase !== "idle" && celebrationPhase !== "complete";
+  const spinPhase = celebrationPhase === "spin";
+  const burstPhase = celebrationPhase === "burst" || celebrationPhase === "banner";
+  const poolHighlight = celebrationPhase === "pool-highlight";
 
   return (
     <div className="la-board-stage w-full mx-auto">
@@ -79,6 +107,9 @@ export default function LiveArenaBoard({
           "la-board-container la-board-depth",
           zoomed ? "la-board-zoom" : "",
           boardReacting ? "la-board-react" : "",
+          boardBreathing ? "la-board-breathing" : "",
+          boardTension ? "la-board-tension" : "",
+          celebrating ? "la-board-celebrating" : "",
         ].join(" ")}
       >
         <p className="la-board-home-label">{homeTeam}</p>
@@ -88,17 +119,21 @@ export default function LiveArenaBoard({
             className={[
               "la-board-grid",
               showGrid ? "la-board-grid--visible" : "",
-              signatureActive ? "la-board-grid--signature" : "",
+              signatureActive || celebrating ? "la-board-grid--signature" : "",
             ].join(" ")}
           >
-            {/* Corner + top axis */}
             <div className="la-axis-cell la-axis-corner" aria-hidden />
             {topNumbers.map((n, i) => (
               <div
                 key={`top-${i}`}
                 className={[
                   "la-axis-cell la-axis-top",
-                  signatureActive && colIdx === i ? "la-axis-highlight-col" : "",
+                  (signatureActive || poolHighlight) && colIdx === i
+                    ? "la-axis-highlight-col"
+                    : "",
+                  poolHighlight && poolLine === "col" && colIdx === i
+                    ? "la-axis-pool-sweep"
+                    : "",
                 ].join(" ")}
                 style={{ animationDelay: `${0.04 + i * 0.035}s` }}
               >
@@ -106,7 +141,6 @@ export default function LiveArenaBoard({
               </div>
             ))}
 
-            {/* Rows: side axis + squares */}
             {Array.from({ length: 10 }, (_, row) => (
               <BoardRow
                 key={row}
@@ -118,47 +152,73 @@ export default function LiveArenaBoard({
                 fullyRevealed={fullyRevealed}
                 rowDelay={0.08 + row * 0.04}
                 userSet={userSet}
+                closeSet={closeSet}
                 innerNumbers={innerNumbers}
                 winningSquareId={winningSquareId}
                 selectedSquareId={selectedSquareId}
-                signatureActive={signatureActive}
-                highlightRow={signatureActive && rowIdx === row}
+                signatureActive={signatureActive || celebrating}
+                highlightRow={
+                  (signatureActive || poolHighlight) && rowIdx === row
+                }
+                poolHighlight={poolHighlight}
+                poolLine={poolLine}
                 colIdx={colIdx}
+                spinPhase={spinPhase}
+                burstPhase={burstPhase}
+                celebrationKind={celebrationKind}
                 onSquareClick={onSquareClick}
               />
             ))}
 
-            {/* Signature crosshair lines */}
-            {signatureActive && winningMatch && (
-              <>
-                <div
-                  className="la-signature-line la-signature-line--h"
-                  style={{ "--la-row": rowIdx } as CSSProperties}
-                  aria-hidden
-                />
-                <div
-                  className="la-signature-line la-signature-line--v"
-                  style={{ "--la-col": colIdx } as CSSProperties}
-                  aria-hidden
-                />
-                <div
-                  className="la-signature-intersect"
-                  style={
-                    {
-                      "--la-row": rowIdx,
-                      "--la-col": colIdx,
-                    } as CSSProperties
-                  }
-                  aria-hidden
-                />
-              </>
+            {(signatureActive || celebrationPhase === "anticipation") &&
+              winningMatch && (
+                <>
+                  <div
+                    className="la-signature-line la-signature-line--h la-signature-line--dramatic"
+                    style={{ "--la-row": rowIdx } as CSSProperties}
+                    aria-hidden
+                  />
+                  <div
+                    className="la-signature-line la-signature-line--v la-signature-line--dramatic"
+                    style={{ "--la-col": colIdx } as CSSProperties}
+                    aria-hidden
+                  />
+                  <div
+                    className="la-signature-intersect la-signature-intersect--dramatic"
+                    style={
+                      {
+                        "--la-row": rowIdx,
+                        "--la-col": colIdx,
+                      } as CSSProperties
+                    }
+                    aria-hidden
+                  />
+                </>
+              )}
+
+            {poolHighlight && poolLine && winningMatch && (
+              <div
+                className={[
+                  "la-pool-line-sweep",
+                  poolLine === "row"
+                    ? "la-pool-line-sweep--row"
+                    : "la-pool-line-sweep--col",
+                ].join(" ")}
+                style={
+                  {
+                    "--la-row": rowIdx,
+                    "--la-col": colIdx,
+                  } as CSSProperties
+                }
+                aria-hidden
+              />
             )}
           </div>
 
           <p className="la-board-away-label">{awayTeam}</p>
         </div>
 
-        {signatureActive && winningSquareId != null && (
+        {signatureActive && winningSquareId != null && !celebrating && (
           <p className="la-signature-caption">🏆 CURRENTLY WINNING</p>
         )}
       </div>
@@ -175,12 +235,18 @@ function BoardRow({
   fullyRevealed,
   rowDelay,
   userSet,
+  closeSet,
   innerNumbers,
   winningSquareId,
   selectedSquareId,
   signatureActive,
   highlightRow,
+  poolHighlight,
+  poolLine,
   colIdx,
+  spinPhase,
+  burstPhase,
+  celebrationKind,
   onSquareClick,
 }: {
   row: number;
@@ -191,12 +257,18 @@ function BoardRow({
   fullyRevealed: boolean;
   rowDelay: number;
   userSet: Set<number>;
+  closeSet: Set<number>;
   innerNumbers: number[];
   winningSquareId: number | null;
   selectedSquareId: number | null;
   signatureActive: boolean;
   highlightRow: boolean;
+  poolHighlight: boolean;
+  poolLine: "row" | "col" | null;
   colIdx: number;
+  spinPhase: boolean;
+  burstPhase: boolean;
+  celebrationKind: WinCelebrationKind | null;
   onSquareClick: (id: number) => void;
 }) {
   return (
@@ -205,6 +277,9 @@ function BoardRow({
         className={[
           "la-axis-cell la-axis-side",
           highlightRow ? "la-axis-highlight-row" : "",
+          poolHighlight && poolLine === "row" && highlightRow
+            ? "la-axis-pool-sweep"
+            : "",
         ].join(" ")}
         style={{ animationDelay: `${rowDelay}s` }}
       >
@@ -216,9 +291,9 @@ function BoardRow({
         const isUser = userSet.has(squareId);
         const isWinning = winningSquareId === squareId;
         const isSelected = selectedSquareId === squareId;
+        const isClose = closeSet.has(squareId);
         const displayNum = getSquareDisplayNumber(squareId, innerNumbers);
         const numberDelay = squareId * 0.018;
-        const showNum = showNumbers && (fullyRevealed || !isUser || showOwned);
 
         return (
           <button
@@ -233,7 +308,23 @@ function BoardRow({
               !isUser ? "la-square-empty" : "",
               isSelected ? "la-square-selected" : "",
               signatureActive && isWinning ? "la-square-signature-hit" : "",
-              showNumbers && !showNum ? "la-square-hidden-num" : "",
+              spinPhase && isWinning ? "la-square-prize-spin" : "",
+              burstPhase && isWinning ? "la-square-prize-burst" : "",
+              isClose && celebrationKind === "mystery-square"
+                ? "la-square-close-pulse"
+                : "",
+              poolHighlight &&
+              poolLine === "row" &&
+              winningSquareId != null &&
+              Math.floor(winningSquareId / 10) === row
+                ? "la-square-pool-row"
+                : "",
+              poolHighlight &&
+              poolLine === "col" &&
+              winningSquareId != null &&
+              winningSquareId % 10 === col
+                ? "la-square-pool-col"
+                : "",
             ].join(" ")}
             style={{ animationDelay: `${numberDelay}s` }}
             aria-label={
@@ -242,14 +333,29 @@ function BoardRow({
                 : `Square ${displayNum ?? squareId}`
             }
           >
-            {showNum && isUser && (
-              <span className="la-square-num">{displayNum ?? "•"}</span>
+            {showNumbers && (
+              <span
+                className={[
+                  "la-square-num",
+                  isUser ? "la-square-num--owned" : "la-square-num--spectator",
+                ].join(" ")}
+              >
+                {displayNum ?? "•"}
+              </span>
             )}
-            {isWinning && fullyRevealed && <WinParticles active={isWinning} />}
+            {isWinning && fullyRevealed && (
+              <WinParticles active={isWinning} intense={burstPhase} />
+            )}
             {isWinning && fullyRevealed && (
               <>
                 <span className="la-win-ripple" aria-hidden />
                 <span className="la-win-pattern la-square-win-icon" aria-hidden />
+                {burstPhase && (
+                  <>
+                    <span className="la-burst-ring la-burst-ring--1" aria-hidden />
+                    <span className="la-burst-ring la-burst-ring--2" aria-hidden />
+                  </>
+                )}
               </>
             )}
           </button>

@@ -9,7 +9,13 @@ export type ArenaSfx =
   | "wallet-reward"
   | "contest-complete"
   | "score-tick"
-  | "notification";
+  | "notification"
+  | "anticipation-drone"
+  | "prize-spin"
+  | "prize-burst"
+  | "confetti-shimmer"
+  | "big-win-fanfare"
+  | "small-win-chime";
 
 export interface ArenaAudioPrefs {
   muted: boolean;
@@ -205,6 +211,45 @@ export function playArenaSfx(sfx: ArenaSfx): void {
     case "notification":
       playTone(740, 0.06, "sine", 0.2);
       window.setTimeout(() => playTone(880, 0.08, "sine", 0.18), 70);
+      break;
+    case "anticipation-drone":
+      playTone(55, 0.9, "sine", 0.18, false);
+      playTone(82, 0.85, "triangle", 0.12, false);
+      playNoiseBurst(0.5, 0.06);
+      break;
+    case "prize-spin": {
+      for (let i = 0; i < 8; i++) {
+        window.setTimeout(
+          () => playTone(400 + i * 45, 0.05, "square", 0.14, false),
+          i * 120
+        );
+      }
+      break;
+    }
+    case "prize-burst":
+      playTone(220, 0.08, "square", 0.38, false);
+      window.setTimeout(() => playTone(440, 0.12, "square", 0.32, false), 40);
+      window.setTimeout(() => playTone(880, 0.2, "sine", 0.28), 90);
+      playNoiseBurst(0.35, 0.28);
+      break;
+    case "confetti-shimmer":
+      for (let i = 0; i < 6; i++) {
+        window.setTimeout(
+          () => playTone(1200 + i * 80, 0.04, "sine", 0.1),
+          i * 55
+        );
+      }
+      break;
+    case "big-win-fanfare":
+      playTone(523, 0.12, "sine", 0.32, false);
+      window.setTimeout(() => playTone(659, 0.12, "sine", 0.3, false), 100);
+      window.setTimeout(() => playTone(784, 0.15, "sine", 0.28, false), 200);
+      window.setTimeout(() => playTone(1046, 0.35, "sine", 0.26), 320);
+      playNoiseBurst(0.5, 0.15);
+      break;
+    case "small-win-chime":
+      playTone(880, 0.08, "sine", 0.22);
+      window.setTimeout(() => playTone(1046, 0.12, "sine", 0.18), 80);
       break;
   }
 }

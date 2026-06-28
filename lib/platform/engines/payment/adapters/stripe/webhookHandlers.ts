@@ -28,11 +28,22 @@ import {
   orchestrateWebhookRefund,
 } from "@/lib/platform/engines/payment/orchestrator";
 import { normalizeEmail } from "@/lib/player/statsCore";
+import {
+  assertBillingZipMatchesProfile,
+  billingPostalFromCheckoutSession,
+} from "@/lib/fraud/billingZip";
 
 function parseSquaresCount(raw: string | undefined): number | null {
   const value = Math.floor(Number(raw));
   if (!Number.isFinite(value) || value < 1 || value > 100) return null;
   return value;
+}
+
+async function verifyCheckoutBillingZip(session: Stripe.Checkout.Session, email: string) {
+  await assertBillingZipMatchesProfile({
+    email: normalizeEmail(email),
+    billingPostalCode: billingPostalFromCheckoutSession(session),
+  });
 }
 
 async function handleSquaresCheckout(session: Stripe.Checkout.Session) {
@@ -50,6 +61,8 @@ async function handleSquaresCheckout(session: Stripe.Checkout.Session) {
   if (!poolId || !name || !email || !session.id || squaresCount === null) {
     throw new Error("Missing or invalid session metadata.");
   }
+
+  await verifyCheckoutBillingZip(session, email);
 
   await fulfillPurchase({
     poolId,
@@ -80,6 +93,8 @@ async function handlePickemEntryCheckout(session: Stripe.Checkout.Session) {
     throw new Error("Missing or invalid Pick'em entry metadata.");
   }
 
+  await verifyCheckoutBillingZip(session, email);
+
   await fulfillPickemEntryPurchase({
     contestId,
     email,
@@ -103,6 +118,8 @@ async function handleWalletDepositCheckout(session: Stripe.Checkout.Session) {
   if (!email || !session.id) {
     throw new Error("Missing wallet deposit metadata.");
   }
+
+  await verifyCheckoutBillingZip(session, normalizeEmail(email));
 
   const { SquareWalletEngine } = await import("@/lib/platform/engines/payment/wallet");
   await SquareWalletEngine.syncDepositFromSession({

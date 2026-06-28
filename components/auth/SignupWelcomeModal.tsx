@@ -42,6 +42,8 @@ export default function SignupWelcomeModal({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -72,6 +74,9 @@ export default function SignupWelcomeModal({
     if (firstName.trim().length < 2) return "Enter your first name.";
     if (lastName.trim().length < 2) return "Enter your last name.";
     if (!email.includes("@")) return "Enter a valid email.";
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) return "Enter a valid 10-digit phone number.";
+    if (!dateOfBirth) return "Enter your date of birth.";
     if (password.length < 8) return "Password must be at least 8 characters.";
     if (password !== confirmPassword) return "Passwords do not match.";
     return null;
@@ -107,6 +112,8 @@ export default function SignupWelcomeModal({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       email: email.trim().toLowerCase(),
+      phone: phone.trim(),
+      dateOfBirth: dateOfBirth.trim(),
       password,
       confirmPassword,
       addressLine1: addressLine1.trim(),
@@ -157,7 +164,7 @@ export default function SignupWelcomeModal({
             {step === 1
               ? "Set up a free player profile — then connect a cash-out account (about 2 min) so you can buy squares and receive winnings."
               : step === 2
-                ? "Used for payouts and account verification when you win."
+                ? "Used for payouts and verification. Your debit card billing ZIP must match this address ZIP."
                 : "Your avatar shows on leaderboards and your player card."}
           </p>
           <div className="signup-welcome-steps" aria-hidden>
@@ -221,6 +228,38 @@ export default function SignupWelcomeModal({
                   className="player-input w-full"
                   required
                 />
+              </div>
+              <div>
+                <label htmlFor="signup-phone" className="signup-welcome-label">
+                  Mobile phone
+                </label>
+                <input
+                  id="signup-phone"
+                  type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  placeholder="(555) 555-5555"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="player-input w-full"
+                  required
+                />
+                <p className="text-[11px] text-sb-muted mt-1">One account per phone number.</p>
+              </div>
+              <div>
+                <label htmlFor="signup-dob" className="signup-welcome-label">
+                  Date of birth
+                </label>
+                <input
+                  id="signup-dob"
+                  type="date"
+                  autoComplete="bday"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  className="player-input w-full"
+                  required
+                />
+                <p className="text-[11px] text-sb-muted mt-1">You must be 21 or older.</p>
               </div>
               <div>
                 <label htmlFor="signup-password" className="signup-welcome-label">

@@ -37,6 +37,8 @@ export async function POST(request: Request) {
       firstName?: string;
       lastName?: string;
       email?: string;
+      phone?: string;
+      dateOfBirth?: string;
       password?: string;
       confirmPassword?: string;
       addressLine1?: string;
@@ -59,7 +61,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: validated.error }, { status: 400 });
     }
 
-    const { email, slug, authUserId } = await registerPlayerAccount(validated.payload);
+    const clientIp = resolveClientIpFromRequest(request);
+    const { email, slug, authUserId } = await registerPlayerAccount(validated.payload, {
+      ipAddress: clientIp,
+    });
 
     const supabase = await createClient();
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -104,7 +109,7 @@ export async function POST(request: Request) {
   } catch (err) {
     const raw = safeApiErrorMessage(err, "generic");
     const message = formatPlayerAuthError(raw);
-    const status = /already exists/i.test(raw) ? 409 : 500;
+    const status = /already exists|at least 21/i.test(raw) ? 409 : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

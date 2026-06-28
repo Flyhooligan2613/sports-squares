@@ -12,11 +12,17 @@ import {
 } from "@/lib/live-arena/audio";
 import {
   BILLS_CHIEFS_DEMO,
+  findDemoIndexByCelebration,
   findDemoIndexByKind,
   findDemoIndexForScore,
   getDemoPhaseLabel,
   getDemoSfxKind,
 } from "@/lib/live-arena/demoSimulator";
+import {
+  CELEBRATION_PHASE_MS,
+  getCelebrationPhaseSequence,
+  pickMysteryWinner,
+} from "@/lib/live-arena/celebrations";
 import {
   HAPTIC_CLASS,
   HAPTIC_DURATION_MS,
@@ -33,9 +39,12 @@ import {
 import { getWinningSquareMatch } from "@/lib/live-arena/squareUtils";
 import type {
   BoardRevealPhase,
+  CelebrationPhase,
   DockTab,
   LiveArenaPhase,
   ScoreReactionPhase,
+  WinCelebrationKind,
+  WinCelebrationState,
 } from "@/lib/live-arena/types";
 import ArenaAudioControls from "./ArenaAudioControls";
 import ArenaHeader from "./ArenaHeader";
@@ -49,7 +58,33 @@ import LiveDock from "./LiveDock";
 import MySquaresPanel from "./MySquaresPanel";
 import OpeningSequence from "./OpeningSequence";
 import SquareDetailOverlay from "./SquareDetailOverlay";
+import WinCelebration from "./WinCelebration";
 import "./live-arena.css";
+
+const IDLE_CELEBRATION: WinCelebrationState = {
+  active: false,
+  kind: null,
+  phase: "idle",
+  winningSquareId: null,
+  payout: 0,
+};
+
+function getCloseSquareIds(userIds: number[], winningId: number): number[] {
+  const winRow = Math.floor(winningId / 10);
+  const winCol = winningId % 10;
+  return userIds.filter((id) => {
+    const r = Math.floor(id / 10);
+    const c = id % 10;
+    return Math.abs(r - winRow) <= 1 && Math.abs(c - winCol) <= 1;
+  });
+}
+
+function getConfettiOrigin(row: number, col: number): { x: number; y: number } {
+  return {
+    x: 18 + (col + 0.5) * 6.4,
+    y: 22 + (row + 0.5) * 5.6,
+  };
+}
 
 const REVEAL_TIMINGS = {
   grid: 400,
@@ -77,6 +112,8 @@ export default function LiveArenaExperience() {
   const [volume, setVolume] = useState(0.7);
   const [audioReady, setAudioReady] = useState(false);
   const [hapticClass, setHapticClass] = useState("");
+  const [boardTension, setBoardTension] = useState(false);
+  const [celebration, setCelebration] = useState<WinCelebrationState>(IDLE_CELEBRATION);
   const [devOpen, setDevOpen] = useState(devFromUrl);
   const [devNotification, setDevNotification] = useState(false);
   const [demoPaused, setDemoPaused] = useState(false);
@@ -133,6 +170,23 @@ export default function LiveArenaExperience() {
 
   const selectedSquare = userSquares.find((s) => s.squareId === selectedSquareId);
 
+  const closeSquareIds = useMemo(() => {
+    if (celebration.kind !== "mystery-square" || winningSquareId == null) return [];
+    return getCloseSquareIds(userSquareIds, winningSquareId);
+  }, [celebration.kind, winningSquareId, userSquareIds]);
+
+  const confettiOrigin = useMemo(() => {
+    if (winningMatch == null) return { x: 50, y: 45 };
+    return getConfettiOrigin(winningMatch.row, winningMatch.col);
+  }, [winningMatch]);
+
+  const clearCelebration = useCallback(() => {
+    setCelebration(IDLE_CELEBRATION);
+    setSignatureActive(false);
+    setBoardReacting(false);
+    setReactionPhase("idle");
+  }, []);
+
   const clearReactionTimers = useCallback(() => {
     reactionTimers.current.forEach((t) => window.clearTimeout(t));
     reactionTimers.current = [];
@@ -146,6 +200,119 @@ export default function LiveArenaExperience() {
     );
     reactionTimers.current.push(t);
   }, []);
+
+  const scheduleCelebrationPhase = useCallback(
+    (
+      startMs: number,
+      phase: CelebrationPhase,
+      onEnter?: () => void
+    ): number => {
+      reactionTimers.current.push(
+        window.setTimeout(() => {
+          setCelebration((prev) => ({ ...prev, phase }));
+          onEnter?.();
+        }, startMs)
+      );
+      return startMs;
+    },
+    []
+  );
+
+  const startWinCelebration = useCallback(
+    (
+      kind: WinCelebrationKind,
+      squareId: number,
+      payout: number,
+      poolLine?: "row" | "col"
+    ) => {
+      clearReactionTimers();
+      setBoardTension(false);
+
+      const maskedWinner =
+        kind === "mystery-square" ? pickMysteryWinner(squareId) : undefined;
+
+      setReactionPhase("score-flash");
+      setScoreUpdating(true);
+      setScoreFlash(true);
+      triggerHaptic("heavy");
+      if (audioReady) playArenaSfx("score-tick");
+
+      reactionTimers.current.push(
+        window.setTimeout(() => {
+          setScoreUpdating(false);
+          setScoreFlash(false);
+          setReactionPhase("board-pause");
+        }, 450)
+      );
+
+      reactionTimers.current.push(
+        window.setTimeout(() => {
+          setCelebration({
+            active: true,
+            kind,
+            phase: "anticipation",
+            winningSquareId: squareId,
+            payout,
+            maskedWinner,
+            poolLine,
+          });
+          setSignatureActive(true);
+          setBoardReacting(true);
+          setReactionPhase("signature");
+          if (audioReady) {
+            playArenaSfx("anticipation-drone");
+            playArenaSfx("winning-square");
+            setCrowdEnergy(kind === "mystery-square" ? 0.75 : 0.95);
+          }
+          triggerHaptic(kind === "user-square" || kind === "quarter-pool" ? "heavy" : "medium");
+        }, 750)
+      );
+
+      const phases = getCelebrationPhaseSequence(kind);
+      let cursor = 750 + CELEBRATION_PHASE_MS.anticipation;
+
+      for (const phase of phases) {
+        if (phase === "anticipation") continue;
+
+        const phaseMs = CELEBRATION_PHASE_MS[phase];
+        const at = cursor;
+
+        scheduleCelebrationPhase(at, phase, () => {
+          if (!audioReady) return;
+          if (phase === "pool-highlight") playArenaSfx("small-win-chime");
+          if (phase === "spin") playArenaSfx("prize-spin");
+          if (phase === "burst") {
+            playArenaSfx("prize-burst");
+            playArenaSfx("confetti-shimmer");
+            triggerHaptic("heavy");
+          }
+          if (phase === "banner") {
+            playArenaSfx(
+              kind === "mystery-square" ? "small-win-chime" : "big-win-fanfare"
+            );
+            if (kind === "user-square" || kind === "quarter-pool") {
+              playArenaSfx("wallet-reward");
+            }
+          }
+          if (phase === "complete") {
+            setSignatureActive(false);
+            setBoardReacting(false);
+            setReactionPhase("idle");
+            window.setTimeout(() => clearCelebration(), 500);
+          }
+        });
+
+        cursor += phaseMs;
+      }
+    },
+    [
+      audioReady,
+      clearCelebration,
+      clearReactionTimers,
+      scheduleCelebrationPhase,
+      triggerHaptic,
+    ]
+  );
 
   const ensureAudio = useCallback(async () => {
     if (audioReady) return;
@@ -218,6 +385,8 @@ export default function LiveArenaExperience() {
     setSignatureActive(false);
     setReactionPhase("idle");
     setDemoPaused(false);
+    setCelebration(IDLE_CELEBRATION);
+    setBoardTension(false);
     prevWinningRef.current = null;
     prevDemoIndexRef.current = 0;
   }, [ensureAudio]);
@@ -231,6 +400,8 @@ export default function LiveArenaExperience() {
     setSignatureActive(false);
     setReactionPhase("idle");
     setDemoPaused(false);
+    setCelebration(IDLE_CELEBRATION);
+    setBoardTension(false);
     prevWinningRef.current = null;
     prevDemoIndexRef.current = 0;
   }, [ensureAudio]);
@@ -254,6 +425,35 @@ export default function LiveArenaExperience() {
       if (audioReady && sfx) playArenaSfx(sfx);
     },
     [audioReady, phase]
+  );
+
+  const triggerCelebrationAtIndex = useCallback(
+    (idx: number, forcedKind?: WinCelebrationKind) => {
+      const event = BILLS_CHIEFS_DEMO[idx];
+      if (!event) return;
+      jumpToDemoIndex(idx);
+      const match = getWinningSquareMatch(
+        contest.topNumbers,
+        contest.sideNumbers,
+        event.homeScore,
+        event.awayScore
+      );
+      if (!match) return;
+      const kind =
+        forcedKind ??
+        event.celebration ??
+        (userSquareIds.includes(match.squareId) ? "user-square" : "mystery-square");
+      const poolLine =
+        kind === "quarter-pool" ? ("row" as const) : undefined;
+      const payout =
+        userSquares.find((s) => s.squareId === match.squareId)?.potentialPayout ??
+        625;
+      window.setTimeout(
+        () => startWinCelebration(kind, match.squareId, payout, poolLine),
+        120
+      );
+    },
+    [contest, jumpToDemoIndex, startWinCelebration, userSquareIds, userSquares]
   );
 
   const devActions: DevDemoActions = useMemo(
@@ -299,12 +499,19 @@ export default function LiveArenaExperience() {
         setDevNotification(true);
         window.setTimeout(() => setDevNotification(false), 2500);
       },
+      triggerYouWinSquare: () =>
+        triggerCelebrationAtIndex(findDemoIndexByCelebration("user-square")),
+      triggerMysteryWinner: () =>
+        triggerCelebrationAtIndex(findDemoIndexByCelebration("mystery-square")),
+      triggerQuarterPoolWin: () =>
+        triggerCelebrationAtIndex(findDemoIndexByCelebration("quarter-pool")),
     }),
     [
       audioReady,
       contest,
       jumpToDemoIndex,
       runScoreReaction,
+      triggerCelebrationAtIndex,
       triggerHaptic,
       userSquareIds,
     ]
@@ -377,10 +584,21 @@ export default function LiveArenaExperience() {
     }
 
     const delay = event.pauseMs ?? 2500;
+    const nextIdx = demoIndex + 1;
+    const nextEvent = BILLS_CHIEFS_DEMO[nextIdx];
+    const scoreWillChange =
+      nextEvent != null &&
+      (event.awayScore !== nextEvent.awayScore ||
+        event.homeScore !== nextEvent.homeScore);
+
+    let tensionTimer: number | null = null;
+    if (scoreWillChange && delay > 500) {
+      tensionTimer = window.setTimeout(() => setBoardTension(true), delay - 450);
+    }
+
     timerRef.current = window.setTimeout(() => {
+      setBoardTension(false);
       if (demoIndex < BILLS_CHIEFS_DEMO.length - 1) {
-        const nextIdx = demoIndex + 1;
-        const nextEvent = BILLS_CHIEFS_DEMO[nextIdx];
         const sfx = nextEvent ? getDemoSfxKind(nextEvent) : null;
         if (audioReady && sfx) {
           playArenaSfx(sfx);
@@ -395,6 +613,7 @@ export default function LiveArenaExperience() {
 
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (tensionTimer != null) window.clearTimeout(tensionTimer);
     };
   }, [phase, demoIndex, contest.id, audioReady, triggerHaptic, demoPaused]);
 
@@ -405,6 +624,11 @@ export default function LiveArenaExperience() {
     const prevEvent = BILLS_CHIEFS_DEMO[prevDemoIndexRef.current];
     const currEvent = BILLS_CHIEFS_DEMO[demoIndex];
     if (!prevEvent || !currEvent) return;
+
+    if (demoPaused) {
+      prevDemoIndexRef.current = demoIndex;
+      return;
+    }
 
     const scoreChanged =
       prevEvent.awayScore !== currEvent.awayScore ||
@@ -431,9 +655,33 @@ export default function LiveArenaExperience() {
     const userWonSquare =
       currMatch != null && userSquareIds.includes(currMatch.squareId);
 
-    runScoreReaction(winningChanged, userWonSquare);
+    if (currEvent.celebration && currMatch && winningChanged) {
+      const poolLine =
+        currEvent.celebration === "quarter-pool" ? ("row" as const) : undefined;
+      const payout =
+        userSquares.find((s) => s.squareId === currMatch.squareId)
+          ?.potentialPayout ?? 625;
+      startWinCelebration(
+        currEvent.celebration,
+        currMatch.squareId,
+        payout,
+        poolLine
+      );
+    } else {
+      runScoreReaction(winningChanged, userWonSquare);
+    }
+
     prevDemoIndexRef.current = demoIndex;
-  }, [demoIndex, phase, contest, userSquareIds, runScoreReaction]);
+  }, [
+    demoIndex,
+    phase,
+    contest,
+    userSquareIds,
+    userSquares,
+    runScoreReaction,
+    startWinCelebration,
+    demoPaused,
+  ]);
 
   useEffect(() => {
     if (phase !== "live" || winningSquareId == null) return;
@@ -443,11 +691,11 @@ export default function LiveArenaExperience() {
       userSquareIds.includes(prevWinningRef.current);
     prevWinningRef.current = winningSquareId;
 
-    if (userSquareIds.includes(winningSquareId) && !wasWinning) {
+    if (userSquareIds.includes(winningSquareId) && !wasWinning && !celebration.active) {
       if (audioReady) playArenaSfx("wallet-reward");
       triggerHaptic("medium");
     }
-  }, [winningSquareId, phase, userSquareIds, audioReady, triggerHaptic]);
+  }, [winningSquareId, phase, userSquareIds, audioReady, triggerHaptic, celebration.active]);
 
   useEffect(() => {
     return () => {
@@ -596,24 +844,44 @@ export default function LiveArenaExperience() {
           userIsWinning={devNotification ? true : userIsWinning}
           payout={winningPayout}
           animatePayout={
-            (userIsWinning && reactionPhase === "illuminate") || devNotification
+            (userIsWinning &&
+              (reactionPhase === "illuminate" ||
+                celebration.phase === "banner")) ||
+            devNotification
           }
         />
 
-        <LiveArenaBoard
-          contest={contest}
-          userSquareIds={userSquareIds}
-          winningSquareId={winningSquareId}
-          winningMatch={winningMatch}
-          selectedSquareId={selectedSquareId}
-          revealPhase={
-            contest.id !== "bills-chiefs" ? "complete" : revealPhase
-          }
-          zoomed={selectedSquareId != null}
-          signatureActive={signatureActive}
-          boardReacting={boardReacting}
-          onSquareClick={handleSquareSelect}
-        />
+        <div className="relative">
+          <LiveArenaBoard
+            contest={contest}
+            userSquareIds={userSquareIds}
+            winningSquareId={winningSquareId}
+            winningMatch={winningMatch}
+            selectedSquareId={selectedSquareId}
+            revealPhase={
+              contest.id !== "bills-chiefs" ? "complete" : revealPhase
+            }
+            zoomed={selectedSquareId != null}
+            signatureActive={signatureActive}
+            boardReacting={boardReacting}
+            boardBreathing={phase === "live" && revealPhase === "complete"}
+            boardTension={boardTension}
+            celebrationPhase={celebration.phase}
+            celebrationKind={celebration.kind}
+            poolLine={celebration.poolLine ?? null}
+            closeSquareIds={closeSquareIds}
+            onSquareClick={handleSquareSelect}
+          />
+
+          <WinCelebration
+            active={celebration.active}
+            kind={celebration.kind}
+            phase={celebration.phase}
+            payout={celebration.payout}
+            maskedWinner={celebration.maskedWinner}
+            confettiOrigin={confettiOrigin}
+          />
+        </div>
 
         <MySquaresPanel
           squares={userSquares}

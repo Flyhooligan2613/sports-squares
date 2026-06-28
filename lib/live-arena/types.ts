@@ -45,6 +45,30 @@ export type DemoEventKind =
   | "big-play"
   | "final";
 
+export type WinCelebrationKind =
+  | "user-square"
+  | "mystery-square"
+  | "quarter-pool";
+
+export type CelebrationPhase =
+  | "idle"
+  | "anticipation"
+  | "pool-highlight"
+  | "spin"
+  | "burst"
+  | "banner"
+  | "complete";
+
+export interface WinCelebrationState {
+  active: boolean;
+  kind: WinCelebrationKind | null;
+  phase: CelebrationPhase;
+  winningSquareId: number | null;
+  payout: number;
+  maskedWinner?: string;
+  poolLine?: "row" | "col";
+}
+
 export interface DemoScoreEvent {
   quarter: 1 | 2 | 3 | 4;
   clock: string;
@@ -55,6 +79,8 @@ export interface DemoScoreEvent {
   kind?: DemoEventKind;
   /** 0–1 crowd energy for ambience volume */
   crowdLevel?: number;
+  /** Scripted celebration trigger for automated demo */
+  celebration?: WinCelebrationKind;
 }
 
 export type BoardRevealPhase =

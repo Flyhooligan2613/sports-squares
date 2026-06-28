@@ -99,6 +99,8 @@ export interface SignUpPlayerInput {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
+  dateOfBirth: string;
   password: string;
   confirmPassword: string;
   addressLine1: string;

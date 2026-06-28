@@ -11,6 +11,9 @@ export interface DevDemoActions {
   triggerWinningSquare: () => void;
   triggerLosingSquare: () => void;
   triggerNotification: () => void;
+  triggerYouWinSquare: () => void;
+  triggerMysteryWinner: () => void;
+  triggerQuarterPoolWin: () => void;
 }
 
 interface DevDemoPanelProps {
@@ -29,6 +32,9 @@ const BUTTONS: { label: string; key: keyof DevDemoActions }[] = [
   { label: "Wallet Reward", key: "triggerWalletReward" },
   { label: "Winning Square", key: "triggerWinningSquare" },
   { label: "Losing Square", key: "triggerLosingSquare" },
+  { label: "Simulate: You Win Square", key: "triggerYouWinSquare" },
+  { label: "Simulate: Mystery Winner", key: "triggerMysteryWinner" },
+  { label: "Simulate: Quarter Pool Win", key: "triggerQuarterPoolWin" },
   { label: "Notification", key: "triggerNotification" },
 ];
 
