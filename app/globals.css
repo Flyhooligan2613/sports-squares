@@ -53,6 +53,23 @@ html.sb-splash-pending body {
   overflow: hidden;
 }
 
+/* Keep NFL/sport turf backdrops hidden until splash completes — prevents green flash */
+.app-ambient-backdrop {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.65s ease 0.2s,
+    visibility 0s linear 0.85s;
+}
+
+html.sb-splash-revealed .app-ambient-backdrop {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.75s ease 0.12s,
+    visibility 0s;
+}
+
 .app-open-splash {
   position: fixed;
   inset: 0;
@@ -74,6 +91,12 @@ html.sb-splash-pending body {
 
 .app-open-splash-enter {
   animation: app-open-splash-in 0.45s ease-out forwards;
+}
+
+/* Splash shell stays opaque while pending — only grid/brand animate in */
+html.sb-splash-pending .app-open-splash.app-open-splash-enter {
+  opacity: 1;
+  animation: none;
 }
 
 .app-open-splash-exit {

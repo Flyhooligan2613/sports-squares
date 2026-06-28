@@ -848,7 +848,15 @@ export default function LiveArenaExperience() {
   }
 
   return (
-    <div className={["la-root la-root--live pb-24", hapticClass].filter(Boolean).join(" ")}>
+    <div
+      className={[
+        "la-root la-root--live pb-24",
+        phase === "opening" ? "la-root--opening" : "",
+        hapticClass,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <div className="la-stadium-bg">
         <div className="la-stadium-spotlight" />
       </div>

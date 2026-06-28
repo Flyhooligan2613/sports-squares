@@ -2455,6 +2455,22 @@
 }
 
 /* ── Opening sequence (P3) ── */
+.la-root--opening {
+  background: #000;
+}
+
+.la-root--opening .la-stadium-bg,
+.la-root--opening .la-live-header,
+.la-root--opening .la-board-hero,
+.la-root--opening .la-live-scroll,
+.la-root--opening .la-live-overlay-wrap {
+  visibility: hidden;
+}
+
+.la-opening {
+  background: #000;
+}
+
 .la-opening__blackout {
   transition: opacity var(--la-duration-slow) var(--la-ease-out);
 }

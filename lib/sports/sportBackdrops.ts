@@ -160,6 +160,7 @@ const ROUTES_WITH_OWN_BACKDROP: Array<string | RegExp> = [
   /^\/soccer-predictor(\/|$)/,
   /^\/wnba-pickem(\/|$)/,
   /^\/survivor(\/|$)/,
+  /^\/live-arena(\/|$)/,
 ];
 
 export function shouldSkipAppAmbientBackdrop(pathname: string): boolean {

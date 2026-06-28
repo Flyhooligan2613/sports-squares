@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
 import SignupWelcomeGate from "@/components/auth/SignupWelcomeGate";
@@ -16,7 +16,36 @@ function shouldSkipSplash(pathname: string): boolean {
   return pathname.startsWith("/admin");
 }
 
+function markSplashRevealed() {
+  document.documentElement.classList.add("sb-splash-revealed");
+  document.documentElement.classList.remove("sb-splash-pending");
+}
+
 type SplashPhase = "hidden" | "enter" | "exit" | "done";
+
+function resolveInitialSplash(pathname: string): {
+  phase: SplashPhase;
+  ready: boolean;
+  animate: boolean;
+} {
+  if (shouldSkipSplash(pathname)) {
+    return { phase: "done", ready: true, animate: false };
+  }
+
+  try {
+    if (sessionStorage.getItem(APP_OPEN_SPLASH_KEY)) {
+      return { phase: "done", ready: true, animate: false };
+    }
+  } catch {
+    return { phase: "done", ready: true, animate: false };
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return { phase: "done", ready: true, animate: false };
+  }
+
+  return { phase: "enter", ready: false, animate: true };
+}
 
 export default function AppOpenSplash() {
   const pathname = usePathname();
@@ -27,15 +56,23 @@ export default function AppOpenSplash() {
   const splashStartedAtRef = useRef(0);
 
   function finishSplash() {
-    document.documentElement.classList.remove("sb-splash-pending");
-    if (typeof document !== "undefined") {
-      document.body.style.removeProperty("overflow");
-    }
+    markSplashRevealed();
+    document.body.style.removeProperty("overflow");
     notifySplashComplete();
     setPhase("done");
     phaseRef.current = "done";
     setSplashReady(true);
   }
+
+  useLayoutEffect(() => {
+    const initial = resolveInitialSplash(pathname);
+    phaseRef.current = initial.phase;
+    setPhase(initial.phase);
+    setSplashReady(initial.ready);
+    if (!initial.animate) {
+      markSplashRevealed();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -78,6 +115,7 @@ export default function AppOpenSplash() {
     phaseRef.current = "enter";
     splashStartedAtRef.current = Date.now();
     document.documentElement.classList.add("sb-splash-pending");
+    document.body.style.overflow = "hidden";
 
     const exitTimer = window.setTimeout(() => {
       setPhase("exit");
@@ -89,8 +127,6 @@ export default function AppOpenSplash() {
       } catch {
         /* ignore */
       }
-      document.documentElement.classList.remove("sb-splash-pending");
-      document.body.style.removeProperty("overflow");
       finishSplash();
     }, SHOW_MS + EXIT_MS);
 
@@ -114,15 +150,14 @@ export default function AppOpenSplash() {
       window.clearTimeout(exitTimer);
       window.clearTimeout(doneTimer);
       document.removeEventListener("visibilitychange", onVisibility);
-      document.documentElement.classList.remove("sb-splash-pending");
       document.body.style.removeProperty("overflow");
-      // If navigation interrupts the splash timers, never leave the overlay stuck.
       if (phaseRef.current === "enter" || phaseRef.current === "exit") {
         try {
           sessionStorage.setItem(APP_OPEN_SPLASH_KEY, "1");
         } catch {
           /* ignore */
         }
+        markSplashRevealed();
         phaseRef.current = "done";
         setPhase("done");
         setSplashReady(true);

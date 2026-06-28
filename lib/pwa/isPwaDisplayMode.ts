@@ -14,9 +14,17 @@ export function isPwaDisplayMode(): boolean {
 /** Inline script — splash once per browser session (PWA + web). */
 export const APP_OPEN_SPLASH_PENDING_SCRIPT = `(function(){
   try {
-    if (location.pathname.startsWith("/admin")) return;
-    if (!sessionStorage.getItem("sb-app-open-splash-seen")) {
-      document.documentElement.classList.add("sb-splash-pending");
+    var root = document.documentElement;
+    if (location.pathname.startsWith("/admin")) {
+      root.classList.add("sb-splash-revealed");
+      return;
     }
-  } catch (e) {}
+    if (!sessionStorage.getItem("sb-app-open-splash-seen")) {
+      root.classList.add("sb-splash-pending");
+    } else {
+      root.classList.add("sb-splash-revealed");
+    }
+  } catch (e) {
+    try { document.documentElement.classList.add("sb-splash-revealed"); } catch (e2) {}
+  }
 })();`;
