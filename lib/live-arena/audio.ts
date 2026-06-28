@@ -3,11 +3,13 @@
 export type ArenaSfx =
   | "touchdown"
   | "field-goal"
+  | "safety"
   | "quarter-end"
   | "winning-square"
   | "wallet-reward"
   | "contest-complete"
-  | "score-tick";
+  | "score-tick"
+  | "notification";
 
 export interface ArenaAudioPrefs {
   muted: boolean;
@@ -173,6 +175,10 @@ export function playArenaSfx(sfx: ArenaSfx): void {
       playTone(523, 0.08, "sine", 0.25);
       window.setTimeout(() => playTone(659, 0.12, "sine", 0.22), 60);
       break;
+    case "safety":
+      playTone(180, 0.15, "square", 0.32);
+      window.setTimeout(() => playTone(140, 0.2, "square", 0.28), 100);
+      break;
     case "quarter-end":
       playTone(392, 0.2, "triangle", 0.28);
       window.setTimeout(() => playTone(294, 0.35, "triangle", 0.22), 150);
@@ -195,6 +201,10 @@ export function playArenaSfx(sfx: ArenaSfx): void {
       break;
     case "score-tick":
       playTone(800, 0.04, "sine", 0.12);
+      break;
+    case "notification":
+      playTone(740, 0.06, "sine", 0.2);
+      window.setTimeout(() => playTone(880, 0.08, "sine", 0.18), 70);
       break;
   }
 }

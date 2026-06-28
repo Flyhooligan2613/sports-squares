@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import LiveArenaExperience from "@/components/live-arena/LiveArenaExperience";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -10,5 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function LiveArenaPage() {
-  return <LiveArenaExperience />;
+  return (
+    <Suspense fallback={null}>
+      <LiveArenaExperience />
+    </Suspense>
+  );
 }

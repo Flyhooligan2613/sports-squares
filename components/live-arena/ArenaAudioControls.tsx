@@ -18,7 +18,7 @@ export default function ArenaAudioControls({
       <button
         type="button"
         onClick={() => onMutedChange(!muted)}
-        className="la-audio-toggle flex items-center gap-1.5 text-[10px] text-sb-muted hover:text-white transition-colors"
+        className="la-audio-toggle flex items-center gap-1.5 text-[10px] text-sb-muted hover:text-white transition-colors min-h-[44px] min-w-[44px] px-2"
         aria-label={muted ? "Unmute arena sound" : "Mute arena sound"}
       >
         <span className="text-sm" aria-hidden>
@@ -34,7 +34,7 @@ export default function ArenaAudioControls({
           max={100}
           value={Math.round(volume * 100)}
           onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
-          className="la-volume-slider flex-1 h-1 accent-blue-400"
+          className="la-volume-slider flex-1 h-2 min-h-[44px] accent-blue-400 cursor-pointer"
           disabled={muted}
         />
       </label>

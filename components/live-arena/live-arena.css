@@ -9,6 +9,13 @@
   --la-glass-border: rgba(255, 255, 255, 0.1);
   --la-axis-size: clamp(18px, 5.2vw, 26px);
   --la-grid-gap: clamp(2px, 0.6vw, 3px);
+  --la-ease-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --la-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --la-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --la-duration-fast: 0.25s;
+  --la-duration-normal: 0.45s;
+  --la-duration-slow: 0.7s;
+  --la-duration-reveal: 1.6s;
   min-height: 100dvh;
   background: #020617;
   color: #fff;
@@ -300,9 +307,14 @@
 .la-square-num {
   position: relative;
   z-index: 2;
-  font-size: clamp(7px, 2.1vw, 10px);
+  font-size: clamp(6px, 1.85vw, 9px);
   font-weight: 700;
-  animation: la-num-reveal 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+  line-height: 1;
+  max-width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: clip;
+  animation: la-num-reveal var(--la-duration-fast) var(--la-ease-spring) backwards;
 }
 
 @keyframes la-num-reveal {
@@ -334,13 +346,38 @@
   }
 }
 
-/* P4 — winning square */
+/* P4 — winning square + colorblind pattern */
 .la-square-winning {
   background: rgba(246, 196, 83, 0.22) !important;
   border-color: var(--la-gold) !important;
   color: #fef3c7 !important;
   animation: la-win-pulse 1.4s ease-in-out infinite !important;
   z-index: 10;
+}
+
+.la-win-pattern {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--la-gold),
+    var(--la-gold) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.la-square-win-icon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 4;
+  width: 5px;
+  height: 5px;
 }
 
 @keyframes la-win-pulse {
@@ -734,14 +771,25 @@
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Haptic (P12) */
-.la-haptic-shake {
-  animation: la-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+/* Haptic simulation (P8) */
+.la-haptic-shake,
+.la-haptic-heavy {
+  animation: la-shake 0.52s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   will-change: transform;
 }
 
+.la-haptic-medium,
 .la-haptic-pulse {
-  animation: la-haptic-pulse 0.35s ease-out;
+  animation: la-haptic-pulse 0.42s var(--la-ease-out);
+}
+
+.la-haptic-light {
+  animation: la-haptic-light 0.28s var(--la-ease-out);
+}
+
+@keyframes la-haptic-light {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
 }
 
 @keyframes la-shake {
@@ -962,7 +1010,428 @@
 }
 
 .la-winning-banner {
-  animation: la-banner-slide 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: la-banner-slide var(--la-duration-normal) var(--la-ease-out) forwards;
+}
+
+/* ── Contest Center Dashboard (P1) ── */
+.la-contest-center__hero {
+  animation: la-banner-slide var(--la-duration-normal) var(--la-ease-out) forwards;
+}
+
+.la-contest-center__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.la-contest-center__stat {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.la-contest-center__stat-label {
+  font-size: clamp(8px, 2vw, 9px);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.la-contest-center__stat-value {
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.la-contest-card {
+  padding: 14px;
+  transition:
+    transform var(--la-duration-normal) var(--la-ease-spring),
+    box-shadow var(--la-duration-normal) var(--la-ease-out);
+  will-change: transform, box-shadow;
+}
+
+.la-contest-card:active {
+  transform: scale(0.98) translateY(1px);
+}
+
+.la-contest-card--live {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(59, 130, 246, 0.12);
+  animation: la-contest-glow 3s ease-in-out infinite;
+}
+
+.la-contest-card--winning {
+  border-color: rgba(246, 196, 83, 0.35);
+}
+
+@keyframes la-contest-glow {
+  0%, 100% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 16px rgba(59, 130, 246, 0.1); }
+  50% { box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 28px rgba(59, 130, 246, 0.22); }
+}
+
+.la-contest-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.la-contest-card__league {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.la-contest-card__matchup {
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 700;
+}
+
+.la-contest-card__meta {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 2px;
+}
+
+.la-contest-card__scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 10px;
+}
+
+.la-contest-card__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.la-contest-card__abbr {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.la-contest-card__score {
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+
+.la-contest-card__clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0 8px;
+}
+
+.la-contest-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.la-contest-center__join {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #fff;
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  transition: transform var(--la-duration-fast) var(--la-ease-spring),
+    box-shadow var(--la-duration-fast) var(--la-ease-out);
+}
+
+.la-contest-center__join:active {
+  transform: scale(0.98);
+}
+
+/* ── Floating Contest Info (P4) ── */
+.la-floating-info {
+  position: relative;
+  padding: 10px 12px;
+  animation: la-banner-slide var(--la-duration-normal) var(--la-ease-out) forwards;
+}
+
+.la-floating-info__title {
+  font-size: clamp(11px, 3vw, 12px);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.la-floating-info__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.la-floating-info__grid dt {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.la-floating-info__grid dd {
+  font-size: clamp(10px, 2.8vw, 11px);
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.la-floating-info__win {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.la-floating-info__type {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* ── My Squares chips (P5) ── */
+.la-square-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  transition:
+    transform var(--la-duration-fast) var(--la-ease-spring),
+    box-shadow var(--la-duration-fast) var(--la-ease-out),
+    border-color var(--la-duration-fast) var(--la-ease-out);
+  will-change: transform;
+}
+
+.la-square-chip:active {
+  transform: scale(0.96);
+}
+
+.la-square-chip--selected {
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+  transform: scale(1.04);
+}
+
+.la-square-chip--winning,
+.la-chip--winning {
+  border-color: rgba(246, 196, 83, 0.5);
+  background: rgba(246, 196, 83, 0.1);
+}
+
+.la-square-chip--live-winning {
+  animation: la-win-pulse 1.4s ease-in-out infinite;
+}
+
+.la-chip--active {
+  border-color: rgba(96, 165, 250, 0.45);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.la-chip--inplay {
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(123, 97, 255, 0.08);
+}
+
+.la-square-chip__num {
+  font-size: clamp(14px, 4vw, 16px);
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+
+.la-square-chip__status {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.la-square-chip__pattern {
+  width: 5px;
+  height: 5px;
+}
+
+/* ── Opening sequence (P3) ── */
+.la-opening__blackout {
+  transition: opacity var(--la-duration-slow) var(--la-ease-out);
+}
+
+.la-opening__tunnel-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(96, 165, 250, 0.15);
+  transform: translate(-50%, -50%) scale(0.3);
+  opacity: 0;
+  transition: opacity var(--la-duration-slow) var(--la-ease-out),
+    transform var(--la-duration-reveal) var(--la-ease-out);
+}
+
+.la-opening__tunnel-ring--1 {
+  width: 120vmax;
+  height: 120vmax;
+}
+
+.la-opening__tunnel-ring--2 {
+  width: 80vmax;
+  height: 80vmax;
+  border-color: rgba(167, 139, 250, 0.12);
+}
+
+.la-opening__tunnel-ring--active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.la-opening__spotlight {
+  transition: opacity var(--la-duration-slow) var(--la-ease-out);
+}
+
+.la-opening__eyebrow,
+.la-opening__title,
+.la-opening__sub {
+  transition: opacity var(--la-duration-normal) var(--la-ease-out),
+    transform var(--la-duration-normal) var(--la-ease-spring);
+}
+
+.la-opening__title {
+  transform: translateY(8px);
+}
+
+.la-opening__title.opacity-100,
+.la-opening .opacity-100.la-opening__title {
+  transform: translateY(0);
+}
+
+.la-opening__vignette {
+  background: radial-gradient(circle at 50% 40%, transparent 20%, rgba(0, 0, 0, 0.85) 100%);
+  transition: opacity var(--la-duration-slow) var(--la-ease-out);
+}
+
+/* ── Dev panel (P10) ── */
+.la-dev-corner-hit {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  z-index: 200;
+  opacity: 0;
+  cursor: default;
+}
+
+.la-dev-panel {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  width: min(calc(100vw - 24px), 380px);
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(6, 12, 28, 0.95);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: la-detail-slide var(--la-duration-normal) var(--la-ease-spring) forwards;
+}
+
+.la-dev-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.la-dev-panel__badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  letter-spacing: 0.1em;
+}
+
+.la-dev-panel__title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.la-dev-panel__close {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.la-dev-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.la-dev-panel__btn {
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  color: #bfdbfe;
+  transition: transform var(--la-duration-fast) var(--la-ease-spring),
+    background var(--la-duration-fast) var(--la-ease-out);
+}
+
+.la-dev-panel__btn:active {
+  transform: scale(0.96);
+  background: rgba(59, 130, 246, 0.28);
+}
+
+.la-dev-panel__hint {
+  margin-top: 8px;
+  font-size: 9px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.la-dev-toast {
+  animation: la-banner-slide var(--la-duration-normal) var(--la-ease-out) forwards;
+}
+
+/* High contrast (P9) */
+@media (prefers-contrast: more) {
+  .la-glass-card {
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .la-square-winning {
+    outline: 2px solid #fff;
+  }
+
+  .la-win-pattern {
+    background: #fff;
+  }
+}
+
+[data-la-high-contrast="true"] .la-glass-card {
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Reduced motion */
@@ -977,7 +1446,17 @@
   .la-signature-line,
   .la-win-ripple,
   .la-owned-breathe,
-  .la-dock-glow {
+  .la-dock-glow,
+  .la-contest-card--live,
+  .la-square-chip--live-winning,
+  .la-opening__tunnel-ring {
+    animation: none !important;
+  }
+
+  .la-haptic-shake,
+  .la-haptic-heavy,
+  .la-haptic-medium,
+  .la-haptic-light {
     animation: none !important;
   }
 
@@ -986,7 +1465,9 @@
   }
 
   .la-board-grid,
-  .la-carousel-slide {
+  .la-carousel-slide,
+  .la-contest-card,
+  .la-square-chip {
     transition-duration: 0.01ms;
   }
 }

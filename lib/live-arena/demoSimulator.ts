@@ -40,10 +40,26 @@ export function getDemoPhaseLabel(event: DemoScoreEvent): string | null {
 
 export function getDemoSfxKind(
   event: DemoScoreEvent
-): "touchdown" | "field-goal" | "quarter-end" | "contest-complete" | null {
+): "touchdown" | "field-goal" | "safety" | "quarter-end" | "contest-complete" | null {
   if (event.kind === "touchdown") return "touchdown";
   if (event.kind === "field-goal") return "field-goal";
+  if (event.kind === "safety") return "safety";
   if (event.kind === "quarter-end") return "quarter-end";
   if (event.kind === "final") return "contest-complete";
   return null;
+}
+
+/** Find first demo index matching a kind (for dev panel jumps). */
+export function findDemoIndexByKind(kind: DemoScoreEvent["kind"]): number {
+  return BILLS_CHIEFS_DEMO.findIndex((e) => e.kind === kind);
+}
+
+/** Find demo index where score changes to target winning square digits. */
+export function findDemoIndexForScore(
+  awayScore: number,
+  homeScore: number
+): number {
+  return BILLS_CHIEFS_DEMO.findIndex(
+    (e) => e.awayScore === awayScore && e.homeScore === homeScore
+  );
 }

@@ -1,11 +1,21 @@
 export type LiveArenaPhase =
   | "landing"
+  | "dashboard"
   | "opening"
   | "live"
   | "quarter-break"
   | "halftime"
   | "complete"
   | "wallet-reward";
+
+export type UserSquareStatus = "winning" | "active" | "in-play";
+
+export type ContestUserStatus =
+  | "winning"
+  | "active"
+  | "in-play"
+  | "watching"
+  | "upcoming";
 
 export type ContestSport = "nfl" | "nba" | "mlb" | "pickem";
 
@@ -29,6 +39,7 @@ export type DemoEventKind =
   | "tick"
   | "touchdown"
   | "field-goal"
+  | "safety"
   | "quarter-end"
   | "halftime"
   | "big-play"
@@ -66,6 +77,25 @@ export interface UserSquareMeta {
   potentialPayout: number;
   historicalWinRate: number;
   quartersWon: number[];
+  status: UserSquareStatus;
+}
+
+export interface ContestCenterStats {
+  activeContests: number;
+  potentialWinnings: number;
+  walletBalance: number;
+  winningBoards: number;
+  upcomingGames: number;
+  contestHistoryCount: number;
+}
+
+export interface LiveContestSummary extends LiveContest {
+  awayScore?: number;
+  homeScore?: number;
+  quarter?: number;
+  clock?: string;
+  userStatus: ContestUserStatus;
+  startTime?: string;
 }
 
 export interface LiveArenaStats {

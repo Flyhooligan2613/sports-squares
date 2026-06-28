@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useRef } from "react";
 import FlipScore from "./FlipScore";
 import { formatClock } from "@/lib/live-arena/squareUtils";
 
@@ -16,6 +17,8 @@ interface ArenaHeaderProps {
   contestType: string;
   scoreFlash: boolean;
   scoreUpdating: boolean;
+  hapticClass?: string;
+  onLongPress?: () => void;
 }
 
 const Q_LABELS: Record<number, string> = {
@@ -38,14 +41,35 @@ export default function ArenaHeader({
   contestType,
   scoreFlash,
   scoreUpdating,
+  hapticClass = "",
+  onLongPress,
 }: ArenaHeaderProps) {
+  const pressTimer = useRef<number | null>(null);
+
+  const clearPress = useCallback(() => {
+    if (pressTimer.current) {
+      window.clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  }, []);
+
+  const startPress = useCallback(() => {
+    clearPress();
+    if (!onLongPress) return;
+    pressTimer.current = window.setTimeout(onLongPress, 800);
+  }, [clearPress, onLongPress]);
+
   return (
     <header
       className={[
         "la-header-broadcast la-glass-card",
-        scoreFlash ? "la-haptic-shake" : "",
+        scoreFlash ? hapticClass || "la-haptic-shake" : "",
         scoreUpdating ? "la-header-updating" : "",
       ].join(" ")}
+      onPointerDown={startPress}
+      onPointerUp={clearPress}
+      onPointerLeave={clearPress}
+      onPointerCancel={clearPress}
     >
       <div className="la-header-top">
         <div className="la-header-live-cluster">

@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { getSquareDisplayNumber } from "@/lib/engines/squareDisplay";
 import {
   initArenaAudio,
   playArenaSfx,
@@ -10,18 +12,25 @@ import {
 } from "@/lib/live-arena/audio";
 import {
   BILLS_CHIEFS_DEMO,
+  findDemoIndexByKind,
+  findDemoIndexForScore,
   getDemoPhaseLabel,
   getDemoSfxKind,
 } from "@/lib/live-arena/demoSimulator";
 import {
+  HAPTIC_CLASS,
+  HAPTIC_DURATION_MS,
+  type HapticIntensity,
+} from "@/lib/live-arena/motion";
+import {
+  MOCK_CENTER_STATS,
+  MOCK_CONTEST_SUMMARIES,
   MOCK_CONTESTS,
   MOCK_STATS,
   buildUserSquareMeta,
   getUserSquareIds,
 } from "@/lib/live-arena/mockData";
-import {
-  getWinningSquareMatch,
-} from "@/lib/live-arena/squareUtils";
+import { getWinningSquareMatch } from "@/lib/live-arena/squareUtils";
 import type {
   BoardRevealPhase,
   DockTab,
@@ -30,8 +39,10 @@ import type {
 } from "@/lib/live-arena/types";
 import ArenaAudioControls from "./ArenaAudioControls";
 import ArenaHeader from "./ArenaHeader";
-import ContestCarousel from "./ContestCarousel";
+import ContestCenterDashboard from "./ContestCenterDashboard";
 import ContestStatusBanner from "./ContestStatusBanner";
+import DevDemoPanel, { type DevDemoActions } from "./DevDemoPanel";
+import FloatingContestInfo from "./FloatingContestInfo";
 import LiveActivityBar from "./LiveActivityBar";
 import LiveArenaBoard from "./LiveArenaBoard";
 import LiveDock from "./LiveDock";
@@ -48,6 +59,9 @@ const REVEAL_TIMINGS = {
 };
 
 export default function LiveArenaExperience() {
+  const searchParams = useSearchParams();
+  const devFromUrl = searchParams.get("dev") === "1";
+
   const [phase, setPhase] = useState<LiveArenaPhase>("landing");
   const [contestIndex, setContestIndex] = useState(0);
   const [demoIndex, setDemoIndex] = useState(0);
@@ -62,11 +76,16 @@ export default function LiveArenaExperience() {
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [audioReady, setAudioReady] = useState(false);
-  const [hapticPulse, setHapticPulse] = useState(false);
+  const [hapticClass, setHapticClass] = useState("");
+  const [devOpen, setDevOpen] = useState(devFromUrl);
+  const [devNotification, setDevNotification] = useState(false);
+  const [demoPaused, setDemoPaused] = useState(false);
   const timerRef = useRef<number | null>(null);
   const reactionTimers = useRef<number[]>([]);
   const prevWinningRef = useRef<number | null>(null);
   const prevDemoIndexRef = useRef(0);
+  const cornerTaps = useRef(0);
+  const cornerTimer = useRef<number | null>(null);
 
   const contest = MOCK_CONTESTS[contestIndex];
   const isPrimaryDemo = contest.id === "bills-chiefs" && phase === "live";
@@ -99,6 +118,12 @@ export default function LiveArenaExperience() {
 
   const winningSquareId = winningMatch?.squareId ?? null;
 
+  const winningDisplayNumber = useMemo(() => {
+    if (winningSquareId == null) return "—";
+    const num = getSquareDisplayNumber(winningSquareId, contest.innerNumbers);
+    return num != null ? `#${num}` : `#${winningSquareId + 1}`;
+  }, [winningSquareId, contest.innerNumbers]);
+
   const userIsWinning =
     winningSquareId != null && userSquareIds.includes(winningSquareId);
 
@@ -113,11 +138,21 @@ export default function LiveArenaExperience() {
     reactionTimers.current = [];
   }, []);
 
-  const triggerHaptic = useCallback(() => {
-    setHapticPulse(true);
-    const t = window.setTimeout(() => setHapticPulse(false), 450);
+  const triggerHaptic = useCallback((intensity: HapticIntensity = "medium") => {
+    setHapticClass(HAPTIC_CLASS[intensity]);
+    const t = window.setTimeout(
+      () => setHapticClass(""),
+      HAPTIC_DURATION_MS[intensity]
+    );
     reactionTimers.current.push(t);
   }, []);
+
+  const ensureAudio = useCallback(async () => {
+    if (audioReady) return;
+    await initArenaAudio();
+    setAudioReady(true);
+    setArenaAudioPrefs({ muted, masterVolume: volume });
+  }, [audioReady, muted, volume]);
 
   const runScoreReaction = useCallback(
     (winningChanged: boolean, userWonSquare: boolean) => {
@@ -125,6 +160,7 @@ export default function LiveArenaExperience() {
       setReactionPhase("score-flash");
       setScoreUpdating(true);
       setScoreFlash(true);
+      triggerHaptic(winningChanged ? "heavy" : "light");
 
       reactionTimers.current.push(
         window.setTimeout(() => {
@@ -141,7 +177,7 @@ export default function LiveArenaExperience() {
           if (winningChanged) {
             setSignatureActive(true);
             playArenaSfx("winning-square");
-            if (userWonSquare) triggerHaptic();
+            if (userWonSquare) triggerHaptic("medium");
           }
         }, 750)
       );
@@ -173,24 +209,118 @@ export default function LiveArenaExperience() {
     return () => timers.forEach((t) => window.clearTimeout(t));
   }, []);
 
-  const startDemo = useCallback(async () => {
-    if (!audioReady) {
-      await initArenaAudio();
-      setAudioReady(true);
-      setArenaAudioPrefs({ muted, masterVolume: volume });
-    }
+  const enterDashboard = useCallback(async () => {
+    await ensureAudio();
+    setPhase("dashboard");
+    setDemoIndex(0);
+    setRevealPhase("hidden");
+    setSelectedSquareId(null);
+    setSignatureActive(false);
+    setReactionPhase("idle");
+    setDemoPaused(false);
+    prevWinningRef.current = null;
+    prevDemoIndexRef.current = 0;
+  }, [ensureAudio]);
+
+  const joinContest = useCallback(async () => {
+    await ensureAudio();
     setPhase("opening");
     setDemoIndex(0);
     setRevealPhase("hidden");
     setSelectedSquareId(null);
     setSignatureActive(false);
     setReactionPhase("idle");
+    setDemoPaused(false);
     prevWinningRef.current = null;
     prevDemoIndexRef.current = 0;
-  }, [audioReady, muted, volume]);
+  }, [ensureAudio]);
 
   const onOpeningComplete = useCallback(() => {
     setPhase("live");
+  }, []);
+
+  const jumpToDemoIndex = useCallback(
+    (idx: number) => {
+      if (idx < 0 || idx >= BILLS_CHIEFS_DEMO.length) return;
+      setDemoPaused(true);
+      if (phase !== "live") {
+        setContestIndex(0);
+        setPhase("live");
+        setRevealPhase("complete");
+      }
+      setDemoIndex(idx);
+      const event = BILLS_CHIEFS_DEMO[idx];
+      const sfx = event ? getDemoSfxKind(event) : null;
+      if (audioReady && sfx) playArenaSfx(sfx);
+    },
+    [audioReady, phase]
+  );
+
+  const devActions: DevDemoActions = useMemo(
+    () => ({
+      triggerTouchdown: () => jumpToDemoIndex(findDemoIndexByKind("touchdown")),
+      triggerFieldGoal: () => jumpToDemoIndex(findDemoIndexByKind("field-goal")),
+      triggerSafety: () => {
+        if (audioReady) playArenaSfx("safety");
+        triggerHaptic("heavy");
+      },
+      triggerQuarterEnd: () =>
+        jumpToDemoIndex(findDemoIndexByKind("quarter-end")),
+      triggerHalftime: () => {
+        jumpToDemoIndex(findDemoIndexByKind("halftime"));
+        setPhase("halftime");
+      },
+      triggerFinal: () => {
+        jumpToDemoIndex(findDemoIndexByKind("final"));
+        setPhase("complete");
+      },
+      triggerWalletReward: () => {
+        if (audioReady) playArenaSfx("wallet-reward");
+        triggerHaptic("medium");
+      },
+      triggerWinningSquare: () => {
+        const userId = userSquareIds[2] ?? userSquareIds[0];
+        if (userId == null) return;
+        const row = Math.floor(userId / 10);
+        const col = userId % 10;
+        const away = contest.sideNumbers[row] ?? 0;
+        const home = contest.topNumbers[col] ?? 0;
+        const idx = findDemoIndexForScore(away, home);
+        if (idx >= 0) jumpToDemoIndex(idx);
+        else runScoreReaction(true, true);
+      },
+      triggerLosingSquare: () => {
+        jumpToDemoIndex(findDemoIndexForScore(17, 21));
+        runScoreReaction(true, false);
+      },
+      triggerNotification: () => {
+        if (audioReady) playArenaSfx("notification");
+        triggerHaptic("light");
+        setDevNotification(true);
+        window.setTimeout(() => setDevNotification(false), 2500);
+      },
+    }),
+    [
+      audioReady,
+      contest,
+      jumpToDemoIndex,
+      runScoreReaction,
+      triggerHaptic,
+      userSquareIds,
+    ]
+  );
+
+  const handleCornerTap = useCallback(() => {
+    cornerTaps.current += 1;
+    if (cornerTimer.current) window.clearTimeout(cornerTimer.current);
+    if (cornerTaps.current >= 3) {
+      cornerTaps.current = 0;
+      setDevOpen((o) => !o);
+      return;
+    }
+    cornerTimer.current = window.setTimeout(() => {
+      cornerTaps.current = 0;
+    }, 600);
   }, []);
 
   useEffect(() => {
@@ -202,15 +332,13 @@ export default function LiveArenaExperience() {
     setRevealPhase("grid");
   }, []);
 
-  // Audio prefs sync
   useEffect(() => {
     if (!audioReady) return;
     setArenaAudioPrefs({ muted, masterVolume: volume });
   }, [muted, volume, audioReady]);
 
-  // Demo score progression + crowd/sfx
   useEffect(() => {
-    if (phase !== "live" || contest.id !== "bills-chiefs") return;
+    if (phase !== "live" || contest.id !== "bills-chiefs" || demoPaused) return;
 
     const event = BILLS_CHIEFS_DEMO[demoIndex];
     if (!event) {
@@ -226,7 +354,7 @@ export default function LiveArenaExperience() {
 
     if (special === "complete") {
       if (audioReady) playArenaSfx("contest-complete");
-      triggerHaptic();
+      triggerHaptic("heavy");
       timerRef.current = window.setTimeout(
         () => setPhase("complete"),
         event.pauseMs ?? 3000
@@ -256,7 +384,8 @@ export default function LiveArenaExperience() {
         const sfx = nextEvent ? getDemoSfxKind(nextEvent) : null;
         if (audioReady && sfx) {
           playArenaSfx(sfx);
-          if (sfx === "touchdown") triggerHaptic();
+          if (sfx === "touchdown") triggerHaptic("heavy");
+          else if (sfx === "field-goal") triggerHaptic("light");
         }
         setDemoIndex(nextIdx);
       } else {
@@ -267,9 +396,8 @@ export default function LiveArenaExperience() {
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);
     };
-  }, [phase, demoIndex, contest.id, audioReady, triggerHaptic]);
+  }, [phase, demoIndex, contest.id, audioReady, triggerHaptic, demoPaused]);
 
-  // Score reaction sequence on demo index change
   useEffect(() => {
     if (phase !== "live" || contest.id !== "bills-chiefs") return;
     if (demoIndex === prevDemoIndexRef.current) return;
@@ -307,17 +435,17 @@ export default function LiveArenaExperience() {
     prevDemoIndexRef.current = demoIndex;
   }, [demoIndex, phase, contest, userSquareIds, runScoreReaction]);
 
-  // Wallet reward haptic when user starts winning
   useEffect(() => {
     if (phase !== "live" || winningSquareId == null) return;
     if (prevWinningRef.current === winningSquareId) return;
-    const wasWinning = prevWinningRef.current != null &&
+    const wasWinning =
+      prevWinningRef.current != null &&
       userSquareIds.includes(prevWinningRef.current);
     prevWinningRef.current = winningSquareId;
 
     if (userSquareIds.includes(winningSquareId) && !wasWinning) {
       if (audioReady) playArenaSfx("wallet-reward");
-      triggerHaptic();
+      triggerHaptic("medium");
     }
   }, [winningSquareId, phase, userSquareIds, audioReady, triggerHaptic]);
 
@@ -325,12 +453,14 @@ export default function LiveArenaExperience() {
     return () => {
       clearReactionTimers();
       if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (cornerTimer.current) window.clearTimeout(cornerTimer.current);
     };
   }, [clearReactionTimers]);
 
   const handleSquareSelect = (squareId: number) => {
     if (!userSquareIds.includes(squareId)) return;
     setSelectedSquareId((prev) => (prev === squareId ? null : squareId));
+    triggerHaptic("light");
   };
 
   if (phase === "landing") {
@@ -350,8 +480,8 @@ export default function LiveArenaExperience() {
             only.
           </p>
           <Button
-            onClick={startDemo}
-            className="w-full max-w-xs mx-auto shadow-lg shadow-blue-500/20 !bg-gradient-to-r !from-blue-600 !to-blue-500 hover:!from-blue-500 hover:!to-blue-400"
+            onClick={enterDashboard}
+            className="w-full max-w-xs mx-auto shadow-lg shadow-blue-500/20 !bg-gradient-to-r !from-blue-600 !to-blue-500 hover:!from-blue-500 hover:!to-blue-400 min-h-[48px]"
           >
             ENTER LIVE DEMO
           </Button>
@@ -363,13 +493,51 @@ export default function LiveArenaExperience() {
     );
   }
 
+  if (phase === "dashboard") {
+    return (
+      <div className="la-root pb-24 min-h-[100dvh]">
+        <div className="la-stadium-bg">
+          <div className="la-stadium-spotlight" />
+        </div>
+        <div className="relative z-[1] max-w-[430px] mx-auto px-4 pt-4 space-y-4">
+          <header className="text-center space-y-1 pb-2">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-blue-400/80 font-semibold">
+              Contest Center
+            </p>
+            <h1 className="text-xl font-bold tracking-tight">LIVE ARENA™</h1>
+          </header>
+          <ContestCenterDashboard
+            stats={MOCK_CENTER_STATS}
+            contests={MOCK_CONTEST_SUMMARIES}
+            activeIndex={contestIndex}
+            onChange={setContestIndex}
+            onJoinContest={joinContest}
+          />
+          <ArenaAudioControls
+            muted={muted}
+            volume={volume}
+            onMutedChange={setMuted}
+            onVolumeChange={setVolume}
+          />
+        </div>
+        <LiveDock active={dockTab} onChange={setDockTab} />
+        <button
+          type="button"
+          className="la-dev-corner-hit"
+          onClick={handleCornerTap}
+          aria-label="Developer access"
+        />
+        <DevDemoPanel
+          open={devOpen}
+          onClose={() => setDevOpen(false)}
+          actions={devActions}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={[
-        "la-root pb-24",
-        hapticPulse ? "la-haptic-shake" : "",
-      ].join(" ")}
-    >
+    <div className={["la-root pb-24", hapticClass].filter(Boolean).join(" ")}>
       <div className="la-stadium-bg">
         <div className="la-stadium-spotlight" />
       </div>
@@ -378,20 +546,30 @@ export default function LiveArenaExperience() {
         <OpeningSequence
           onComplete={onOpeningComplete}
           onGridReady={onOpeningGridReady}
+          contestName={`${contest.awayTeam} vs ${contest.homeTeam}`}
         />
       )}
 
       <div className="relative z-[1] max-w-[430px] mx-auto px-4 pt-4 space-y-3">
         {(phase === "halftime" || phase === "complete") && (
-          <PhaseOverlay phase={phase} onRestart={startDemo} />
+          <PhaseOverlay phase={phase} onRestart={enterDashboard} />
+        )}
+
+        {devNotification && (
+          <div className="la-dev-toast la-glass-card p-2 text-center text-xs font-semibold text-blue-300">
+            Demo notification triggered
+          </div>
         )}
 
         <LiveActivityBar stats={MOCK_STATS} active={phase === "live"} />
 
-        <ContestCarousel
-          contests={MOCK_CONTESTS}
-          activeIndex={contestIndex}
-          onChange={setContestIndex}
+        <FloatingContestInfo
+          contest={contest}
+          quarter={quarter}
+          clock={clock}
+          winningDisplayNumber={winningDisplayNumber}
+          potentialPrize={winningPayout}
+          visible={phase === "live" && revealPhase === "complete"}
         />
 
         <ArenaHeader
@@ -407,13 +585,19 @@ export default function LiveArenaExperience() {
           contestType={contest.contestType}
           scoreFlash={scoreFlash}
           scoreUpdating={scoreUpdating}
+          hapticClass={hapticClass}
+          onLongPress={() => setDevOpen(true)}
         />
 
         <ContestStatusBanner
-          visible={phase === "live" && revealPhase === "complete"}
-          userIsWinning={userIsWinning}
+          visible={
+            (phase === "live" && revealPhase === "complete") || devNotification
+          }
+          userIsWinning={devNotification ? true : userIsWinning}
           payout={winningPayout}
-          animatePayout={userIsWinning && reactionPhase === "illuminate"}
+          animatePayout={
+            (userIsWinning && reactionPhase === "illuminate") || devNotification
+          }
         />
 
         <LiveArenaBoard
@@ -447,10 +631,10 @@ export default function LiveArenaExperience() {
           />
           <button
             type="button"
-            onClick={startDemo}
-            className="text-[10px] text-blue-400 hover:text-blue-300 transition-colors shrink-0"
+            onClick={enterDashboard}
+            className="text-[10px] text-blue-400 hover:text-blue-300 transition-colors shrink-0 min-h-[44px] px-2"
           >
-            ↺ Restart
+            ← Contests
           </button>
         </div>
       </div>
@@ -468,6 +652,19 @@ export default function LiveArenaExperience() {
       )}
 
       <LiveDock active={dockTab} onChange={setDockTab} />
+
+      <button
+        type="button"
+        className="la-dev-corner-hit"
+        onClick={handleCornerTap}
+        aria-label="Developer access"
+      />
+
+      <DevDemoPanel
+        open={devOpen}
+        onClose={() => setDevOpen(false)}
+        actions={devActions}
+      />
     </div>
   );
 }
@@ -496,9 +693,9 @@ function PhaseOverlay({
           size="sm"
           variant="secondary"
           onClick={onRestart}
-          className="mt-3 w-full"
+          className="mt-3 w-full min-h-[44px]"
         >
-          ENTER LIVE DEMO
+          Back to Contest Center
         </Button>
       )}
     </div>

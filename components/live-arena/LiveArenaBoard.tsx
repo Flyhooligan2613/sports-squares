@@ -246,7 +246,12 @@ function BoardRow({
               <span className="la-square-num">{displayNum ?? "•"}</span>
             )}
             {isWinning && fullyRevealed && <WinParticles active={isWinning} />}
-            {isWinning && fullyRevealed && <span className="la-win-ripple" aria-hidden />}
+            {isWinning && fullyRevealed && (
+              <>
+                <span className="la-win-ripple" aria-hidden />
+                <span className="la-win-pattern la-square-win-icon" aria-hidden />
+              </>
+            )}
           </button>
         );
       })}

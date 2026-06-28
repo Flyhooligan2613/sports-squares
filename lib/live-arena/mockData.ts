@@ -1,4 +1,10 @@
-import type { LiveArenaStats, LiveContest, UserSquareMeta } from "./types";
+import type {
+  ContestCenterStats,
+  LiveArenaStats,
+  LiveContest,
+  LiveContestSummary,
+  UserSquareMeta,
+} from "./types";
 import { displayNumbersToSquareIds } from "./squareUtils";
 
 /** Fixed axis numbers — stay locked entire contest (standard squares). */
@@ -24,6 +30,15 @@ export const MOCK_STATS: LiveArenaStats = {
   paidToday: 22540,
   winners: 517,
   boardsActive: 214,
+};
+
+export const MOCK_CENTER_STATS: ContestCenterStats = {
+  activeContests: 5,
+  potentialWinnings: 2500,
+  walletBalance: 1847,
+  winningBoards: 2,
+  upcomingGames: 3,
+  contestHistoryCount: 47,
 };
 
 export const MOCK_CONTESTS: LiveContest[] = [
@@ -70,6 +85,20 @@ export const MOCK_CONTESTS: LiveContest[] = [
     isLive: true,
   },
   {
+    id: "cowboys-eagles",
+    awayTeam: "Cowboys",
+    awayAbbr: "DAL",
+    homeTeam: "Eagles",
+    homeAbbr: "PHI",
+    sport: "nfl",
+    prizePool: 4200,
+    contestType: "10×10 Classic",
+    topNumbers: BILLS_CHIEFS_TOP,
+    sideNumbers: BILLS_CHIEFS_SIDE,
+    innerNumbers: buildInnerNumbers(71),
+    isLive: true,
+  },
+  {
     id: "pickem-week",
     awayTeam: "Pick'em",
     awayAbbr: "PK",
@@ -85,12 +114,70 @@ export const MOCK_CONTESTS: LiveContest[] = [
   },
 ];
 
+/** Live score snapshots for contest center cards (mock). */
+export const MOCK_CONTEST_SUMMARIES: LiveContestSummary[] = MOCK_CONTESTS.map(
+  (c) => {
+    if (c.id === "bills-chiefs") {
+      return {
+        ...c,
+        awayScore: 17,
+        homeScore: 21,
+        quarter: 3,
+        clock: "8:41",
+        userStatus: "winning",
+      };
+    }
+    if (c.id === "lakers-heat") {
+      return {
+        ...c,
+        awayScore: 98,
+        homeScore: 102,
+        quarter: 4,
+        clock: "2:14",
+        userStatus: "active",
+      };
+    }
+    if (c.id === "yankees-redsox") {
+      return {
+        ...c,
+        awayScore: 4,
+        homeScore: 3,
+        quarter: 7,
+        clock: "Bot 7",
+        userStatus: "in-play",
+      };
+    }
+    if (c.id === "cowboys-eagles") {
+      return {
+        ...c,
+        awayScore: 14,
+        homeScore: 10,
+        quarter: 2,
+        clock: "5:33",
+        userStatus: "active",
+      };
+    }
+    return {
+      ...c,
+      userStatus: "upcoming",
+      startTime: "Sun 4:25 PM ET",
+    };
+  }
+);
+
 export function getUserSquareIds(contest: LiveContest): number[] {
   return displayNumbersToSquareIds(
     [...USER_DISPLAY_NUMBERS],
     contest.innerNumbers
   );
 }
+
+const SQUARE_STATUSES: UserSquareMeta["status"][] = [
+  "in-play",
+  "active",
+  "winning",
+  "in-play",
+];
 
 export function buildUserSquareMeta(contest: LiveContest): UserSquareMeta[] {
   const ids = getUserSquareIds(contest);
@@ -104,6 +191,7 @@ export function buildUserSquareMeta(contest: LiveContest): UserSquareMeta[] {
     potentialPayout: payouts[i] ?? 625,
     historicalWinRate: winRates[i] ?? 0.08,
     quartersWon: quartersWon[i] ?? [],
+    status: SQUARE_STATUSES[i] ?? "in-play",
   }));
 }
 
