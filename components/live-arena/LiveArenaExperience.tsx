@@ -48,6 +48,7 @@ import type {
 } from "@/lib/live-arena/types";
 import ArenaAudioControls from "./ArenaAudioControls";
 import ArenaHeader from "./ArenaHeader";
+import LiveArenaExitButton from "./LiveArenaExitButton";
 import ContestCenterDashboard from "./ContestCenterDashboard";
 import ContestStatusBanner from "./ContestStatusBanner";
 import DevDemoPanel, { type DevDemoActions } from "./DevDemoPanel";
@@ -770,6 +771,7 @@ export default function LiveArenaExperience() {
     return (
       <div className="la-root flex flex-col items-center justify-center min-h-[100dvh] px-6 la-landing-hero">
         <div className="la-stadium-bg" />
+        <LiveArenaExitButton fixed />
         <div className="relative z-[1] text-center max-w-md space-y-6">
           <p className="text-[10px] uppercase tracking-[0.35em] text-blue-400/80 font-semibold">
             Project Legacy™ Prototype
@@ -803,12 +805,15 @@ export default function LiveArenaExperience() {
           <div className="la-stadium-spotlight" />
         </div>
         <div className="relative z-[1] max-w-[430px] mx-auto px-4 pt-4 space-y-4">
-          <header className="text-center space-y-1 pb-2">
-            <p className="text-[10px] uppercase tracking-[0.35em] text-blue-400/80 font-semibold">
-              Contest Center
-            </p>
-            <h1 className="text-xl font-bold tracking-tight">LIVE ARENA™</h1>
-          </header>
+          <div className="la-dashboard-head">
+            <LiveArenaExitButton />
+            <header className="la-dashboard-head__title space-y-1">
+              <p className="text-[10px] uppercase tracking-[0.35em] text-blue-400/80 font-semibold">
+                Contest Center
+              </p>
+              <h1 className="text-xl font-bold tracking-tight">LIVE ARENA™</h1>
+            </header>
+          </div>
           <div id="la-section-games" className="scroll-mt-24">
           <ContestCenterDashboard
             stats={MOCK_CENTER_STATS}
@@ -860,6 +865,8 @@ export default function LiveArenaExperience() {
       <div className="la-stadium-bg">
         <div className="la-stadium-spotlight" />
       </div>
+
+      <LiveArenaExitButton fixed />
 
       {phase === "opening" && (
         <OpeningSequence

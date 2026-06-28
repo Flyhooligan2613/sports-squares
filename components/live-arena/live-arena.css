@@ -2193,6 +2193,74 @@
   animation: la-banner-slide var(--la-duration-normal) var(--la-ease-out) forwards;
 }
 
+/* ── Demo exit control ── */
+.la-exit-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 12px 6px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  background: linear-gradient(
+    145deg,
+    rgba(12, 24, 52, 0.82) 0%,
+    rgba(6, 12, 28, 0.92) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 999px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(59, 130, 246, 0.08) inset;
+  transition:
+    border-color 0.2s var(--la-ease-out),
+    color 0.2s var(--la-ease-out),
+    transform 0.15s var(--la-ease-out);
+  z-index: 40;
+}
+
+.la-exit-demo-btn:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #fff;
+}
+
+.la-exit-demo-btn:active {
+  transform: scale(0.97);
+}
+
+.la-exit-demo-btn--fixed {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  left: max(12px, env(safe-area-inset-left, 0px));
+}
+
+.la-exit-demo-btn__icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.la-dashboard-head {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.la-dashboard-head__title {
+  text-align: center;
+  padding-top: 2px;
+}
+
+.la-dashboard-head .la-exit-demo-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 /* ── Contest Center Dashboard (P1) ── */
 .la-contest-center__hero {
   animation: la-banner-slide var(--la-duration-normal) var(--la-ease-out) forwards;
