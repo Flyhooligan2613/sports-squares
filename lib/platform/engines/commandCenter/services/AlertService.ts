@@ -1,7 +1,7 @@
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { getFinancialStatusOverview } from "@/lib/platform/core/financialStatus";
 import { fetchDashboardStats } from "../adapters/statsAdapter";
-import type { CommandCenterAlert } from "../types";
+import type { CommandCenterAlert, CommandCenterDashboardStats } from "../types";
 
 function mapAlertRow(row: Record<string, unknown>): CommandCenterAlert {
   return {
@@ -19,7 +19,9 @@ function mapAlertRow(row: Record<string, unknown>): CommandCenterAlert {
   };
 }
 
-export async function listCommandCenterAlerts(): Promise<CommandCenterAlert[]> {
+export async function listCommandCenterAlerts(
+  dashboardStats?: CommandCenterDashboardStats | null
+): Promise<CommandCenterAlert[]> {
   if (!isSupabaseAdminConfigured()) return [];
 
   const supabase = getSupabaseAdmin();
@@ -35,7 +37,7 @@ export async function listCommandCenterAlerts(): Promise<CommandCenterAlert[]> {
   }
 
   const alerts = (data ?? []).map((row) => mapAlertRow(row as Record<string, unknown>));
-  return evaluateAlerts(alerts);
+  return evaluateAlerts(alerts, dashboardStats);
 }
 
 export async function updateCommandCenterAlert(input: {
@@ -62,28 +64,32 @@ export async function updateCommandCenterAlert(input: {
   return evaluated ?? null;
 }
 
-async function evaluateAlerts(alerts: CommandCenterAlert[]): Promise<CommandCenterAlert[]> {
+async function evaluateAlerts(
+  alerts: CommandCenterAlert[],
+  preloadedStats?: CommandCenterDashboardStats | null
+): Promise<CommandCenterAlert[]> {
   if (!isSupabaseAdminConfigured()) return alerts;
 
   const supabase = getSupabaseAdmin();
   const since1h = new Date(Date.now() - 60 * 60_000).toISOString();
-  const since24h = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
 
   const [failedPaymentsRes, highSupportRes, financialOverview, dashboardStats] =
     await Promise.all([
-    supabase
-      .from("payment_transactions")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "failed")
-      .gte("created_at", since1h),
-    supabase
-      .from("support_threads")
-      .select("id", { count: "exact", head: true })
-      .eq("priority", "high")
-      .neq("status", "resolved"),
-    getFinancialStatusOverview().catch(() => null),
-    fetchDashboardStats().catch(() => null),
-  ]);
+      supabase
+        .from("payment_transactions")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "failed")
+        .gte("created_at", since1h),
+      supabase
+        .from("support_threads")
+        .select("id", { count: "exact", head: true })
+        .eq("priority", "high")
+        .neq("status", "resolved"),
+      getFinancialStatusOverview().catch(() => null),
+      preloadedStats !== undefined
+        ? Promise.resolve(preloadedStats)
+        : fetchDashboardStats().catch(() => null),
+    ]);
 
   return alerts.map((alert) => {
     let triggered = false;

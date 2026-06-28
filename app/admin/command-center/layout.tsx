@@ -18,8 +18,10 @@ export default async function CommandCenterLayout({
   const navItems = navItemsForRole(role);
 
   return (
-    <CommandCenterShell role={role} navItems={navItems}>
-      {children}
-    </CommandCenterShell>
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 sb-page-enter">
+      <CommandCenterShell role={role} navItems={navItems}>
+        {children}
+      </CommandCenterShell>
+    </div>
   );
 }

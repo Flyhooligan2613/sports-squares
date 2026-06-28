@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Gauge,
   LayoutDashboard,
+  LogOut,
   Megaphone,
   MessageSquare,
   Search,
@@ -21,6 +22,9 @@ import {
   Crown,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import Logo from "@/components/Logo";
+import { CLASSIC_ADMIN_NAV } from "@/lib/admin/classicNav";
+import { signOutAdmin } from "@/lib/auth/adminAuthClient";
 import type { CommandCenterNavItem, CommandCenterRole } from "@/lib/platform/engines/commandCenter";
 import { formatCommandCenterRole } from "@/lib/platform/engines/commandCenter";
 
@@ -66,6 +70,7 @@ export default function CommandCenterShell({
   const pathname = usePathname();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
 
   function handleQuickSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -74,28 +79,50 @@ export default function CommandCenterShell({
     router.push(`/admin/command-center/search?q=${encodeURIComponent(q)}`);
   }
 
+  async function handleLogout() {
+    setLoggingOut(true);
+    await signOutAdmin();
+    router.replace("/admin/login");
+    router.refresh();
+  }
+
   return (
     <div className="max-w-[1400px] space-y-6">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-sb-glow mb-1">
-              Internal · Mission Control
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Command Center™
-            </h1>
-            <p className="text-sb-muted text-sm mt-1">
-              Platform orchestration — role:{" "}
-              <span className="text-sb-secondary">{formatCommandCenterRole(role)}</span>
-            </p>
+      <header className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-4 min-w-0">
+            <Logo href="/" className="text-sm shrink-0" />
+            <div className="min-w-0 border-l border-white/10 pl-4">
+              <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-sb-glow mb-0.5">
+                Internal · Mission Control
+              </p>
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight truncate">
+                Command Center™
+              </h1>
+              <p className="text-sb-muted text-xs sm:text-sm mt-0.5">
+                Role:{" "}
+                <span className="text-sb-secondary">{formatCommandCenterRole(role)}</span>
+              </p>
+            </div>
           </div>
-          <Link
-            href="/admin/pools"
-            className="text-sm text-sb-muted hover:text-white transition-colors shrink-0"
-          >
-            Classic Admin →
-          </Link>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/"
+              className="text-xs sm:text-sm text-sb-muted hover:text-white transition-colors"
+            >
+              Public Site
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-red-400/80 hover:text-red-300 transition-colors disabled:opacity-50"
+            >
+              <LogOut className="w-3.5 h-3.5" strokeWidth={1.75} />
+              {loggingOut ? "Signing out…" : "Log out"}
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleQuickSearch} className="flex gap-2 max-w-lg">
@@ -120,11 +147,11 @@ export default function CommandCenterShell({
             Search
           </button>
         </form>
-      </div>
+      </header>
 
       <div className="flex flex-col xl:flex-row gap-6">
-        <aside className="xl:w-56 shrink-0">
-          <nav className="flex xl:flex-col gap-1 overflow-x-auto pb-1 xl:pb-0 -mx-1 px-1">
+        <aside className="xl:w-56 shrink-0 space-y-6">
+          <nav aria-label="Command Center modules" className="flex xl:flex-col gap-1 overflow-x-auto pb-1 xl:pb-0 -mx-1 px-1">
             {navItems.map((item) => {
               const active =
                 item.href === "/admin/command-center"
@@ -148,7 +175,34 @@ export default function CommandCenterShell({
             })}
           </nav>
 
-          <footer className="hidden xl:block mt-8 pt-6 border-t border-white/[0.06]">
+          <div className="hidden xl:block">
+            <p className="text-[10px] uppercase tracking-[0.16em] font-semibold text-sb-muted mb-2 px-1">
+              Classic Admin
+            </p>
+            <nav aria-label="Classic admin tools" className="flex flex-col gap-1">
+              {CLASSIC_ADMIN_NAV.map((item) => {
+                const active = item.exact
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={[
+                      "sb-nav-link inline-flex items-center gap-2 whitespace-nowrap text-sm",
+                      active ? "sb-nav-link-active" : "sb-nav-link-inactive",
+                    ].join(" ")}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <footer className="hidden xl:block pt-4 border-t border-white/[0.06]">
             <p className="text-[10px] uppercase tracking-[0.16em] font-semibold text-sb-muted mb-2">
               Platform roles
             </p>
@@ -164,7 +218,6 @@ export default function CommandCenterShell({
             </div>
             <p className="text-[10px] text-sb-muted mt-3 leading-relaxed">
               Role mapping via <code className="text-sb-glow">COMMAND_CENTER_ROLE_MAP</code> env.
-              Future RBAC will gate sections per role.
             </p>
           </footer>
         </aside>

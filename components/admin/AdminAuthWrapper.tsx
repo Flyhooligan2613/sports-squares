@@ -11,6 +11,7 @@ export default function AdminAuthWrapper({
 }) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
+  const isCommandCenter = pathname.startsWith("/admin/command-center");
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -18,7 +19,7 @@ export default function AdminAuthWrapper({
 
   return (
     <AdminAuthGuard>
-      <AdminShell>{children}</AdminShell>
+      {isCommandCenter ? children : <AdminShell>{children}</AdminShell>}
     </AdminAuthGuard>
   );
 }

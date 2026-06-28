@@ -18,7 +18,7 @@ import type { ExecutiveDashboardSummary } from "./types";
 export const CommandCenterEngine = {
   getDashboardStats: async () => {
     const stats = await fetchDashboardStats();
-    const alerts = await listCommandCenterAlerts();
+    const alerts = await listCommandCenterAlerts(stats);
     return enrichDashboardStats(stats, alerts.filter((a) => a.triggered).length);
   },
   getActivityFeed: fetchActivityFeed,
@@ -33,10 +33,10 @@ export const CommandCenterEngine = {
   getSquarePassAnalytics: fetchSquarePassAnalytics,
 
   async getExecutiveSummary(): Promise<ExecutiveDashboardSummary> {
-    const [stats, payments, alerts, growthFund] = await Promise.all([
-      fetchDashboardStats(),
+    const stats = await fetchDashboardStats();
+    const [payments, alerts, growthFund] = await Promise.all([
       fetchPaymentCenterSummary(10),
-      listCommandCenterAlerts(),
+      listCommandCenterAlerts(stats),
       getGrowthFundStats().catch(() => ({
         balanceCents: 0,
         lifetimeContributionsCents: 0,

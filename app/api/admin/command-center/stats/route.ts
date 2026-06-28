@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CommandCenterEngine } from "@/lib/platform/engines/commandCenter";
+import { getDemoDashboardStats } from "@/lib/platform/engines/commandCenter/mockStats";
 import { requireCommandCenterAdmin } from "@/lib/platform/engines/commandCenter/apiAuth";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,7 @@ export async function GET() {
     return NextResponse.json({ stats, role });
   } catch (err) {
     console.error("[command-center/stats]", err);
-    return NextResponse.json({ error: "Failed to load stats." }, { status: 500 });
+    const stats = getDemoDashboardStats("Live stats failed — showing demo fallback.");
+    return NextResponse.json({ stats, role, demo: true });
   }
 }
