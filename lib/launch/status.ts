@@ -27,11 +27,15 @@ export function getLaunchReadinessChecks(): LaunchCheck[] {
   const stripeKeyMode = getStripeKeyMode();
   const stripeLiveInProduction =
     !isStripeProductionMisconfigured() && stripeKeyMode !== "unknown";
+  const stripeConfigured = isStripeConfigured();
   const stripeOk =
-    isStripeConfigured() &&
+    stripeConfigured &&
     stripeMissing.length === 0 &&
     Boolean(getStripeWebhookSecret()) &&
     stripeLiveInProduction;
+  /** No merchant keys = soft launch (browse, auth, credits). Real-money flows stay off. */
+  const paymentsDeferred = !stripeConfigured;
+  const paymentsOk = stripeOk || paymentsDeferred;
 
   const resendOk = isResendConfigured();
   const serviceRoleOk = isSupabaseAdminConfigured();
@@ -48,18 +52,20 @@ export function getLaunchReadinessChecks(): LaunchCheck[] {
 
   return [
     {
-      id: "stripe",
-      label: "Stripe",
-      ok: stripeOk,
+      id: "payments",
+      label: "Payment processor",
+      ok: paymentsOk,
       detail: stripeOk
         ? `Checkout, webhooks, and live keys configured (${stripeKeyMode} mode).`
-        : isStripeProductionMisconfigured()
-          ? "Production requires sk_live_ keys — test keys only show fake banks in Connect onboarding."
-          : stripeMissing.length
-            ? `Missing: ${stripeMissing.join(", ")}${!getStripeWebhookSecret() ? ", STRIPE_WEBHOOK_SECRET" : ""}`
-            : isStripeTestMode()
-              ? "Using sk_test_ keys — OK for local dev, not for production payouts."
-              : "Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.",
+        : paymentsDeferred
+          ? "Deferred — no merchant account yet. Platform can soft-launch; deposits, cash contests, and withdrawals require a gaming-friendly processor adapter."
+          : isStripeProductionMisconfigured()
+            ? "Production requires sk_live_ keys — test keys only show fake banks in Connect onboarding."
+            : stripeMissing.length
+              ? `Missing: ${stripeMissing.join(", ")}${!getStripeWebhookSecret() ? ", STRIPE_WEBHOOK_SECRET" : ""}`
+              : isStripeTestMode()
+                ? "Using sk_test_ keys — OK for local dev, not for production payouts."
+                : "Add provider keys and webhook secret, or remove partial Stripe env to run soft launch.",
     },
     {
       id: "supabase",

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { LIVE_ARENA } from "@/lib/live-arena/routes";
 import { CONTEST_CENTER } from "@/lib/platform/language";
 
 const SECTION_LINKS = [
@@ -37,6 +39,13 @@ export default function ContestCenterHeader() {
           </span>
         ))}
       </nav>
+      <div className="cc-header-prototype mt-4 flex justify-center">
+        <Link href={LIVE_ARENA.path} className="cc-header-prototype-link">
+          <span aria-hidden>📡</span>
+          {LIVE_ARENA.demoLinkLabel}
+          <span className="cc-header-prototype-badge">{LIVE_ARENA.prototypeBadge}</span>
+        </Link>
+      </div>
     </header>
   );
 }

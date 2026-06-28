@@ -14,7 +14,15 @@ export const LIVE_TRIAL_BANNER = {
 export function isLiveTrialBannerEnabled(): boolean {
   if (!LIVE_TRIAL_BANNER_ENABLED) return false;
   if (process.env.NEXT_PUBLIC_LIVE_TRIAL_BANNER === "false") return false;
-  return true;
+
+  if (typeof window === "undefined") {
+    const { isPaymentEngineConfigured } =
+      require("@/lib/platform/engines/payment/config") as typeof import("@/lib/platform/engines/payment/config");
+    return isPaymentEngineConfigured();
+  }
+
+  // Client: only show when explicitly enabled at build time (avoids cash promos without a merchant).
+  return process.env.NEXT_PUBLIC_LIVE_TRIAL_BANNER === "true";
 }
 
 /** First-deposit match cap for UI copy (cents). */

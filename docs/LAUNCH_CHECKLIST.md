@@ -4,7 +4,9 @@
 **Support:** support@squareboards.pro  
 **Last updated:** June 2026
 
-Operator checklist — complete in order before public launch. No feature work; verify infrastructure, payments, and core flows only.
+Operator checklist — complete in order before public launch. No feature work; verify infrastructure and core flows only.
+
+**Payment note:** Stripe is not in use and no merchant account is onboarded yet. Sections marked **(soft launch)** apply now; section 3 **(real-money)** is deferred until a processor adapter is live.
 
 ---
 
@@ -15,6 +17,9 @@ Operator checklist — complete in order before public launch. No feature work; 
 - [ ] Vercel deployment shows **Ready** (not failed or rolled back)
 - [ ] `SITE_URL` and `NEXT_PUBLIC_APP_URL` set to `https://www.squareboards.pro`
 - [ ] `NEXT_PUBLIC_DB_READ_PHASE=2` (Supabase-only reads)
+- [ ] **No Stripe env vars** in Production (or leave unset) — soft launch without merchant
+- [ ] Do **not** set `NEXT_PUBLIC_LIVE_TRIAL_BANNER=true` until deposits are live
+- [ ] Do **not** publish `LIVE_PUBLIC_TRIAL.md` as a real-money launch post yet
 
 ---
 
@@ -34,15 +39,19 @@ SELECT version FROM supabase_migrations.schema_migrations ORDER BY version DESC 
 
 ---
 
-## 3. Stripe & webhooks
+## 3. Payment processor (real-money — **deferred**)
 
-- [ ] `STRIPE_SECRET_KEY` = `sk_live_...` in Vercel Production
-- [ ] `STRIPE_WEBHOOK_SECRET` = live signing secret from Stripe Dashboard
-- [ ] `STRIPE_CONNECT_ENABLED=true`
-- [ ] `STRIPE_CONNECT_V2_PAYOUTS=true`
-- [ ] Live webhook endpoint: `https://www.squareboards.pro/api/webhooks/stripe`
-- [ ] Webhook events subscribed: `checkout.session.completed`, `charge.refunded`, `account.updated`
-- [ ] Stripe Dashboard → Webhooks → **Send test event** returns **200**
+Skip until a gaming/fantasy-sports-friendly merchant account is approved and an adapter is implemented (`docs/project-legacy/PAYMENT_ENGINE.md`).
+
+- [ ] Processor chosen and merchant account approved
+- [ ] `PAYMENT_PROVIDER` set to live adapter (today only `stripe` is implemented)
+- [ ] Production API keys + webhook signing secret in Vercel
+- [ ] `NEXT_PUBLIC_LIVE_TRIAL_BANNER=true` when deposit-match promo should appear
+- [ ] Webhook endpoint registered and returns **200** on test event
+- [ ] Payout / cash-out onboarding path verified (today: Stripe Connect — replace when adapter ships)
+- [ ] Trust Center and privacy copy updated to name actual processor
+
+**Do not configure Stripe** unless you are re-onboarding Stripe under an approved use case.
 
 ---
 
@@ -82,15 +91,22 @@ SELECT version FROM supabase_migrations.schema_migrations ORDER BY version DESC 
 
 ## 7. Core player flows (smoke test on real phone)
 
-Complete on a **physical device** (PWA / Add to Home Screen preferred):
+Complete on a **physical device** (PWA / Add to Home Screen preferred).
+
+### Soft launch (no merchant account)
 
 - [ ] **Sign up** — account created, confirmation email arrives
 - [ ] **Sign in** — magic link or password login works
-- [ ] **Deposit** — SquareWallet add funds completes via Stripe Checkout
-- [ ] **Contest join** — buy one square on a **$1** board; square appears on board within ~1 min
-- [ ] **Withdraw hold** — cash-out setup (Stripe Connect) completes; withdraw request submits without error
-- [ ] **Pick'em** — submit at least one pick for current week
+- [ ] **Browse** — contest center and at least one sport board load
+- [ ] **Pick'em** — submit at least one pick for current week (if slate is live)
+- [ ] **Wallet** — deposit/withdraw either hidden or shows clear “unavailable” messaging (no 500s)
 - [ ] Error messages are user-friendly (no raw stack traces or internal details)
+
+### Real-money (after processor onboarded)
+
+- [ ] **Deposit** — SquareWallet add funds completes via checkout
+- [ ] **Contest join** — buy one square on a **$1** board; square appears within ~1 min
+- [ ] **Withdraw hold** — cash-out setup completes; withdraw request submits without error
 
 ---
 
@@ -118,10 +134,9 @@ See `docs/MOBILE_APP.md` for full Play Console steps.
 ## 10. Post-launch monitoring (first 24 hours)
 
 - [ ] Vercel function logs — no spike in 5xx errors
-- [ ] Stripe Dashboard — successful checkouts and webhook deliveries
 - [ ] Supabase — no RLS or auth errors in logs
 - [ ] Support inbox monitored: support@squareboards.pro
-- [ ] Admin repair path ready: `/admin/connect` → inspect/repair player Stripe config
+- [ ] When processor is live: payment dashboard + webhook deliveries; admin payout repair path
 
 ---
 
@@ -130,7 +145,7 @@ See `docs/MOBILE_APP.md` for full Play Console steps.
 | Item | Value |
 |------|-------|
 | Production | https://www.squareboards.pro |
-| Stripe webhook | `/api/webhooks/stripe` |
+| Payments webhook (Stripe legacy) | `/api/webhooks/stripe` — only if Stripe re-enabled |
 | Admin portal | `/admin/login` |
 | Trust Center | `/trust` |
 | Contest Center | `/contest-center` |
