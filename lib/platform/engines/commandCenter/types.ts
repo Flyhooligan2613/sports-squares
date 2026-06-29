@@ -15,6 +15,7 @@ export type CommandCenterSectionId =
   | "payments"
   | "finance"
   | "compliance"
+  | "geo-operations"
   | "community"
   | "support"
   | "announcements"

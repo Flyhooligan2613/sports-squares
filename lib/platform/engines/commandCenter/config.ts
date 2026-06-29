@@ -86,6 +86,13 @@ export const COMMAND_CENTER_NAV: CommandCenterNavItem[] = [
     roles: ["compliance", "operations", "executive"],
   },
   {
+    id: "geo-operations",
+    label: "Geo Operations",
+    href: "/admin/command-center/geo-operations",
+    description: "Nationwide jurisdiction map, compliance alerts, and expansion intelligence.",
+    roles: ["compliance", "operations", "executive"],
+  },
+  {
     id: "support",
     label: "Support",
     href: "/admin/command-center/support",

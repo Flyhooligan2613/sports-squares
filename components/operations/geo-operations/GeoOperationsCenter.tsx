@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 import "@/design-system/sqds.css";
 import { Badge, Button } from "@/design-system";
-import { useOpsContext } from "@/components/operations/shell/OpsContext";
 import {
   MOCK_GEO_OPS_STATES,
   MOCK_GEO_OPS_STATES_MAP,
@@ -29,8 +28,17 @@ const ZOOM_MIN = 0.85;
 const ZOOM_MAX = 1.6;
 const ZOOM_STEP = 0.12;
 
-export default function GeoOperationsCenter() {
-  const { founderMode } = useOpsContext();
+export interface GeoOperationsCenterProps {
+  /** When true, renders inside Command Center (no OpsLayout). */
+  embedded?: boolean;
+  /** Show founder-level insights panel (executive / operations roles). */
+  showFounderInsights?: boolean;
+}
+
+export default function GeoOperationsCenter({
+  embedded = false,
+  showFounderInsights = false,
+}: GeoOperationsCenterProps) {
   const [selectedId, setSelectedId] = useState<string | null>("FL");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -53,8 +61,14 @@ export default function GeoOperationsCenter() {
 
       <header className="geo-header geo-ops-header">
         <div className="geo-header-text">
-          <p className="ops-page-eyebrow">Project Titan · Sprint 3</p>
-          <h1 className="ops-page-title">Geo Operations Center™</h1>
+          <p className="ops-page-eyebrow">
+            {embedded ? "Command Center · Jurisdiction" : "Project Titan · Sprint 3"}
+          </p>
+          {embedded ? (
+            <h2 className="ops-page-title">Geo Operations Center™</h2>
+          ) : (
+            <h1 className="ops-page-title">Geo Operations Center™</h1>
+          )}
           <p className="ops-page-subtitle">
             Nationwide operational brain — recommendations only, admin approval required.
           </p>
@@ -143,7 +157,7 @@ export default function GeoOperationsCenter() {
       <PlayerLocationEngine />
       <ExpansionIntelligence />
       <HeatMapsPanel states={MOCK_GEO_OPS_STATES} selectedId={selectedId} />
-      {founderMode && <FounderInsights />}
+      {showFounderInsights && <FounderInsights />}
       <ReportingPanel />
     </div>
   );

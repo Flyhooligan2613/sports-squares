@@ -1,5 +1,78 @@
 /* Geo Operations Center™ — Project Titan Sprint 3 (extends geo-compliance.css) */
 
+.sqds-root.geo-ops-center {
+  --ops-base: #020617;
+  --ops-surface: #0f172a;
+  --ops-glass: rgba(15, 23, 42, 0.72);
+  --ops-glass-hover: rgba(30, 41, 59, 0.85);
+  --ops-border: rgba(148, 163, 184, 0.12);
+  --ops-border-active: rgba(99, 102, 241, 0.45);
+  --ops-text: #f1f5f9;
+  --ops-muted: #94a3b8;
+  --ops-accent: #6366f1;
+  --ops-accent-glow: #6366f1;
+  --ops-success: #22e584;
+  --ops-gold: #f6c453;
+  --ops-warning: #fbbf24;
+  --ops-danger: #f87171;
+  --ops-radius: 16px;
+  --ops-radius-sm: 10px;
+  --ops-transition: 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  color: var(--ops-text);
+}
+
+.ops-page-eyebrow {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ops-accent-glow);
+  font-weight: 600;
+  margin: 0 0 0.375rem;
+}
+
+.ops-page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .ops-page-title {
+    font-size: 2rem;
+  }
+}
+
+.ops-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--ops-muted);
+  margin: 0.375rem 0 0;
+  max-width: 540px;
+  line-height: 1.5;
+}
+
+@keyframes geo-ops-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ops-fade-in {
+  animation: geo-ops-fade-up 0.45s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ops-fade-in {
+    animation: none;
+  }
+}
+
 .geo-ops-center {
   display: flex;
   flex-direction: column;

@@ -3,7 +3,6 @@ import {
   Bell,
   Crown,
   Gift,
-  Globe2,
   LayoutDashboard,
   Settings,
   ShieldAlert,
@@ -21,13 +20,6 @@ export const OPS_NAV_ITEMS: OpsNavItem[] = [
     href: OPS_ROUTE_PREFIX,
     icon: LayoutDashboard,
     description: "Real-time platform pulse",
-  },
-  {
-    id: "geo-operations",
-    label: "Geo Operations",
-    href: `${OPS_ROUTE_PREFIX}/geo-operations`,
-    icon: Globe2,
-    description: "Nationwide jurisdiction command center",
   },
   {
     id: "players",

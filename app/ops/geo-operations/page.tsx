@@ -1,16 +1,5 @@
-import type { Metadata } from "next";
-import dynamic from "next/dynamic";
-import OpsModuleSkeleton from "@/components/operations/pages/OpsModuleSkeleton";
+import { redirect } from "next/navigation";
 
-const GeoOperationsCenter = dynamic(
-  () => import("@/components/operations/geo-operations/GeoOperationsCenter"),
-  { loading: () => <OpsModuleSkeleton /> },
-);
-
-export const metadata: Metadata = {
-  title: "Geo Operations",
-};
-
-export default function GeoOperationsPage() {
-  return <GeoOperationsCenter />;
+export default function GeoOperationsRedirectPage() {
+  redirect("/admin/command-center/geo-operations");
 }

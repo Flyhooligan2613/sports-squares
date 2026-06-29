@@ -20,6 +20,7 @@ import {
   Users,
   Wallet,
   Crown,
+  Globe2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Logo from "@/components/Logo";
@@ -35,6 +36,7 @@ const ICONS: Record<string, LucideIcon> = {
   payments: Wallet,
   finance: Wallet,
   compliance: ShieldCheck,
+  "geo-operations": Globe2,
   community: Users,
   support: MessageSquare,
   announcements: Megaphone,
