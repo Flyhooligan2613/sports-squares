@@ -1,16 +1,16 @@
 import type { OpsModuleConfig } from "./types";
 
 export const OPS_MODULE_CONFIGS: Record<string, OpsModuleConfig> = {
-  "geo-compliance": {
-    id: "geo-compliance",
-    title: "Geo Compliance",
-    subtitle: "Monitor jurisdiction coverage, geo-fencing rules, and regulatory posture.",
-    highlights: ["12 active jurisdictions", "3 pending reviews", "98.2% geo accuracy"],
+  "geo-operations": {
+    id: "geo-operations",
+    title: "Geo Operations Center",
+    subtitle: "Nationwide jurisdiction map, compliance alerts, expansion intelligence, and live ops.",
+    highlights: ["37 live jurisdictions", "7 under review", "98.2% geo accuracy"],
     placeholderCards: [
-      { title: "Coverage Map", description: "Interactive jurisdiction overlay", type: "map" },
-      { title: "Blocked Regions", description: "Recent geo-block events", type: "table" },
-      { title: "Compliance Trend", description: "Weekly verification pass rate", type: "chart" },
-      { title: "Active Alerts", description: "Regulatory & geo-fence alerts", type: "alert" },
+      { title: "Jurisdiction Map", description: "Interactive US state overlay", type: "map" },
+      { title: "Compliance Alerts", description: "Regulatory timeline & audit log", type: "alert" },
+      { title: "Expansion Scores", description: "100-point state readiness index", type: "chart" },
+      { title: "Live Operations", description: "Real-time geo ops pulse", type: "stat" },
     ],
   },
   players: {

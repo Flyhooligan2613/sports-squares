@@ -23,11 +23,11 @@ export const OPS_NAV_ITEMS: OpsNavItem[] = [
     description: "Real-time platform pulse",
   },
   {
-    id: "geo-compliance",
-    label: "Geo Compliance",
-    href: `${OPS_ROUTE_PREFIX}/geo-compliance`,
+    id: "geo-operations",
+    label: "Geo Operations",
+    href: `${OPS_ROUTE_PREFIX}/geo-operations`,
     icon: Globe2,
-    description: "Jurisdiction & geo-fencing",
+    description: "Nationwide jurisdiction command center",
   },
   {
     id: "players",

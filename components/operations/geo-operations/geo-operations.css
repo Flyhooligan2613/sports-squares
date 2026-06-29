@@ -1,0 +1,509 @@
+/* Geo Operations Center™ — Project Titan Sprint 3 (extends geo-compliance.css) */
+
+.geo-ops-center {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 2.5rem;
+}
+
+.geo-ops-header {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Live Operations Strip ─── */
+.geo-ops-live {
+  animation: geo-panel-slide 0.4s ease-out;
+}
+
+.geo-ops-live-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.geo-ops-live-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ops-muted);
+  margin: 0;
+}
+
+.geo-ops-live-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .geo-ops-live-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .geo-ops-live-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+.geo-ops-live-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  animation: geo-panel-slide 0.35s ease-out backwards;
+}
+
+.geo-ops-live-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--ops-accent-glow);
+  opacity: 0.85;
+}
+
+.geo-ops-live-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ops-text);
+}
+
+.geo-ops-live-label {
+  font-size: 0.6875rem;
+  color: var(--ops-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ─── Map Hero Layout (~70%+) ─── */
+.geo-ops-map-layout {
+  display: grid;
+  gap: 1rem;
+  min-height: 0;
+}
+
+@media (min-width: 1024px) {
+  .geo-ops-map-layout {
+    grid-template-columns: 1fr 340px;
+    align-items: start;
+  }
+}
+
+.geo-ops-map-hero {
+  min-height: clamp(420px, 72vh, 680px);
+}
+
+.geo-ops-map-primary {
+  min-height: clamp(360px, 58vh, 580px);
+  flex: 1;
+}
+
+.geo-ops-side-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: clamp(420px, 72vh, 680px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* ─── State Detail Drawer ─── */
+.geo-ops-drawer {
+  width: min(480px, 100vw);
+}
+
+.geo-drawer-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--ops-border);
+}
+
+.geo-drawer-section:last-child {
+  border-bottom: none;
+}
+
+.geo-drawer-section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ops-accent-glow);
+  margin: 0 0 0.75rem;
+}
+
+.geo-drawer-alert {
+  margin-bottom: 1rem;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+}
+
+.geo-drawer-alert-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #fca5a5;
+}
+
+/* ─── Waitlist Panel ─── */
+.geo-ops-waitlist {
+  animation: geo-panel-slide 0.35s ease-out;
+}
+
+.geo-ops-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.geo-ops-panel-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.geo-ops-panel-subtitle {
+  font-size: 0.75rem;
+  color: var(--ops-muted);
+  margin: 0;
+}
+
+.geo-ops-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.geo-ops-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.625rem;
+  border-radius: var(--ops-radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ops-border);
+}
+
+.geo-ops-stat-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--ops-accent-glow);
+}
+
+.geo-ops-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.geo-ops-stat-label {
+  font-size: 0.625rem;
+  color: var(--ops-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.geo-ops-features-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ops-muted);
+  margin: 0 0 0.5rem;
+}
+
+.geo-ops-feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.geo-ops-feature-item {
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--ops-text);
+}
+
+/* ─── Search Filters ─── */
+.geo-ops-search {
+  width: 100%;
+  max-width: 420px;
+}
+
+.geo-ops-search-input {
+  width: 100%;
+}
+
+.geo-ops-search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.geo-ops-filter-chip {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--ops-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ops-muted);
+  cursor: pointer;
+  transition: all var(--ops-transition);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.geo-ops-filter-chip:hover {
+  border-color: var(--ops-border-active);
+  color: var(--ops-text);
+}
+
+.geo-ops-filter-active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--ops-text);
+}
+
+/* ─── Player Location Engine ─── */
+.geo-ops-location-intro p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ops-muted);
+  line-height: 1.6;
+}
+
+.geo-ops-location-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .geo-ops-location-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .geo-ops-location-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.geo-ops-location-card {
+  animation: geo-panel-slide 0.35s ease-out backwards;
+}
+
+.geo-ops-location-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.geo-ops-location-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.geo-ops-location-place {
+  font-size: 0.75rem;
+  color: var(--ops-muted);
+  margin: 0.125rem 0 0;
+}
+
+.geo-ops-location-message {
+  font-size: 0.8125rem;
+  color: var(--ops-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.geo-ops-loc-permitted { border-left: 3px solid var(--ops-success); }
+.geo-ops-loc-waitlist { border-left: 3px solid var(--ops-warning); }
+.geo-ops-loc-restricted { border-left: 3px solid var(--ops-danger); }
+
+/* ─── Expansion Intelligence ─── */
+.geo-ops-expansion-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .geo-ops-expansion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .geo-ops-expansion-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1440px) {
+  .geo-ops-expansion-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.geo-ops-expansion-card {
+  animation: geo-panel-slide 0.35s ease-out backwards;
+}
+
+.geo-ops-expansion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.geo-ops-expansion-state {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.geo-ops-expansion-score-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.625rem;
+  overflow: hidden;
+}
+
+.geo-ops-expansion-score-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ops-accent), var(--ops-success));
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.geo-ops-score-high .geo-ops-expansion-score-fill {
+  background: linear-gradient(90deg, #22e584, #34d399);
+}
+
+.geo-ops-score-mid .geo-ops-expansion-score-fill {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+
+.geo-ops-score-low .geo-ops-expansion-score-fill {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+
+.geo-ops-expansion-metrics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.6875rem;
+  color: var(--ops-muted);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.125rem 0.5rem;
+}
+
+.geo-ops-expansion-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ops-muted);
+}
+
+/* ─── Reporting ─── */
+.geo-ops-reporting-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .geo-ops-reporting-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.geo-ops-reporting-full {
+  grid-column: 1 / -1;
+}
+
+.geo-ops-reporting-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ops-muted);
+}
+
+.geo-ops-reporting-desc {
+  font-size: 0.8125rem;
+  color: var(--ops-muted);
+  margin: 0 0 1rem;
+}
+
+.geo-ops-reporting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.geo-ops-audit {
+  margin-top: 1rem;
+}
+
+/* ─── SQDS integration in ops context ─── */
+.geo-ops-center .sqds-glass {
+  background: var(--ops-glass);
+  border-color: var(--ops-border);
+}
+
+.geo-ops-center .sqds-badge {
+  font-size: 0.6875rem;
+}
+
+.geo-ops-center .geo-health-bar-inner.sqds-glass {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.geo-ops-center .geo-alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.geo-ops-center .geo-alert-actions .sqds-btn {
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.625rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-ops-live-card,
+  .geo-ops-expansion-card,
+  .geo-ops-location-card {
+    animation: none;
+  }
+
+  .geo-ops-expansion-score-fill {
+    transition: none;
+  }
+}
