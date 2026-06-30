@@ -985,6 +985,8 @@ export default function LiveArenaExperience() {
             phase={celebration.phase}
             payout={celebration.payout}
             maskedWinner={celebration.maskedWinner}
+            sport={contest.sport}
+            displayNumber={winningDisplayNumber}
             confettiOrigin={confettiOrigin}
           />
         </div>

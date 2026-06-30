@@ -1,13 +1,17 @@
-import type { WinCelebrationKind, CelebrationPhase } from "./types";
+import type {
+  CelebrationPhase,
+  ContestSport,
+  WinCelebrationKind,
+} from "./types";
 
 export type ActiveCelebrationPhase = Exclude<CelebrationPhase, "idle">;
 
-/** Phase durations (ms) — total ~6.5s full celebration */
+/** Phase durations (ms) — cinematic extract → center → bust (~8.9s user win) */
 export const CELEBRATION_PHASE_MS: Record<ActiveCelebrationPhase, number> = {
   anticipation: 1400,
   "pool-highlight": 1600,
-  spin: 2000,
-  burst: 700,
+  spin: 2400,
+  burst: 900,
   banner: 2800,
   complete: 400,
 };
@@ -112,4 +116,43 @@ export function getCelebrationBannerCopy(
 export function isReducedMotionPreferred(): boolean {
   if (typeof window === "undefined") return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Sport-specific fly-by ball for win celebrations */
+export interface SportBallVisual {
+  emoji: string;
+  label: string;
+  /** CSS modifier class suffix */
+  variant: string;
+}
+
+export const SPORT_BALL_VISUALS: Record<ContestSport, SportBallVisual> = {
+  nfl: { emoji: "🏈", label: "Football", variant: "nfl" },
+  nba: { emoji: "🏀", label: "Basketball", variant: "nba" },
+  mlb: { emoji: "⚾", label: "Baseball", variant: "mlb" },
+  pickem: { emoji: "🏆", label: "Trophy", variant: "pickem" },
+};
+
+export function getSportBallVisual(sport: ContestSport): SportBallVisual {
+  return SPORT_BALL_VISUALS[sport];
+}
+
+/** Read winning square screen position for cinematic extract animation */
+export function measureWinningSquareOrigin(): {
+  x: number;
+  y: number;
+  size: number;
+} | null {
+  if (typeof document === "undefined") return null;
+  const el = document.querySelector<HTMLElement>(
+    '[data-la-winning-square="true"]'
+  );
+  if (!el) return null;
+  const rect = el.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return null;
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+    size: Math.max(rect.width, rect.height),
+  };
 }

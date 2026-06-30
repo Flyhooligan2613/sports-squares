@@ -163,7 +163,7 @@ export default function LiveArenaBoard({
           "la-board-container la-board-depth",
           zoomed ? "la-board-zoom" : "",
           boardReacting ? "la-board-react" : "",
-          boardBreathing ? "la-board-breathing" : "",
+          boardBreathing ? "la-board-breathing la-board-alive" : "",
           boardTension ? "la-board-tension" : "",
           celebrating ? "la-board-celebrating" : "",
         ].join(" ")}
@@ -184,6 +184,7 @@ export default function LiveArenaBoard({
               "la-board-grid",
               showGrid ? "la-board-grid--visible" : "",
               signatureActive || celebrating ? "la-board-grid--signature" : "",
+              boardBreathing ? "la-board-grid--alive" : "",
               zoomed ? "la-board-grid--zoomed" : "",
               illuminateWinning ? "la-board-grid--illuminate" : "",
             ].join(" ")}
@@ -403,7 +404,12 @@ function BoardRow({
               isSelected ? "la-square-selected" : "",
               signatureActive && isWinning ? "la-square-signature-hit" : "",
               spinPhase && isWinning ? "la-square-prize-spin" : "",
-              burstPhase && isWinning ? "la-square-prize-burst la-square-jump-out" : "",
+              burstPhase && isWinning
+                ? "la-square-prize-burst la-square-jump-out"
+                : "",
+              (spinPhase || burstPhase) && isWinning
+                ? "la-square-winning--cinematic-source"
+                : "",
               isClose && celebrationKind === "mystery-square"
                 ? "la-square-close-pulse"
                 : "",
@@ -426,6 +432,7 @@ function BoardRow({
                 ? `Your square ${displayNum ?? squareId}${isWinning ? ", currently winning" : ""}${isFixedHighlight ? ", highlight square" : ""}`
                 : `Square ${displayNum ?? squareId}${isFixedHighlight ? ", highlight square" : ""}${isWinning ? ", currently winning" : ""}`
             }
+            data-la-winning-square={isWinning ? "true" : undefined}
           >
             {showNumbers && (
               <span
